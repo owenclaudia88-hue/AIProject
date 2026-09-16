@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>70 AI Specialists For Claude — Turn Claude Into a High-Performing AI Team</title>
+<meta name="description" content="70 pre-built AI Specialists for Claude. One specialist for every part of your business. One payment. No monthly fees. Results from day one.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0b;
+  --bg-2:#111113;
+  --bg-3:#18181b;
+  --line:#26262b;
+  --line-2:#333338;
+  --txt:#f4f4f5;
+  --txt-2:#a1a1aa;
+  --txt-3:#71717a;
+  --accent:#ff7a1a;
+  --accent-2:#ffb020;
+  --accent-soft:rgba(255,122,26,.12);
+  --green:#34d399;
+  --red:#f87171;
+  --radius:16px;
+  --maxw:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--txt);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+[hidden]{display:none!important}
+
+/* ---------- layout ---------- */
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-inline:20px}
+section{padding-block:76px;position:relative}
+.narrow{max-width:800px;margin-inline:auto}
+.center{text-align:center}
+
+/* ---------- type ---------- */
+h1,h2,h3,h4{margin:0;line-height:1.12;letter-spacing:-.02em;font-weight:800}
+h1{font-size:clamp(2.1rem,5.4vw,3.6rem);font-weight:900;letter-spacing:-.035em}
+h2{font-size:clamp(1.7rem,4vw,2.65rem);font-weight:900;letter-spacing:-.03em}
+h3{font-size:1.1rem;font-weight:700;letter-spacing:-.01em}
+p{margin:0}
+.lead{font-size:clamp(1.02rem,2vw,1.2rem);color:var(--txt-2);line-height:1.6}
+.muted{color:var(--txt-2)}
+.dim{color:var(--txt-3);font-size:.88rem}
+.amber{color:var(--accent-2)}
+.stack>*+*{margin-top:18px}
+.stack-sm>*+*{margin-top:10px}
+
+/* ---------- eyebrow / pills ---------- */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-2);background:var(--accent-soft);
+  border:1px solid rgba(255,122,26,.28);
+  padding:7px 14px;border-radius:999px;
+}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));
+  color:#1a0d00;font-weight:800;font-size:1.02rem;letter-spacing:-.01em;
+  padding:16px 34px;border-radius:999px;border:0;cursor:pointer;
+  box-shadow:0 8px 28px rgba(255,122,26,.28);
+  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  text-align:center;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(255,122,26,.38);filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+.btn-sm{padding:11px 22px;font-size:.9rem;box-shadow:0 4px 16px rgba(255,122,26,.25)}
+.btn-block{display:flex;width:100%}
+.btn-ghost{
+  background:transparent;color:var(--txt);border:1px solid var(--line-2);
+  box-shadow:none;font-weight:700;
+}
+.btn-ghost:hover{background:var(--bg-3);box-shadow:none}
+.cta-block{display:flex;flex-direction:column;align-items:center;gap:12px}
+.guarantee{font-size:.86rem;color:var(--txt-3);display:flex;align-items:center;gap:7px}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--bg-2);border:1px solid var(--line);
+  border-radius:var(--radius);padding:26px;
+}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* ---------- header ---------- */
+header.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,10,11,.86);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.top-inner{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-block:12px;
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.mark{
+  width:36px;height:36px;border-radius:10px;flex:none;
+  background:linear-gradient(140deg,var(--accent-2),var(--accent));
+  display:grid;place-items:center;color:#1a0d00;font-weight:900;font-size:.82rem;
+}
+.brand-name{font-weight:800;letter-spacing:-.02em;font-size:.98rem;line-height:1.2}
+.brand-sub{font-size:.74rem;color:var(--txt-3);line-height:1.2}
+.top-right{display:flex;align-items:center;gap:14px}
+.price-tag{display:flex;align-items:baseline;gap:8px;font-weight:800}
+.price-tag .now{font-size:1.15rem;color:var(--accent-2)}
+.price-tag .was{font-size:.9rem;color:var(--txt-3);text-decoration:line-through;font-weight:600}
+
+/* ---------- announcement ---------- */
+.announce{
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:#1a0d00;font-weight:700;font-size:.82rem;text-align:center;
+  padding:9px 20px;letter-spacing:.01em;
+}
+
+/* ---------- trust row ---------- */
+.trust{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;color:var(--txt-2);font-size:.9rem}
+.stars{color:var(--accent-2);letter-spacing:2px;font-size:.95rem}
+.sep{color:var(--line-2)}
+
+/* ---------- hero ---------- */
+.hero{padding-top:64px;padding-bottom:64px;position:relative;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:-30% 0 auto 50%;
+  width:900px;height:700px;transform:translateX(-50%);
+  background:radial-gradient(closest-side,rgba(255,122,26,.16),transparent 70%);
+  pointer-events:none;
+}
+.hero .wrap{position:relative}
+
+/* ---------- mock UI ---------- */
+.mock{
+  border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  background:var(--bg-2);box-shadow:0 28px 70px rgba(0,0,0,.55);
+}
+.mock-bar{
+  display:flex;align-items:center;gap:7px;padding:11px 14px;
+  background:var(--bg-3);border-bottom:1px solid var(--line);
+}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--line-2)}
+.mock-bar .label{margin-left:10px;font-size:.76rem;color:var(--txt-3)}
+.mock-body{padding:18px;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.spec-chip{
+  border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:var(--bg-3);
+  display:flex;flex-direction:column;gap:5px;
+}
+.spec-chip .n{font-size:.83rem;font-weight:700;letter-spacing:-.01em}
+.spec-chip .r{font-size:.71rem;color:var(--txt-3)}
+.spec-chip .bar{height:3px;border-radius:3px;background:linear-gradient(90deg,var(--accent),rgba(255,122,26,.12));margin-top:3px}
+
+/* ---------- comparison table ---------- */
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg-2)}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{padding:16px 18px;text-align:left;font-size:.92rem;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{
+  font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3);
+  font-weight:700;background:var(--bg-3);
+}
+tbody tr:last-child td{border-bottom:0}
+td:first-child,th:first-child{font-weight:700;color:var(--txt)}
+.col-win{background:rgba(255,122,26,.05)}
+thead th.col-win{color:var(--accent-2);background:rgba(255,122,26,.09)}
+td.col-win{color:var(--txt);font-weight:600}
+td.col-lose{color:var(--txt-3)}
+
+/* ---------- feature list ---------- */
+.feature{display:flex;gap:16px;align-items:flex-start}
+.ico{
+  width:42px;height:42px;border-radius:11px;flex:none;display:grid;place-items:center;
+  background:var(--accent-soft);border:1px solid rgba(255,122,26,.25);
+  font-size:1.15rem;
+}
+.feature h3{margin-bottom:5px}
+.feature p{color:var(--txt-2);font-size:.94rem}
+
+/* ---------- capability list ---------- */
+.caps{display:grid;gap:11px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.cap{
+  display:flex;gap:11px;align-items:flex-start;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:12px;
+  padding:13px 15px;font-size:.92rem;
+}
+.tick{color:var(--accent-2);font-weight:900;flex:none;line-height:1.5}
+
+/* ---------- testimonials ---------- */
+.quote{display:flex;flex-direction:column;gap:14px;height:100%}
+.quote p{color:var(--txt);font-size:.95rem}
+.who{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:6px}
+.avatar{
+  width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;
+  font-weight:800;color:#1a0d00;font-size:.95rem;
+  background:linear-gradient(140deg,var(--accent-2),var(--accent));
+}
+.who .n{font-weight:700;font-size:.92rem;line-height:1.3}
+.who .t{font-size:.8rem;color:var(--txt-3);line-height:1.3}
+
+/* ---------- vs columns ---------- */
+.vs{display:grid;gap:18px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.vs-col{border-radius:var(--radius);border:1px solid var(--line);padding:26px;background:var(--bg-2)}
+.vs-col.good{border-color:rgba(255,122,26,.35);background:linear-gradient(180deg,rgba(255,122,26,.06),var(--bg-2))}
+.vs-col h3{margin-bottom:16px;font-size:1rem;letter-spacing:.01em}
+.vs-item{display:flex;gap:11px;align-items:flex-start;font-size:.93rem;padding-block:9px;border-top:1px solid var(--line)}
+.vs-item:first-of-type{border-top:0}
+.x{color:var(--red);font-weight:900;flex:none}
+.c{color:var(--green);font-weight:900;flex:none}
+.vs-col.bad .vs-item{color:var(--txt-3)}
+
+/* ---------- stats ---------- */
+.stat{text-align:center;padding:30px 22px}
+.stat .num{
+  font-size:clamp(2.4rem,6vw,3.4rem);font-weight:900;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.stat p{margin-top:10px;color:var(--txt-2);font-size:.93rem}
+
+/* ---------- reviews grid ---------- */
+.reviews{columns:3;column-gap:16px}
+.review{
+  break-inside:avoid;margin-bottom:16px;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:18px;
+}
+.review .stars{font-size:.85rem;letter-spacing:1px}
+.review p{font-size:.9rem;color:var(--txt-2);margin:8px 0 10px}
+.review .n{font-size:.85rem;font-weight:700}
+
+/* ---------- steps ---------- */
+.step{position:relative;padding-top:8px}
+.step .num{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  background:var(--accent-soft);border:1px solid rgba(255,122,26,.3);
+  color:var(--accent-2);font-weight:900;margin-bottom:14px;
+}
+.step p{font-size:.97rem;color:var(--txt-2)}
+
+/* ---------- pricing ---------- */
+.plans{display:grid;gap:22px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.plan{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:20px;padding:30px;
+  display:flex;flex-direction:column;gap:20px;position:relative;
+}
+.plan.best{
+  border-color:var(--accent);
+  background:linear-gradient(180deg,rgba(255,122,26,.09),var(--bg-2));
+  box-shadow:0 18px 60px rgba(255,122,26,.13);
+}
+.plan-badge{
+  position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#1a0d00;
+  font-size:.7rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 16px;border-radius:999px;white-space:nowrap;
+}
+.plan h3{font-size:1.25rem}
+.plan .prices{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.plan .now{font-size:3rem;font-weight:900;letter-spacing:-.04em;line-height:1}
+.plan .was{font-size:1.15rem;color:var(--txt-3);text-decoration:line-through;font-weight:600}
+.save{
+  display:inline-block;font-size:.76rem;font-weight:800;letter-spacing:.05em;
+  color:var(--accent-2);background:var(--accent-soft);border:1px solid rgba(255,122,26,.25);
+  padding:5px 11px;border-radius:999px;
+}
+.plan ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.plan li{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:var(--txt-2)}
+.plan li .tick{color:var(--accent-2)}
+.bonus{border-top:1px dashed var(--line-2);padding-top:18px}
+.bonus-title{font-size:.88rem;font-weight:800;color:var(--accent-2);margin-bottom:11px}
+
+/* ---------- faq ---------- */
+.faq-item{border:1px solid var(--line);border-radius:14px;background:var(--bg-2);overflow:hidden}
+.faq-item+.faq-item{margin-top:11px}
+.faq-q{
+  width:100%;background:none;border:0;color:var(--txt);cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:19px 21px;font-size:1rem;font-weight:700;text-align:left;
+  font-family:inherit;letter-spacing:-.01em;
+}
+.faq-q .chev{color:var(--accent-2);font-size:1.3rem;line-height:1;transition:transform .2s ease;flex:none}
+.faq-item.open .faq-q .chev{transform:rotate(45deg)}
+.faq-a{padding:0 21px 21px;color:var(--txt-2);font-size:.93rem}
+.faq-a p+p{margin-top:11px}
+
+/* ---------- final ---------- */
+.final{
+  background:linear-gradient(180deg,rgba(255,122,26,.09),transparent 65%);
+  border-top:1px solid var(--line);
+}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);background:var(--bg-2);padding-block:46px}
+footer .links{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;font-size:.86rem}
+footer .links a{color:var(--txt-2)}
+footer .links a:hover{color:var(--accent-2)}
+footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760px;margin-inline:auto;text-align:center}
+
+/* ---------- responsive ---------- */
+@media (max-width:1000px){
+  .reviews{columns:2}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:820px){
+  section{padding-block:56px}
+  .g2,.g3,.g4,.plans,.vs,.caps{grid-template-columns:1fr}
+  .reviews{columns:1}
+  .top-right .price-tag{display:none}
+  .brand-sub{display:none}
+  .hero{padding-top:44px}
+}
+@media (max-width:420px){
+  .btn{width:100%;padding-inline:20px}
+  .top-inner{gap:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="announce">🔥 80% OFF — Launch pricing ends soon</div>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand">
+      <div class="mark">70</div>
+      <div>
+        <div class="brand-name">70 AI Specialists</div>
+        <div class="brand-sub">For Claude</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="price-tag"><span class="now">$57</span><span class="was">$285</span></div>
+      <a href="#pricing" class="btn btn-sm">Get Instant Access</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap narrow center stack">
+    <div><span class="eyebrow">⬇ Instant download · One payment</span></div>
+    <h1>Turn Claude Into a<br>High-Performing AI Team.</h1>
+    <p class="lead"><strong class="amber">70 Specialists</strong> to 10x your output and cut your costs by 50%.</p>
+    <p class="lead">One specialist for every part of your business. Your social media manager, copywriter, strategist, sales coach, analyst, HR lead — and 65 more.</p>
+    <p class="lead"><strong>One payment. No monthly fees. Results from day one.</strong></p>
+    <div class="cta-block">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡 Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+    <div class="trust">
+      <span class="stars">★★★★★</span>
+      <strong>4.7</strong>
+      <span class="sep">|</span>
+      <span>Trusted by 70,000+ entrepreneurs and marketers</span>
+    </div>
+  </div>
+
+  <div class="wrap" style="margin-top:46px">
+    <div class="mock">
+      <div class="mock-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="label">Claude · Your Specialist Team</span>
+      </div>
+      <div class="mock-body">
+        <div class="spec-chip"><span class="n">Copywriter</span><span class="r">Ads, emails, sales pages</span><span class="bar"></span></div>
+        <div class="spec-chip"><span class="n">Strategist</span><span class="r">Growth &amp; launch plans</span><span class="bar"></span></div>
+        <div class="spec-chip"><span class="n">Email Specialist</span><span class="r">Sequences &amp; nurture</span><span class="bar"></span></div>
+        <div class="spec-chip"><span class="n">Sales Specialist</span><span class="r">Scripts &amp; objections</span><span class="bar"></span></div>
+        <div class="spec-chip"><span class="n">Ops Specialist</span><span class="r">SOPs &amp; workflows</span><span class="bar"></span></div>
+        <div class="spec-chip"><span class="n">Researcher</span><span class="r">Competitors &amp; markets</span><span class="bar"></span></div>
+        <div class="spec-chip"><span class="n">Social Manager</span><span class="r">Calendars &amp; captions</span><span class="bar"></span></div>
+        <div class="spec-chip"><span class="n">+ 63 more</span><span class="r">Every business function</span><span class="bar"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAP TABLE -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>The Shocking Claude Gap</h2>
+      <p class="lead">That's the difference between a typical Claude user and someone running 70 pre-built Specialists. It's not about time. It's about quality.</p>
+    </div>
+    <div class="table-scroll" style="margin-top:34px">
+      <table>
+        <thead>
+          <tr>
+            <th>The task</th>
+            <th>Without Claude</th>
+            <th>Casual Claude user</th>
+            <th class="col-win">With 70 AI Specialists</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Managing social media</td>
+            <td class="col-lose">6–8 hrs a week, manually</td>
+            <td class="col-lose">2 hrs, inconsistent tone</td>
+            <td class="col-win">30 mins, scheduled and done</td>
+          </tr>
+          <tr>
+            <td>Writing and sending emails</td>
+            <td class="col-lose">5–10 hrs per campaign</td>
+            <td class="col-lose">3–5 hrs, sounds like AI</td>
+            <td class="col-win">1 hr, voice-matched and live</td>
+          </tr>
+          <tr>
+            <td>Responding to customer messages</td>
+            <td class="col-lose">Hours of back and forth daily</td>
+            <td class="col-lose">Still you, just faster</td>
+            <td class="col-win">Claude handles it while you sleep</td>
+          </tr>
+          <tr>
+            <td>Researching competitors and markets</td>
+            <td class="col-lose">Half a day, still incomplete</td>
+            <td class="col-lose">1 hr, surface level</td>
+            <td class="col-win">15 mins, gaps and opportunities ready</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- VALUE PROP -->
+<section>
+  <div class="wrap narrow center stack">
+    <h2>Imagine What Your Business Looks Like When Claude Is Running the Work You Hate.</h2>
+    <p class="lead">Every Specialist already knows its role, your context and what to produce — so you stop being the one doing everything.</p>
+    <div class="cta-block">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡 Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- KEY BENEFITS -->
+<section style="padding-top:0">
+  <div class="wrap grid g2">
+    <div class="card feature"><div class="ico">⚙️</div><div><h3>Your Business Runs Without You</h3><p>Every business function has a pre-trained Specialist handling it. Marketing, sales, ops, finance, HR — all running in parallel without you.</p></div></div>
+    <div class="card feature"><div class="ico">🗣️</div><div><h3>Output That Sounds Like You</h3><p>Your Specialists are configured to match your voice and context. No more spending 40 minutes editing AI output to make it feel human.</p></div></div>
+    <div class="card feature"><div class="ico">🚀</div><div><h3>10x Your Output. Zero Extra Hours.</h3><p>Serve more clients, produce more content, close more deals — without adding headcount or working longer hours.</p></div></div>
+    <div class="card feature"><div class="ico">🔌</div><div><h3>Connected to Your Entire Stack</h3><p>Connect Claude to Gmail, Slack, Google Drive, Notion, HubSpot and more. It reads, writes, updates and automates across every tool you already use — without you switching tabs.</p></div></div>
+    <div class="card feature" style="grid-column:1/-1"><div class="ico">📈</div><div><h3>Scale Without the Headcount</h3><p>Run your business at the output level of a 10-person operation — as a solopreneur, on a laptop, anywhere in the world.</p></div></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>Built for people who ship.</h2>
+      <p class="lead">Operators using the Specialists in real businesses, every day.</p>
+    </div>
+    <div class="grid g3" style="margin-top:34px">
+      <div class="card quote">
+        <div class="stars">★★★★★</div>
+        <p>"This stuff works. We test hundreds of creatives each month at our agency, and felt excited about AI… but most of the time the results were mediocre. After getting these prompts our quality skyrocketed and we were able to cut so many hours in the week!"</p>
+        <div class="who"><div class="avatar">RJ</div><div><div class="n">Richard Jones</div><div class="t">Agency owner with $100M+ in sales</div></div></div>
+      </div>
+      <div class="card quote">
+        <div class="stars">★★★★★</div>
+        <p>"I write 60+ pieces of copy every week. With these AI Specialists I kept the quality my clients expect — while cutting production time by at least a third. The copywriter Specialist knows my brief before I've finished typing it. That's not a tool. That's a team member."</p>
+        <div class="who"><div class="avatar">SP</div><div><div class="n">Santiago Phoenix</div><div class="t">Copywriter for 7-figure brands</div></div></div>
+      </div>
+      <div class="card quote">
+        <div class="stars">★★★★★</div>
+        <p>"I switched from ChatGPT to Claude and immediately hit a wall — great AI, no idea how to use it properly. These Specialists fixed that overnight. Rewrote my entire welcome sequence in one session, saw a 17% lift in clicks. What I love most is it actually sounds like me — not like AI."</p>
+        <div class="who"><div class="avatar">CW</div><div><div class="n">Catherine Williams</div><div class="t">SaaS entrepreneur</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM OVERVIEW -->
+<section>
+  <div class="wrap narrow center stack">
+    <h2>This Is What Happens When Claude Stops Being a Tool and Starts Being Your Team.</h2>
+    <p class="lead">The gap isn't gradual. It opens from day one — and widens every week you run the system.</p>
+    <div class="cta-block">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡 Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>Most Claude Users Are Operating at 20% of What It Can Actually Do.</h2>
+      <p class="lead">Here's what your 70 Specialists unlock from day one.</p>
+    </div>
+    <div class="caps" style="margin-top:34px">
+      <div class="cap"><span class="tick">✓</span><span>Write and schedule a month of social content in one session</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Build a full launch campaign start to finish</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Write, sequence and personalise an entire email funnel</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Create SOPs for every role in your business</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Write sales scripts tailored to your exact offer</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Build a content strategy with 90 days of ideas</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Draft proposals, contracts and NDAs ready to send</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Write YouTube scripts, hooks and descriptions in bulk</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Analyse your competitors and surface gaps in minutes</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Build your entire website copy in a single session</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Reply to customer enquiries automatically via Gmail</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Update your CRM and calendar without touching them</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Summarise and report on your financials weekly</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Create and post to Notion, Drive and Slack simultaneously</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Build reusable workflows that run without you</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Research any market, audience or trend in 15 minutes</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Write and A/B test ad creatives at scale</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Translate and localise content for any market instantly</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Build AI assistants that handle sales calls and follow-ups</span></div>
+      <div class="cap"><span class="tick">✓</span><span>Run your entire business from a laptop, anywhere in the world</span></div>
+    </div>
+    <p class="lead center narrow" style="margin-top:30px">None of this requires prompting from scratch. Every Specialist is pre-configured. Open it, ask your question, get expert output. <strong>That's the whole system.</strong></p>
+  </div>
+</section>
+
+<!-- URGENCY -->
+<section>
+  <div class="wrap narrow center stack">
+    <h2>But what's actually scarier? Being the last one in your market to figure this out.</h2>
+    <p class="lead">In February 2026 Claude hit #1 on the App Store. 2.5 million people left ChatGPT in weeks. The entrepreneurs who moved first have a head start that compounds every single week. They didn't find a secret tool. They just did this before you did.</p>
+    <div class="cta-block">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡 Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY ONE -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center"><h2>Here's What Changes From Day One:</h2></div>
+    <div class="grid g3" style="margin-top:34px">
+      <div class="card"><div class="ico" style="margin-bottom:14px">⚡</div><h3>Builds Faster</h3><p class="muted" style="font-size:.93rem;margin-top:6px">From idea to execution in hours, not weeks. Every Specialist is pre-configured and ready to produce from message one.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">💸</div><h3>Costs Less</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Cancel the freelancers, the contractors, the single-use tools. Your Specialists cost nothing per month and never invoice you.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">✍️</div><h3>Sounds Like You</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Output that doesn't need 40 minutes of editing to feel human. Every Specialist is configured to your voice and context.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">📦</div><h3>Delivers More</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Higher quality output across every business function — marketing, sales, ops, finance, HR — every single day.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">🧩</div><h3>Runs On Systems</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Every function has a Specialist. Every Specialist has a workflow. Your business stops depending on you being the system.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">⏳</div><h3>Gives You Time Back</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Stop doing work that AI does better. Start doing only what you can do. That's the whole point.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SPRINTS -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <span class="eyebrow">Included free today</span>
+      <h2 style="margin-top:14px">We've Included 4 Hands-On Sprints So Claude Doesn't Just Work For You — It Works Without You.</h2>
+      <p class="lead">Most people use Claude when they remember to. These sessions show you how to make it indispensable — so it runs alongside your business every day, not just when you have a spare hour.</p>
+    </div>
+    <div class="grid g2" style="margin-top:34px">
+      <div class="card stack-sm">
+        <span class="eyebrow">Sprint 01</span>
+        <h3 style="margin-top:12px">Claude Cowork</h3>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Want Claude handling your emails, calendar and documents — so you never have to?</p>
+        <p class="muted" style="font-size:.93rem">Claude Cowork turns Claude into a real work assistant. It writes your docs, manages your files, summarises meetings and handles your inbox — all from one session.</p>
+      </div>
+      <div class="card stack-sm">
+        <span class="eyebrow">Sprint 02</span>
+        <h3 style="margin-top:12px">Claude Skills</h3>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Want to teach Claude your voice once — and never explain yourself again?</p>
+        <p class="muted" style="font-size:.93rem">Claude Skills lets you build reusable workflows that remember your tone, your style and your structure. Set it up once. It runs the same way every single time.</p>
+      </div>
+      <div class="card stack-sm">
+        <span class="eyebrow">Sprint 03</span>
+        <h3 style="margin-top:12px">Claude MCP</h3>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Want Claude connected to every tool you already use?</p>
+        <p class="muted" style="font-size:.93rem">Claude MCP connects Claude to Gmail, Google Drive, Notion, your calendar and thousands of other apps. It books meetings, sends emails, updates records and posts content — without you touching anything.</p>
+      </div>
+      <div class="card stack-sm">
+        <span class="eyebrow">Sprint 04</span>
+        <h3 style="margin-top:12px">Build-to-Sell Bootcamp</h3>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Want to build and sell AI assistants to other businesses?</p>
+        <p class="muted" style="font-size:.93rem">Design and sell AI assistants in 60 minutes. Sales copilots, content engines, real use cases — built, packaged and ready to charge for.</p>
+      </div>
+    </div>
+    <div class="cta-block" style="margin-top:34px">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡 Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM / SOLUTION -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap narrow center stack">
+    <h2>Switched to Claude but not getting the results you expected?</h2>
+    <p class="lead">You're not alone. Most people are operating at 20% of Claude's actual capability. The remaining 80% lives in knowing how to <em>deploy</em> it — not just how to prompt it. These 70 pre-built Specialists are the shortcut.</p>
+  </div>
+</section>
+
+<!-- AUTOMATE -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center"><h2>This is just some of the tedious work you'll be able to automate</h2></div>
+    <div class="grid g3" style="margin-top:34px">
+      <div class="card"><h3 class="amber">Email Specialist</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Runs sequences, follow-ups and nurture campaigns.</p></div>
+      <div class="card"><h3 class="amber">Copywriter</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Writes ads, emails and sales pages that sound like you.</p></div>
+      <div class="card"><h3 class="amber">Strategist</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Builds growth plans, market analysis and launch roadmaps.</p></div>
+      <div class="card"><h3 class="amber">Sales Specialist</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Writes scripts, handles objections and closes deals.</p></div>
+      <div class="card"><h3 class="amber">Ops Specialist</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Builds SOPs, workflows and systems documentation.</p></div>
+      <div class="card"><h3 class="amber">Researcher</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Analyses competitors, markets and blind spots.</p></div>
+    </div>
+    <p class="lead center" style="margin-top:26px"><strong>And 64 more Specialists. Every function. Every day. One payment.</strong></p>
+  </div>
+</section>
+
+<!-- VS -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>Still typing into a blank Claude window? Here's what you're missing.</h2>
+    </div>
+    <div class="vs" style="margin-top:34px">
+      <div class="vs-col bad">
+        <h3 class="dim" style="color:var(--txt-3)">HOW MOST PEOPLE USE CLAUDE</h3>
+        <div class="vs-item"><span class="x">✕</span><span>Open Claude. Blank box. Write a prompt that might work.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Get output that sounds like AI — spend 40 minutes editing it.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Explain your business from scratch every single session.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Lose all context the moment you open a new chat.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Use the best AI on the market at 20% of its power.</span></div>
+      </div>
+      <div class="vs-col good">
+        <h3 class="amber">WITH 70 AI SPECIALISTS</h3>
+        <div class="vs-item"><span class="c">✓</span><span>Open the right Specialist — context set, role configured, ready.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Expert output from message one — sounds like you, not like AI.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Claude knows your business — no re-explaining, ever.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Every session builds on the last — your team compounds over time.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Operating at the level most Claude users never reach.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S INSIDE -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center"><h2>Everything You Need to Run Your Business on Claude. One Payment. Forever.</h2></div>
+    <div class="grid g4" style="margin-top:34px">
+      <div class="card center"><div class="num amber" style="font-size:2rem;font-weight:900;letter-spacing:-.03em">70</div><h3 style="margin-top:8px">Pre-built AI Specialists</h3><p class="muted" style="font-size:.9rem;margin-top:6px">One expert for every part of your business, ready to run from day one.</p></div>
+      <div class="card center"><div class="num amber" style="font-size:2rem;font-weight:900;letter-spacing:-.03em">10,000+</div><h3 style="margin-top:8px">Claude Prompts</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Powering every Specialist — so you never start from a blank page again.</p></div>
+      <div class="card center"><div class="num amber" style="font-size:2rem;font-weight:900;letter-spacing:-.03em">4</div><h3 style="margin-top:8px">Hands-on Claude Sprints</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Cowork, Skills, MCP and Build-to-Sell. Watch it, build it, run it the same day.</p></div>
+      <div class="card center"><div class="num amber" style="font-size:2rem;font-weight:900;letter-spacing:-.03em">$0<span style="font-size:1rem">/mo</span></div><h3 style="margin-top:8px">Forever</h3><p class="muted" style="font-size:.9rem;margin-top:6px">One payment. No subscriptions. No recurring fees. Yours forever.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>70 Specialists. Every corner of your business covered.</h2>
+      <p class="lead">Each one pre-configured with expert-level instructions. Open it, ask your question, get output that sounds like you — not like AI.</p>
+    </div>
+    <div class="grid g4" style="margin-top:34px">
+      <div class="card"><div class="ico" style="margin-bottom:12px">📣</div><h3>Marketing &amp; Content</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Ad copy, content calendars, campaign strategy, SEO, email marketing, social media — all pre-configured and ready from message one.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">💰</div><h3>Sales &amp; Revenue</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Scripts, objection handlers, proposals, follow-up sequences and closing frameworks — configured for your offer and your voice.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🛠️</div><h3>Operations &amp; Systems</h3><p class="muted" style="font-size:.9rem;margin-top:6px">SOPs, project workflows, team processes, reporting systems — everything documented, nothing left in your head.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">📊</div><h3>Finance &amp; Strategy</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Budget analysis, forecasting, pricing strategy, gap identification — senior-level financial thinking, available 24/7.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">👥</div><h3>HR &amp; Team</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Job descriptions, interview frameworks, onboarding flows, performance reviews — every people process systematised.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🎬</div><h3>Content &amp; Video</h3><p class="muted" style="font-size:.9rem;margin-top:6px">YouTube scripts, podcast structures, blog frameworks, course outlines and repurposing workflows — one brief, multiple formats.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🤝</div><h3>Customer Success</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Onboarding flows, feedback loops, retention campaigns, client communication templates — all built and ready.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🌐</div><h3>Websites &amp; Build</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Go from idea to live income-generating website in a single session. No developer. No agency. No waiting.</p></div>
+    </div>
+    <div class="cta-block" style="margin-top:34px">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡 Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET TIMING -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>Claude is having its ChatGPT moment. Right now.</h2>
+      <p class="lead">In February 2026, while every other AI platform lost users, Claude grew 42.3%. It hit #1 on the App Store. 2.5 million people switched from ChatGPT in weeks.</p>
+    </div>
+    <div class="grid g2" style="margin-top:34px">
+      <div class="card stat"><div class="num">42.3%</div><p>Claude's user growth in February 2026 — while ChatGPT declined 14.8%</p></div>
+      <div class="card stat"><div class="num">2.5M</div><p>People who switched to Claude in the #QuitGPT movement this year alone</p></div>
+    </div>
+    <p class="lead center narrow" style="margin-top:30px">The entrepreneurs winning in 2026 have one thing in common. They stopped doing work that AI does better. The 70 Specialists handle everything else — while your competitors are still typing into a blank box hoping for a good answer.</p>
+    <div class="cta-block" style="margin-top:28px">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡 Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>70,000+ entrepreneurs have trusted these AI products. Here's what they say:</h2>
+      <p class="lead">Don't just take our word for it — listen to thousands of others.</p>
+    </div>
+    <div class="reviews" style="margin-top:34px">
+      <div class="review"><div class="stars">★★★★★</div><p>"Been going through the Specialists all weekend — generating content, rewriting email templates, building strategies I'd been putting off for months. Mind blown. 🤯"</p><div class="n">Stephanie</div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"Really solid Specialists in here — a lot of inspiration and some I never would have set up myself. Worth it."</p><div class="n">Sebastien</div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Very helpful and very comprehensive. Every business function covered. 😃"</p><div class="n">Leon</div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"This takes away the struggle of knowing what to ask and how to ask it. Recorded a voice note on the way home, ran it through the content Specialist — polished script in minutes. It's still my content, just better."</p><div class="n">Sally</div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Bought it today. Genuinely impressed — there are Specialists in here I never would have thought to use. Worth every penny."</p><div class="n">Flaco</div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"What a complete resource. Takes away the struggle of knowing the right questions to ask. I keep finding new Specialists I hadn't tried yet."</p><div class="n">Kellie</div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Bought this. Worth every penny."</p><div class="n">Josh</div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"Just got access — looks amazing. Worth ten times the cost."</p><div class="n">Thomas</div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"The prompts and ideas are valuable. 💪 Great product."</p><div class="n">DB</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center"><h2>This is all it takes.</h2></div>
+    <div class="grid g3" style="margin-top:34px">
+      <div class="card step"><div class="num">1</div><p>Get your 70 AI Specialists — set up in under 10 minutes.</p></div>
+      <div class="card step"><div class="num">2</div><p>Open the right Specialist for every task, every single day.</p></div>
+      <div class="card step"><div class="num">3</div><p>Get output that sounds like you and a business that runs like a team.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <span class="eyebrow">80% OFF — Limited time sale</span>
+      <h2 style="margin-top:14px">Pick Your AI Specialist Team.</h2>
+    </div>
+    <div class="plans" style="margin-top:40px">
+
+      <div class="plan">
+        <div>
+          <h3>30 AI Specialists Pack</h3>
+          <p class="dim" style="margin-top:4px">The essentials, ready to run.</p>
+        </div>
+        <div>
+          <div class="prices"><span class="now">$27</span><span class="was">$135</span></div>
+          <div style="margin-top:10px"><span class="save">80% OFF — SAVE $108</span></div>
+        </div>
+        <ul>
+          <li><span class="tick">✓</span>30 pre-built AI Specialists</li>
+          <li><span class="tick">✓</span>9 Marketing Specialists</li>
+          <li><span class="tick">✓</span>7 Social Media Specialists</li>
+          <li><span class="tick">✓</span>4 Business Specialists</li>
+          <li><span class="tick">✓</span>4 Writing Specialists</li>
+          <li><span class="tick">✓</span>2 Sales &amp; Communication Specialists</li>
+          <li><span class="tick">✓</span>2 Customer Support Specialists</li>
+          <li><span class="tick">✓</span>2 Assistant Specialists</li>
+          <li><span class="tick">✓</span>10,000 prompts designed for Claude</li>
+          <li><span class="tick">✓</span>One payment. No subscriptions.</li>
+        </ul>
+        <div style="margin-top:auto">
+          <a href="#" class="btn btn-ghost btn-block">Get This Bundle</a>
+          <p class="dim center" style="margin-top:11px">Risk-free 14-day money-back guarantee</p>
+        </div>
+      </div>
+
+      <div class="plan best">
+        <div class="plan-badge">Best value — 80% off</div>
+        <div>
+          <h3>70 AI Specialists + Business Growth System</h3>
+          <p class="dim" style="margin-top:4px">The complete team, plus all 4 Sprints.</p>
+        </div>
+        <div>
+          <div class="prices"><span class="now">$57</span><span class="was">$285</span></div>
+          <div style="margin-top:10px"><span class="save">80% OFF — SAVE $228</span></div>
+        </div>
+        <ul>
+          <li><span class="tick">✓</span>20 Marketing &amp; Campaign Specialists</li>
+          <li><span class="tick">✓</span>9 Social Media Specialists</li>
+          <li><span class="tick">✓</span>8 Sales &amp; Revenue Specialists</li>
+          <li><span class="tick">✓</span>8 Writing Specialists</li>
+          <li><span class="tick">✓</span>8 Operations &amp; Systems Specialists</li>
+          <li><span class="tick">✓</span>6 Strategy &amp; Growth Specialists</li>
+          <li><span class="tick">✓</span>3 Customer Success Specialists</li>
+          <li><span class="tick">✓</span>3 E-commerce Specialists</li>
+          <li><span class="tick">✓</span>3 Daily AI Assistant Specialists</li>
+          <li><span class="tick">✓</span>10,000 battle-tested prompts — the fuel behind every Specialist</li>
+          <li><span class="tick">✓</span>One payment. No subscriptions.</li>
+        </ul>
+        <div class="bonus">
+          <div class="bonus-title">🎁 4 FREE Claude Sprints (worth $388) included today only:</div>
+          <ul>
+            <li><span class="tick">✓</span><span><strong>Master Claude Cowork</strong> (worth $97) — Claude handles your docs, emails, files and research</span></li>
+            <li><span class="tick">✓</span><span><strong>Claude Skills</strong> (worth $97) — Build workflows once, run them in your voice forever</span></li>
+            <li><span class="tick">✓</span><span><strong>Claude MCP</strong> (worth $97) — Connect Claude to Gmail, Notion, HubSpot and more</span></li>
+            <li><span class="tick">✓</span><span><strong>Build-to-Sell Bootcamp</strong> (worth $97) — Build and sell AI assistants in 60 minutes</span></li>
+          </ul>
+        </div>
+        <div style="margin-top:auto">
+          <a href="#" class="btn btn-block">Get This Bundle</a>
+          <p class="dim center" style="margin-top:11px">Risk-free 14-day money-back guarantee</p>
+        </div>
+      </div>
+
+    </div>
+    <p class="center amber" style="margin-top:30px;font-weight:600;font-size:.95rem">⚠️ Launch pricing ends soon. Tier 1 returns to $135, Tier 2 to $285.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="wrap narrow stack">
+    <div class="center" style="margin-bottom:12px"><h2>Have more questions?</h2></div>
+
+    <div class="faq-item open">
+      <button class="faq-q" type="button">What exactly are the 70 AI Specialists?<span class="chev">+</span></button>
+      <div class="faq-a">
+        <p>They're 70 pre-built Claude Skills packaged and delivered as one single Claude Plugin that you install into your Claude app in a few clicks. Each Skill is configured with expert-level instructions for a specific business function or objective.</p>
+        <p>Instead of opening a blank chat and prompting from scratch every time, you open the right Specialist and it already knows its role, your context, and how to generate output that sounds like you. Think of it as hiring 70 trained team members — except they cost nothing per month and are available 24/7.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">How do I install and use the 70 AI Specialists?<span class="chev">+</span></button>
+      <div class="faq-a"><p>It's simple. Install the ZIP file you receive from us in your Claude desktop app, run a short pre-written prompt that you'll receive, and follow the guidance. You also get an easy-to-follow video guide that walks you through every step.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">Do I need a paid Claude account?<span class="chev">+</span></button>
+      <div class="faq-a"><p>Yes. The 70 AI Specialists help you start using Claude in your business without figuring everything out from scratch. You'll need the Claude desktop app and Claude Workspace / Cowork to install and use them. Claude Pro is recommended. These are ready-made Claude skills/plugins that work inside Claude — not a separate app or software.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">Do I get a video guide or instructions?<span class="chev">+</span></button>
+      <div class="faq-a"><p>Yes. You get an easy-to-follow video guide, text instructions, examples and screenshots that walk you through every step.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">What's included in the Business Growth System for Claude?<span class="chev">+</span></button>
+      <div class="faq-a">
+        <p>Four hands-on Claude Sprints that put your entire business on autopilot:</p>
+        <p><strong>Master Claude Cowork</strong> — Claude handles your docs, emails, files and research, all from one session.<br>
+        <strong>Claude Skills</strong> — Build workflows once, run them in your voice forever across Notion, Drive and Slack.<br>
+        <strong>Claude MCP</strong> — Connect Claude to Gmail, Notion, HubSpot and more. It books meetings, sends emails and updates your CRM without you touching it.<br>
+        <strong>Build-to-Sell Bootcamp</strong> — Design and sell AI assistants to other businesses in 60 minutes. Sales copilots, content engines, real use cases.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">What are the four live sessions in the Full System?<span class="chev">+</span></button>
+      <div class="faq-a">
+        <p><strong>Your Daily AI Partner</strong> shows you how to build a daily operating rhythm with Claude so it becomes indispensable, not occasional.</p>
+        <p><strong>Reusable AI Workflows</strong> teaches you how to build processes once that run forever.</p>
+        <p><strong>Full Business Automation</strong> shows you how to connect Claude to your tools and let it handle workflows without you.</p>
+        <p><strong>Build a Website in One Session</strong> takes you from idea to live income-generating website in a single Claude session — no developer, no agency, no waiting.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">Is there a guarantee? Can I get a refund?<span class="chev">+</span></button>
+      <div class="faq-a"><p>14 days, full refund, no questions asked. Deploy the Specialists, use them in your business, and if you don't immediately see why 70,000+ people trust these products — email us for a full refund.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="wrap narrow center stack">
+    <h2>Your only regret will be not doing this sooner.</h2>
+    <p class="lead">70 AI Specialists. 4 Claude Sprints. One payment. Your entire AI team — deployed today, running forever.</p>
+    <div class="cta-block">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🔒 Secure checkout · 14-day money-back guarantee · Instant delivery</div>
+    </div>
+    <p class="amber" style="font-weight:600;font-size:.92rem">80% launch discount ends soon.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap stack center">
+    <div class="brand" style="justify-content:center">
+      <div class="mark">70</div>
+      <div style="text-align:left"><div class="brand-name">70 AI Specialists</div><div class="brand-sub">For Claude</div></div>
+    </div>
+    <div class="links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms &amp; Conditions</a>
+      <a href="#">Earnings &amp; Products Disclaimer</a>
+      <a href="#pricing">Get Access</a>
+    </div>
+    <p class="fine">Claude is a trademark of Anthropic. This product is independently created and is not affiliated with or endorsed by Anthropic.</p>
+    <p class="fine">DISCLAIMER: Getting rich quickly doesn't exist. However, hard work, creating value and serving others does. As stated by law, we cannot and do not make any guarantees about your ability to get results or earn any money with our ideas, information, programs or strategies. Please read our Earnings &amp; Products Disclaimer before purchasing.</p>
+    <p class="fine">© 2026 All rights reserved. This site is not a part of the Facebook website or Facebook Inc.</p>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.faq-q').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var item = btn.parentElement;
+    var wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(function (i) { i.classList.remove('open'); });
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+
+function syncFaq() {
+  document.querySelectorAll('.faq-item').forEach(function (item) {
+    item.querySelector('.faq-a').hidden = !item.classList.contains('open');
+  });
+}
+new MutationObserver(syncFaq).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+syncFaq();
+</script>
+
+</body>
+</html>
