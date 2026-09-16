@@ -253,7 +253,7 @@ td.col-lose{color:var(--txt-3)}
 .step p{font-size:.97rem;color:var(--txt-2)}
 
 /* ---------- pricing ---------- */
-.plans{display:grid;gap:22px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.plans{display:grid;gap:22px;grid-template-columns:minmax(0,1fr);max-width:620px;margin-inline:auto;align-items:start}
 .plan{
   background:var(--bg-2);border:1px solid var(--line);border-radius:20px;padding:30px;
   display:flex;flex-direction:column;gap:20px;position:relative;
@@ -332,7 +332,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 </head>
 <body>
 
-<div class="announce">🔥 80% OFF — Launch pricing ends soon</div>
+<div class="announce">🔥 $1 LAUNCH PRICE — normally $285. Ends soon.</div>
 
 <header class="top">
   <div class="wrap top-inner">
@@ -344,7 +344,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       </div>
     </div>
     <div class="top-right">
-      <div class="price-tag"><span class="now">$57</span><span class="was">$285</span></div>
+      <div class="price-tag"><span class="now">$1</span><span class="was">$285</span></div>
       <a href="#pricing" class="btn btn-sm">Get Instant Access</a>
     </div>
   </div>
@@ -357,9 +357,9 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
     <h1>Turn Claude Into a<br>High-Performing AI Team.</h1>
     <p class="lead"><strong class="amber">70 Specialists</strong> to 10x your output and cut your costs by 50%.</p>
     <p class="lead">One specialist for every part of your business. Your social media manager, copywriter, strategist, sales coach, analyst, HR lead — and 65 more.</p>
-    <p class="lead"><strong>One payment. No monthly fees. Results from day one.</strong></p>
+    <p class="lead"><strong>One payment of <span class="amber">$1</span> today. No monthly fees. Results from day one.</strong></p>
     <div class="cta-block">
-      <a href="#pricing" class="btn">Get Instant Access</a>
+      <a href="#pricing" class="btn">Get Instant Access For $1</a>
       <div class="guarantee">🛡 Zero risk with our 14-day money-back guarantee.</div>
     </div>
     <div class="trust">
@@ -745,47 +745,21 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section id="pricing" style="background:var(--bg-2);border-block:1px solid var(--line)">
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <span class="eyebrow">80% OFF — Limited time sale</span>
-      <h2 style="margin-top:14px">Pick Your AI Specialist Team.</h2>
+      <span class="eyebrow">$1 launch price — limited time</span>
+      <h2 style="margin-top:14px">Get Your Complete AI Specialist Team For $1.</h2>
+      <p class="lead" style="margin-top:14px">One package. Everything included. No tiers, no upsell maze.</p>
     </div>
     <div class="plans" style="margin-top:40px">
 
-      <div class="plan">
-        <div>
-          <h3>30 AI Specialists Pack</h3>
-          <p class="dim" style="margin-top:4px">The essentials, ready to run.</p>
-        </div>
-        <div>
-          <div class="prices"><span class="now">$27</span><span class="was">$135</span></div>
-          <div style="margin-top:10px"><span class="save">80% OFF — SAVE $108</span></div>
-        </div>
-        <ul>
-          <li><span class="tick">✓</span>30 pre-built AI Specialists</li>
-          <li><span class="tick">✓</span>9 Marketing Specialists</li>
-          <li><span class="tick">✓</span>7 Social Media Specialists</li>
-          <li><span class="tick">✓</span>4 Business Specialists</li>
-          <li><span class="tick">✓</span>4 Writing Specialists</li>
-          <li><span class="tick">✓</span>2 Sales &amp; Communication Specialists</li>
-          <li><span class="tick">✓</span>2 Customer Support Specialists</li>
-          <li><span class="tick">✓</span>2 Assistant Specialists</li>
-          <li><span class="tick">✓</span>10,000 prompts designed for Claude</li>
-          <li><span class="tick">✓</span>One payment. No subscriptions.</li>
-        </ul>
-        <div style="margin-top:auto">
-          <a href="#" class="btn btn-ghost btn-block">Get This Bundle</a>
-          <p class="dim center" style="margin-top:11px">Risk-free 14-day money-back guarantee</p>
-        </div>
-      </div>
-
       <div class="plan best">
-        <div class="plan-badge">Best value — 80% off</div>
+        <div class="plan-badge">Launch offer — $1 today</div>
         <div>
           <h3>70 AI Specialists + Business Growth System</h3>
           <p class="dim" style="margin-top:4px">The complete team, plus all 4 Sprints.</p>
         </div>
         <div>
-          <div class="prices"><span class="now">$57</span><span class="was">$285</span></div>
-          <div style="margin-top:10px"><span class="save">80% OFF — SAVE $228</span></div>
+          <div class="prices"><span class="now">$1</span><span class="was">$285</span></div>
+          <div style="margin-top:10px"><span class="save">LAUNCH PRICE — SAVE $284</span></div>
         </div>
         <ul>
           <li><span class="tick">✓</span>20 Marketing &amp; Campaign Specialists</li>
@@ -810,13 +784,13 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
           </ul>
         </div>
         <div style="margin-top:auto">
-          <a href="#" class="btn btn-block">Get This Bundle</a>
+          <a href="#" class="btn btn-block">Get Instant Access For $1</a>
           <p class="dim center" style="margin-top:11px">Risk-free 14-day money-back guarantee</p>
         </div>
       </div>
 
     </div>
-    <p class="center amber" style="margin-top:30px;font-weight:600;font-size:.95rem">⚠️ Launch pricing ends soon. Tier 1 returns to $135, Tier 2 to $285.</p>
+    <p class="center amber" style="margin-top:30px;font-weight:600;font-size:.95rem">⚠️ The $1 launch price ends soon. After that it returns to $285.</p>
   </div>
 </section>
 
@@ -885,7 +859,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       <a href="#pricing" class="btn">Get Instant Access</a>
       <div class="guarantee">🔒 Secure checkout · 14-day money-back guarantee · Instant delivery</div>
     </div>
-    <p class="amber" style="font-weight:600;font-size:.92rem">80% launch discount ends soon.</p>
+    <p class="amber" style="font-weight:600;font-size:.92rem">The $1 launch price ends soon.</p>
   </div>
 </section>
 

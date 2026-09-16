@@ -27,7 +27,7 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 17. Market-timing stats (42.3%, 2.5M)
 18. Review wall
 19. Three-step "this is all it takes"
-20. Two-tier pricing ($27 / $57)
+20. Single-package pricing ($1 launch price, down from $285)
 21. FAQ accordion
 22. Final CTA + footer with legal disclaimers
 
@@ -49,7 +49,7 @@ Any static host works. For GitHub Pages: repo **Settings → Pages → Source: D
 ## Customising
 
 - **Colours** — the palette lives in the `:root` block at the top of the `<style>` tag (`--accent`, `--bg`, `--txt`, …).
-- **Checkout links** — the two `Get This Bundle` buttons in the `#pricing` section point at `href="#"`. Swap in your Stripe/Gumroad/ThriveCart URLs.
+- **Checkout links** — the `Get Instant Access For $1` button in the `#pricing` section points at `href="#"`. Swap in your Stripe/Gumroad/ThriveCart URL.
 - **Copy** — all text is plain HTML in document order; edit in place.
 - **Fonts** — Inter, loaded from Google Fonts. Remove the `<link>` tags to fall back to system fonts.
 
