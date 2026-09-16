@@ -9,18 +9,18 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 ## Sections
 
 1. Announcement bar + sticky header with price and CTA
-2. Hero (headline, sub, guarantee, 4.7 trust badge, specialist-grid mockup)
+2. Hero (headline, sub, guarantee, 4.7 trust badge, CSS 3D product box with orbiting feature chips and the 10x block)
 3. "The Shocking Claude Gap" comparison table
 4. Value proposition + CTA
 5. Five key benefits
-6. Three long-form testimonials
-7. System overview + CTA
+6. Testimonial carousel (3 slides, profile photos, arrows + dots, 7s autoplay)
+7. System overview + two-series line chart (Jan-Jun growth) + CTA
 8. 20-item capability list
 9. Urgency / market-timing block
 10. "What changes from day one" (6 cards)
 11. 4 hands-on Sprints
-12. Problem/solution
-13. Six featured Specialists
+12. Problem/solution + 7%/93% donut chart
+13. Laptop mockup with six floating Specialist pills
 14. Blank-window vs. system comparison
 15. What's inside (70 / 10,000+ / 4 / $0-per-month)
 16. Eight Specialist categories
@@ -55,4 +55,24 @@ Any static host works. For GitHub Pages: repo **Settings → Pages → Source: D
 
 ## Notes
 
-The page is responsive down to ~380px and dark-themed throughout. Placeholder avatars and product mockups are pure CSS — no image assets required.
+The page is responsive down to ~380px and dark-themed throughout.
+
+**No image assets.** The product box, the laptop, both charts and the Claude
+starburst are all CSS and hand-authored inline SVG, so everything is editable in
+place and there is nothing to host.
+
+**Two exceptions, both placeholders you should replace:**
+
+- **Testimonial photos** load from `i.pravatar.cc`. They are stock faces, not
+  your customers. Each `<img>` falls back to a gradient initials avatar if the
+  request fails, so the page never breaks — but swap in real photos before
+  launch.
+- **Testimonial and review copy** is carried over from the reference page. A
+  name plus a photo plus a quote reads as a real person's endorsement, so
+  replace these with testimonials you actually collected.
+
+### Chart colors
+
+The two charts use violet `--violet` against a deliberately recessive gray
+`--neutral-series`. Both series are direct-labeled, so the chart never relies on
+color alone to tell them apart.
