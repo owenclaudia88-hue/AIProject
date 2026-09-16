@@ -5,11 +5,12 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 ## What's here
 
 - `index.html` — the entire page: markup, CSS and JS inlined. No build step, no framework.
+- `assets/laptop-mockup.avif`, `assets/phone-mockup.avif` — the two product mockups.
 
 ## Sections
 
 1. Announcement bar + sticky header with price and CTA
-2. Hero (headline, sub, guarantee, 4.7 trust badge, CSS 3D product box with orbiting feature chips and the 10x block)
+2. Hero — two columns: copy left (rating pill, eyebrow, headline, sub, CTA), CSS 3D product box with orbiting chips and the 10x block right
 3. "The Shocking Claude Gap" comparison table
 4. Value proposition + CTA
 5. Five key benefits
@@ -20,7 +21,7 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 10. "What changes from day one" (6 cards)
 11. 4 hands-on Sprints
 12. Problem/solution + 7%/93% donut chart
-13. Laptop mockup with six floating Specialist pills
+14. Laptop mockup image ringed by six floating Specialist pills
 14. Blank-window vs. system comparison
 15. What's inside (70 / 10,000+ / 4 / $0-per-month)
 16. Eight Specialist categories
