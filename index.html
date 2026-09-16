@@ -262,6 +262,13 @@ td.col-lose{color:var(--txt-3)}
 .review .stars{font-size:.85rem;letter-spacing:1px}
 .review p{font-size:.9rem;color:var(--txt-2);margin:8px 0 10px}
 .review .n{font-size:.85rem;font-weight:700}
+.rwho{display:flex;align-items:center;gap:10px}
+.ravatar{
+  position:relative;width:34px;height:34px;border-radius:50%;flex:none;overflow:hidden;
+  background:linear-gradient(140deg,var(--accent-2),var(--accent));
+  display:grid;place-items:center;color:#1a0d00;font-weight:800;font-size:.8rem;
+}
+.ravatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
 /* ---------- steps ---------- */
 .step{position:relative;padding-top:8px}
@@ -473,11 +480,12 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   fill:#3a3a40;stroke:rgba(255,255,255,.08);
 }
 .chart-tag-text{fill:#f2f2f4;font-size:14px;font-weight:600;font-family:inherit}
-.donutrow{display:grid;grid-template-columns:1.05fr 1fr;gap:44px;align-items:center}
+.donutrow{display:grid;grid-template-columns:.85fr 1.15fr;gap:36px;align-items:center}
 .donut-center{fill:#fff;font-size:22px;font-weight:600;font-family:inherit;text-anchor:middle}
 .donut-label{fill:#e9e9ec;font-size:12.5px;font-family:inherit}
 .donut-label-dim{fill:var(--txt-2);font-size:12.5px;font-family:inherit}
 .leader{stroke:var(--violet);stroke-width:1;fill:none}
+.leader-dim{stroke:#4a4a52}
 
 /* ---------- mockup scenes (laptop / phone) ---------- */
 .laptopwrap{
@@ -504,14 +512,24 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 .pills-mobile{display:none;gap:11px;margin-top:26px}
 .pills-mobile .pill{position:static;max-width:none;border-radius:14px}
 
+.inside-stack{display:grid;gap:16px}
+.inside-h{font-size:clamp(1.25rem,1.9vw,1.6rem);font-weight:500;letter-spacing:-.015em}
+
 /* reference's repeated two-column text/image block */
 .gpt_layout{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
 .heading_wrap_gpt{display:flex;flex-direction:column;gap:22px;max-width:557px}
-.phone-scene{
+.pad-scene,.phone-scene{
   display:grid;place-items:center;position:relative;
-  background:radial-gradient(ellipse 62% 58% at 50% 50%,rgba(168,85,247,.22),transparent 70%);
+  background:radial-gradient(ellipse 64% 60% at 50% 50%,rgba(168,85,247,.22),transparent 70%);
 }
-.phone-scene img{width:min(340px,78%);height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+.pad-scene img{width:min(560px,100%);height:auto;border-radius:10px;filter:drop-shadow(0 30px 60px rgba(0,0,0,.65))}
+.phone-scene img{width:min(370px,88%);height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+.phone-scene .float-pill{
+  position:absolute;left:-2%;top:16%;max-width:230px;
+  background:#0d0d0f;border:1px solid var(--violet);border-radius:14px;
+  padding:14px 17px;font-size:.88rem;font-weight:600;line-height:1.4;
+  box-shadow:0 12px 34px rgba(0,0,0,.7);
+}
 
 /* ---------- responsive ---------- */
 @media (max-width:1000px){
@@ -559,6 +577,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   .pills-mobile{display:grid}
   .gpt_layout{grid-template-columns:1fr;gap:34px}
   .heading_wrap_gpt{max-width:100%}
+  .phone-scene .float-pill{position:static;max-width:none;margin-bottom:20px}
 }
 @media (min-width:821px){
   .tnav-row{display:none}
@@ -979,11 +998,11 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       <div class="heading_wrap_gpt">
         <h2>Your AI working partner. Every single day.</h2>
         <p class="lead">Most people use Claude when they remember to. These four hands-on sessions show you how to make it indispensable — so it runs alongside your business every day, not just when you have a spare hour.</p>
-        <p class="lead">Open the Specialist you need, on any device, and pick up exactly where you left off.</p>
+        <p class="lead">Connected to Gmail, Slack, Drive, Notion, HubSpot and thousands more — Claude reads, writes and updates across the tools you already use.</p>
       </div>
-      <div class="phone-scene">
-        <img src="assets/phone-mockup.avif" width="1000" height="1500" loading="lazy"
-             alt="A phone showing Claude with Specialist categories — Marketing, Project Management, Development, Usability Testing, Feedback, Brainstorming, Copywriting — and a drafted blog-post prompt."
+      <div class="pad-scene">
+        <img src="assets/ipad-mockup.avif" width="800" height="617" loading="lazy"
+             alt="Claude connected to Gmail, Google Calendar, Google Drive, Slack, Notion, HubSpot, Klaviyo, Zoom, Stripe, Salesforce and Asana, with Marketing and Brainstorming Specialists side by side."
              class="mockup-img">
       </div>
     </div>
@@ -1041,24 +1060,30 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       </div>
 
       <div>
-        <svg viewBox="0 0 560 500" role="img" aria-label="Donut chart of AI potential: 7 percent of business owners unlock full AI value through full business automation across marketing, sales and ops. The other 93 percent use AI for far less.">
-          <circle cx="200" cy="270" r="113.5" fill="none" stroke="#212125" stroke-width="63"/>
-          <circle cx="200" cy="270" r="113.5" fill="none" stroke="var(--violet)" stroke-width="63"
-                  stroke-dasharray="45.9 667.2" stroke-dashoffset="-2"
-                  transform="rotate(-90 200 270)"/>
+        <svg viewBox="0 0 640 515" role="img" aria-label="Donut chart of AI potential: 7 percent of business owners unlock full AI value through full business automation across marketing, sales and ops. The other 93 percent use AI only for generic tasks, summarization, translation and text functions.">
+          <circle cx="220" cy="250" r="155" fill="none" stroke="#212125" stroke-width="88"/>
+          <circle cx="220" cy="250" r="155" fill="none" stroke="var(--violet)" stroke-width="88"
+                  stroke-dasharray="64.2 909.7" stroke-dashoffset="-2"
+                  transform="rotate(-90 220 250)"/>
 
-          <text class="donut-center" x="200" y="278">AI Potential</text>
+          <text class="donut-center" x="220" y="258">AI Potential</text>
 
-          <path class="leader" d="M232.7 123.6 L232.7 64 L300 64"/>
+          <path class="leader" d="M264.1 52.9 L264.1 26 L320 26"/>
           <g aria-hidden="true">
-            <text class="donut-label" x="306" y="52" font-weight="700">7% unlock full AI value</text>
-            <text class="donut-label-dim" x="306" y="70">Full business automation —</text>
-            <text class="donut-label-dim" x="306" y="86">marketing, sales, ops and more</text>
+            <text class="donut-label" x="326" y="18" font-weight="700">7% unlock full AI value</text>
+            <text class="donut-label-dim" x="326" y="36">Full business automation —</text>
+            <text class="donut-label-dim" x="326" y="52">marketing, sales, ops and more</text>
           </g>
 
           <g text-anchor="middle" aria-hidden="true">
-            <text class="donut-label-dim" x="200" y="462">What 93% of business owners</text>
-            <text class="donut-label-dim" x="200" y="478">use AI for</text>
+            <text class="donut-label-dim" x="220" y="400">What 93% of business owners</text>
+            <text class="donut-label-dim" x="220" y="416">use AI for</text>
+          </g>
+
+          <path class="leader leader-dim" d="M321 425 L388 476 L394 476"/>
+          <g aria-hidden="true">
+            <text class="donut-label-dim" x="400" y="472">Generic tasks, summarization,</text>
+            <text class="donut-label-dim" x="400" y="488">translation, and text functions.</text>
           </g>
         </svg>
       </div>
@@ -1130,11 +1155,32 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section>
   <div class="wrap stack">
     <div class="narrow center"><h2>Everything You Need to Run Your Business on Claude. One Payment. Forever.</h2></div>
-    <div class="grid g4" style="margin-top:34px">
-      <div class="card center"><div class="num amber" style="font-size:2rem;font-weight:900;letter-spacing:-.03em">70</div><h3 style="margin-top:8px">Pre-built AI Specialists</h3><p class="muted" style="font-size:.9rem;margin-top:6px">One expert for every part of your business, ready to run from day one.</p></div>
-      <div class="card center"><div class="num amber" style="font-size:2rem;font-weight:900;letter-spacing:-.03em">10,000+</div><h3 style="margin-top:8px">Claude Prompts</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Powering every Specialist — so you never start from a blank page again.</p></div>
-      <div class="card center"><div class="num amber" style="font-size:2rem;font-weight:900;letter-spacing:-.03em">4</div><h3 style="margin-top:8px">Hands-on Claude Sprints</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Cowork, Skills, MCP and Build-to-Sell. Watch it, build it, run it the same day.</p></div>
-      <div class="card center"><div class="num amber" style="font-size:2rem;font-weight:900;letter-spacing:-.03em">$0<span style="font-size:1rem">/mo</span></div><h3 style="margin-top:8px">Forever</h3><p class="muted" style="font-size:.9rem;margin-top:6px">One payment. No subscriptions. No recurring fees. Yours forever.</p></div>
+    <div class="gpt_layout" style="margin-top:44px">
+      <div class="inside-stack">
+        <div class="card">
+          <h3 class="inside-h">70 Pre-built AI Specialists</h3>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">One expert for every part of your business, ready to run from day one.</p>
+        </div>
+        <div class="card">
+          <h3 class="inside-h">10,000+ Claude prompts</h3>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">Powering every Specialist &ndash; so you never start from a blank page again.</p>
+        </div>
+        <div class="card">
+          <h3 class="inside-h">4 Hands-on Claude Sprints</h3>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">Cowork, Skills, MCP and Build-to-Sell. Watch it, build it, run it the same day.</p>
+        </div>
+        <div class="card">
+          <h3 class="inside-h">$0/month</h3>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">One payment. No subscriptions. No recurring fees. Yours forever.</p>
+        </div>
+      </div>
+
+      <div class="phone-scene">
+        <div class="float-pill">Your competitors are already running this. Get ahead of them today.</div>
+        <img src="assets/phone-mockup.avif" width="1000" height="1500" loading="lazy"
+             alt="A phone showing Claude with Specialist categories - Marketing, Project Management, Development, Usability Testing, Feedback, Brainstorming, Copywriting - and a drafted blog-post prompt."
+             class="mockup-img">
+      </div>
     </div>
   </div>
 </section>
@@ -1190,15 +1236,15 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       <p class="lead">Don't just take our word for it — listen to thousands of others.</p>
     </div>
     <div class="reviews" style="margin-top:34px">
-      <div class="review"><div class="stars">★★★★★</div><p>"Been going through the Specialists all weekend — generating content, rewriting email templates, building strategies I'd been putting off for months. Mind blown. 🤯"</p><div class="n">Stephanie</div></div>
-      <div class="review"><div class="stars">★★★★★</div><p>"Really solid Specialists in here — a lot of inspiration and some I never would have set up myself. Worth it."</p><div class="n">Sebastien</div></div>
-      <div class="review"><div class="stars">★★★★☆</div><p>"Very helpful and very comprehensive. Every business function covered. 😃"</p><div class="n">Leon</div></div>
-      <div class="review"><div class="stars">★★★★★</div><p>"This takes away the struggle of knowing what to ask and how to ask it. Recorded a voice note on the way home, ran it through the content Specialist — polished script in minutes. It's still my content, just better."</p><div class="n">Sally</div></div>
-      <div class="review"><div class="stars">★★★★☆</div><p>"Bought it today. Genuinely impressed — there are Specialists in here I never would have thought to use. Worth every penny."</p><div class="n">Flaco</div></div>
-      <div class="review"><div class="stars">★★★★★</div><p>"What a complete resource. Takes away the struggle of knowing the right questions to ask. I keep finding new Specialists I hadn't tried yet."</p><div class="n">Kellie</div></div>
-      <div class="review"><div class="stars">★★★★☆</div><p>"Bought this. Worth every penny."</p><div class="n">Josh</div></div>
-      <div class="review"><div class="stars">★★★★★</div><p>"Just got access — looks amazing. Worth ten times the cost."</p><div class="n">Thomas</div></div>
-      <div class="review"><div class="stars">★★★★☆</div><p>"The prompts and ideas are valuable. 💪 Great product."</p><div class="n">DB</div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"Been going through the Specialists all weekend — generating content, rewriting email templates, building strategies I'd been putting off for months. Mind blown. 🤯"</p><div class="rwho"><div class="ravatar">S<img src="https://i.pravatar.cc/120?img=5" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Stephanie</div></div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"Really solid Specialists in here — a lot of inspiration and some I never would have set up myself. Worth it."</p><div class="rwho"><div class="ravatar">S<img src="https://i.pravatar.cc/120?img=8" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Sebastien</div></div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Very helpful and very comprehensive. Every business function covered. 😃"</p><div class="rwho"><div class="ravatar">L<img src="https://i.pravatar.cc/120?img=11" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Leon</div></div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"This takes away the struggle of knowing what to ask and how to ask it. Recorded a voice note on the way home, ran it through the content Specialist — polished script in minutes. It's still my content, just better."</p><div class="rwho"><div class="ravatar">S<img src="https://i.pravatar.cc/120?img=14" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Sally</div></div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Bought it today. Genuinely impressed — there are Specialists in here I never would have thought to use. Worth every penny."</p><div class="rwho"><div class="ravatar">F<img src="https://i.pravatar.cc/120?img=16" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Flaco</div></div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"What a complete resource. Takes away the struggle of knowing the right questions to ask. I keep finding new Specialists I hadn't tried yet."</p><div class="rwho"><div class="ravatar">K<img src="https://i.pravatar.cc/120?img=20" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Kellie</div></div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Bought this. Worth every penny."</p><div class="rwho"><div class="ravatar">J<img src="https://i.pravatar.cc/120?img=28" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Josh</div></div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"Just got access — looks amazing. Worth ten times the cost."</p><div class="rwho"><div class="ravatar">T<img src="https://i.pravatar.cc/120?img=31" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Thomas</div></div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"The prompts and ideas are valuable. 💪 Great product."</p><div class="rwho"><div class="ravatar">D<img src="https://i.pravatar.cc/120?img=52" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">DB</div></div></div>
     </div>
   </div>
 </section>

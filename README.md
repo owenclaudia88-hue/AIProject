@@ -5,7 +5,7 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 ## What's here
 
 - `index.html` — the entire page: markup, CSS and JS inlined. No build step, no framework.
-- `assets/laptop-mockup.avif`, `assets/phone-mockup.avif` — the two product mockups.
+- `assets/laptop-mockup.avif`, `assets/ipad-mockup.avif`, `assets/phone-mockup.avif` — the three product mockups.
 
 ## Sections
 
@@ -23,7 +23,7 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 12. Problem/solution + 7%/93% donut chart
 14. Laptop mockup image ringed by six floating Specialist pills
 14. Blank-window vs. system comparison
-15. What's inside (70 / 10,000+ / 4 / $0-per-month)
+15. What's inside (70 / 10,000+ / 4 / $0-per-month) + phone mockup
 16. Eight Specialist categories
 17. Market-timing stats (42.3%, 2.5M)
 18. Review wall
@@ -64,7 +64,7 @@ place and there is nothing to host.
 
 **Two exceptions, both placeholders you should replace:**
 
-- **Testimonial photos** load from `i.pravatar.cc`. They are stock faces, not
+- **Testimonial and review photos** load from `i.pravatar.cc`. They are stock faces, not
   your customers. Each `<img>` falls back to a gradient initials avatar if the
   request fails, so the page never breaks — but swap in real photos before
   launch.
