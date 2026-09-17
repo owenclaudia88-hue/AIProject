@@ -14,9 +14,15 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 
 ## Checkout (Stripe)
 
-`checkout.html` is a two-column checkout: contact and billing form on the left, sticky order
-summary on the right. Under 900px the summary moves **above** the form so the price is seen
-before any typing. The landing page's pricing CTA links here.
+`checkout.html` is a two-column checkout: the form on the left, sticky order summary on the
+right. Under 900px the summary moves **above** the form so the price is seen before any
+typing. The landing page's pricing CTA links here.
+
+The form is a single box with two tabbed steps — **Login Info** (name, email) and **Billing
+Info** (address, card) — rather than separate stacked panels, which keeps it compact. Step 2
+is gated: the tab and the *Continue To Step #2* button both refuse to advance until step 1
+validates, though you can always tab back. Card brand badges and a "100% Secure & Safe
+Payments" line sit under the box.
 
 Payment uses **Stripe Payment Element**. Card details are entered inside Stripe's iframe and
 never touch this site or its server, which keeps you out of PCI scope. There are no card

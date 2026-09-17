@@ -38,118 +38,126 @@
       <p class="sub">You&rsquo;re one step away from your AI team. Instant access, delivered by email.</p>
 
       <form id="checkout-form" novalidate>
+        <div class="co-box">
 
-        <section class="step">
-          <div class="step-head">
-            <span class="step-num">1</span>
-            <h2 class="step-title">Your details</h2>
+          <div class="co-tabs" role="tablist">
+            <button type="button" class="co-tab active" id="tab-1" data-step="1"
+                    role="tab" aria-selected="true" aria-controls="panel-1">Login Info</button>
+            <button type="button" class="co-tab" id="tab-2" data-step="2"
+                    role="tab" aria-selected="false" aria-controls="panel-2">Billing Info</button>
           </div>
 
-          <div class="field">
-            <label for="email">Email address <span class="req">*</span></label>
-            <input type="email" id="email" name="email" autocomplete="email"
-                   placeholder="you@example.com" required>
-            <p class="err" id="err-email">Enter a valid email address &mdash; this is where access is sent.</p>
-          </div>
-
-          <div class="row">
+          <!-- ---------- step 1 ---------- -->
+          <div class="co-panel" id="panel-1" data-step="1" role="tabpanel" aria-labelledby="tab-1">
             <div class="field">
-              <label for="fname">First name <span class="req">*</span></label>
-              <input type="text" id="fname" name="fname" autocomplete="given-name" placeholder="Jane" required>
-              <p class="err" id="err-fname">Enter your first name.</p>
+              <label class="sr-only" for="fullname">Full name</label>
+              <input type="text" id="fullname" name="fullname" autocomplete="name"
+                     placeholder="Full name" required>
+              <p class="err" id="err-fullname">Enter your first and last name.</p>
             </div>
+
             <div class="field">
-              <label for="lname">Last name <span class="req">*</span></label>
-              <input type="text" id="lname" name="lname" autocomplete="family-name" placeholder="Doe" required>
-              <p class="err" id="err-lname">Enter your last name.</p>
+              <label class="sr-only" for="email">Email address</label>
+              <input type="email" id="email" name="email" autocomplete="email"
+                     placeholder="Email address" required>
+              <p class="err" id="err-email">Enter a valid email &mdash; this is where your access is sent.</p>
             </div>
-          </div>
-        </section>
 
-        <section class="step">
-          <div class="step-head">
-            <span class="step-num">2</span>
-            <h2 class="step-title">Billing address</h2>
-          </div>
+            <button type="button" class="btn" id="to-step-2">Continue To Step #2</button>
 
-          <div class="field">
-            <label for="country">Country <span class="req">*</span></label>
-            <select id="country" name="country" autocomplete="country-name" required>
-              <option value="">Select your country</option>
-              <option>United Kingdom</option>
-              <option>United States</option>
-              <option>Canada</option>
-              <option>Australia</option>
-              <option>Ireland</option>
-              <option>New Zealand</option>
-              <option>Germany</option>
-              <option>France</option>
-              <option>Spain</option>
-              <option>Italy</option>
-              <option>Netherlands</option>
-              <option>Sweden</option>
-              <option>Norway</option>
-              <option>Denmark</option>
-              <option>Other</option>
-            </select>
-            <p class="err" id="err-country">Select your country.</p>
+            <p class="mini-guar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+              14-Day Money-Back Guarantee
+            </p>
           </div>
 
-          <div class="field">
-            <label for="address">Address <span class="req">*</span></label>
-            <input type="text" id="address" name="address" autocomplete="street-address"
-                   placeholder="12 Example Street" required>
-            <p class="err" id="err-address">Enter your billing address.</p>
-          </div>
-
-          <div class="row">
+          <!-- ---------- step 2 ---------- -->
+          <div class="co-panel" id="panel-2" data-step="2" role="tabpanel" aria-labelledby="tab-2" hidden>
             <div class="field">
-              <label for="city">City <span class="req">*</span></label>
-              <input type="text" id="city" name="city" autocomplete="address-level2" placeholder="London" required>
-              <p class="err" id="err-city">Enter your city.</p>
+              <label class="sr-only" for="country">Country</label>
+              <select id="country" name="country" autocomplete="country-name" required>
+                <option value="">Country</option>
+                <option>United Kingdom</option>
+                <option>United States</option>
+                <option>Canada</option>
+                <option>Australia</option>
+                <option>Ireland</option>
+                <option>New Zealand</option>
+                <option>Germany</option>
+                <option>France</option>
+                <option>Spain</option>
+                <option>Italy</option>
+                <option>Netherlands</option>
+                <option>Sweden</option>
+                <option>Norway</option>
+                <option>Denmark</option>
+                <option>Other</option>
+              </select>
+              <p class="err" id="err-country">Select your country.</p>
             </div>
+
             <div class="field">
-              <label for="postcode">Postcode / ZIP <span class="req">*</span></label>
-              <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="SW1A 1AA" required>
-              <p class="err" id="err-postcode">Enter your postcode or ZIP.</p>
+              <label class="sr-only" for="address">Billing address</label>
+              <input type="text" id="address" name="address" autocomplete="street-address"
+                     placeholder="Billing address" required>
+              <p class="err" id="err-address">Enter your billing address.</p>
             </div>
-          </div>
-        </section>
 
-        <section class="step">
-          <div class="step-head">
-            <span class="step-num">3</span>
-            <h2 class="step-title">Payment</h2>
-          </div>
-
-          <!--
-            Stripe Payment Element mounts into #payment-element.
-
-            Card details are entered inside Stripe's iframe and never touch this
-            page or our server, which keeps the site out of PCI scope. Do not
-            replace this with plain <input> fields.
-          -->
-          <div id="payment-element" aria-live="polite">
-            <div class="pay-mount" id="payment-placeholder">
-              <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-              </svg>
-              <p id="payment-status">Loading secure payment form&hellip;</p>
+            <div class="row">
+              <div class="field">
+                <label class="sr-only" for="city">City</label>
+                <input type="text" id="city" name="city" autocomplete="address-level2" placeholder="City" required>
+                <p class="err" id="err-city">Enter your city.</p>
+              </div>
+              <div class="field">
+                <label class="sr-only" for="postcode">Postcode / ZIP</label>
+                <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="Postcode / ZIP" required>
+                <p class="err" id="err-postcode">Enter your postcode or ZIP.</p>
+              </div>
             </div>
-          </div>
-        </section>
 
-        <button type="submit" class="btn" id="submit-btn">
-          Complete order &mdash; $1
-        </button>
+            <div class="pay-label">Card details</div>
+            <!--
+              Stripe Payment Element mounts into #payment-element.
+              Card entry happens inside Stripe's iframe and never touches this page
+              or our server, which keeps the site out of PCI scope. Do not replace
+              this with plain <input> fields.
+            -->
+            <div id="payment-element" aria-live="polite">
+              <div class="pay-mount" id="payment-placeholder">
+                <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                </svg>
+                <p id="payment-status">Loading secure payment form&hellip;</p>
+              </div>
+            </div>
+
+            <button type="submit" class="btn" id="submit-btn">Complete Order &mdash; $1</button>
+
+            <p class="mini-guar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+              14-Day Money-Back Guarantee
+            </p>
+          </div>
+        </div>
+
+        <p class="form-note" id="form-note" hidden></p>
+
+        <div class="pay-badges">
+          <img src="assets/card-icons.webp" width="303" height="44" loading="lazy"
+               alt="Visa, Mastercard, American Express and Discover accepted">
+          <p>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+            100% Secure &amp; Safe Payments
+          </p>
+        </div>
 
         <p class="under-btn">
-          🔒 Secure, encrypted checkout &middot; 14-day money-back guarantee &middot; Instant delivery<br>
           By completing your order you agree to our <a href="terms.html">Terms</a> and
           <a href="privacy.html">Privacy Policy</a>.
         </p>
-
-        <p class="form-note" id="form-note" hidden></p>
       </form>
     </div>
 
@@ -248,27 +256,31 @@
 
 <script>
 (function () {
-  var form    = document.getElementById('checkout-form');
-  var note    = document.getElementById('form-note');
-  var btn     = document.getElementById('submit-btn');
-  var mount   = document.getElementById('payment-element');
-  var status  = document.getElementById('payment-status');
+  var form   = document.getElementById('checkout-form');
+  var note   = document.getElementById('form-note');
+  var btn    = document.getElementById('submit-btn');
+  var mount  = document.getElementById('payment-element');
+  var status = document.getElementById('payment-status');
   if (!form) return;
 
   var stripe, elements, publishableKey, ready = false;
   var btnLabel = btn.innerHTML;
 
-  /* ---------------- field validation ---------------- */
+  /* ---------------- validation ---------------- */
 
-  var fields = [
-    { id: 'email',    test: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); } },
-    { id: 'fname',    test: function (v) { return v.length > 0; } },
-    { id: 'lname',    test: function (v) { return v.length > 0; } },
-    { id: 'country',  test: function (v) { return v.length > 0; } },
-    { id: 'address',  test: function (v) { return v.length > 0; } },
-    { id: 'city',     test: function (v) { return v.length > 0; } },
-    { id: 'postcode', test: function (v) { return v.length > 0; } }
-  ];
+  var STEP = {
+    1: [
+      { id: 'fullname', test: function (v) { return v.length > 1; } },
+      { id: 'email',    test: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); } }
+    ],
+    2: [
+      { id: 'country',  test: function (v) { return v.length > 0; } },
+      { id: 'address',  test: function (v) { return v.length > 0; } },
+      { id: 'city',     test: function (v) { return v.length > 0; } },
+      { id: 'postcode', test: function (v) { return v.length > 0; } }
+    ]
+  };
+  var ALL = STEP[1].concat(STEP[2]);
 
   function check(f, showError) {
     var el = document.getElementById(f.id);
@@ -280,17 +292,63 @@
     return ok;
   }
 
-  fields.forEach(function (f) {
-    var el = document.getElementById(f.id);
-    el.addEventListener('input', function () {
-      if (el.closest('.field').classList.contains('invalid')) check(f, true);
+  function validateStep(n) {
+    var firstBad = null;
+    STEP[n].forEach(function (f) {
+      if (!check(f, true) && !firstBad) firstBad = document.getElementById(f.id);
     });
+    if (firstBad) {
+      firstBad.focus();
+      firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+    return true;
+  }
+
+  ALL.forEach(function (f) {
+    var el = document.getElementById(f.id);
+    function revalidate() {
+      if (el.closest('.field').classList.contains('invalid')) check(f, true);
+    }
+    el.addEventListener('input', revalidate);
+    el.addEventListener('change', revalidate);
     el.addEventListener('blur', function () {
       if (el.value.trim()) check(f, true);
     });
   });
 
   function val(id) { return document.getElementById(id).value.trim(); }
+
+  /* ---------------- tabs ---------------- */
+
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll('.co-tab'));
+  var panels = Array.prototype.slice.call(document.querySelectorAll('.co-panel'));
+
+  function goTo(step) {
+    tabs.forEach(function (t) {
+      var on = t.dataset.step === String(step);
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    panels.forEach(function (p) { p.hidden = p.dataset.step !== String(step); });
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var target = Number(t.dataset.step);
+      // moving forward requires step 1 to be filled in; going back is always allowed
+      if (target === 2 && !validateStep(1)) return;
+      goTo(target);
+    });
+  });
+
+  document.getElementById('to-step-2').addEventListener('click', function () {
+    if (!validateStep(1)) return;
+    goTo(2);
+    document.querySelector('.co-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  /* ---------------- Stripe ---------------- */
 
   function showNote(msg, isError) {
     note.hidden = false;
@@ -304,25 +362,24 @@
     btn.innerHTML = busy ? 'Processing&hellip;' : btnLabel;
   }
 
-  /* ---------------- Stripe setup ---------------- */
-
-  // Matches the Payment Element to the page's dark theme.
   var appearance = {
     theme: 'night',
     variables: {
       colorPrimary: '#ff7a1a',
-      colorBackground: '#18181b',
-      colorText: '#f4f4f5',
-      colorTextSecondary: '#a1a1aa',
-      colorDanger: '#f87171',
+      colorBackground: '#ffffff',
+      colorText: '#16161c',
+      colorTextSecondary: '#6b6b78',
+      colorDanger: '#e0243c',
       fontFamily: 'Inter, system-ui, sans-serif',
       borderRadius: '10px',
       spacingUnit: '4px'
     },
     rules: {
-      '.Input': { border: '1px solid #333338', boxShadow: 'none', padding: '13px 14px' },
-      '.Input:focus': { border: '1px solid #ff7a1a', boxShadow: '0 0 0 3px rgba(255,122,26,.16)' },
-      '.Label': { fontSize: '13px', fontWeight: '600', color: '#a1a1aa' }
+      '.Input': { border: '1px solid #ffffff', boxShadow: 'none', padding: '15px 16px', fontSize: '16px' },
+      '.Input:focus': { border: '1px solid #ff7a1a', boxShadow: '0 0 0 3px rgba(255,122,26,.3)' },
+      '.Label': { fontSize: '13px', fontWeight: '600', color: '#a1a1aa' },
+      '.Tab': { backgroundColor: '#ffffff', border: '1px solid #ffffff' },
+      '.Tab--selected': { borderColor: '#ff7a1a', color: '#16161c' }
     }
   };
 
@@ -343,12 +400,10 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
       });
-
       if (!res.ok) {
         var detail = await res.json().catch(function () { return {}; });
         throw new Error(detail.error || ('Server returned ' + res.status));
       }
-
       var data = await res.json();
       if (!data.clientSecret || !data.publishableKey) throw new Error('Incomplete response from server.');
 
@@ -356,9 +411,7 @@
       stripe = Stripe(publishableKey);
       elements = stripe.elements({ clientSecret: data.clientSecret, appearance: appearance });
       var paymentElement = elements.create('payment', { layout: 'tabs' });
-
-      // Stripe replaces the contents of #payment-element, removing the placeholder.
-      paymentElement.mount('#payment-element');
+      paymentElement.mount('#payment-element');   // replaces the placeholder
       paymentElement.on('ready', function () { ready = true; });
     } catch (err) {
       console.error('[checkout] Stripe init failed:', err);
@@ -376,15 +429,8 @@
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    var firstBad = null;
-    fields.forEach(function (f) {
-      if (!check(f, true) && !firstBad) firstBad = document.getElementById(f.id);
-    });
-    if (firstBad) {
-      firstBad.focus();
-      firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
-    }
+    if (!validateStep(1)) { goTo(1); return; }
+    if (!validateStep(2)) return;
 
     if (!ready || !stripe || !elements) {
       showNote('The payment form has not finished loading. Give it a moment and try again.', true);
@@ -401,7 +447,7 @@
         receipt_email: val('email'),
         payment_method_data: {
           billing_details: {
-            name: val('fname') + ' ' + val('lname'),
+            name: val('fullname'),
             email: val('email'),
             address: {
               line1: val('address'),
@@ -413,11 +459,10 @@
       }
     });
 
-    // Reached only if the payment failed — on success Stripe redirects to return_url.
+    // Only reached when the payment failed — success redirects to return_url.
     setBusy(false);
     if (result.error) {
-      var m = result.error.message || 'Something went wrong. Your card has not been charged.';
-      showNote(m, true);
+      showNote(result.error.message || 'Something went wrong. Your card has not been charged.', true);
       console.warn('[checkout]', result.error);
     }
   });
