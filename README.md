@@ -5,10 +5,31 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 ## What's here
 
 - `index.html` — the landing page: markup, CSS and JS inlined. No build step, no framework.
+- `checkout.html` + `assets/checkout.css` — the checkout page.
 - `privacy.html`, `terms.html`, `earnings.html` — legal pages, linked from the footer.
 - `assets/legal.css` — shared styling for those three pages.
 - `assets/laptop-mockup.avif`, `assets/ipad-mockup.avif`, `assets/phone-mockup.avif` — the three product mockups.
 - `vercel.json` — rewrites that serve the site at the `/70-ai-specialists-for-claude` subpath as well as the root.
+
+## Checkout
+
+`checkout.html` is a two-column checkout: contact and billing form on the left, sticky order
+summary on the right (product, the 4 free Sprints, totals, guarantee, trust). Under 900px the
+summary moves **above** the form so the price is seen before any typing. The pricing CTA on
+the landing page links here.
+
+**It does not take payments yet, by design.** Two things are deliberately missing:
+
+1. `#payment-element` in step 3 is an empty mount point with a placeholder. Render your
+   provider's own hosted card fields into it (Stripe Elements, a GoHighLevel embed, …) and
+   delete the placeholder. **Do not replace it with plain `<input>` fields** — keeping card
+   entry inside the provider's iframe is what keeps this site out of PCI scope.
+2. The `submit` handler validates the contact and billing fields, then stops and shows a
+   notice. Replace that branch with the real call — create a PaymentIntent, redirect to
+   hosted checkout, or submit to your provider.
+
+Until both are done the form can collect details but can never take money, which is the safe
+failure mode if it goes live early. Validation, error states and the summary are all finished.
 
 ## Refunds
 

@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Checkout — 70 AI Specialists for Claude</title>
+<meta name="description" content="Complete your order for 70 AI Specialists for Claude. One payment, no subscription, 14-day money-back guarantee.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/checkout.css">
+</head>
+<body>
+
+<header class="co-top">
+  <div class="wrap co-top-inner">
+    <a class="brand" href="/">
+      <span class="mark">AI</span>
+      <span class="brand-name">AI Founder University</span>
+    </a>
+    <span class="secure-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+      </svg>
+      Secure checkout<span> &mdash; encrypted</span>
+    </span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="co-grid">
+
+    <!-- ============ FORM ============ -->
+    <div>
+      <h1>Complete your order</h1>
+      <p class="sub">You&rsquo;re one step away from your AI team. Instant access, delivered by email.</p>
+
+      <form id="checkout-form" novalidate>
+
+        <section class="step">
+          <div class="step-head">
+            <span class="step-num">1</span>
+            <h2 class="step-title">Your details</h2>
+          </div>
+
+          <div class="field">
+            <label for="email">Email address <span class="req">*</span></label>
+            <input type="email" id="email" name="email" autocomplete="email"
+                   placeholder="you@example.com" required>
+            <p class="err" id="err-email">Enter a valid email address &mdash; this is where access is sent.</p>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="fname">First name <span class="req">*</span></label>
+              <input type="text" id="fname" name="fname" autocomplete="given-name" placeholder="Jane" required>
+              <p class="err" id="err-fname">Enter your first name.</p>
+            </div>
+            <div class="field">
+              <label for="lname">Last name <span class="req">*</span></label>
+              <input type="text" id="lname" name="lname" autocomplete="family-name" placeholder="Doe" required>
+              <p class="err" id="err-lname">Enter your last name.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="step">
+          <div class="step-head">
+            <span class="step-num">2</span>
+            <h2 class="step-title">Billing address</h2>
+          </div>
+
+          <div class="field">
+            <label for="country">Country <span class="req">*</span></label>
+            <select id="country" name="country" autocomplete="country-name" required>
+              <option value="">Select your country</option>
+              <option>United Kingdom</option>
+              <option>United States</option>
+              <option>Canada</option>
+              <option>Australia</option>
+              <option>Ireland</option>
+              <option>New Zealand</option>
+              <option>Germany</option>
+              <option>France</option>
+              <option>Spain</option>
+              <option>Italy</option>
+              <option>Netherlands</option>
+              <option>Sweden</option>
+              <option>Norway</option>
+              <option>Denmark</option>
+              <option>Other</option>
+            </select>
+            <p class="err" id="err-country">Select your country.</p>
+          </div>
+
+          <div class="field">
+            <label for="address">Address <span class="req">*</span></label>
+            <input type="text" id="address" name="address" autocomplete="street-address"
+                   placeholder="12 Example Street" required>
+            <p class="err" id="err-address">Enter your billing address.</p>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="city">City <span class="req">*</span></label>
+              <input type="text" id="city" name="city" autocomplete="address-level2" placeholder="London" required>
+              <p class="err" id="err-city">Enter your city.</p>
+            </div>
+            <div class="field">
+              <label for="postcode">Postcode / ZIP <span class="req">*</span></label>
+              <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="SW1A 1AA" required>
+              <p class="err" id="err-postcode">Enter your postcode or ZIP.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="step">
+          <div class="step-head">
+            <span class="step-num">3</span>
+            <h2 class="step-title">Payment</h2>
+          </div>
+
+          <!--
+            PAYMENT MOUNT POINT — deliberately empty.
+
+            Card details are NOT collected by this form. Mount your payment
+            provider's own hosted fields into #payment-element (Stripe Elements,
+            a GoHighLevel embed, etc.) and delete the placeholder below. Keeping
+            card entry inside the provider's iframe is what keeps this site out
+            of PCI scope — do not replace this with plain <input> fields.
+          -->
+          <div id="payment-element">
+            <div class="pay-mount" id="payment-placeholder">
+              <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+              </svg>
+              <p>Your payment provider&rsquo;s secure card form mounts here.<br>
+              Replace this block by rendering into <code>#payment-element</code>.</p>
+            </div>
+          </div>
+        </section>
+
+        <button type="submit" class="btn" id="submit-btn">
+          Complete order &mdash; $1
+        </button>
+
+        <p class="under-btn">
+          🔒 Secure, encrypted checkout &middot; 14-day money-back guarantee &middot; Instant delivery<br>
+          By completing your order you agree to our <a href="terms.html">Terms</a> and
+          <a href="privacy.html">Privacy Policy</a>.
+        </p>
+
+        <p class="form-note" id="form-note" hidden></p>
+      </form>
+    </div>
+
+    <!-- ============ ORDER SUMMARY ============ -->
+    <aside class="summary" aria-label="Order summary">
+      <div class="sum-card">
+        <div class="sum-head">
+          <h2>Your order</h2>
+          <span class="secure-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+          </span>
+        </div>
+
+        <div class="sum-body">
+          <div class="prod">
+            <span class="prod-ico" aria-hidden="true">70</span>
+            <div>
+              <div class="prod-name">70 AI Specialists + Business Growth System for Claude</div>
+              <p class="prod-desc">70 expert AI Specialists &mdash; pre-built, pre-trained, ready to work in your
+              business today. Each one powered by Claude. Each one yours forever.</p>
+            </div>
+          </div>
+
+          <ul class="incl">
+            <li><span class="tick">&check;</span>20 Marketing &amp; Campaign Specialists</li>
+            <li><span class="tick">&check;</span>9 Social Media Specialists</li>
+            <li><span class="tick">&check;</span>8 Sales &amp; Revenue Specialists</li>
+            <li><span class="tick">&check;</span>8 Writing Specialists</li>
+            <li><span class="tick">&check;</span>8 Operations &amp; Systems Specialists</li>
+            <li><span class="tick">&check;</span>6 Strategy &amp; Growth Specialists</li>
+            <li><span class="tick">&check;</span>3 Customer Success Specialists</li>
+            <li><span class="tick">&check;</span>3 E-commerce Specialists</li>
+            <li><span class="tick">&check;</span>3 Daily AI Assistant Specialists</li>
+            <li><span class="tick">&check;</span>10,000 battle-tested prompts</li>
+          </ul>
+
+          <div class="bonus">
+            <div class="bonus-title">🎁 4 free Claude Sprints (worth $388) included today</div>
+            <ul>
+              <li><span class="tick">&check;</span><span><strong>Master Claude Cowork</strong> &mdash; docs, emails, files and research</span></li>
+              <li><span class="tick">&check;</span><span><strong>Claude Skills</strong> &mdash; build workflows once, run them forever</span></li>
+              <li><span class="tick">&check;</span><span><strong>Claude MCP</strong> &mdash; connect Gmail, Notion, HubSpot and more</span></li>
+              <li><span class="tick">&check;</span><span><strong>Build-to-Sell Bootcamp</strong> &mdash; sell AI assistants in 60 minutes</span></li>
+            </ul>
+          </div>
+
+          <div class="totals">
+            <div class="tot-row"><span>Subtotal</span><span class="v">$285.00</span></div>
+            <div class="tot-row discount"><span>Launch discount</span><span class="v">&minus;$284.00</span></div>
+            <div class="tot-row grand">
+              <span>Total due today</span>
+              <span><span class="was">$285</span><span class="v">$1</span></span>
+            </div>
+          </div>
+          <p class="once">One payment. No subscription.</p>
+
+          <div class="guarantee-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/><path d="m9 12 2 2 4-4"/>
+            </svg>
+            <p><strong>14-day money-back guarantee</strong>
+            Not for you? Email us within 14 days and we&rsquo;ll refund you in full &mdash; no forms, no
+            reason needed. <a href="terms.html#refunds">Read the policy</a>.</p>
+          </div>
+
+          <div class="trust">
+            <span class="stars" aria-hidden="true">★★★★★</span>
+            <strong>4.7</strong>
+            <span>&middot;</span>
+            <span>70,000+ happy customers</span>
+          </div>
+
+          <p class="urgency">⚠️ Launch pricing ends soon &mdash; then $285.</p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="/">Home</a>
+      <a href="terms.html#refunds">Refunds</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="earnings.html">Earnings &amp; Products Disclaimer</a>
+    </div>
+    <p class="fine">Claude is a trademark of Anthropic. This product is independently created and is not affiliated with or endorsed by Anthropic.</p>
+    <p class="fine">&copy; 2026 AI Founder University. All rights reserved. This site is not a part of the Facebook website or Facebook Inc.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var form = document.getElementById('checkout-form');
+  var note = document.getElementById('form-note');
+  if (!form) return;
+
+  var fields = [
+    { id: 'email',    test: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); } },
+    { id: 'fname',    test: function (v) { return v.length > 0; } },
+    { id: 'lname',    test: function (v) { return v.length > 0; } },
+    { id: 'country',  test: function (v) { return v.length > 0; } },
+    { id: 'address',  test: function (v) { return v.length > 0; } },
+    { id: 'city',     test: function (v) { return v.length > 0; } },
+    { id: 'postcode', test: function (v) { return v.length > 0; } }
+  ];
+
+  function check(f, showError) {
+    var el = document.getElementById(f.id);
+    var ok = f.test(el.value.trim());
+    if (showError) {
+      el.closest('.field').classList.toggle('invalid', !ok);
+      el.setAttribute('aria-invalid', ok ? 'false' : 'true');
+    }
+    return ok;
+  }
+
+  // clear a field's error as soon as it becomes valid
+  fields.forEach(function (f) {
+    var el = document.getElementById(f.id);
+    el.addEventListener('input', function () {
+      if (el.closest('.field').classList.contains('invalid')) check(f, true);
+    });
+    el.addEventListener('blur', function () {
+      if (el.value.trim()) check(f, true);
+    });
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var firstBad = null;
+    fields.forEach(function (f) {
+      if (!check(f, true) && !firstBad) firstBad = document.getElementById(f.id);
+    });
+
+    if (firstBad) {
+      firstBad.focus();
+      firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Everything above this line is ready. The payment step is not wired up:
+    // hand the collected details to your provider here (create a Stripe
+    // PaymentIntent / redirect to Checkout / submit the GHL form) instead of
+    // showing this notice.
+    note.hidden = false;
+    note.textContent =
+      'Your details are valid, but no payment provider is connected yet. ' +
+      'Wire #payment-element and this submit handler to your processor before going live.';
+    note.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    console.warn('[checkout] No payment provider connected. See the submit handler in checkout.html.');
+  });
+})();
+</script>
+
+</body>
+</html>
