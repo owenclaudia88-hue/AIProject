@@ -146,11 +146,19 @@ header.top{
 
 /* ---------- hero ---------- */
 .hero{padding-top:34px;padding-bottom:70px;position:relative;overflow:hidden}
-.hero_wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;position:relative}
+.hero_wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:0 16px;position:relative;
+  grid-template-areas:"content visual" "cta visual";
+  align-content:center;
+}
+.hero_content{grid-area:content;align-self:end}
+.hero_cta{grid-area:cta;align-self:start;margin-top:22px}
+.hero_visual{grid-area:visual;align-self:center}
 .hero_content{
   display:flex;flex-direction:column;align-items:flex-start;gap:22px;
   max-width:600px;text-align:left;position:relative;z-index:2;
 }
+.hero_cta .cta-block{align-items:flex-start}
 .hero_content .cta-block{align-items:flex-start}
 .hero_rating{
   display:inline-flex;align-items:center;gap:10px;white-space:nowrap;
@@ -538,6 +546,38 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   box-shadow:0 12px 34px rgba(0,0,0,.7);
 }
 
+/* ---------- mobile bottom checkout bar ---------- */
+.mobile-checkout{
+  display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;
+  align-items:center;justify-content:space-between;gap:12px;
+  background:rgba(12,12,14,.97);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+  padding:10px 14px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  transform:translateY(130%);transition:transform .28s ease;
+}
+.mobile-checkout.show{transform:none}
+.mc-info{flex:1 1 auto;min-width:0}
+.mc-name{font-size:.78rem;font-weight:600;color:var(--txt-2);line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-price{display:flex;align-items:baseline;gap:6px;line-height:1.2}
+.mc-price strong{font-size:1.25rem;font-weight:900;color:#fff;letter-spacing:-.02em}
+.mc-price s{font-size:.8rem;color:var(--txt-3)}
+/* must beat the <=420px `.btn{width:100%}` rule */
+.mobile-checkout .mc-btn{
+  flex:0 0 auto;width:auto;padding:12px 15px;font-size:.86rem;gap:7px;
+  box-shadow:0 4px 18px rgba(255,122,26,.3);
+}
+.mc-ico{
+  width:23px;height:23px;border-radius:6px;background:rgba(0,0,0,.28);
+  display:grid;place-items:center;font-size:.72rem;flex:none;
+}
+@media (max-width:360px){
+  .mc-price s{display:none}
+  .mobile-checkout .mc-btn{padding:11px 13px;font-size:.82rem}
+  .mc-ico{display:none}
+}
+
 /* ---------- responsive ---------- */
 @media (max-width:1000px){
   .reviews{columns:2}
@@ -549,32 +589,59 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   .p1,.p2,.p3{left:-15%}
   .p4,.p5,.p6{right:-15%}
 }
+@media (max-width:820px) and (min-width:701px){
+  .hero_visual{height:520px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.82)}
+}
+@media (max-width:700px){
+  .hero_visual{height:484px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.78)}
+}
+@media (max-width:620px){
+  .hero_visual{height:434px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.70)}
+}
+@media (max-width:520px){
+  .hero_visual{height:360px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.58)}
+}
+@media (max-width:440px){
+  .hero_visual{height:310px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.50)}
+}
+@media (max-width:380px){
+  .hero_visual{height:285px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.46)}
+}
 @media (max-width:820px){
   section{padding-block:64px}
   .g2,.g3,.g4,.plans,.vs,.caps{grid-template-columns:1fr}
   .reviews{columns:1}
   .top-right .price-tag{display:none}
   .brand-sub{display:none}
+  /* the reference uses a bottom checkout bar on phones, not a pinned header */
+  header.top{position:static}
+  .mobile-checkout{display:flex}
+  body{padding-bottom:78px}
   .hero{padding-top:26px}
-  .hero_wrap{grid-template-columns:1fr;gap:30px}
+  /* text -> image -> button, the way the reference orders it on a phone */
+  .hero_wrap{grid-template-columns:1fr;grid-template-areas:"content" "visual" "cta";gap:0}
   .hero_content{max-width:100%;align-items:center;text-align:center;gap:18px}
+  .hero_cta{margin-top:0}
+  .hero_cta .cta-block{align-items:center}
   /* nowrap here forced the 1fr track to ~466px and clipped the hero */
   .hero_rating{white-space:normal;flex-wrap:wrap;justify-content:center;
                font-size:.76rem;line-height:1.5;text-align:center;gap:8px}
   .hero_rating .bar{display:none}
-  .hero_content .cta-block{align-items:center}
-  .hero_visual{height:auto;overflow:hidden}
-  .hero_visual .boxstage{transform:none;width:100%}
 
-  /* hero box: stack chips under the box instead of orbiting it */
-  .boxstage{width:100%;height:auto;display:block;text-align:center}
-  .box3d{position:relative;top:auto;right:auto;margin:0 auto}
-  .ring{display:none}
-  .box3d{margin:0 auto;transform:perspective(1500px) rotateY(-24deg) scale(.82)}
-  .box-chip{position:static;width:auto;max-width:none;text-align:left}
-  .box-chips-wrap{display:grid;gap:12px;margin-top:40px}
-  .tenx{position:static;max-width:none;margin-top:34px;text-align:center}
-  .tenx .logo{justify-content:center}
+  /* Keep the whole composition - box, all four chips, ring, 10x - and scale it
+     down as one piece, rather than taking it apart into a stacked list. The
+     stage stays 660x620 internally; .hero_visual is sized to the scaled result. */
+  .hero_visual{overflow:hidden;display:block;position:relative;margin:24px 0 10px}
+  .hero_visual .boxstage{
+    position:absolute;left:50%;top:0;width:660px;height:620px;
+    transform-origin:top center;
+  }
 
   /* carousel */
   .tstage{padding:26px 22px 34px}
@@ -601,9 +668,6 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 
   /* hero */
   .hero_eyebrow{font-size:1rem}
-  .box3d{transform:perspective(1500px) rotateY(-24deg) scale(.74)}
-  .box-chips-wrap{margin-top:24px}
-  .tenx .big{font-size:3.2rem}
 
   /* carousel */
   .tstage{padding:22px 18px 30px;min-height:0}
@@ -712,6 +776,9 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       <p class="h1-sub"><em>70 Specialists to 10x your output and cut your costs by 50%</em></p>
       <p class="lead">One specialist for every part of your business. Your social media manager, copywriter, strategist, sales coach, analyst, HR lead — and 65 more.</p>
       <p class="lead"><strong>One payment of <span class="amber">$1</span> today. No monthly fees. Results from day one.</strong></p>
+    </div>
+
+    <div class="hero_cta">
       <div class="cta-block">
         <a href="#pricing" class="btn">Get Instant Access For $1</a>
         <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
@@ -1492,6 +1559,16 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   </div>
 </footer>
 
+<div class="mobile-checkout" aria-label="Checkout">
+  <div class="mc-info">
+    <div class="mc-name">70 AI Specialists</div>
+    <div class="mc-price"><strong>$1</strong><s>$285</s></div>
+  </div>
+  <a href="#pricing" class="btn mc-btn">
+    <span class="mc-ico" aria-hidden="true">⬇</span>Get Instant Access
+  </a>
+</div>
+
 <script>
 document.querySelectorAll('.faq-q').forEach(function (btn) {
   btn.addEventListener('click', function () {
@@ -1509,6 +1586,30 @@ function syncFaq() {
 }
 new MutationObserver(syncFaq).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
 syncFaq();
+
+/* bottom checkout bar: appears once the hero CTA has scrolled away */
+(function () {
+  var bar = document.querySelector('.mobile-checkout');
+  var hero = document.querySelector('.hero');
+  if (!bar || !hero) return;
+  var ticking = false;
+  function update() {
+    ticking = false;
+    var past = window.scrollY > (hero.offsetHeight * 0.6);
+    var atPricing = false;
+    var pricing = document.getElementById('pricing');
+    if (pricing) {
+      var r = pricing.getBoundingClientRect();
+      atPricing = r.top < window.innerHeight && r.bottom > 0;
+    }
+    bar.classList.toggle('show', past && !atPricing);
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
 
 /* donut: crop the viewBox to the ring on phones, where the SVG callouts are
    hidden in favour of the HTML legend and would otherwise leave dead space */

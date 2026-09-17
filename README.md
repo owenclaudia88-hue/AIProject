@@ -59,7 +59,15 @@ Any static host works. For GitHub Pages: repo **Settings → Pages → Source: D
 The page is responsive down to 360px and dark-themed throughout, verified with
 no horizontal overflow at 360 / 390 / 414 / 768px.
 
-Three things change shape on phones (<= 560px) rather than just reflowing:
+On phones the sticky header is dropped in favour of a fixed bottom checkout
+bar (price + CTA) that slides in once the hero has scrolled away and hides
+again over the pricing section, and the hero reorders to text -> image -> button.
+
+The hero composition is never taken apart on small screens: the stage stays
+660x620 internally and is scaled as a single piece through `.hero_visual`, whose
+height is set per breakpoint to match the scaled result.
+
+Three other things change shape on phones (<= 560px) rather than just reflowing:
 
 - **The gap table** becomes one card per task with each value labelled, so the
   "With 70 AI Specialists" column is on screen instead of scrolled past.
