@@ -7,12 +7,39 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 - `index.html` — the landing page: markup, CSS and JS inlined. No build step, no framework.
 - `privacy.html`, `terms.html`, `earnings.html` — legal pages, linked from the footer.
 - `assets/legal.css` — shared styling for those three pages.
-
-> **The legal pages are templates, not legal advice.** Every `[BRACKETED]` placeholder
-> (company name, address, support email, payment processor, jurisdiction, dates) needs
-> replacing, and a lawyer should review them before you take payments. Each page carries a
-> visible notice saying so — delete that box once the page is finalised.
 - `assets/laptop-mockup.avif`, `assets/ipad-mockup.avif`, `assets/phone-mockup.avif` — the three product mockups.
+
+## Legal pages
+
+Business name, support email and copyright lines are filled in: **PURE COLLECTIVE LTD**,
+**support@aifounderuniversity.com**. Payment-processor mentions were removed and replaced
+with generic "third-party payment processor" wording, since no specific provider is named.
+
+**Still templates, not legal advice.** A few `[BRACKETED]` placeholders remain because
+they're facts only you can supply — registered address, jurisdiction, currency, analytics/
+hosting/delivery providers, and data-retention periods. Fill those in and have a lawyer
+review all three pages before you take real payments. Each page carries a visible notice
+saying so — delete that box once the page is finalised.
+
+## Deployment path
+
+This is meant to live at **aifounderuniversity.com/70-ai-specialists-for-claude**, not at
+the root of that domain. The site needs no code changes to support that: every internal
+link and asset path in `index.html` and the legal pages is relative (`assets/…`,
+`privacy.html`, `#pricing`, …), never a leading `/`, so it renders correctly at whatever
+subpath it's served from.
+
+Getting it onto that exact URL is a hosting decision this repo can't make on its own — it
+depends on how `aifounderuniversity.com` itself is hosted:
+
+- **If that domain is also a Vercel project:** add a rewrite in *that* project's
+  `vercel.json` routing `/70-ai-specialists-for-claude/(.*)` to this deployment, or import
+  this repo as a nested project and assign it the subpath via Vercel's dashboard.
+- **If it's a traditional host (cPanel, Netlify, S3, etc.):** upload this repo's files into
+  a `70-ai-specialists-for-claude/` folder under that site's web root.
+- **If it's a different framework (WordPress, Webflow, Next.js, …):** these are plain
+  static files — drop them into whatever that framework uses as its static/public asset
+  folder for that path.
 
 ## Sections
 
