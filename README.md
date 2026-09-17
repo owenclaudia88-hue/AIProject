@@ -56,7 +56,17 @@ Any static host works. For GitHub Pages: repo **Settings → Pages → Source: D
 
 ## Notes
 
-The page is responsive down to ~380px and dark-themed throughout.
+The page is responsive down to 360px and dark-themed throughout, verified with
+no horizontal overflow at 360 / 390 / 414 / 768px.
+
+Three things change shape on phones (<= 560px) rather than just reflowing:
+
+- **The gap table** becomes one card per task with each value labelled, so the
+  "With 70 AI Specialists" column is on screen instead of scrolled past.
+- **The line chart** drops its y-axis numbers (an illustrative index, not real
+  units) and scales the remaining labels up, so the full Jan-Jun span fits.
+- **The donut** hides its SVG callouts for an HTML legend, and JS crops its
+  viewBox to the ring so there is no dead space.
 
 **No image assets.** The product box, the laptop, both charts and the Claude
 starburst are all CSS and hand-authored inline SVG, so everything is editable in
