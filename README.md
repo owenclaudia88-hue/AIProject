@@ -5,31 +5,61 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 ## What's here
 
 - `index.html` — the landing page: markup, CSS and JS inlined. No build step, no framework.
-- `checkout.html` + `assets/checkout.css` — the checkout page.
+- `checkout.html`, `success.html` + `assets/checkout.css` — Stripe checkout and its result page.
+- `api/` — Vercel serverless functions for Stripe (PaymentIntent + webhook).
 - `privacy.html`, `terms.html`, `earnings.html` — legal pages, linked from the footer.
 - `assets/legal.css` — shared styling for those three pages.
 - `assets/laptop-mockup.avif`, `assets/ipad-mockup.avif`, `assets/phone-mockup.avif` — the three product mockups.
 - `vercel.json` — rewrites that serve the site at the `/70-ai-specialists-for-claude` subpath as well as the root.
 
-## Checkout
+## Checkout (Stripe)
 
 `checkout.html` is a two-column checkout: contact and billing form on the left, sticky order
-summary on the right (product, the 4 free Sprints, totals, guarantee, trust). Under 900px the
-summary moves **above** the form so the price is seen before any typing. The pricing CTA on
-the landing page links here.
+summary on the right. Under 900px the summary moves **above** the form so the price is seen
+before any typing. The landing page's pricing CTA links here.
 
-**It does not take payments yet, by design.** Two things are deliberately missing:
+Payment uses **Stripe Payment Element**. Card details are entered inside Stripe's iframe and
+never touch this site or its server, which keeps you out of PCI scope. There are no card
+inputs in the markup on purpose — don't add any.
 
-1. `#payment-element` in step 3 is an empty mount point with a placeholder. Render your
-   provider's own hosted card fields into it (Stripe Elements, a GoHighLevel embed, …) and
-   delete the placeholder. **Do not replace it with plain `<input>` fields** — keeping card
-   entry inside the provider's iframe is what keeps this site out of PCI scope.
-2. The `submit` handler validates the contact and billing fields, then stops and shows a
-   notice. Replace that branch with the real call — create a PaymentIntent, redirect to
-   hosted checkout, or submit to your provider.
+### Files
 
-Until both are done the form can collect details but can never take money, which is the safe
-failure mode if it goes live early. Validation, error states and the summary are all finished.
+| File | Role |
+|---|---|
+| `checkout.html` | Form, validation, mounts the Payment Element, calls `confirmPayment` |
+| `success.html` | Where Stripe redirects after payment; reports the real status |
+| `api/create-payment-intent.js` | Creates the PaymentIntent, returns `clientSecret` + publishable key |
+| `api/stripe-webhook.js` | Verifies Stripe signatures; **where fulfilment belongs** |
+
+### Setup
+
+1. `npm install` (adds the `stripe` SDK; Vercel runs this automatically on deploy).
+2. Set these in **Vercel → Settings → Environment Variables**, and in `.env.local` for local
+   dev — see `.env.example`:
+   - `STRIPE_SECRET_KEY` — `sk_test_…` while testing
+   - `STRIPE_PUBLISHABLE_KEY` — `pk_test_…`
+   - `STRIPE_WEBHOOK_SECRET` — `whsec_…`
+   - `PRICE_AMOUNT` — in the smallest unit, `100` = $1.00
+   - `PRICE_CURRENCY` — e.g. `usd`
+3. Add a webhook endpoint in the Stripe dashboard pointing at
+   `https://yourdomain.com/api/stripe-webhook`, subscribed to `payment_intent.succeeded`,
+   `payment_intent.payment_failed` and `charge.refunded`.
+4. Test locally with `stripe listen --forward-to localhost:3000/api/stripe-webhook` and card
+   `4242 4242 4242 4242`, any future expiry and CVC.
+5. Swap to live keys only once a test payment has completed end to end.
+
+### Two things that matter
+
+**The price is server-side.** `PRICE_AMOUNT` is read from env inside
+`create-payment-intent.js` and never accepted from the request body, so the amount can't be
+edited in the browser. If you change the price, change the env var *and* the figures shown in
+`checkout.html` and the landing page.
+
+**Fulfilment belongs in the webhook, not on the success page.** A browser redirect can be
+closed, blocked or replayed, so it isn't proof of payment. The `payment_intent.succeeded`
+branch of `api/stripe-webhook.js` has a marked TODO — send the product email there, and make
+it idempotent (Stripe retries on failure, so check whether that PaymentIntent was already
+fulfilled).
 
 ## Refunds
 

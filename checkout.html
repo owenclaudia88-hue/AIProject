@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/checkout.css">
+<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -122,21 +123,18 @@
           </div>
 
           <!--
-            PAYMENT MOUNT POINT — deliberately empty.
+            Stripe Payment Element mounts into #payment-element.
 
-            Card details are NOT collected by this form. Mount your payment
-            provider's own hosted fields into #payment-element (Stripe Elements,
-            a GoHighLevel embed, etc.) and delete the placeholder below. Keeping
-            card entry inside the provider's iframe is what keeps this site out
-            of PCI scope — do not replace this with plain <input> fields.
+            Card details are entered inside Stripe's iframe and never touch this
+            page or our server, which keeps the site out of PCI scope. Do not
+            replace this with plain <input> fields.
           -->
-          <div id="payment-element">
+          <div id="payment-element" aria-live="polite">
             <div class="pay-mount" id="payment-placeholder">
               <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
               </svg>
-              <p>Your payment provider&rsquo;s secure card form mounts here.<br>
-              Replace this block by rendering into <code>#payment-element</code>.</p>
+              <p id="payment-status">Loading secure payment form&hellip;</p>
             </div>
           </div>
         </section>
@@ -250,9 +248,17 @@
 
 <script>
 (function () {
-  var form = document.getElementById('checkout-form');
-  var note = document.getElementById('form-note');
+  var form    = document.getElementById('checkout-form');
+  var note    = document.getElementById('form-note');
+  var btn     = document.getElementById('submit-btn');
+  var mount   = document.getElementById('payment-element');
+  var status  = document.getElementById('payment-status');
   if (!form) return;
+
+  var stripe, elements, publishableKey, ready = false;
+  var btnLabel = btn.innerHTML;
+
+  /* ---------------- field validation ---------------- */
 
   var fields = [
     { id: 'email',    test: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); } },
@@ -274,7 +280,6 @@
     return ok;
   }
 
-  // clear a field's error as soon as it becomes valid
   fields.forEach(function (f) {
     var el = document.getElementById(f.id);
     el.addEventListener('input', function () {
@@ -285,30 +290,136 @@
     });
   });
 
-  form.addEventListener('submit', function (e) {
+  function val(id) { return document.getElementById(id).value.trim(); }
+
+  function showNote(msg, isError) {
+    note.hidden = false;
+    note.textContent = msg;
+    note.classList.toggle('is-error', !!isError);
+    note.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function setBusy(busy) {
+    btn.disabled = busy;
+    btn.innerHTML = busy ? 'Processing&hellip;' : btnLabel;
+  }
+
+  /* ---------------- Stripe setup ---------------- */
+
+  // Matches the Payment Element to the page's dark theme.
+  var appearance = {
+    theme: 'night',
+    variables: {
+      colorPrimary: '#ff7a1a',
+      colorBackground: '#18181b',
+      colorText: '#f4f4f5',
+      colorTextSecondary: '#a1a1aa',
+      colorDanger: '#f87171',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      borderRadius: '10px',
+      spacingUnit: '4px'
+    },
+    rules: {
+      '.Input': { border: '1px solid #333338', boxShadow: 'none', padding: '13px 14px' },
+      '.Input:focus': { border: '1px solid #ff7a1a', boxShadow: '0 0 0 3px rgba(255,122,26,.16)' },
+      '.Label': { fontSize: '13px', fontWeight: '600', color: '#a1a1aa' }
+    }
+  };
+
+  function paymentUnavailable(msg) {
+    ready = false;
+    if (status) status.textContent = msg;
+    if (mount) mount.classList.add('pay-unavailable');
+  }
+
+  async function initStripe() {
+    if (typeof Stripe !== 'function') {
+      paymentUnavailable('Could not load Stripe. Check your connection and refresh.');
+      return;
+    }
+    try {
+      var res = await fetch('/api/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+
+      if (!res.ok) {
+        var detail = await res.json().catch(function () { return {}; });
+        throw new Error(detail.error || ('Server returned ' + res.status));
+      }
+
+      var data = await res.json();
+      if (!data.clientSecret || !data.publishableKey) throw new Error('Incomplete response from server.');
+
+      publishableKey = data.publishableKey;
+      stripe = Stripe(publishableKey);
+      elements = stripe.elements({ clientSecret: data.clientSecret, appearance: appearance });
+      var paymentElement = elements.create('payment', { layout: 'tabs' });
+
+      // Stripe replaces the contents of #payment-element, removing the placeholder.
+      paymentElement.mount('#payment-element');
+      paymentElement.on('ready', function () { ready = true; });
+    } catch (err) {
+      console.error('[checkout] Stripe init failed:', err);
+      paymentUnavailable(
+        'Payment form unavailable. ' +
+        'If you are the site owner, check STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY are set.'
+      );
+    }
+  }
+
+  initStripe();
+
+  /* ---------------- submit ---------------- */
+
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     var firstBad = null;
     fields.forEach(function (f) {
       if (!check(f, true) && !firstBad) firstBad = document.getElementById(f.id);
     });
-
     if (firstBad) {
       firstBad.focus();
       firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    // Everything above this line is ready. The payment step is not wired up:
-    // hand the collected details to your provider here (create a Stripe
-    // PaymentIntent / redirect to Checkout / submit the GHL form) instead of
-    // showing this notice.
-    note.hidden = false;
-    note.textContent =
-      'Your details are valid, but no payment provider is connected yet. ' +
-      'Wire #payment-element and this submit handler to your processor before going live.';
-    note.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    console.warn('[checkout] No payment provider connected. See the submit handler in checkout.html.');
+    if (!ready || !stripe || !elements) {
+      showNote('The payment form has not finished loading. Give it a moment and try again.', true);
+      return;
+    }
+
+    setBusy(true);
+    note.hidden = true;
+
+    var result = await stripe.confirmPayment({
+      elements: elements,
+      confirmParams: {
+        return_url: window.location.origin + '/success.html?pk=' + encodeURIComponent(publishableKey),
+        receipt_email: val('email'),
+        payment_method_data: {
+          billing_details: {
+            name: val('fname') + ' ' + val('lname'),
+            email: val('email'),
+            address: {
+              line1: val('address'),
+              city: val('city'),
+              postal_code: val('postcode')
+            }
+          }
+        }
+      }
+    });
+
+    // Reached only if the payment failed — on success Stripe redirects to return_url.
+    setBusy(false);
+    if (result.error) {
+      var m = result.error.message || 'Something went wrong. Your card has not been charged.';
+      showNote(m, true);
+      console.warn('[checkout]', result.error);
+    }
   });
 })();
 </script>

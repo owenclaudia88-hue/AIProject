@@ -4,3 +4,7 @@ node_modules/
 *.log
 .vscode/
 .idea/
+.env
+.env.local
+.env*.local
+.vercel

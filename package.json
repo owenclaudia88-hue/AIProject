@@ -1,0 +1,9 @@
+{
+  "name": "ai-founder-university-70-specialists",
+  "private": true,
+  "type": "module",
+  "description": "Landing page and Stripe checkout for 70 AI Specialists for Claude",
+  "dependencies": {
+    "stripe": "^17.5.0"
+  }
+}
