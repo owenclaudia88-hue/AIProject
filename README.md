@@ -20,15 +20,22 @@ spelled out in the FAQ, so a customer never has to hunt for it.
 
 ## Legal pages
 
-Business name, support email and copyright lines are filled in: **PURE COLLECTIVE LTD**,
-**support@aifounderuniversity.com**. Payment-processor mentions were removed and replaced
-with generic "third-party payment processor" wording, since no specific provider is named.
+Written to be **general**: they cover any product, course or membership sold under
+**AI Founder University** at aifounderuniversity.com, rather than being scoped to this one
+landing page. Contact point throughout is **support@aifounderuniversity.com**.
 
-**Still templates, not legal advice.** A few `[BRACKETED]` placeholders remain because
-they're facts only you can supply — registered address, jurisdiction, currency, analytics/
-hosting/delivery providers, and data-retention periods. Fill those in and have a lawyer
-review all three pages before you take real payments. Each page carries a visible notice
-saying so — delete that box once the page is finalised.
+There are no bracketed placeholders and no template notice left — nothing needs filling in
+to publish them. Deliberately kept out, so there is nothing to maintain until the business
+needs it:
+
+- no registered postal address (email is the stated contact)
+- no named jurisdiction — the governing-law clause refers to where the business is
+  established and preserves local consumer rights
+- no named currency, payment processor, analytics, hosting or delivery vendor — the privacy
+  policy lists provider *categories* instead
+
+Worth doing before taking significant revenue: have a lawyer read them, and add a
+registered address and jurisdiction if the business is incorporated somewhere specific.
 
 ## Deployment path
 

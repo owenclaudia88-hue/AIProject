@@ -62,13 +62,6 @@ li{margin-bottom:8px}
 strong{color:#fff;font-weight:600}
 hr{border:0;border-top:1px solid var(--line);margin:40px 0}
 
-.notice{
-  background:var(--bg-3);border:1px solid rgba(255,122,26,.3);border-radius:14px;
-  padding:18px 20px;margin:0 0 34px;
-}
-.notice p{margin:0;font-size:.92rem;color:var(--txt-2)}
-.notice strong{color:var(--accent-2)}
-
 footer{border-top:1px solid var(--line);background:var(--bg-2);padding-block:40px;text-align:center}
 footer .links{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;font-size:.88rem;margin-bottom:18px}
 footer .links a{color:var(--txt-2);text-decoration:none}
