@@ -54,6 +54,13 @@ Any static host works. For GitHub Pages: repo **Settings → Pages → Source: D
 - **Copy** — all text is plain HTML in document order; edit in place.
 - **Fonts** — Inter, loaded from Google Fonts. Remove the `<link>` tags to fall back to system fonts.
 
+## Scroll reveals
+
+Section copy, cards and media fade up as they enter the viewport, staggered
+within each section. The `.reveal` class is added by JS at runtime, so with
+JS disabled everything simply renders visible - nothing is hidden by default
+in the markup. Honours `prefers-reduced-motion`.
+
 ## Notes
 
 The page is responsive down to 360px and dark-themed throughout, verified with

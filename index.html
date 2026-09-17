@@ -27,7 +27,7 @@
   --violet-dim:#7c3aed;
   --neutral-series:#9a9aa3;
   --radius:16px;
-  --maxw:1120px;
+  --maxw:1560px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -46,9 +46,9 @@ a{color:inherit;text-decoration:none}
 [hidden]{display:none!important}
 
 /* ---------- layout ---------- */
-.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-inline:20px}
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-inline:clamp(18px,5vw,100px)}
 section{padding-block:104px;position:relative}
-.narrow{max-width:800px;margin-inline:auto}
+.narrow{max-width:880px;margin-inline:auto}
 .center{text-align:center}
 
 /* ---------- type ---------- */
@@ -102,12 +102,19 @@ p{margin:0}
 .btn:active{transform:translateY(0)}
 .btn-sm{padding:11px 22px;font-size:.9rem;box-shadow:0 4px 16px rgba(255,122,26,.25)}
 .btn-block{display:flex;width:100%}
+.btn-lg{padding:13px 28px 13px 13px;font-size:1.06rem;gap:20px}
+.btn-ico{
+  width:46px;height:46px;border-radius:9px;flex:none;
+  background:linear-gradient(180deg,#242424,#1a1a1a);color:#fff;
+  display:grid;place-items:center;box-shadow:0 2px 4px rgba(0,0,0,.35);
+}
+.btn-ico svg{width:19px;height:19px;display:block}
 .btn-ghost{
   background:transparent;color:var(--txt);border:1px solid var(--line-2);
   box-shadow:none;font-weight:700;
 }
 .btn-ghost:hover{background:var(--bg-3);box-shadow:none}
-.cta-block{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cta-block{display:flex;flex-direction:column;align-items:center;gap:16px}
 .guarantee{font-size:.86rem;color:var(--txt-3);display:flex;align-items:center;gap:7px}
 
 /* ---------- cards ---------- */
@@ -164,17 +171,17 @@ header.top{
   align-content:center;
 }
 .hero_content{grid-area:content;align-self:end}
-.hero_cta{grid-area:cta;align-self:start;margin-top:22px}
-.hero_visual{grid-area:visual;align-self:end}
+.hero_cta{grid-area:cta;align-self:start;margin-top:36px}
+.hero_visual{grid-area:visual;align-self:center}
 .hero_content{
-  display:flex;flex-direction:column;align-items:flex-start;gap:22px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:36px;
   max-width:600px;text-align:left;position:relative;z-index:2;
 }
 .hero_cta .cta-block{align-items:flex-start}
 .included-card{
   display:flex;gap:16px;align-items:flex-start;text-align:left;
   background:var(--bg-3);border:1px solid var(--line);border-radius:16px;
-  padding:20px 22px;margin-top:26px;max-width:1010px;
+  padding:20px 24px;margin-top:40px;max-width:1010px;
 }
 .inc-ico{width:32px;height:32px;flex:none;color:var(--accent-2);display:block}
 .inc-ico svg{width:100%;height:100%;display:block}
@@ -198,8 +205,8 @@ header.top{
 }
 .hero_rating .bar{color:#585858}
 .hero_eyebrow{font-size:clamp(1rem,1.6vw,1.25rem);color:#cacaca}
-.hero_visual{position:relative;height:560px;display:grid;place-items:center;overflow:visible;z-index:1}
-.hero_visual .boxstage{transform:scale(.84);transform-origin:center}
+.hero_visual{position:relative;height:620px;display:grid;place-items:center;overflow:visible;z-index:1}
+.hero_visual .boxstage{transform:scale(.97);transform-origin:center}
 .hero::before{
   content:"";position:absolute;inset:-30% 0 auto 50%;
   width:900px;height:700px;transform:translateX(-50%);
@@ -579,6 +586,18 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   box-shadow:0 12px 34px rgba(0,0,0,.7);
 }
 
+/* ---------- scroll reveal ---------- */
+.reveal{
+  opacity:0;transform:translateY(22px);
+  transition:opacity .75s cubic-bezier(.22,.61,.24,1), transform .75s cubic-bezier(.22,.61,.24,1);
+  transition-delay:var(--rd,0ms);
+  will-change:opacity,transform;
+}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+}
+
 /* ---------- mobile bottom checkout bar ---------- */
 .mobile-checkout{
   display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;
@@ -829,7 +848,14 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 
     <div class="hero_cta">
       <div class="cta-block">
-        <a href="#pricing" class="btn">Get Instant Access For $1</a>
+        <a href="#pricing" class="btn btn-lg">
+          <span class="btn-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/>
+            </svg>
+          </span>
+          Get Instant Access For $1
+        </a>
         <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
       </div>
 
@@ -1649,6 +1675,49 @@ function syncFaq() {
 }
 new MutationObserver(syncFaq).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
 syncFaq();
+
+/* section reveals - the reference fades its copy in as you scroll */
+(function () {
+  var SEL = [
+    'section h1', 'section h2', 'section .lead', 'section .eyebrow',
+    'section .card', 'section .cap', 'section .review', 'section .plan',
+    'section .faq-item', 'section .vs-col', 'section .chartcard',
+    'section .table-scroll', 'section .tcarousel', 'section .hero_visual',
+    'section .hero_cta', 'section .hero_rating', 'section .donutrow > div',
+    'section .laptopwrap', 'section .pad-scene', 'section .phone-scene',
+    'section .inside-stack', '.included-card', 'section .cta-block'
+  ].join(',');
+
+  var nodes = Array.prototype.slice.call(document.querySelectorAll(SEL));
+  if (!nodes.length) return;
+
+  // drop anything nested inside another revealing element, so a card and its
+  // heading do not fade twice
+  nodes = nodes.filter(function (el) {
+    return !nodes.some(function (o) { return o !== el && o.contains(el); });
+  });
+
+  if (!('IntersectionObserver' in window)) return;
+
+  nodes.forEach(function (el) { el.classList.add('reveal'); });
+
+  // stagger siblings within the same section
+  var seen = new Map();
+  nodes.forEach(function (el) {
+    var sec = el.closest('section') || document.body;
+    var n = seen.get(sec) || 0;
+    seen.set(sec, n + 1);
+    el.style.setProperty('--rd', Math.min(n, 5) * 80 + 'ms');
+  });
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+
+  nodes.forEach(function (el) { io.observe(el); });
+})();
 
 /* bottom checkout bar: appears once the hero CTA has scrolled away */
 (function () {
