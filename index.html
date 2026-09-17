@@ -145,7 +145,10 @@ header.top{
   display:grid;place-items:center;color:#1a0d00;font-weight:900;font-size:.82rem;
 }
 .brand-name{font-weight:800;letter-spacing:-.02em;font-size:.98rem;line-height:1.2}
-.brand-sub{font-size:.74rem;color:var(--txt-3);line-height:1.2}
+.product-tag{
+  font-size:.82rem;font-weight:600;color:var(--txt-2);white-space:nowrap;
+  padding-right:16px;border-right:1px solid var(--line-2);line-height:1.2;
+}
 .top-right{display:flex;align-items:center;gap:14px}
 .price-tag{display:flex;align-items:baseline;gap:8px;font-weight:800}
 .price-tag .now{font-size:1.15rem;color:var(--accent-2)}
@@ -726,7 +729,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   .g2,.g3,.g4,.plans,.vs,.caps-wrap{grid-template-columns:1fr}
   .reviews{columns:1}
   .top-right .price-tag{display:none}
-  .brand-sub{display:none}
+  .product-tag{display:none}
   /* the reference uses a bottom checkout bar on phones, not a pinned header */
   header.top{position:static}
   .mobile-checkout{display:flex}
@@ -882,12 +885,10 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap top-inner">
     <a class="brand" href="index.html">
       <div class="mark">AI</div>
-      <div>
-        <div class="brand-name">AI Founder University</div>
-        <div class="brand-sub">70 AI Specialists for Claude</div>
-      </div>
+      <div class="brand-name">AI Founder University</div>
     </a>
     <div class="top-right">
+      <div class="product-tag">70 AI Specialists for Claude</div>
       <div class="price-tag"><span class="now">$1</span><span class="was">$285</span></div>
       <a href="#pricing" class="btn btn-sm">Get Instant Access</a>
     </div>
@@ -1738,7 +1739,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap stack center">
     <a class="brand" href="index.html" style="justify-content:center">
       <div class="mark">AI</div>
-      <div style="text-align:left"><div class="brand-name">AI Founder University</div><div class="brand-sub">70 AI Specialists for Claude</div></div>
+      <div class="brand-name">AI Founder University</div>
     </a>
     <div class="links">
       <a href="terms.html#refunds">Refunds &amp; Cancellations</a>

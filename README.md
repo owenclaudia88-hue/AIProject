@@ -18,6 +18,18 @@ purchases (14-day money-back) and recurring memberships (cancel any time, refund
 first payment or on a surprise renewal). It is linked from the footer of every page and
 spelled out in the FAQ, so a customer never has to hunt for it.
 
+## Branding
+
+The logo is **AI Founder University** on its own, with no product attached, so it carries
+over unchanged to any other product built under the same business. The product name
+("70 AI Specialists for Claude") sits in the header's right-hand cluster alongside the
+price and CTA, where it identifies the page rather than the company. It is hidden on
+phones, where the fixed bottom bar already names the product next to the price.
+
+The legal pages carry the same standalone logo and no product CTA, since they apply to the
+whole site rather than this one landing page. Their logo and footer "Home" link point at
+`/` so they stay correct wherever the site root ends up.
+
 ## Legal pages
 
 Written to be **general**: they cover any product, course or membership sold under
