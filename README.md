@@ -8,6 +8,15 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 - `privacy.html`, `terms.html`, `earnings.html` — legal pages, linked from the footer.
 - `assets/legal.css` — shared styling for those three pages.
 - `assets/laptop-mockup.avif`, `assets/ipad-mockup.avif`, `assets/phone-mockup.avif` — the three product mockups.
+- `vercel.json` — rewrites that serve the site at the `/70-ai-specialists-for-claude` subpath as well as the root.
+
+## Refunds
+
+Refunds are deliberately friction-free: one email to **support@aifounderuniversity.com**, no
+forms and no reason required. The policy lives in `terms.html#refunds` and covers one-off
+purchases (14-day money-back) and recurring memberships (cancel any time, refund on the
+first payment or on a surprise renewal). It is linked from the footer of every page and
+spelled out in the FAQ, so a customer never has to hunt for it.
 
 ## Legal pages
 
@@ -23,23 +32,37 @@ saying so — delete that box once the page is finalised.
 
 ## Deployment path
 
-This is meant to live at **aifounderuniversity.com/70-ai-specialists-for-claude**, not at
-the root of that domain. The site needs no code changes to support that: every internal
-link and asset path in `index.html` and the legal pages is relative (`assets/…`,
-`privacy.html`, `#pricing`, …), never a leading `/`, so it renders correctly at whatever
-subpath it's served from.
+`vercel.json` makes this project serve the site at **both**:
 
-Getting it onto that exact URL is a hosting decision this repo can't make on its own — it
-depends on how `aifounderuniversity.com` itself is hosted:
+- `aifounderuniversity.com/` (the root), and
+- `aifounderuniversity.com/70-ai-specialists-for-claude`
 
-- **If that domain is also a Vercel project:** add a rewrite in *that* project's
-  `vercel.json` routing `/70-ai-specialists-for-claude/(.*)` to this deployment, or import
-  this repo as a nested project and assign it the subpath via Vercel's dashboard.
-- **If it's a traditional host (cPanel, Netlify, S3, etc.):** upload this repo's files into
-  a `70-ai-specialists-for-claude/` folder under that site's web root.
-- **If it's a different framework (WordPress, Webflow, Next.js, …):** these are plain
-  static files — drop them into whatever that framework uses as its static/public asset
-  folder for that path.
+via three rewrites. That works because every internal link and asset path in the HTML is
+relative (`assets/…`, `privacy.html`, `#pricing`) and never starts with `/`, so the page
+resolves correctly whether or not the URL has a trailing slash:
+
+| URL | Rewrite that fires | `assets/x.avif` resolves to |
+|---|---|---|
+| `/70-ai-specialists-for-claude` | rule 1 → `/index.html` | `/assets/x.avif` (direct) |
+| `/70-ai-specialists-for-claude/` | rule 2 → `/index.html` | `/70-…/assets/x.avif` → rule 3 → `/assets/x.avif` |
+
+### Switching it off the root later
+
+Right now the root and the subpath both show this landing page. When the main site is ready
+to take over `aifounderuniversity.com/`, pick one:
+
+1. **Main site becomes a different Vercel project (most common).** In the Vercel dashboard,
+   move the `aifounderuniversity.com` domain onto that project, then in *its* `vercel.json`
+   add a rewrite sending `/70-ai-specialists-for-claude/:path*` to this project's
+   deployment URL. This repo then no longer needs its own domain.
+2. **Keep everything in this project.** Replace `index.html` at the root with the main
+   site's homepage and leave the rewrites as they are — the landing page keeps working at
+   the subpath, served from the same files.
+3. **Subpath only, no root landing page.** Keep the rewrites and point `/` at whatever
+   should live there; nothing in this repo needs to change for the subpath to keep working.
+
+Whichever you choose, the landing page itself needs no code changes — it is subpath-safe by
+construction.
 
 ## Sections
 

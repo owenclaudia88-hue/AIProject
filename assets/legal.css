@@ -44,6 +44,17 @@ main{padding-block:56px 80px}
 h1{font-size:clamp(2rem,4vw,2.9rem);font-weight:400;line-height:1.2;letter-spacing:-.02em;margin:22px 0 10px}
 .updated{color:var(--txt-3);font-size:.9rem;margin:0 0 34px}
 h2{font-size:clamp(1.25rem,2vw,1.5rem);font-weight:600;letter-spacing:-.01em;margin:40px 0 12px;color:#fff}
+h3{font-size:1.02rem;font-weight:700;letter-spacing:-.01em;margin:26px 0 8px;color:#fff}
+
+/* highlighted "read this bit" box, used for the refund summary */
+.callout{
+  background:radial-gradient(ellipse 80% 120% at 50% 0%,rgba(255,122,26,.10),transparent 70%),var(--bg-3);
+  border:1px solid rgba(255,122,26,.45);border-radius:14px;
+  padding:18px 20px;margin:18px 0 26px;
+}
+.callout p{margin:0;color:var(--txt-2)}
+.callout strong{color:var(--accent-2)}
+.callout a{font-weight:600}
 p,li{color:var(--txt-2)}
 p{margin:0 0 14px}
 ul,ol{margin:0 0 16px;padding-left:22px}
