@@ -84,7 +84,19 @@ p{margin:0}
   padding:16px 34px;border-radius:999px;border:0;cursor:pointer;
   box-shadow:0 8px 28px rgba(255,122,26,.28);
   transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
-  text-align:center;
+  text-align:center;position:relative;overflow:hidden;isolation:isolate;
+}
+.btn::after{
+  content:"";position:absolute;top:0;bottom:0;left:-150%;width:55%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:skewX(-18deg);pointer-events:none;z-index:-1;
+  animation:btn-sheen 3.4s cubic-bezier(.4,0,.2,1) infinite;
+}
+@keyframes btn-sheen{0%,62%{left:-150%}100%{left:170%}}
+.btn-ghost::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent)}
+@media (prefers-reduced-motion:reduce){
+  .btn::after{animation:none;opacity:0}
+  .btn:hover{transform:none}
 }
 .btn:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(255,122,26,.38);filter:brightness(1.05)}
 .btn:active{transform:translateY(0)}
@@ -159,6 +171,16 @@ header.top{
   max-width:600px;text-align:left;position:relative;z-index:2;
 }
 .hero_cta .cta-block{align-items:flex-start}
+.included-card{
+  display:flex;gap:16px;align-items:flex-start;text-align:left;
+  background:var(--bg-3);border:1px solid var(--line);border-radius:16px;
+  padding:20px 22px;margin-top:22px;max-width:600px;
+}
+.inc-ico{width:32px;height:32px;flex:none;color:var(--accent-2);display:block}
+.inc-ico svg{width:100%;height:100%;display:block}
+.inc-title{font-size:1rem;font-weight:800;letter-spacing:.02em;color:#fff}
+.inc-list{font-size:1rem;font-weight:600;color:#fff;line-height:1.45;margin-top:3px}
+.inc-sub{margin-top:10px;font-size:.92rem;color:var(--txt-2);line-height:1.5}
 .hero_content .cta-block{align-items:flex-start}
 .hero_rating{
   display:inline-flex;align-items:center;gap:10px;white-space:nowrap;
@@ -539,8 +561,9 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 }
 .pad-scene img{width:min(560px,100%);height:auto;border-radius:10px;filter:drop-shadow(0 30px 60px rgba(0,0,0,.65))}
 .phone-scene img{width:min(370px,88%);height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+.phone-scene img,.pad-scene img{position:relative;z-index:1}
 .phone-scene .float-pill{
-  position:absolute;left:-2%;top:16%;max-width:230px;
+  position:absolute;left:-2%;top:16%;max-width:230px;z-index:3;
   background:#0d0d0f;border:1px solid var(--violet);border-radius:14px;
   padding:14px 17px;font-size:.88rem;font-weight:600;line-height:1.4;
   box-shadow:0 12px 34px rgba(0,0,0,.7);
@@ -643,19 +666,38 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
     transform-origin:top center;
   }
 
-  /* carousel */
+  /* carousel: hide the side arrows outright; the row below the card is the
+     mobile control. Making them static left them stacked vertically. */
   .tstage{padding:26px 22px 34px}
-  .tnav{position:static;transform:none}
+  .tcarousel > .tnav{display:none}
+  .tnav-row .tnav{position:static;transform:none}
   .tnav-row{display:flex;justify-content:center;gap:14px;margin-top:18px}
   .tquote{margin-top:24px;text-align:left}
   .tstage::after{display:none}
 
-  /* laptop: pills below, not floating */
-  .pills{display:none}
-  .pills-mobile{display:grid}
+  /* laptop: keep the pills over the image (reference behaviour) - stack them
+     alternating left/right with the laptop centred behind, rather than
+     listing them underneath. */
+  .laptopwrap{position:relative;padding:24px 0}
+  /* .pills is a child of .laptop, so .laptop has to stay in flow to give the
+     section height - it is the image that drops behind the stack instead. */
+  .laptop{position:relative;width:100%;margin:0}
+  .laptop .mockup-img{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:96%;z-index:1;
+  }
+  /* position:relative so the z-index actually applies over the image */
+  .pills{position:relative;inset:auto;display:grid;gap:30px;z-index:3;
+         grid-template-columns:minmax(0,1fr);padding:26px 0;min-height:230px}
+  /* width:max-content would blow out the auto grid track */
+  .pill{position:static;left:auto;right:auto;top:auto;bottom:auto;
+        width:auto;max-width:82%}
+  .pill:nth-of-type(odd){justify-self:start}
+  .pill:nth-of-type(even){justify-self:end}
+  .pills-mobile{display:none}
   .gpt_layout{grid-template-columns:1fr;gap:34px}
   .heading_wrap_gpt{max-width:100%}
-  .phone-scene .float-pill{position:static;max-width:none;margin-bottom:20px}
+  .phone-scene .float-pill{left:-2%;top:12%;max-width:62%;font-size:.79rem;padding:11px 13px}
 }
 @media (max-width:560px){
   section{padding-block:52px}
@@ -782,6 +824,20 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       <div class="cta-block">
         <a href="#pricing" class="btn">Get Instant Access For $1</a>
         <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+      </div>
+
+      <div class="included-card">
+        <span class="inc-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+          </svg>
+        </span>
+        <div>
+          <div class="inc-title">INCLUDED TODAY:</div>
+          <div class="inc-list">Master Claude Cowork · Claude Skills · Claude MCPs · Claude Code · and More</div>
+          <p class="inc-sub">Get step-by-step guides on the newest AI tools to install them in your business right away.</p>
+        </div>
       </div>
     </div>
 
