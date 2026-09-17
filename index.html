@@ -27,7 +27,7 @@
   --violet-dim:#7c3aed;
   --neutral-series:#9a9aa3;
   --radius:16px;
-  --maxw:1560px;
+  --maxw:1680px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -46,7 +46,7 @@ a{color:inherit;text-decoration:none}
 [hidden]{display:none!important}
 
 /* ---------- layout ---------- */
-.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-inline:clamp(18px,5vw,100px)}
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-inline:clamp(18px,8vw,100px)}
 section{padding-block:104px;position:relative}
 .narrow{max-width:880px;margin-inline:auto}
 .center{text-align:center}
@@ -385,6 +385,14 @@ td.col-lose{color:var(--txt-3)}
 .faq-a{padding:0 21px 21px;color:var(--txt-2);font-size:.93rem}
 .faq-a p+p{margin-top:11px}
 
+.cta-box{
+  border:1px solid rgba(168,85,247,.5);border-radius:26px;
+  background:radial-gradient(ellipse 70% 65% at 50% 118%,rgba(168,85,247,.12),transparent 70%),var(--bg-2);
+  padding:clamp(34px,4.6vw,64px) clamp(20px,3.6vw,56px);
+  box-shadow:0 0 70px rgba(168,85,247,.08);
+}
+.cta-box .inner{max-width:900px;margin-inline:auto}
+
 /* ---------- final ---------- */
 .final{
   background:linear-gradient(180deg,rgba(255,122,26,.09),transparent 65%);
@@ -575,8 +583,6 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 .p4{right:-24%;top:14%}
 .p5{right:-26%;top:40%}
 .p6{right:-20%;bottom:8%}
-.pills-mobile{display:none;gap:11px;margin-top:26px}
-.pills-mobile .pill{position:static;width:auto;max-width:none;border-radius:14px}
 
 .inside-stack{display:grid;gap:16px}
 .inside-h{font-size:clamp(1.25rem,1.9vw,1.6rem);font-weight:500;letter-spacing:-.015em}
@@ -592,7 +598,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 .phone-scene img{width:min(370px,88%);height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
 .phone-scene img,.pad-scene img{position:relative;z-index:1}
 .phone-scene .float-pill{
-  position:absolute;left:-2%;top:16%;max-width:230px;z-index:3;
+  position:absolute;left:12%;top:14%;max-width:250px;z-index:3;
   background:#0d0d0f;border:1px solid var(--violet);border-radius:14px;
   padding:14px 17px;font-size:.88rem;font-weight:600;line-height:1.4;
   box-shadow:0 12px 34px rgba(0,0,0,.7);
@@ -732,7 +738,6 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   .p3{order:5;align-self:flex-end}
   .p6{order:6;align-self:flex-start}
   .p2{order:7;align-self:flex-end}
-  .pills-mobile{display:none}
   .gpt_layout{grid-template-columns:1fr;gap:34px}
   .heading_wrap_gpt{max-width:100%}
   .phone-scene .float-pill{left:-2%;top:12%;max-width:62%;font-size:.79rem;padding:11px 13px}
@@ -1234,12 +1239,17 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 
 <!-- URGENCY -->
 <section>
-  <div class="wrap narrow center stack">
-    <h2>But what's actually scarier? Being the last one in your market to figure this out.</h2>
-    <p class="lead">In February 2026 Claude hit #1 on the App Store. 2.5 million people left ChatGPT in weeks. The entrepreneurs who moved first have a head start that compounds every single week. They didn't find a secret tool. They just did this before you did.</p>
-    <div class="cta-block">
-      <a href="#pricing" class="btn">Get Instant Access</a>
-      <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+  <div class="wrap">
+    <div class="cta-box">
+      <div class="inner center stack">
+        <h2>But what's actually scarier? Being the last one in your market to figure this out.</h2>
+        <p class="lead">In February 2026 Claude hit #1 on the App Store. 2.5 million people left ChatGPT in weeks. The entrepreneurs who moved first have a head start that compounds every single week.</p>
+        <p class="lead">They didn't find a secret tool. They just did this before you did.</p>
+        <div class="cta-block">
+          <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
+          <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1383,14 +1393,6 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
         </div>
       </div>
 
-      <div class="pills-mobile">
-        <div class="pill"><i>✍️</i><span>Your Copywriter writes ads, emails and sales pages that sound like you</span></div>
-        <div class="pill"><i>📊</i><span>Your Strategist builds growth plans, market analysis and launch roadmaps</span></div>
-        <div class="pill"><i>📧</i><span>Your Email Specialist runs sequences, follow-ups and nurture campaigns</span></div>
-        <div class="pill"><i>🔍</i><span>Your Researcher analyses competitors, markets and blind spots</span></div>
-        <div class="pill"><i>📋</i><span>Your Ops Specialist builds SOPs, workflows and systems documentation</span></div>
-        <div class="pill"><i>🤝</i><span>Your Sales Specialist writes scripts, handles objections and closes deals</span></div>
-      </div>
     </div>
     <p class="lead center" style="margin-top:26px"><strong>And 64 more Specialists. Every function. Every day. One payment.</strong></p>
   </div>
@@ -1644,14 +1646,18 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 
 <!-- FINAL CTA -->
 <section class="final">
-  <div class="wrap narrow center stack">
-    <h2>Your only regret will be not doing this sooner.</h2>
-    <p class="lead">70 AI Specialists. 4 Claude Sprints. One payment. Your entire AI team — deployed today, running forever.</p>
-    <div class="cta-block">
-      <a href="#pricing" class="btn">Get Instant Access</a>
-      <div class="guarantee">🔒 Secure checkout · 14-day money-back guarantee · Instant delivery</div>
+  <div class="wrap">
+    <div class="cta-box">
+      <div class="inner center stack">
+        <h2>Your only regret will be not doing this sooner.</h2>
+        <p class="lead">70 AI Specialists. 4 Claude Sprints. One payment. Your entire AI team — deployed today, running forever.</p>
+        <div class="cta-block">
+          <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
+          <div class="guarantee">🔒 Secure checkout · 14-day money-back guarantee · Instant delivery</div>
+        </div>
+        <p class="amber" style="font-weight:600;font-size:1rem">The $1 launch price ends soon.</p>
+      </div>
     </div>
-    <p class="amber" style="font-weight:600;font-size:.92rem">The $1 launch price ends soon.</p>
   </div>
 </section>
 
@@ -1709,7 +1715,7 @@ syncFaq();
     'section .faq-item', 'section .vs-col', 'section .chartcard',
     'section .table-scroll', 'section .tcarousel', 'section .hero_visual',
     'section .hero_cta', 'section .hero_rating', 'section .donutrow > div',
-    'section .laptopwrap', 'section .pad-scene', 'section .phone-scene',
+    'section .pill', 'section .laptop .mockup-img', 'section .pad-scene', 'section .phone-scene',
     'section .inside-stack', '.included-card', 'section .cta-block'
   ].join(',');
 
