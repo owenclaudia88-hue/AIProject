@@ -4,7 +4,14 @@ A single-file, dependency-free sales landing page for a "70 AI Specialists for C
 
 ## What's here
 
-- `index.html` — the entire page: markup, CSS and JS inlined. No build step, no framework.
+- `index.html` — the landing page: markup, CSS and JS inlined. No build step, no framework.
+- `privacy.html`, `terms.html`, `earnings.html` — legal pages, linked from the footer.
+- `assets/legal.css` — shared styling for those three pages.
+
+> **The legal pages are templates, not legal advice.** Every `[BRACKETED]` placeholder
+> (company name, address, support email, payment processor, jurisdiction, dates) needs
+> replacing, and a lawyer should review them before you take payments. Each page carries a
+> visible notice saying so — delete that box once the page is finalised.
 - `assets/laptop-mockup.avif`, `assets/ipad-mockup.avif`, `assets/phone-mockup.avif` — the three product mockups.
 
 ## Sections

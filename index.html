@@ -250,6 +250,20 @@ thead th.col-win{color:var(--accent-2);background:rgba(255,122,26,.09)}
 td.col-win{color:var(--txt);font-weight:600}
 td.col-lose{color:var(--txt-3)}
 
+.benefit-acc{display:grid;gap:12px;align-content:center}
+.bacc{background:var(--bg-3);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.bacc-q{
+  width:100%;background:none;border:0;color:var(--txt);cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:14px;padding:16px 18px;
+  font-size:1.02rem;font-weight:500;letter-spacing:-.01em;text-align:left;
+}
+.bacc-ico{width:22px;height:22px;flex:none;color:var(--accent-2);display:block}
+.bacc-ico svg{width:100%;height:100%;display:block}
+.bacc-t{flex:1;min-width:0}
+.bacc-chev{flex:none;color:var(--txt-3);font-size:1.15rem;line-height:1;transition:transform .2s ease}
+.bacc.open .bacc-chev{transform:rotate(180deg)}
+.bacc-a{padding:0 18px 18px 54px;color:var(--txt-2);font-size:.94rem;line-height:1.55}
+
 /* ---------- feature list ---------- */
 .feature{display:flex;gap:16px;align-items:flex-start}
 .ico{
@@ -263,7 +277,7 @@ td.col-lose{color:var(--txt-3)}
 /* ---------- capability cards ---------- */
 .capswrap-bg{
   position:relative;
-  background:radial-gradient(ellipse 60% 45% at 50% 100%,rgba(168,85,247,.13),transparent 70%);
+  background:radial-gradient(ellipse 60% 45% at 50% 100%,rgba(255,122,26,.10),transparent 70%);
 }
 .caps-wrap{display:grid;grid-template-columns:1fr 1fr;gap:26px}
 .caps-card{
@@ -372,6 +386,7 @@ td.col-lose{color:var(--txt-3)}
 .bonus-title{font-size:.88rem;font-weight:800;color:var(--accent-2);margin-bottom:11px}
 
 /* ---------- faq ---------- */
+.faq-wrap{max-width:1060px;margin-inline:auto}
 .faq-item{border:1px solid var(--line);border-radius:14px;background:var(--bg-2);overflow:hidden}
 .faq-item+.faq-item{margin-top:11px}
 .faq-q{
@@ -386,10 +401,10 @@ td.col-lose{color:var(--txt-3)}
 .faq-a p+p{margin-top:11px}
 
 .cta-box{
-  border:1px solid rgba(168,85,247,.5);border-radius:26px;
-  background:radial-gradient(ellipse 70% 65% at 50% 118%,rgba(168,85,247,.12),transparent 70%),var(--bg-2);
+  border:1px solid rgba(255,122,26,.45);border-radius:26px;
+  background:radial-gradient(ellipse 70% 65% at 50% 118%,rgba(255,122,26,.11),transparent 70%),var(--bg-2);
   padding:clamp(34px,4.6vw,64px) clamp(20px,3.6vw,56px);
-  box-shadow:0 0 70px rgba(168,85,247,.08);
+  box-shadow:0 0 70px rgba(255,122,26,.07);
 }
 .cta-box .inner{max-width:900px;margin-inline:auto}
 
@@ -517,11 +532,11 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 .tnav{
   position:absolute;top:50%;transform:translateY(-50%);z-index:3;
   width:42px;height:42px;border-radius:50%;cursor:pointer;
-  background:rgba(10,10,11,.7);border:1px solid var(--violet);color:var(--violet);
+  background:rgba(10,10,11,.7);border:1px solid var(--accent);color:var(--accent-2);
   display:grid;place-items:center;font-size:1.1rem;line-height:1;
   transition:background .15s ease,color .15s ease;
 }
-.tnav:hover{background:var(--violet);color:#fff}
+.tnav:hover{background:var(--accent);color:#1a0d00}
 .tprev{left:-21px}
 .tnext{right:-21px}
 .tdots{display:flex;gap:9px;justify-content:center;margin-top:20px}
@@ -564,7 +579,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 /* ---------- mockup scenes (laptop / phone) ---------- */
 .laptopwrap{
   position:relative;padding:30px 0 10px;
-  background:radial-gradient(ellipse 70% 55% at 50% 45%,rgba(168,85,247,.20),transparent 68%);
+  background:radial-gradient(ellipse 66% 58% at 50% 45%,rgba(255,122,26,.20),transparent 68%);
 }
 .laptop{width:min(760px,100%);margin-inline:auto;position:relative;z-index:2}
 .mockup-img{width:100%;height:auto;display:block}
@@ -592,14 +607,17 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 .heading_wrap_gpt{display:flex;flex-direction:column;gap:22px;max-width:557px}
 .pad-scene,.phone-scene{
   display:grid;place-items:center;position:relative;
-  background:radial-gradient(ellipse 64% 60% at 50% 50%,rgba(168,85,247,.22),transparent 70%);
+  background:
+    radial-gradient(ellipse 36% 38% at 52% 46%,rgba(255,170,85,.55),transparent 62%),
+    radial-gradient(ellipse 60% 62% at 52% 48%,rgba(255,122,26,.30),transparent 70%),
+    radial-gradient(ellipse 90% 88% at 52% 50%,rgba(255,122,26,.13),transparent 76%);
 }
 .pad-scene img{width:min(560px,100%);height:auto;border-radius:10px;filter:drop-shadow(0 30px 60px rgba(0,0,0,.65))}
 .phone-scene img{width:min(370px,88%);height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
 .phone-scene img,.pad-scene img{position:relative;z-index:1}
 .phone-scene .float-pill{
   position:absolute;left:12%;top:14%;max-width:250px;z-index:3;
-  background:#0d0d0f;border:1px solid var(--violet);border-radius:14px;
+  background:#0d0d0f;border:1px solid rgba(255,122,26,.6);border-radius:14px;
   padding:14px 17px;font-size:.88rem;font-weight:600;line-height:1.4;
   box-shadow:0 12px 34px rgba(0,0,0,.7);
 }
@@ -1024,26 +1042,42 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   </div>
 </section>
 
-<!-- VALUE PROP -->
+<!-- VALUE PROP + BENEFITS -->
 <section>
-  <div class="wrap narrow center stack">
-    <h2>Imagine What Your Business Looks Like When Claude Is Running the Work You Hate.</h2>
-    <p class="lead">Every Specialist already knows its role, your context and what to produce — so you stop being the one doing everything.</p>
-    <div class="cta-block">
-      <a href="#pricing" class="btn">Get Instant Access</a>
-      <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
-    </div>
-  </div>
-</section>
+  <div class="wrap">
+    <div class="gpt_layout">
+      <div class="heading_wrap_gpt">
+        <h2>Imagine What Your Business Looks Like When Claude Is Running the Work You Hate.</h2>
+        <p class="lead">Every Specialist already knows its role, your context and what to produce &mdash; so you stop being the one doing everything.</p>
+        <div class="cta-block" style="align-items:flex-start">
+          <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
+          <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+        </div>
+      </div>
 
-<!-- KEY BENEFITS -->
-<section style="padding-top:0">
-  <div class="wrap grid g2">
-    <div class="card feature"><div class="ico">⚙️</div><div><h3>Your Business Runs Without You</h3><p>Every business function has a pre-trained Specialist handling it. Marketing, sales, ops, finance, HR — all running in parallel without you.</p></div></div>
-    <div class="card feature"><div class="ico">🗣️</div><div><h3>Output That Sounds Like You</h3><p>Your Specialists are configured to match your voice and context. No more spending 40 minutes editing AI output to make it feel human.</p></div></div>
-    <div class="card feature"><div class="ico">🚀</div><div><h3>10x Your Output. Zero Extra Hours.</h3><p>Serve more clients, produce more content, close more deals — without adding headcount or working longer hours.</p></div></div>
-    <div class="card feature"><div class="ico">🔌</div><div><h3>Connected to Your Entire Stack</h3><p>Connect Claude to Gmail, Slack, Google Drive, Notion, HubSpot and more. It reads, writes, updates and automates across every tool you already use — without you switching tabs.</p></div></div>
-    <div class="card feature" style="grid-column:1/-1"><div class="ico">📈</div><div><h3>Scale Without the Headcount</h3><p>Run your business at the output level of a 10-person operation — as a solopreneur, on a laptop, anywhere in the world.</p></div></div>
+      <div class="benefit-acc">
+        <div class="bacc open">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bacc-t">Your Business Runs Without You</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Every business function has a pre-trained Specialist handling it. Marketing, sales, ops, finance, HR &mdash; all running in parallel without you.</p></div>
+        </div>
+        <div class="bacc">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg></span><span class="bacc-t">Output That Sounds Like You</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Your Specialists are configured to match your voice and context. No more spending 40 minutes editing AI output to make it feel human.</p></div>
+        </div>
+        <div class="bacc">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V10"/><path d="M12 20V4"/><path d="M18 20v-6"/></svg></span><span class="bacc-t">10x Your Output. Zero Extra Hours.</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Serve more clients, produce more content, close more deals &mdash; without adding headcount or working longer hours.</p></div>
+        </div>
+        <div class="bacc">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg></span><span class="bacc-t">Connected to Your Entire Stack</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Connect Claude to Gmail, Slack, Google Drive, Notion, HubSpot and more. It reads, writes, updates and automates across every tool you already use &mdash; without you switching tabs.</p></div>
+        </div>
+        <div class="bacc">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span><span class="bacc-t">Scale Without the Headcount</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Run your business at the output level of a 10-person operation &mdash; as a solopreneur, on a laptop, anywhere in the world.</p></div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1590,7 +1624,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 
 <!-- FAQ -->
 <section>
-  <div class="wrap narrow stack">
+  <div class="wrap faq-wrap stack">
     <div class="center" style="margin-bottom:12px"><h2>Have more questions?</h2></div>
 
     <div class="faq-item open">
@@ -1668,9 +1702,9 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       <div style="text-align:left"><div class="brand-name">70 AI Specialists</div><div class="brand-sub">For Claude</div></div>
     </div>
     <div class="links">
-      <a href="#">Privacy</a>
-      <a href="#">Terms &amp; Conditions</a>
-      <a href="#">Earnings &amp; Products Disclaimer</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="earnings.html">Earnings &amp; Products Disclaimer</a>
       <a href="#pricing">Get Access</a>
     </div>
     <p class="fine">Claude is a trademark of Anthropic. This product is independently created and is not affiliated with or endorsed by Anthropic.</p>
@@ -1690,28 +1724,35 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 </div>
 
 <script>
-document.querySelectorAll('.faq-q').forEach(function (btn) {
-  btn.addEventListener('click', function () {
-    var item = btn.parentElement;
-    var wasOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item').forEach(function (i) { i.classList.remove('open'); });
-    if (!wasOpen) item.classList.add('open');
+function wireAccordion(btnSel, itemSel) {
+  document.querySelectorAll(btnSel).forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.parentElement;
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll(itemSel).forEach(function (i) { i.classList.remove('open'); });
+      if (!wasOpen) item.classList.add('open');
+      syncPanels();
+    });
   });
-});
+}
+wireAccordion('.faq-q', '.faq-item');
+wireAccordion('.bacc-q', '.bacc');
 
-function syncFaq() {
+function syncPanels() {
   document.querySelectorAll('.faq-item').forEach(function (item) {
     item.querySelector('.faq-a').hidden = !item.classList.contains('open');
   });
+  document.querySelectorAll('.bacc').forEach(function (item) {
+    item.querySelector('.bacc-a').hidden = !item.classList.contains('open');
+  });
 }
-new MutationObserver(syncFaq).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
-syncFaq();
+syncPanels();
 
 /* section reveals - the reference fades its copy in as you scroll */
 (function () {
   var SEL = [
     'section h1', 'section h2', 'section .lead', 'section .eyebrow',
-    'section .card', 'section .caps-card', 'section .review', 'section .plan',
+    'section .card', 'section .caps-card', 'section .review', 'section .plan', 'section .bacc',
     'section .faq-item', 'section .vs-col', 'section .chartcard',
     'section .table-scroll', 'section .tcarousel', 'section .hero_visual',
     'section .hero_cta', 'section .hero_rating', 'section .donutrow > div',
