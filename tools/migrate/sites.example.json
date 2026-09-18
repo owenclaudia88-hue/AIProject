@@ -1,0 +1,43 @@
+{
+  "_comment": "Copy this to sites.json (gitignored) and edit. One entry per platform. Patterns are JavaScript regexes, so dots in domains are escaped.",
+
+  "course": {
+    "loginUrl": "https://app.yourplatform.com/login",
+    "startUrls": [
+      "https://app.yourplatform.com/products"
+    ],
+    "includePatterns": [
+      "^https://app\\.yourplatform\\.com/(products|courses|lessons)"
+    ],
+    "excludePatterns": [
+      "/logout",
+      "/billing",
+      "/settings",
+      "/account",
+      "/delete"
+    ],
+    "contentSelector": "main",
+    "maxPages": 300,
+    "delayMs": 800,
+    "downloadExtensions": [".pdf", ".zip", ".docx", ".mp3"]
+  },
+
+  "crm": {
+    "loginUrl": "https://app.gohighlevel.com/",
+    "startUrls": [
+      "https://app.gohighlevel.com/v2/location/YOUR_LOCATION_ID/memberships/courses"
+    ],
+    "includePatterns": [
+      "^https://app\\.gohighlevel\\.com/v2/location/YOUR_LOCATION_ID/memberships"
+    ],
+    "excludePatterns": [
+      "/logout",
+      "/settings",
+      "/billing"
+    ],
+    "contentSelector": "body",
+    "maxPages": 300,
+    "delayMs": 1000,
+    "downloadExtensions": [".pdf", ".zip"]
+  }
+}

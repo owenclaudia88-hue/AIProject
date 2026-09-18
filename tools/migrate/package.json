@@ -1,0 +1,13 @@
+{
+  "name": "content-migrate",
+  "private": true,
+  "type": "module",
+  "description": "Local tool: exports your own content out of a logged-in platform.",
+  "scripts": {
+    "login": "node auth.mjs",
+    "crawl": "node crawl.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0"
+  }
+}

@@ -8,3 +8,9 @@ node_modules/
 .env.local
 .env*.local
 .vercel
+
+# migration tool
+tools/migrate/node_modules/
+tools/migrate/.sessions/
+tools/migrate/sites.json
+export/
