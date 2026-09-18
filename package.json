@@ -6,9 +6,11 @@
   "dependencies": {
     "stripe": "^17.5.0",
     "@neondatabase/serverless": "^0.10.4",
-    "resend": "^4.0.1"
+    "resend": "^4.0.1",
+    "@vercel/blob": "^0.27.0"
   },
   "scripts": {
-    "dev": "node --env-file=.env.local scripts/dev-server.mjs"
+    "dev": "node --env-file=.env.local scripts/dev-server.mjs",
+    "upload": "node --env-file=.env.local scripts/upload-content.mjs"
   }
 }

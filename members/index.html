@@ -40,6 +40,9 @@ main{padding-block:40px 70px;display:none}
 .card .count{font-size:.8rem;color:var(--accent-2);font-weight:700}
 .card.soon{opacity:.6}
 .card.soon .count{color:var(--txt-3)}
+.card .dl{margin-top:6px;align-self:flex-start;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;font-size:.86rem;padding:9px 18px;border-radius:999px;text-decoration:none}
+.card .dl:hover{filter:brightness(1.05)}
+h2{letter-spacing:-.01em}
 </style>
 </head>
 <body>
@@ -63,40 +66,9 @@ main{padding-block:40px 70px;display:none}
 
   <main class="wrap" id="app">
     <h1 class="hero-h">Welcome back<span id="first-name"></span>.</h1>
-    <p class="hero-sub">Everything you own is here. Open a library to get started.</p>
+    <p class="hero-sub">You have full access to everything below. Download any item.</p>
 
-    <div class="grid" id="library">
-      <a class="card" href="#">
-        <span class="ic">🧩</span>
-        <h3>70 AI Specialists</h3>
-        <p>The full Claude plugin — every specialist, ready to install.</p>
-        <span class="count">Download &middot; plugin ZIP</span>
-      </a>
-      <a class="card" href="#">
-        <span class="ic">⚡</span>
-        <h3>Power-Ups</h3>
-        <p>31 focused packs: content, sales pages, launches, funnels and more.</p>
-        <span class="count">31 packs</span>
-      </a>
-      <a class="card" href="#">
-        <span class="ic">📚</span>
-        <h3>Prompt &amp; Skill Library</h3>
-        <p>Hundreds of prompts, skills, custom GPTs and automation templates.</p>
-        <span class="count">900+ prompts</span>
-      </a>
-      <a class="card" href="#">
-        <span class="ic">🎓</span>
-        <h3>Courses</h3>
-        <p>Step-by-step training: install, connect, and run the specialists.</p>
-        <span class="count">6 courses</span>
-      </a>
-      <a class="card soon" href="#">
-        <span class="ic">🎬</span>
-        <h3>Video Lessons</h3>
-        <p>Watch the full walkthroughs. Coming to your library shortly.</p>
-        <span class="count">Coming soon</span>
-      </a>
-    </div>
+    <div id="library"></div>
   </main>
 
 <script>
@@ -123,6 +95,7 @@ main{padding-block:40px 70px;display:none}
         document.getElementById('who-email').textContent = res.d.email;
         var name = (res.d.email || '').split('@')[0].split(/[.\-_]/)[0];
         if (name) document.getElementById('first-name').textContent = ', ' + name.charAt(0).toUpperCase() + name.slice(1);
+        loadLibrary();
       } else if (res.status === 403) {
         showGate('Your access is not active. If you were recently refunded that’s expected; otherwise contact support@aifounderuniversity.com.', true);
         gateBtn.textContent = 'Back to sign in';
@@ -134,6 +107,58 @@ main{padding-block:40px 70px;display:none}
     .catch(function () {
       showGate('Could not verify your access. Please refresh, or sign in again.', true);
     });
+
+  var META = {
+    plugin:  { icon: '🧩', label: 'Specialists & Plugins', blurb: 'Install these in Claude.' },
+    powerup: { icon: '⚡', label: 'Power-Ups',              blurb: 'Focused packs for every job.' },
+    course:  { icon: '🎓', label: 'Courses',                blurb: 'Step-by-step training.' },
+    prompt:  { icon: '📚', label: 'Prompts',                blurb: '' }
+  };
+
+  function kb(n) {
+    if (!n) return '';
+    return n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+  function loadLibrary() {
+    var lib = document.getElementById('library');
+    fetch('/api/content/list', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var groups = data.groups || {};
+        var order = ['plugin', 'powerup', 'course', 'prompt'];
+        var kinds = Object.keys(groups).sort(function (a, b) {
+          var ia = order.indexOf(a), ib = order.indexOf(b);
+          return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+        });
+        if (!kinds.length) {
+          lib.innerHTML = '<p style="color:var(--txt-2)">Your library is being set up — check back shortly.</p>';
+          return;
+        }
+        var html = '';
+        kinds.forEach(function (kind) {
+          var meta = META[kind] || { icon: '📦', label: kind, blurb: '' };
+          var items = groups[kind];
+          html += '<h2 style="font-size:1.15rem;font-weight:600;margin:34px 0 4px">' + meta.icon + ' ' + esc(meta.label) +
+                  ' <span style="color:var(--txt-3);font-weight:400;font-size:.9rem">' + items.length + '</span></h2>';
+          if (meta.blurb) html += '<p style="color:var(--txt-3);font-size:.88rem;margin:0 0 14px">' + esc(meta.blurb) + '</p>';
+          html += '<div class="grid">';
+          items.forEach(function (it) {
+            html += '<div class="card">' +
+                      '<h3>' + esc(it.title) + '</h3>' +
+                      '<p>' + esc(it.filename || '') + (it.sizeBytes ? ' &middot; ' + kb(it.sizeBytes) : '') + '</p>' +
+                      '<a class="dl" href="/api/content/download?key=' + encodeURIComponent(it.key) + '">Download</a>' +
+                    '</div>';
+          });
+          html += '</div>';
+        });
+        lib.innerHTML = html;
+      })
+      .catch(function () {
+        lib.innerHTML = '<p style="color:#fca5a5">Could not load your library. Please refresh.</p>';
+      });
+  }
 
   document.getElementById('signout').addEventListener('click', function () {
     fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' })
