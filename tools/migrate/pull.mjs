@@ -275,7 +275,9 @@ totalRecords = deepIndex.reduce((n, t) => n + t.rows, 0);
 // automations) and external references (ChatGPT GPT URLs). Pull the actual
 // files down; record every external link so nothing is lost.
 const URL_RE = /https?:\/\/[^\s"'<>()\\]+/g;
-const DOC_EXT = /\.(json|pdf|docx?|xlsx?|pptx?|csv|md|zip|txt|rtf)(\?|$)/i;
+// downloadable content types — note .plugin and .skill (the Claude plugin/skill files)
+const DOC_EXT = /\.(json|pdf|docx?|xlsx?|pptx?|csv|md|zip|txt|rtf|plugin|skill|xml|ya?ml)(\?|$)/i;
+const IMG_VID_EXT = /\.(png|jpe?g|gif|webp|svg|ico|avif|mp4|webm|mov|m4v)(\?|$)/i;
 const filesDir = join(outDir, 'files');
 await mkdir(filesDir, { recursive: true });
 
@@ -291,8 +293,10 @@ for (const [table, rows] of Object.entries(allRows)) {
         let host; try { host = new URL(u); } catch { continue; }
         const isDrive = /drive\.google\.com/.test(host.host) && /export=download|\/file\/d\//.test(u);
         const isDoc = DOC_EXT.test(host.pathname);
-        const isStorageDoc = /supabase\.co\/storage\//.test(u) && DOC_EXT.test(u);
-        const kind = (isDrive || isDoc || isStorageDoc) ? 'file' : 'link';
+        // Supabase Storage holds the real product files (plugins, skills, docs).
+        // Grab those, but skip decorative thumbnail images/videos.
+        const isStorageFile = /supabase\.co\/storage\//.test(u) && !IMG_VID_EXT.test(host.pathname);
+        const kind = (isDrive || isDoc || isStorageFile) ? 'file' : 'link';
         links.push({ table, id, url: u, kind });
         if (kind === 'file' && !toGet.has(u)) toGet.set(u, { table, id });
       }
