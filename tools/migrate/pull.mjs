@@ -192,32 +192,67 @@ for (const c of captured) {
   console.log(`  ${c.method.padEnd(4)} ${String(recs).padStart(5)} recs  ${short.slice(0, 62)}`);
 }
 
-// Auto-paginate any REST GET list that came back exactly full — the app may only
-// have loaded the first page.
+// DEEP PULL — the dashboard only loads a preview (e.g. limit=6) and its list
+// query leaves out the body columns. For every content table the app touched,
+// re-fetch EVERY row with EVERY column, in your session, paginating fully. This
+// is what actually gets all the prompts, with their text.
 const PAGE = 1000;
-for (const c of captured.filter(c => c.method === 'GET' && /\/rest\/v1\//.test(c.url))) {
-  let first;
-  try { first = JSON.parse(c.body); } catch { continue; }
-  if (!Array.isArray(first) || first.length < PAGE) continue;
 
-  let all = first.slice(), from = PAGE;
-  while (true) {
-    const r = await apiGet(c.url, { Range: `${from}-${from + PAGE - 1}`, 'Range-Unit': 'items' });
-    let rows; try { rows = JSON.parse(r.text); } catch { break; }
-    if (!Array.isArray(rows) || rows.length === 0) break;
-    all = all.concat(rows);
-    if (rows.length < PAGE) break;
-    from += PAGE;
-    if (all.length > 200000) break;
-  }
-  if (all.length > first.length) {
-    const file = 'paged-' + nameFor(c.url, 'GET', 0).replace(/^\d+-/, '') + '.json';
-    await writeFile(join(dataDir, file), JSON.stringify(all, null, 2), 'utf8');
-    totalRecords += all.length - first.length;
-    console.log(`  ...paginated ${new URL(c.url).pathname.split('/').pop()} to ${all.length} records`);
-    index.push({ method: 'GET', url: c.url, records: all.length, file, paginated: true });
+// distinct REST tables the app read, minus per-user / housekeeping ones
+const originalSelect = new Map();
+const restTables = new Set();
+for (const c of captured) {
+  const m = c.method === 'GET' && c.url.match(/\/rest\/v1\/([a-zA-Z0-9_]+)\?/);
+  if (!m) continue;
+  restTables.add(m[1]);
+  if (!originalSelect.has(m[1])) {
+    const q = new URL(c.url).searchParams.get('select');
+    if (q) originalSelect.set(m[1], q);
   }
 }
+const SKIP = /^(profiles|user_roles|favorites|favorites_counts|user_notification_reads|notification_broadcasts|user_)/;
+const contentTables = [...restTables].filter(t => !SKIP.test(t));
+
+if (contentTables.length) {
+  console.log(`\ndeep pull — every row, every column:`);
+}
+const deepIndex = [];
+for (const table of contentTables) {
+  const tryFetch = async (select) => {
+    let from = 0, all = [];
+    while (true) {
+      const url = `${conf.url}/rest/v1/${table}?select=${encodeURIComponent(select)}`;
+      const r = await apiGet(url, { Range: `${from}-${from + PAGE - 1}`, 'Range-Unit': 'items' });
+      if (r.status >= 400) return { status: r.status, rows: all };
+      let rows; try { rows = JSON.parse(r.text); } catch { break; }
+      if (!Array.isArray(rows) || rows.length === 0) break;
+      all = all.concat(rows);
+      if (rows.length < PAGE) break;
+      from += PAGE;
+      if (all.length > 200000) break;
+    }
+    return { status: 200, rows: all };
+  };
+
+  // all columns first; if the row-level rules block that, fall back to the
+  // exact columns the app itself requested (at least gets the full list)
+  let res = await tryFetch('*');
+  if (res.status >= 400 && originalSelect.has(table)) res = await tryFetch(originalSelect.get(table));
+
+  const rows = res.rows;
+  await writeFile(join(dataDir, `${table}-full.json`), JSON.stringify(rows, null, 2), 'utf8');
+  deepIndex.push({ table, rows: rows.length, columns: rows[0] ? Object.keys(rows[0]).length : 0 });
+  const hasBody = rows[0] && Object.keys(rows[0]).some(k => /prompt|content|body|text|instructions/i.test(k));
+  console.log(`  ${table.padEnd(24)} ${String(rows.length).padStart(5)} rows` +
+              `${rows[0] ? `, ${Object.keys(rows[0]).length} cols` : ''}` +
+              `${hasBody ? '  ✓ includes body' : ''}`);
+}
+
+await writeFile(join(outDir, 'deep-index.json'), JSON.stringify({
+  site: siteKey, project: `${conf.ref}.supabase.co`,
+  pulledAt: new Date().toISOString(), tables: deepIndex
+}, null, 2), 'utf8');
+totalRecords = deepIndex.reduce((n, t) => n + t.rows, 0);
 
 await writeFile(join(outDir, 'data-index.json'), JSON.stringify({
   site: siteKey, project: `${conf.ref}.supabase.co`,
@@ -225,8 +260,8 @@ await writeFile(join(outDir, 'data-index.json'), JSON.stringify({
 }, null, 2), 'utf8');
 
 console.log(`\ndone`);
-console.log(`  data responses saved : ${captured.length}`);
-console.log(`  total records        : ${totalRecords}`);
+console.log(`  content types pulled : ${captured.length} endpoints seen`);
+console.log(`  total records        : ${totalRecords}  (full rows, all columns)`);
 console.log(`  output               : ${dataDir}`);
 if (!captured.length) {
   console.log(`\n  Nothing was fetched. The dashboard may need a click to show content —`);
