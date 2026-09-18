@@ -293,23 +293,32 @@ for (const [table, rows] of Object.entries(allRows)) {
         let host; try { host = new URL(u); } catch { continue; }
         const isDrive = /drive\.google\.com/.test(host.host) && /export=download|\/file\/d\//.test(u);
         const isDoc = DOC_EXT.test(host.pathname);
-        // Supabase Storage holds the real product files (plugins, skills, docs).
-        // Grab those, but skip decorative thumbnail images/videos.
-        const isStorageFile = /supabase\.co\/storage\//.test(u) && !IMG_VID_EXT.test(host.pathname);
-        const kind = (isDrive || isDoc || isStorageFile) ? 'file' : 'link';
-        links.push({ table, id, url: u, kind });
-        if (kind === 'file' && !toGet.has(u)) toGet.set(u, { table, id });
+        const isStorage = /supabase\.co\/storage\//.test(u);
+        const isImg = /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(host.pathname);
+        // Storage holds the platform's OWN files: product files (plugins, skills,
+        // docs) and its design/content images (card thumbnails, example images).
+        // Take those; skip only storage VIDEOS (large) and anything hotlinked from
+        // an external host (e.g. news-feed thumbnails belong to those publishers).
+        const isStorageVideo = isStorage && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(host.pathname);
+        const kind = ((isStorage && !isStorageVideo) || isDrive || isDoc) ? 'file' : 'link';
+        const isImage = isStorage && isImg;
+        links.push({ table, id, url: u, kind, field: undefined });
+        if (kind === 'file' && !toGet.has(u)) toGet.set(u, { table, id, isImage });
       }
     }
   }
 }
 
-let got = 0;
+const imagesDir = join(filesDir, 'images');
+await mkdir(imagesDir, { recursive: true });
+
+let got = 0, gotImages = 0;
+const urlToLocal = new Map(); // remote url -> local path (for the image map)
 if (toGet.size) {
-  console.log(`\nfiles linked from your content: ${toGet.size} — downloading:`);
+  console.log(`\nfiles & images linked from your content: ${toGet.size} — downloading:`);
   let i = 0;
   for (const [url, meta] of toGet) {
-    if (++i > 500) { console.log('  (stopping at 500 files — raise the cap if needed)'); break; }
+    if (++i > 2000) { console.log('  (stopping at 2000 — raise the cap if needed)'); break; }
     try {
       const res = await context.request.get(url, { timeout: 90000, maxRedirects: 5 });
       if (!res.ok()) { console.log(`  skip ${res.status()}  ${url.slice(0, 60)}`); continue; }
@@ -323,9 +332,14 @@ if (toGet.size) {
       const buf = Buffer.from(await res.body());
       const base = decodeURIComponent(host_basename(url)) || `${meta.table}-${meta.id}`;
       const safe = `${meta.table}__${(meta.id || '').toString().slice(0, 12)}__${base}`.replace(/[^\w.\-]+/g, '_').slice(0, 120);
-      await writeFile(join(filesDir, safe), buf);
+      const dir = meta.isImage ? imagesDir : filesDir;
+      await writeFile(join(dir, safe), buf);
+      urlToLocal.set(url, `files/${meta.isImage ? 'images/' : ''}${safe}`);
       got += 1;
-      console.log(`  got  ${(buf.length / 1024).toFixed(0).padStart(5)} KB  ${safe.slice(0, 60)}`);
+      if (meta.isImage) gotImages += 1;
+      if (!meta.isImage || got % 25 === 0) {
+        console.log(`  got  ${(buf.length / 1024).toFixed(0).padStart(5)} KB  ${safe.slice(0, 56)}`);
+      }
     } catch (e) {
       console.log(`  fail ${url.slice(0, 55)}  ${String(e.message).split('\n')[0].slice(0, 40)}`);
     }
@@ -341,9 +355,32 @@ function host_basename(u) {
   } catch { return ''; }
 }
 
+// IMAGE MAP — ties each content item to its downloaded image, so the member
+// area knows which picture belongs to which prompt / skill / video card.
+const imageMap = [];
+for (const [table, rows] of Object.entries(allRows)) {
+  for (const row of rows) {
+    for (const [field, val] of Object.entries(row)) {
+      if (typeof val !== 'string') continue;
+      const u = val.trim().replace(/[.,);]+$/, '');
+      if (urlToLocal.has(u) && /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i.test(u)) {
+        imageMap.push({
+          table, id: row.id, title: row.title || row.name || '',
+          field, remote_url: u, local_path: urlToLocal.get(u)
+        });
+      }
+    }
+  }
+}
+await writeFile(join(outDir, 'image-map.json'), JSON.stringify({
+  note: "Render each item's card in the member area using local_path.",
+  count: imageMap.length, images: imageMap
+}, null, 2), 'utf8');
+
 await writeFile(join(outDir, 'links.json'), JSON.stringify({
   site: siteKey, extractedAt: new Date().toISOString(),
-  fileCount: got, linkCount: links.filter(l => l.kind === 'link').length, links
+  fileCount: got, imageCount: gotImages,
+  linkCount: links.filter(l => l.kind === 'link').length, links
 }, null, 2), 'utf8');
 
 await writeFile(join(outDir, 'data-index.json'), JSON.stringify({
@@ -354,7 +391,8 @@ await writeFile(join(outDir, 'data-index.json'), JSON.stringify({
 console.log(`\ndone`);
 console.log(`  content types pulled : ${deepIndex.length} tables`);
 console.log(`  total records        : ${totalRecords}  (full rows, all columns)`);
-console.log(`  files downloaded     : ${got}`);
+console.log(`  files downloaded     : ${got - gotImages}`);
+console.log(`  images downloaded    : ${gotImages}  (mapped in image-map.json)`);
 console.log(`  external links kept  : ${links.filter(l => l.kind === 'link').length}  (see links.json)`);
 console.log(`  output               : ${outDir}`);
 if (!captured.length) {
