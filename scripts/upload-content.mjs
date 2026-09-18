@@ -65,8 +65,9 @@ for (const g of groups) {
     const size = (await stat(path)).size;
     const key = `${g.kind}/${filename}`.replace(/\s+/g, '-');
 
-    // Private blob: not publicly reachable. The gated download endpoint fetches
-    // it server-side with the Blob token and streams the bytes to the member.
+    // Private blob (the store is private). The gated download endpoint reads it
+    // back with the SDK + token and streams the bytes to the member; the URL is
+    // never exposed, so downloads can't be shared or hotlinked.
     const { url } = await put(`content/${key}`, body, {
       access: 'private',
       addRandomSuffix: true,

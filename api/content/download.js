@@ -1,3 +1,4 @@
+import { get } from '@vercel/blob';
 import { readSession } from '../../lib/session.js';
 import { isActive, getContentBlobUrl } from '../../lib/db.js';
 
@@ -23,22 +24,31 @@ export default async function handler(req, res) {
     const item = await getContentBlobUrl(key);
     if (!item) return res.status(404).json({ error: 'not found' });
 
-    // Private blobs require the Blob token; the header is harmless for public ones.
-    const token = process.env.BLOB_READ_WRITE_TOKEN;
-    const upstream = await fetch(item.blob_url, token ? { headers: { authorization: `Bearer ${token}` } } : undefined);
-    if (!upstream.ok) {
-      console.error('[content/download] blob fetch failed', upstream.status, key);
+    // Read the private blob back through the SDK (handles auth), then stream it.
+    const result = await get(item.blob_url, {
+      access: 'private',
+      token: process.env.BLOB_READ_WRITE_TOKEN
+    });
+    if (!result || result.statusCode !== 200 || !result.stream) {
+      console.error('[content/download] blob get failed', key, result && result.statusCode);
       return res.status(502).json({ error: 'file unavailable' });
     }
 
-    const filename = (item.filename || key.split('/').pop() || 'download').replace(/"/g, '');
-    res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/octet-stream');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    const len = upstream.headers.get('content-length');
-    if (len) res.setHeader('Content-Length', len);
-    res.setHeader('Cache-Control', 'private, no-store');
+    // collect the web ReadableStream into a buffer (files are small)
+    const chunks = [];
+    const reader = result.stream.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(Buffer.from(value));
+    }
+    const buf = Buffer.concat(chunks);
 
-    const buf = Buffer.from(await upstream.arrayBuffer());
+    const filename = (item.filename || key.split('/').pop() || 'download').replace(/"/g, '');
+    res.setHeader('Content-Type', result.blob?.contentType || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', String(buf.length));
+    res.setHeader('Cache-Control', 'private, no-store');
     return res.status(200).end(buf);
   } catch (err) {
     console.error('[content/download]', err);

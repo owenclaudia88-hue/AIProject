@@ -4,10 +4,10 @@
   "type": "module",
   "description": "Landing page and Stripe checkout for 70 AI Specialists for Claude",
   "dependencies": {
-    "stripe": "^17.5.0",
     "@neondatabase/serverless": "^0.10.4",
+    "@vercel/blob": "^2.8.0",
     "resend": "^4.0.1",
-    "@vercel/blob": "^0.27.0"
+    "stripe": "^17.5.0"
   },
   "scripts": {
     "dev": "node --env-file=.env.local scripts/dev-server.mjs",
