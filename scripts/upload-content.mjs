@@ -65,10 +65,10 @@ for (const g of groups) {
     const size = (await stat(path)).size;
     const key = `${g.kind}/${filename}`.replace(/\s+/g, '-');
 
-    // access:'public' gives an unguessable URL; we still never expose it to the
-    // browser — the gated endpoint fetches it server-side and streams the bytes.
+    // Private blob: not publicly reachable. The gated download endpoint fetches
+    // it server-side with the Blob token and streams the bytes to the member.
     const { url } = await put(`content/${key}`, body, {
-      access: 'public',
+      access: 'private',
       addRandomSuffix: true,
       contentType: 'application/zip',
       token: process.env.BLOB_READ_WRITE_TOKEN

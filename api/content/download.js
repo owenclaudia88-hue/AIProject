@@ -23,7 +23,9 @@ export default async function handler(req, res) {
     const item = await getContentBlobUrl(key);
     if (!item) return res.status(404).json({ error: 'not found' });
 
-    const upstream = await fetch(item.blob_url);
+    // Private blobs require the Blob token; the header is harmless for public ones.
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
+    const upstream = await fetch(item.blob_url, token ? { headers: { authorization: `Bearer ${token}` } } : undefined);
     if (!upstream.ok) {
       console.error('[content/download] blob fetch failed', upstream.status, key);
       return res.status(502).json({ error: 'file unavailable' });
