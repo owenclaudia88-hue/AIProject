@@ -14,7 +14,7 @@ import { put } from '@vercel/blob';
 import { readFile, readdir, access } from 'node:fs/promises';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { upsertLibraryItem, upsertAsset } from '../lib/db.js';
+import { upsertLibraryItem, upsertAsset, upsertCourse } from '../lib/db.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const EXPORT = join(HERE, '..', 'export');
@@ -124,8 +124,29 @@ async function ingestBlackMagic() {
   }
 }
 
+/* ---------------- 3. Course structure (sections → lessons) ---------------- */
+async function ingestCourseStructure() {
+  const path = join(EXPORT, 'community', 'course-structure.json');
+  if (!(await exists(path))) { console.log('(no course-structure.json — skipping course player data)'); return; }
+  const { courses = [] } = JSON.parse(await readFile(path, 'utf8'));
+  const durToSec = (d) => { const m = /^(\d{1,2}):(\d{2})$/.exec(d || ''); return m ? (+m[1]) * 60 + (+m[2]) : 0; };
+  console.log(`\ncourse structure: ${courses.length} courses`);
+  let sort = 0;
+  for (const c of courses) {
+    let lessons = 0, seconds = 0;
+    for (const s of c.sections) for (const l of s.lessons) { lessons++; seconds += durToSec(l.duration); }
+    const stats = { sections: c.sections.length, lessons, minutes: Math.round(seconds / 60) };
+    await upsertCourse({
+      slug: c.slug, title: c.title, lessonCount: lessons, sort: sort++,
+      data: { title: c.title, sections: c.sections, stats }
+    });
+    console.log(`  ${c.title}: ${stats.sections} sections · ${stats.lessons} lessons · ${stats.minutes} min`);
+  }
+}
+
 await ingestCourses();
 await ingestBlackMagic();
+await ingestCourseStructure();
 
 console.log(`\ndone`);
 console.log(`  library items : ${items}`);
