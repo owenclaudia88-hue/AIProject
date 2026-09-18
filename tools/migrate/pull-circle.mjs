@@ -234,8 +234,13 @@ for (const course of courseLinks) {
       } catch {}
     }
 
+    // resource links → external templates (Canva, Notion, Gamma, Drive, ...)
+    // recorded, not downloaded: they are editor/share URLs, not files.
+    const RES = /(canva\.com|notion\.so|notion\.site|gamma\.app|docs\.google|drive\.google|figma\.com|airtable\.com|chatgpt\.com|claude\.ai|loom\.com|typeform)/i;
+    const resources = [...new Set(data.links.filter(l => RES.test(l) && !savedFiles.includes(l)))];
+
     lessonCount += 1;
-    manifest.push({ course: courseName, url: lessonUrl, title: data.title, slug, videos, files: savedFiles });
+    manifest.push({ course: courseName, url: lessonUrl, title: data.title, slug, videos, files: savedFiles, resources });
     console.log(`  [${String(lessonCount).padStart(3)}] ${data.title.slice(0, 56) || slug}${videos.length ? `  (${videos.length} video)` : ''}`);
     await sleep(site.delayMs ?? 500);
   }
