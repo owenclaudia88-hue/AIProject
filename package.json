@@ -5,5 +5,8 @@
   "description": "Landing page and Stripe checkout for 70 AI Specialists for Claude",
   "dependencies": {
     "stripe": "^17.5.0"
+  },
+  "scripts": {
+    "dev": "node --env-file=.env.local scripts/dev-server.mjs"
   }
 }

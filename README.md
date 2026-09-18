@@ -39,20 +39,26 @@ inputs in the markup on purpose — don't add any.
 
 ### Setup
 
-1. `npm install` (adds the `stripe` SDK; Vercel runs this automatically on deploy).
-2. Set these in **Vercel → Settings → Environment Variables**, and in `.env.local` for local
-   dev — see `.env.example`:
-   - `STRIPE_SECRET_KEY` — `sk_test_…` while testing
-   - `STRIPE_PUBLISHABLE_KEY` — `pk_test_…`
-   - `STRIPE_WEBHOOK_SECRET` — `whsec_…`
-   - `PRICE_AMOUNT` — in the smallest unit, `100` = $1.00
-   - `PRICE_CURRENCY` — e.g. `usd`
-3. Add a webhook endpoint in the Stripe dashboard pointing at
+1. `npm install`.
+2. Create `.env.local` (already gitignored — **never commit it**) from `.env.example`:
+   `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`,
+   `PRICE_AMOUNT=100`, `PRICE_CURRENCY=usd`.
+3. Set the same variables in **Vercel → Settings → Environment Variables**. The deployed
+   site reads them from there, not from the repo.
+4. Add a webhook in the Stripe dashboard pointing at
    `https://yourdomain.com/api/stripe-webhook`, subscribed to `payment_intent.succeeded`,
-   `payment_intent.payment_failed` and `charge.refunded`.
-4. Test locally with `stripe listen --forward-to localhost:3000/api/stripe-webhook` and card
-   `4242 4242 4242 4242`, any future expiry and CVC.
-5. Swap to live keys only once a test payment has completed end to end.
+   `payment_intent.payment_failed` and `charge.refunded`. Put its signing secret in
+   `STRIPE_WEBHOOK_SECRET`.
+
+### Running it locally
+
+    npm run dev        # http://localhost:3000
+
+`scripts/dev-server.mjs` serves the static pages and runs `/api` the way Vercel does, so the
+whole flow works locally. Stripe.js allows `localhost` over plain HTTP; anywhere else needs
+HTTPS. For webhooks, run `stripe listen --forward-to localhost:3000/api/stripe-webhook`.
+
+Test card `4242 4242 4242 4242`, any future expiry, any CVC.
 
 ### Two things that matter
 
