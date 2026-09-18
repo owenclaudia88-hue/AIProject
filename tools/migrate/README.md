@@ -58,6 +58,33 @@ node crawl.mjs course             # the full export
 Start with `--dry`, then `--limit 10`. Check the output actually looks like
 your content before letting it loose on 300 pages.
 
+## When the crawler isn't enough
+
+`crawl.mjs` follows `<a href>` links. That's fine for page-based platforms, but
+app-style ones — Circle, GoHighLevel, anything React or Vue — render from JSON
+and navigate by click handler. There are often no crawlable links at all, and
+lists load on scroll.
+
+For those, use `capture.mjs`:
+
+```bash
+node capture.mjs community
+```
+
+It opens a browser with your session and then gets out of the way. **You** browse
+— open every space, every lesson, scroll lists to the bottom — and it records
+every JSON response the app receives. You get the platform's own structured
+data rather than scraped text, and because a human is navigating, SPAs, modals
+and infinite scroll all just work. Press Enter to stop.
+
+    export/<siteKey>/api/<n>-<slug>.json   one file per response
+    export/<siteKey>/api-index.json        url, method, status, size, shape
+
+Narrow it with `--filter '<regex>'` if the app is chatty (analytics, websockets,
+presence pings). By default it takes JSON from the host you started on.
+
+Tip: anything you don't click, it doesn't capture. Be systematic.
+
 ## Output
 
 ```
