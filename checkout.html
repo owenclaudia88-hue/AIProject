@@ -453,9 +453,11 @@
       elements = stripe.elements({ clientSecret: clientSecret, appearance: appearance });
       paymentElement = elements.create('payment', {
         layout: 'tabs',
-        // We already collect these, so tell Stripe not to ask again.
-        // Everything switched off here MUST be supplied in confirmParams below.
-        fields: { billingDetails: 'never' }
+        // We already collect name/email/address, so tell Stripe not to ask
+        // again — these MUST then be supplied in confirmParams below. Phone is
+        // left on 'auto' so Stripe collects it only if a method (e.g. Link)
+        // needs it; otherwise we would also be forced to pass phone ourselves.
+        fields: { billingDetails: { name: 'never', email: 'never', address: 'never' } }
       });
       paymentElement.on('ready', function () { ready = true; });
       mountPayment();   // no-op unless step 2 is already on screen
