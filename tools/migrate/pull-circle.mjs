@@ -83,10 +83,11 @@ async function internalLinks(matcher) {
 
 // 1. find every course
 console.log(`\nopening ${site.startUrls[0]} ...`);
-// Courses live at /c/<slug>. The home feed doesn't list them, so look on the
-// Courses index and the sidebar too, and pull the /c/<slug> out of ANY link
-// (even a deep lesson URL), so we don't depend on how Circle renders the nav.
-const courseSet = new Set();
+// If the config lists the courses explicitly, use those and skip discovery.
+// Most reliable — no dependence on how Circle renders its nav.
+const courseSet = new Set((site.courses || []).map(c =>
+  c.startsWith('http') ? c : origin + (c.startsWith('/') ? c : '/c/' + c)
+));
 async function harvestCourses() {
   const found = await page.evaluate(() => {
     const out = new Set();
@@ -100,25 +101,26 @@ async function harvestCourses() {
   for (const slugPath of found) courseSet.add(origin + slugPath);
 }
 
-const discovery = [site.startUrls[0], origin + '/courses', origin + '/home'];
-if (site.startUrls[0].includes('/c/')) {
-  courseSet.add(origin + '/c/' + site.startUrls[0].split('/c/')[1].split('/')[0]);
-}
-for (const d of discovery) {
-  await page.goto(d, { waitUntil: 'domcontentloaded' }).catch(() => {});
-  await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
-  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
-  await sleep(900);
-  await harvestCourses();
-}
-
-// last resort: pull course slugs out of Circle's own API responses we recorded
+// Only auto-discover if no explicit list was configured.
 if (courseSet.size === 0) {
-  const { readdir } = await import('node:fs/promises');
-  for (const f of await readdir(apiDir).catch(() => [])) {
-    const txt = await readFile(join(apiDir, f), 'utf8').catch(() => '');
-    for (const m of txt.matchAll(/"slug"\s*:\s*"([a-z0-9][a-z0-9-]*)"/gi)) {
-      courseSet.add(origin + '/c/' + m[1]);
+  const discovery = [site.startUrls[0], origin + '/courses', origin + '/home'];
+  if (site.startUrls[0].includes('/c/')) {
+    courseSet.add(origin + '/c/' + site.startUrls[0].split('/c/')[1].split('/')[0]);
+  }
+  for (const d of discovery) {
+    await page.goto(d, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
+    await sleep(900);
+    await harvestCourses();
+  }
+  if (courseSet.size === 0) {
+    const { readdir } = await import('node:fs/promises');
+    for (const f of await readdir(apiDir).catch(() => [])) {
+      const txt = await readFile(join(apiDir, f), 'utf8').catch(() => '');
+      for (const m of txt.matchAll(/"slug"\s*:\s*"([a-z0-9][a-z0-9-]*)"/gi)) {
+        courseSet.add(origin + '/c/' + m[1]);
+      }
     }
   }
 }
