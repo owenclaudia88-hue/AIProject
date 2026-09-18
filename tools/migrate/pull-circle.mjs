@@ -83,14 +83,49 @@ async function internalLinks(matcher) {
 
 // 1. find every course
 console.log(`\nopening ${site.startUrls[0]} ...`);
-await page.goto(site.startUrls[0], { waitUntil: 'domcontentloaded' }).catch(() => {});
-await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+// Courses live at /c/<slug>. The home feed doesn't list them, so look on the
+// Courses index and the sidebar too, and pull the /c/<slug> out of ANY link
+// (even a deep lesson URL), so we don't depend on how Circle renders the nav.
+const courseSet = new Set();
+async function harvestCourses() {
+  const found = await page.evaluate(() => {
+    const out = new Set();
+    for (const el of document.querySelectorAll('a[href]')) {
+      const h = el.getAttribute('href') || '';
+      const m = h.match(/\/c\/[a-z0-9][a-z0-9-]*/i);
+      if (m) out.add(m[0]);
+    }
+    return [...out];
+  });
+  for (const slugPath of found) courseSet.add(origin + slugPath);
+}
 
-let courseLinks = await internalLinks('/c/[^/]+');
-courseLinks = [...new Set(courseLinks.map(h => origin + (h.startsWith('/') ? h : '/' + h).split('/').slice(0, 3).join('/')))];
-if (site.startUrls[0].includes('/c/')) courseLinks.unshift(site.startUrls[0]);
-courseLinks = [...new Set(courseLinks)];
+const discovery = [site.startUrls[0], origin + '/courses', origin + '/home'];
+if (site.startUrls[0].includes('/c/')) {
+  courseSet.add(origin + '/c/' + site.startUrls[0].split('/c/')[1].split('/')[0]);
+}
+for (const d of discovery) {
+  await page.goto(d, { waitUntil: 'domcontentloaded' }).catch(() => {});
+  await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
+  await sleep(900);
+  await harvestCourses();
+}
+
+// last resort: pull course slugs out of Circle's own API responses we recorded
+if (courseSet.size === 0) {
+  const { readdir } = await import('node:fs/promises');
+  for (const f of await readdir(apiDir).catch(() => [])) {
+    const txt = await readFile(join(apiDir, f), 'utf8').catch(() => '');
+    for (const m of txt.matchAll(/"slug"\s*:\s*"([a-z0-9][a-z0-9-]*)"/gi)) {
+      courseSet.add(origin + '/c/' + m[1]);
+    }
+  }
+}
+
+let courseLinks = [...courseSet];
 console.log(`courses found: ${courseLinks.length}`);
+if (courseLinks.length) courseLinks.forEach(c => console.log(`  - ${c.replace(origin, '')}`));
 
 // 2. for each course, collect its lesson URLs, then visit each lesson
 const manifest = [];
