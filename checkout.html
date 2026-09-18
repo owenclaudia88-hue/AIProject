@@ -75,23 +75,52 @@
           <div class="co-panel" id="panel-2" data-step="2" role="tabpanel" aria-labelledby="tab-2" hidden>
             <div class="field">
               <label class="sr-only" for="country">Country</label>
-              <select id="country" name="country" autocomplete="country-name" required>
+              <select id="country" name="country" autocomplete="country" required>
                 <option value="">Country</option>
-                <option>United Kingdom</option>
-                <option>United States</option>
-                <option>Canada</option>
-                <option>Australia</option>
-                <option>Ireland</option>
-                <option>New Zealand</option>
-                <option>Germany</option>
-                <option>France</option>
-                <option>Spain</option>
-                <option>Italy</option>
-                <option>Netherlands</option>
-                <option>Sweden</option>
-                <option>Norway</option>
-                <option>Denmark</option>
-                <option>Other</option>
+                <option value="GB">United Kingdom</option>
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="AU">Australia</option>
+                <option value="IE">Ireland</option>
+                <option value="NZ">New Zealand</option>
+                <option disabled>──────────</option>
+                <option value="AT">Austria</option>
+                <option value="BE">Belgium</option>
+                <option value="BG">Bulgaria</option>
+                <option value="HR">Croatia</option>
+                <option value="CY">Cyprus</option>
+                <option value="CZ">Czechia</option>
+                <option value="DK">Denmark</option>
+                <option value="EE">Estonia</option>
+                <option value="FI">Finland</option>
+                <option value="FR">France</option>
+                <option value="DE">Germany</option>
+                <option value="GR">Greece</option>
+                <option value="HK">Hong Kong</option>
+                <option value="HU">Hungary</option>
+                <option value="IN">India</option>
+                <option value="IL">Israel</option>
+                <option value="IT">Italy</option>
+                <option value="JP">Japan</option>
+                <option value="LV">Latvia</option>
+                <option value="LT">Lithuania</option>
+                <option value="LU">Luxembourg</option>
+                <option value="MY">Malaysia</option>
+                <option value="MT">Malta</option>
+                <option value="MX">Mexico</option>
+                <option value="NL">Netherlands</option>
+                <option value="NO">Norway</option>
+                <option value="PL">Poland</option>
+                <option value="PT">Portugal</option>
+                <option value="RO">Romania</option>
+                <option value="SG">Singapore</option>
+                <option value="SK">Slovakia</option>
+                <option value="SI">Slovenia</option>
+                <option value="ZA">South Africa</option>
+                <option value="ES">Spain</option>
+                <option value="SE">Sweden</option>
+                <option value="CH">Switzerland</option>
+                <option value="AE">United Arab Emirates</option>
               </select>
               <p class="err" id="err-country">Select your country.</p>
             </div>
@@ -421,7 +450,12 @@
       publishableKey = data.publishableKey;
       stripe = Stripe(publishableKey);
       elements = stripe.elements({ clientSecret: data.clientSecret, appearance: appearance });
-      paymentElement = elements.create('payment', { layout: 'tabs' });
+      paymentElement = elements.create('payment', {
+        layout: 'tabs',
+        // We already collect these, so tell Stripe not to ask again.
+        // Everything switched off here MUST be supplied in confirmParams below.
+        fields: { billingDetails: 'never' }
+      });
       paymentElement.on('ready', function () { ready = true; });
       mountPayment();   // no-op unless step 2 is already on screen
     } catch (err) {
@@ -463,7 +497,8 @@
             address: {
               line1: val('address'),
               city: val('city'),
-              postal_code: val('postcode')
+              postal_code: val('postcode'),
+              country: val('country')      // ISO 3166-1 alpha-2, e.g. GB
             }
           }
         }
