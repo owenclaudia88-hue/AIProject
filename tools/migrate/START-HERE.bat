@@ -46,7 +46,7 @@ set /p "choice=  Type a number and press Enter:  "
 if "%choice%"=="1" ( set "SITE=blackmagic" & set "LABEL=AI Black Magic" & goto do_login )
 if "%choice%"=="2" ( set "SITE=blackmagic" & set "LABEL=AI Black Magic" & goto do_pull )
 if "%choice%"=="3" ( set "SITE=community"  & set "LABEL=Circle community" & goto do_login )
-if "%choice%"=="4" ( set "SITE=community"  & set "LABEL=Circle community" & goto do_pull )
+if "%choice%"=="4" ( set "SITE=community"  & set "LABEL=Circle community" & goto do_pull_circle )
 if "%choice%"=="5" goto results
 if "%choice%"=="6" exit /b 0
 if "%choice%"=="7" ( set "SITE=blackmagic" & set "LABEL=AI Black Magic" & goto do_capture )
@@ -87,6 +87,25 @@ echo   Sit back; it prints each batch as it goes.
 echo.
 pause
 node pull.mjs %SITE%
+echo.
+pause
+goto menu
+
+:do_pull_circle
+cls
+echo.
+echo   GRABBING THE CIRCLE COURSES FROM %LABEL%
+echo   ---------------------------------------------------------
+echo.
+echo   This walks every course and every lesson by itself and saves
+echo   all the instructions, plus any ZIPs/files the lessons link to.
+echo   You do not click through lessons.
+echo.
+echo   Videos are recorded as links (they go on a video host later),
+echo   not downloaded.
+echo.
+pause
+node pull-circle.mjs %SITE%
 echo.
 pause
 goto menu
