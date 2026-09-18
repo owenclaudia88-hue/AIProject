@@ -146,16 +146,31 @@ async function apiGet(fullUrl, extraHeaders = {}) {
   }, { fullUrl, anon: conf.anon, token: conf.token, extraHeaders });
 }
 
-// Nudge the app into loading everything: reload once, then scroll a few times so
-// any lazy / infinite-scroll lists fire their requests. All captured passively.
-console.log('loading your content...');
-await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
-for (let s = 0; s < 8; s++) {
+// Visit every section so each one's list query fires and its table registers.
+// The dashboard alone only touches a few tables; the sidebar links reach the
+// rest (prompts, custom GPTs, automation, tutorials, fundamentals, ...). Deep
+// pull below then takes ALL rows of whatever tables we discover here.
+console.log('visiting each section to discover all content...');
+const origin = new URL(site.startUrls[0]).origin;
+const navPaths = await page.evaluate((origin) => {
+  const set = new Set();
+  for (const a of document.querySelectorAll('a[href]')) {
+    const href = a.getAttribute('href') || '';
+    if (href.startsWith('/') && !/(logout|sign-?out|settings|account|billing|profile)/i.test(href)) {
+      set.add(href.split('#')[0].split('?')[0]);
+    }
+  }
+  return [...set];
+}, origin);
+
+const routes = [site.startUrls[0], ...navPaths.map(p => origin + p)].slice(0, 25);
+for (const url of routes) {
+  await page.goto(url, { waitUntil: 'domcontentloaded' }).catch(() => {});
+  await page.waitForLoadState('networkidle', { timeout: 6000 }).catch(() => {});
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(700);
 }
-await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
-await page.waitForTimeout(1500);
+console.log(`  visited ${routes.length} pages\n`);
 
 // Count the useful records in a response body, whatever shape it takes.
 function countRecords(body) {
@@ -217,6 +232,7 @@ if (contentTables.length) {
   console.log(`\ndeep pull — every row, every column:`);
 }
 const deepIndex = [];
+const allRows = {};
 for (const table of contentTables) {
   const tryFetch = async (select) => {
     let from = 0, all = [];
@@ -240,6 +256,7 @@ for (const table of contentTables) {
   if (res.status >= 400 && originalSelect.has(table)) res = await tryFetch(originalSelect.get(table));
 
   const rows = res.rows;
+  allRows[table] = rows;
   await writeFile(join(dataDir, `${table}-full.json`), JSON.stringify(rows, null, 2), 'utf8');
   deepIndex.push({ table, rows: rows.length, columns: rows[0] ? Object.keys(rows[0]).length : 0 });
   const hasBody = rows[0] && Object.keys(rows[0]).some(k => /prompt|content|body|text|instructions/i.test(k));
@@ -254,15 +271,88 @@ await writeFile(join(outDir, 'deep-index.json'), JSON.stringify({
 }, null, 2), 'utf8');
 totalRecords = deepIndex.reduce((n, t) => n + t.rows, 0);
 
+// FILES & LINKS — rows often carry download links (Google Drive JSONs for the
+// automations) and external references (ChatGPT GPT URLs). Pull the actual
+// files down; record every external link so nothing is lost.
+const URL_RE = /https?:\/\/[^\s"'<>()\\]+/g;
+const DOC_EXT = /\.(json|pdf|docx?|xlsx?|pptx?|csv|md|zip|txt|rtf)(\?|$)/i;
+const filesDir = join(outDir, 'files');
+await mkdir(filesDir, { recursive: true });
+
+const links = [];
+const toGet = new Map(); // url -> { table, id }
+for (const [table, rows] of Object.entries(allRows)) {
+  for (const row of rows) {
+    const id = row.id ?? '';
+    for (const val of Object.values(row)) {
+      if (typeof val !== 'string' || !val.includes('http')) continue;
+      for (let u of (val.match(URL_RE) || [])) {
+        u = u.replace(/[.,);]+$/, '');
+        let host; try { host = new URL(u); } catch { continue; }
+        const isDrive = /drive\.google\.com/.test(host.host) && /export=download|\/file\/d\//.test(u);
+        const isDoc = DOC_EXT.test(host.pathname);
+        const isStorageDoc = /supabase\.co\/storage\//.test(u) && DOC_EXT.test(u);
+        const kind = (isDrive || isDoc || isStorageDoc) ? 'file' : 'link';
+        links.push({ table, id, url: u, kind });
+        if (kind === 'file' && !toGet.has(u)) toGet.set(u, { table, id });
+      }
+    }
+  }
+}
+
+let got = 0;
+if (toGet.size) {
+  console.log(`\nfiles linked from your content: ${toGet.size} — downloading:`);
+  let i = 0;
+  for (const [url, meta] of toGet) {
+    if (++i > 500) { console.log('  (stopping at 500 files — raise the cap if needed)'); break; }
+    try {
+      const res = await context.request.get(url, { timeout: 90000, maxRedirects: 5 });
+      if (!res.ok()) { console.log(`  skip ${res.status()}  ${url.slice(0, 60)}`); continue; }
+      const ct = (res.headers()['content-type'] || '').toLowerCase();
+      // a tiny HTML reply from Drive is its "file too big to scan" confirm page
+      if (ct.includes('text/html') && /drive\.google/.test(url)) {
+        links.push({ table: meta.table, id: meta.id, url, kind: 'link', note: 'drive-confirm-needed' });
+        console.log(`  manual ${url.slice(0, 60)}  (large Drive file — link kept)`);
+        continue;
+      }
+      const buf = Buffer.from(await res.body());
+      const base = decodeURIComponent(host_basename(url)) || `${meta.table}-${meta.id}`;
+      const safe = `${meta.table}__${(meta.id || '').toString().slice(0, 12)}__${base}`.replace(/[^\w.\-]+/g, '_').slice(0, 120);
+      await writeFile(join(filesDir, safe), buf);
+      got += 1;
+      console.log(`  got  ${(buf.length / 1024).toFixed(0).padStart(5)} KB  ${safe.slice(0, 60)}`);
+    } catch (e) {
+      console.log(`  fail ${url.slice(0, 55)}  ${String(e.message).split('\n')[0].slice(0, 40)}`);
+    }
+  }
+}
+
+function host_basename(u) {
+  try {
+    const p = new URL(u);
+    const driveId = p.searchParams.get('id');
+    if (driveId) return `${driveId}.json`;
+    return p.pathname.split('/').filter(Boolean).pop() || '';
+  } catch { return ''; }
+}
+
+await writeFile(join(outDir, 'links.json'), JSON.stringify({
+  site: siteKey, extractedAt: new Date().toISOString(),
+  fileCount: got, linkCount: links.filter(l => l.kind === 'link').length, links
+}, null, 2), 'utf8');
+
 await writeFile(join(outDir, 'data-index.json'), JSON.stringify({
   site: siteKey, project: `${conf.ref}.supabase.co`,
   pulledAt: new Date().toISOString(), endpoints: index
 }, null, 2), 'utf8');
 
 console.log(`\ndone`);
-console.log(`  content types pulled : ${captured.length} endpoints seen`);
+console.log(`  content types pulled : ${deepIndex.length} tables`);
 console.log(`  total records        : ${totalRecords}  (full rows, all columns)`);
-console.log(`  output               : ${dataDir}`);
+console.log(`  files downloaded     : ${got}`);
+console.log(`  external links kept  : ${links.filter(l => l.kind === 'link').length}  (see links.json)`);
+console.log(`  output               : ${outDir}`);
 if (!captured.length) {
   console.log(`\n  Nothing was fetched. The dashboard may need a click to show content —`);
   console.log(`  use the browse-and-record option (menu 7 / 8) for this one.`);
