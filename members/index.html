@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your member area — AI Founder University</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0b;--bg-2:#111113;--bg-3:#18181b;--line:#26262b;--line-2:#333338;--txt:#f4f4f5;--txt-2:#a1a1aa;--txt-3:#71717a;--accent:#ff7a1a;--accent-2:#ffb020;--green:#34d399}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-2);text-decoration:none}
+.wrap{width:100%;max-width:1080px;margin:0 auto;padding-inline:clamp(18px,4vw,32px)}
+header{border-bottom:1px solid var(--line);background:var(--bg-2);position:sticky;top:0;z-index:10}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px}
+.brand{display:flex;align-items:center;gap:11px}
+.mark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(140deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:900;font-size:.78rem}
+.brand-name{font-weight:800;letter-spacing:-.02em;font-size:.95rem}
+.who{display:flex;align-items:center;gap:14px;font-size:.85rem;color:var(--txt-2)}
+.who .email{color:var(--txt);font-weight:600}
+.signout{background:none;border:1px solid var(--line-2);color:var(--txt-2);font-family:inherit;font-size:.82rem;padding:7px 13px;border-radius:999px;cursor:pointer}
+.signout:hover{background:var(--bg-3);color:var(--txt)}
+
+#gate{min-height:70vh;display:grid;place-items:center;text-align:center;padding:24px}
+#gate p{color:var(--txt-2);max-width:420px;line-height:1.6}
+.btn{display:inline-block;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;padding:13px 26px;border-radius:999px;margin-top:14px}
+
+main{padding-block:40px 70px;display:none}
+.hero-h{font-size:clamp(1.6rem,3.4vw,2.2rem);font-weight:400;letter-spacing:-.02em;margin:0 0 6px}
+.hero-sub{color:var(--txt-2);margin:0 0 34px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+.card{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s ease,transform .15s ease}
+.card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.card .ic{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;background:rgba(255,122,26,.12);border:1px solid rgba(255,122,26,.28);font-size:1.3rem;margin-bottom:4px}
+.card h3{margin:0;font-size:1.08rem;font-weight:600;letter-spacing:-.01em}
+.card p{margin:0;color:var(--txt-2);font-size:.9rem;line-height:1.5;flex:1}
+.card .count{font-size:.8rem;color:var(--accent-2);font-weight:700}
+.card.soon{opacity:.6}
+.card.soon .count{color:var(--txt-3)}
+</style>
+</head>
+<body>
+  <header>
+    <div class="wrap top">
+      <div class="brand"><span class="mark">AI</span><span class="brand-name">AI Founder University</span></div>
+      <div class="who" id="who" hidden>
+        <span>Signed in as <span class="email" id="who-email"></span></span>
+        <button class="signout" id="signout">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- shown until /api/me confirms access -->
+  <div id="gate">
+    <div>
+      <p id="gate-msg">Checking your access…</p>
+      <a class="btn" id="gate-btn" href="login.html" hidden>Go to sign in</a>
+    </div>
+  </div>
+
+  <main class="wrap" id="app">
+    <h1 class="hero-h">Welcome back<span id="first-name"></span>.</h1>
+    <p class="hero-sub">Everything you own is here. Open a library to get started.</p>
+
+    <div class="grid" id="library">
+      <a class="card" href="#">
+        <span class="ic">🧩</span>
+        <h3>70 AI Specialists</h3>
+        <p>The full Claude plugin — every specialist, ready to install.</p>
+        <span class="count">Download &middot; plugin ZIP</span>
+      </a>
+      <a class="card" href="#">
+        <span class="ic">⚡</span>
+        <h3>Power-Ups</h3>
+        <p>31 focused packs: content, sales pages, launches, funnels and more.</p>
+        <span class="count">31 packs</span>
+      </a>
+      <a class="card" href="#">
+        <span class="ic">📚</span>
+        <h3>Prompt &amp; Skill Library</h3>
+        <p>Hundreds of prompts, skills, custom GPTs and automation templates.</p>
+        <span class="count">900+ prompts</span>
+      </a>
+      <a class="card" href="#">
+        <span class="ic">🎓</span>
+        <h3>Courses</h3>
+        <p>Step-by-step training: install, connect, and run the specialists.</p>
+        <span class="count">6 courses</span>
+      </a>
+      <a class="card soon" href="#">
+        <span class="ic">🎬</span>
+        <h3>Video Lessons</h3>
+        <p>Watch the full walkthroughs. Coming to your library shortly.</p>
+        <span class="count">Coming soon</span>
+      </a>
+    </div>
+  </main>
+
+<script>
+(function () {
+  var gate = document.getElementById('gate');
+  var gateMsg = document.getElementById('gate-msg');
+  var gateBtn = document.getElementById('gate-btn');
+  var app = document.getElementById('app');
+  var who = document.getElementById('who');
+
+  function showGate(msg, showBtn) {
+    gateMsg.textContent = msg;
+    gateBtn.hidden = !showBtn;
+  }
+
+  fetch('/api/me', { credentials: 'same-origin' })
+    .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+    .then(function (res) {
+      if (res.status === 200 && res.d.active) {
+        // signed in and active — reveal the member area
+        gate.style.display = 'none';
+        app.style.display = 'block';
+        who.hidden = false;
+        document.getElementById('who-email').textContent = res.d.email;
+        var name = (res.d.email || '').split('@')[0].split(/[.\-_]/)[0];
+        if (name) document.getElementById('first-name').textContent = ', ' + name.charAt(0).toUpperCase() + name.slice(1);
+      } else if (res.status === 403) {
+        showGate('Your access is not active. If you were recently refunded that’s expected; otherwise contact support@aifounderuniversity.com.', true);
+        gateBtn.textContent = 'Back to sign in';
+      } else {
+        // not signed in
+        window.location.replace('login.html');
+      }
+    })
+    .catch(function () {
+      showGate('Could not verify your access. Please refresh, or sign in again.', true);
+    });
+
+  document.getElementById('signout').addEventListener('click', function () {
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' })
+      .finally(function () { window.location.replace('login.html'); });
+  });
+})();
+</script>
+</body>
+</html>

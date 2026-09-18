@@ -1,4 +1,6 @@
 import Stripe from 'stripe';
+import { grantAccess, revokeAccess, createLoginToken } from '../lib/db.js';
+import { sendPurchaseConfirmation } from '../lib/email.js';
 
 /**
  * Stripe webhook receiver.
@@ -56,13 +58,32 @@ export default async function handler(req, res) {
         const pi = event.data.object;
         console.log('[stripe-webhook] Payment succeeded:', pi.id, pi.amount, pi.currency);
 
-        // TODO: fulfil the order here.
-        //   - send the product email (download link / plugin ZIP / course access)
-        //   - create the customer record or membership
-        //   - add them to your email list
-        //
-        // Stripe retries on a non-2xx, so make this idempotent: check whether
-        // pi.id has already been fulfilled before doing the work again.
+        const email = pi.receipt_email || pi.charges?.data?.[0]?.billing_details?.email;
+        if (!email) {
+          console.warn('[stripe-webhook] No email on PaymentIntent', pi.id, '- cannot grant access');
+          break;
+        }
+
+        // Grant access. grantAccess is an idempotent upsert, so Stripe retries
+        // are safe. It also tells us whether this row was new, so the welcome
+        // email is only sent on the first successful payment for this buyer.
+        const created = await grantAccess(email, {
+          paymentIntent: pi.id,
+          stripeCustomerId: typeof pi.customer === 'string' ? pi.customer : undefined
+        });
+        console.log('[stripe-webhook] Access granted:', email);
+
+        // Fulfilment IS the member area: email a one-time link that signs them in.
+        try {
+          const token = await createLoginToken(email);
+          const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
+          const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
+          if (created) await sendPurchaseConfirmation(email, loginUrl);
+        } catch (mailErr) {
+          // Don't fail the webhook over email — access is already granted and
+          // they can request a fresh link from the login page.
+          console.error('[stripe-webhook] Welcome email failed:', mailErr.message);
+        }
         break;
       }
 
@@ -74,8 +95,10 @@ export default async function handler(req, res) {
 
       case 'charge.refunded': {
         const charge = event.data.object;
-        console.log('[stripe-webhook] Refunded:', charge.id);
-        // TODO: revoke access, matching the 14-day guarantee in terms.html#refunds.
+        const email = charge.billing_details?.email || charge.receipt_email;
+        console.log('[stripe-webhook] Refunded:', charge.id, email || '(no email)');
+        // Revoke access, matching the 14-day guarantee in terms.html#refunds.
+        if (email) { await revokeAccess(email); console.log('[stripe-webhook] Access revoked:', email); }
         break;
       }
 

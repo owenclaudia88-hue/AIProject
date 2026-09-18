@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign in — AI Founder University</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0b;--bg-2:#111113;--bg-3:#18181b;--line:#26262b;--line-2:#333338;--txt:#f4f4f5;--txt-2:#a1a1aa;--txt-3:#71717a;--accent:#ff7a1a;--accent-2:#ffb020;--green:#34d399}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--txt);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;display:grid;place-items:center;padding:24px}
+.card{width:100%;max-width:420px;background:var(--bg-2);border:1px solid var(--line);border-radius:20px;padding:34px}
+.brand{display:flex;align-items:center;gap:11px;margin-bottom:26px}
+.mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(140deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:900;font-size:.82rem}
+.brand-name{font-weight:800;letter-spacing:-.02em}
+h1{font-size:1.5rem;font-weight:600;letter-spacing:-.02em;margin:0 0 8px}
+.sub{color:var(--txt-2);font-size:.95rem;margin:0 0 24px;line-height:1.5}
+label{display:block;font-size:.83rem;font-weight:600;color:var(--txt-2);margin-bottom:7px}
+input{width:100%;background:#fff;color:#16161c;border:1px solid #fff;border-radius:10px;padding:14px 15px;font-size:1rem;font-family:inherit}
+input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.25)}
+.btn{width:100%;margin-top:16px;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;font-size:1rem;font-family:inherit;padding:15px;border:0;border-radius:999px;cursor:pointer;transition:filter .15s ease}
+.btn:hover{filter:brightness(1.05)}
+.btn:disabled{opacity:.6;cursor:default}
+.note{margin-top:18px;padding:14px 16px;border-radius:10px;font-size:.9rem;line-height:1.5;display:none}
+.note.show{display:block}
+.note.ok{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.4);color:#6ee7b7}
+.note.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.4);color:#fca5a5}
+.foot{margin-top:22px;font-size:.82rem;color:var(--txt-3);line-height:1.6}
+.foot a{color:var(--accent-2);text-decoration:none}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand"><span class="mark">AI</span><span class="brand-name">AI Founder University</span></div>
+    <h1>Sign in</h1>
+    <p class="sub">Enter the email you bought with. We'll send you a one-time sign-in link — no password needed.</p>
+
+    <form id="form">
+      <label for="email">Email address</label>
+      <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+      <button type="submit" class="btn" id="btn">Email me a sign-in link</button>
+    </form>
+
+    <div class="note" id="note"></div>
+
+    <p class="foot">
+      Just purchased? Your welcome email already contains a sign-in link.<br>
+      Need help? <a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a>
+    </p>
+  </div>
+
+<script>
+(function () {
+  var form = document.getElementById('form');
+  var btn = document.getElementById('btn');
+  var note = document.getElementById('note');
+
+  // show a reason if the verify endpoint bounced us back
+  var reason = new URLSearchParams(location.search).get('error');
+  if (reason) {
+    var msg = {
+      expired: 'That link has expired or was already used. Enter your email for a fresh one.',
+      inactive: 'That account is not active. If you believe this is a mistake, contact support.',
+      missing: 'That link was incomplete. Enter your email for a new one.',
+      server: 'Something went wrong. Please try again.'
+    }[reason] || 'Please sign in again.';
+    note.className = 'note err show'; note.textContent = msg;
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var email = document.getElementById('email').value.trim();
+    btn.disabled = true; btn.textContent = 'Sending…';
+    note.className = 'note';
+    try {
+      var res = await fetch('/api/auth/request-link', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      });
+      var data = await res.json();
+      if (res.ok) {
+        note.className = 'note ok show';
+        note.textContent = 'Check your inbox — if that email has access, a sign-in link is on its way. It can take a minute.';
+        form.reset();
+      } else {
+        note.className = 'note err show';
+        note.textContent = data.error || 'Could not send the link. Try again.';
+      }
+    } catch (err) {
+      note.className = 'note err show';
+      note.textContent = 'Network error. Please try again.';
+    }
+    btn.disabled = false; btn.textContent = 'Email me a sign-in link';
+  });
+})();
+</script>
+</body>
+</html>
