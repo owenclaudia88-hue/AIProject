@@ -47,56 +47,65 @@ const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ storageState });
 const page = await context.newPage();
 
-console.log(`\nOpening ${site.startUrls[0]} in your session...`);
-await page.goto(site.startUrls[0], { waitUntil: 'domcontentloaded' }).catch(() => {});
-await page.waitForTimeout(2500); // let the app boot and settle its client
-
-// Find the Supabase project + token the app is already using, from localStorage.
-const conf = await page.evaluate(() => {
-  const out = { url: null, anon: null, token: null, ref: null };
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    const m = k && k.match(/^sb-([a-z0-9]+)-auth-token$/);
-    if (m) {
-      out.ref = m[1];
-      out.url = `https://${m[1]}.supabase.co`;
-      let raw = localStorage.getItem(k);
-      try {
-        if (raw.startsWith('base64-')) raw = atob(raw.slice(7));
-        const parsed = JSON.parse(raw);
-        out.token = parsed.access_token || parsed?.currentSession?.access_token || null;
-      } catch {}
-    }
+// The most reliable way to learn the project, key and token is to watch the
+// app make its own requests: it cannot render your content without sending all
+// three. We sniff the first Supabase request rather than digging through
+// localStorage or minified globals, which vary by app and version.
+const conf = { url: null, anon: null, token: null, ref: null };
+page.on('request', (req) => {
+  const url = req.url();
+  const m = url.match(/^https:\/\/([a-z0-9]+)\.supabase\.co\//);
+  if (!m) return;
+  const h = req.headers();
+  const apikey = h['apikey'];
+  const auth = h['authorization'];
+  if (apikey && !conf.anon) {
+    conf.ref = m[1];
+    conf.url = `https://${m[1]}.supabase.co`;
+    conf.anon = apikey;
+    // the app authenticates its data calls with the logged-in user's token
+    if (auth && /^Bearer\s+/i.test(auth)) conf.token = auth.replace(/^Bearer\s+/i, '');
   }
-  // the anon key is a global in most supabase apps; fall back to scanning scripts
-  const scan = (s) => {
-    const jwt = s && s.match(/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[\w-]+\.[\w-]+/);
-    return jwt ? jwt[0] : null;
-  };
-  out.anon = scan(document.documentElement.innerHTML)
-    || (window.__supabase_anon_key ?? null);
-  return out;
 });
 
-if (!conf.url || !conf.token) {
-  console.error('\nCould not find a Supabase session in this page.');
-  console.error('Either the login did not stick (re-run auth.mjs), or this platform');
-  console.error('is not Supabase-backed — try capture.mjs instead.\n');
+console.log(`\nOpening ${site.startUrls[0]} in your session...`);
+await page.goto(site.startUrls[0], { waitUntil: 'domcontentloaded' }).catch(() => {});
+
+// give the app time to fire its data requests; nudge it if it's slow
+for (let i = 0; i < 12 && (!conf.anon || !conf.token); i++) {
+  await page.waitForTimeout(1000);
+  if (i === 4) await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+}
+
+// token can also live in localStorage if the app used a cached session
+if (!conf.token) {
+  const ls = await page.evaluate(() => {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && /^sb-[a-z0-9]+-auth-token$/.test(k)) {
+        let raw = localStorage.getItem(k);
+        try {
+          if (raw.startsWith('base64-')) raw = atob(raw.slice(7));
+          const p = JSON.parse(raw);
+          return p.access_token || p?.currentSession?.access_token || null;
+        } catch {}
+      }
+    }
+    return null;
+  });
+  if (ls) conf.token = ls;
+}
+
+if (!conf.url || !conf.anon) {
+  console.error('\nThis platform did not make any Supabase requests, so "grab everything"');
+  console.error("can't be used here. Use the browse-and-record option instead");
+  console.error('(menu 7 / 8), or re-run the login if it did not stick.\n');
   await browser.close();
   process.exit(1);
 }
-if (!conf.anon) {
-  // the app can't work without it, so it's somewhere; ask the page's fetch to reveal it
-  conf.anon = await page.evaluate(async () => {
-    // supabase-js stores headers on the client; try the common globals
-    return window.supabase?.rest?.headers?.apikey
-        || window.supabase?.supabaseKey
-        || null;
-  });
-}
-if (!conf.anon) {
-  console.error('Found your session but not the public API key. Add it to sites.json as');
-  console.error(`"${siteKey}".supabaseAnonKey and re-run.\n`);
+if (!conf.token) {
+  console.error('\nFound the platform but not your login token. Re-run the Log in step,');
+  console.error('make sure you are fully signed in, then try again.\n');
   await browser.close();
   process.exit(1);
 }
