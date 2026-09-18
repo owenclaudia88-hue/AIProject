@@ -17,10 +17,20 @@ work, because a human is doing the bit that requires a human.
 cd tools/migrate
 npm install
 npx playwright install chromium     # one-off, downloads the browser
-cp sites.example.json sites.json    # then edit sites.json
 ```
 
-`sites.json` is gitignored. One entry per platform:
+Then create `sites.json`, one entry per platform. Easiest way — let the helper
+write it:
+
+```bash
+node init-site.mjs course https://app.kajabi.com/login https://app.kajabi.com/admin/products
+```
+
+It derives the crawl fence from the start URL and prints what it chose. Run it
+once per platform; existing entries are kept.
+
+Or copy `sites.example.json` to `sites.json` and write it by hand. Either way
+`sites.json` is gitignored. The fields:
 
 | key | meaning |
 |---|---|
