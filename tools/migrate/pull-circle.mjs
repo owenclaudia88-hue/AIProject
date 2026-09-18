@@ -130,8 +130,12 @@ console.log(`courses found: ${courseLinks.length}`);
 if (courseLinks.length) courseLinks.forEach(c => console.log(`  - ${c.replace(origin, '')}`));
 
 // 2. for each course, collect its lesson URLs, then visit each lesson
+const lessonImagesDir = join(lessonsDir, 'images');
+await mkdir(lessonImagesDir, { recursive: true });
 const manifest = [];
 const filesGot = new Set();
+const imgGot = new Map();       // remote image url -> local filename
+let imgN = 0;
 let lessonCount = 0;
 
 for (const course of courseLinks) {
@@ -165,13 +169,37 @@ for (const course of courseLinks) {
         html: best.innerHTML,
         text: best.innerText,
         links: [...best.querySelectorAll('a[href]')].map(a => abs(a.getAttribute('href'))).filter(Boolean),
+        images: [...best.querySelectorAll('img[src]')].map(i => abs(i.getAttribute('src'))).filter(Boolean),
         iframes: [...document.querySelectorAll('iframe[src]')].map(f => abs(f.getAttribute('src'))).filter(Boolean),
         videos: [...document.querySelectorAll('video source[src], video[src]')].map(v => abs(v.getAttribute('src'))).filter(Boolean)
       };
     });
 
     const slug = slugFor(lessonUrl);
-    await writeFile(join(lessonsDir, `${slug}.html`), data.html, 'utf8');
+
+    // Download the inline images (diagrams, screenshots) so the instructions
+    // are self-contained, and rewrite the saved HTML to point at local copies.
+    let html = data.html;
+    for (const imgUrl of [...new Set(data.images)]) {
+      if (/^data:/i.test(imgUrl)) continue;
+      try {
+        let local = imgGot.get(imgUrl);
+        if (!local) {
+          const res = await context.request.get(imgUrl, { timeout: 60000, maxRedirects: 5 });
+          if (!res.ok()) continue;
+          const ct = (res.headers()['content-type'] || '').toLowerCase();
+          if (!ct.startsWith('image/')) continue;
+          const ext = (ct.split('/')[1] || 'img').split(';')[0].replace('jpeg', 'jpg').replace('svg+xml', 'svg');
+          local = `img_${String(++imgN).padStart(4, '0')}.${ext}`;
+          await writeFile(join(lessonImagesDir, local), Buffer.from(await res.body()));
+          imgGot.set(imgUrl, local);
+        }
+        // point the HTML at the local file (images/ is a sibling of the .html)
+        html = html.split(imgUrl).join(`images/${local}`);
+      } catch {}
+    }
+
+    await writeFile(join(lessonsDir, `${slug}.html`), html, 'utf8');
     await writeFile(join(lessonsDir, `${slug}.txt`), `${data.title}\n${lessonUrl}\n\n${data.text}`, 'utf8');
 
     // videos → record for re-hosting
@@ -222,6 +250,7 @@ const videoTotal = manifest.reduce((n, l) => n + l.videos.length, 0);
 console.log(`\ndone`);
 console.log(`  courses     : ${courseLinks.length}`);
 console.log(`  lessons     : ${lessonCount}  (instructions saved as html + txt)`);
+console.log(`  lesson images: ${imgGot.size}  (downloaded, html points at local copies)`);
 console.log(`  files       : ${filesGot.size}  (ZIPs / docs downloaded)`);
 console.log(`  videos      : ${videoTotal}  (URLs in course-manifest.json, for re-hosting)`);
 console.log(`  output      : ${outDir}\n`);
