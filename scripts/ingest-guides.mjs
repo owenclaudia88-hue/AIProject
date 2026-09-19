@@ -27,7 +27,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { parse } from 'node-html-parser';
-import { getAsset, upsertAsset, putGuide, getLibraryItem } from '../lib/db.js';
+import { getAsset, upsertAsset, putGuide, getLibraryItem, mergeMeta } from '../lib/db.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DATA = join(HERE, '..', 'export', 'blackmagic', 'data');
@@ -124,6 +124,15 @@ async function extract(html, itemId, downloadUrl) {
   const doc = parse(html, { blockTextElements: { script: false, style: false } });
   const body = doc.querySelector('body') || doc;
 
+  // Read the hero before removing it: the blurb, read time and level are the
+  // only things in there the reader cannot already render from the item itself.
+  const txt = (sel) => { const n = body.querySelector(sel); return n ? n.text.replace(/\s+/g, ' ').trim() : null; };
+  const hero = {
+    heroText: txt('.hero-subtitle'),
+    readTime: (txt('.read-time') || '').replace(/^[^\w]+/, '') || null,
+    level: (txt('.difficulty') || '').replace(/^[^\w]+/, '') || null
+  };
+
   body.querySelectorAll('style, script, link, noscript').forEach((n) => n.remove());
   // the hero repeats the title, blurb, read time and download button — all of
   // which the reader already renders natively from the item's own fields
@@ -160,7 +169,7 @@ async function extract(html, itemId, downloadUrl) {
     a.replaceWith(...a.childNodes);   // leaks or rots otherwise
   }
 
-  return root.innerHTML.trim();
+  return { html: root.innerHTML.trim(), hero };
 }
 
 const TABLES = [
@@ -168,7 +177,7 @@ const TABLES = [
   { file: 'videos-full.json', table: 'videos', kind: 'video' }
 ];
 
-let done = 0, missing = 0;
+let done = 0, missing = 0, heroed = 0;
 const started = Date.now();
 
 for (const t of TABLES) {
@@ -184,16 +193,23 @@ for (const t of TABLES) {
     const item = await retry('item ' + itemId, () => getLibraryItem(itemId));
     const fileKey = item && item.meta && item.meta.fileKey;
     const dlUrl = fileKey ? `/api/library/asset?key=${encodeURIComponent(fileKey)}&download=1` : null;
-    const html = await extract(await readFile(join(FILES, f), 'utf8'), itemId, dlUrl);
-    await retry('putGuide ' + itemId, () => putGuide(itemId, html));
+    const out = await extract(await readFile(join(FILES, f), 'utf8'), itemId, dlUrl);
+    await retry('putGuide ' + itemId, () => putGuide(itemId, out.html));
+    // fold the hero's own facts back onto the item
+    const hm = Object.fromEntries(Object.entries(out.hero).filter(([, v]) => v));
+    if (Object.keys(hm).length && item) {
+      await retry('meta ' + itemId, () => mergeMeta(itemId, hm));
+      heroed++;
+    }
     done++;
-    console.log(`  [${String(done).padStart(2)}] ${r.title} — ${(html.length / 1024).toFixed(0)} KB`);
+    console.log(`  [${String(done).padStart(2)}] ${r.title} — ${(out.html.length / 1024).toFixed(0)} KB` +
+      (hm.readTime ? `  (${hm.readTime}${hm.level ? ', ' + hm.level : ''})` : ''));
   }
 }
 
 const mb = (n) => (n / 1048576).toFixed(1) + ' MB';
 console.log(`\ndone in ${((Date.now() - started) / 60000).toFixed(1)} min`);
-console.log(`  guides stored : ${done}${missing ? `   not on disk: ${missing}` : ''}`);
+console.log(`  guides stored : ${done}${missing ? `   not on disk: ${missing}` : ''}   with hero facts: ${heroed}`);
 console.log(`  images        : ${imgFetched} mirrored, ${imgSkipped} already had, ${imgFailed} failed`);
 console.log(`  linked files  : ${fileFetched} mirrored, ${fileSkipped} already had, ${fileFailed} failed`);
 if (imgFetched) console.log(`  ${mb(bytesIn)} → ${mb(bytesOut)}`);

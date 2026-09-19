@@ -333,6 +333,44 @@ button{font-family:inherit}
 .reader-body a{color:var(--accent-2)}
 .copy{margin-top:22px;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:11px 22px;cursor:pointer}
 
+/* ---------- request content ---------- */
+.req-card{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:760px}
+.req-card h2{margin:0 0 4px;font-size:1.12rem;font-weight:800;letter-spacing:-.02em}
+.req-card .sub{margin:0 0 20px;color:var(--txt-2);font-family:var(--mono);font-size:.84rem}
+.req-f{margin-bottom:16px}
+.req-f label{display:block;font-weight:700;font-size:.9rem;margin-bottom:7px}
+.req-f input,.req-f textarea{width:100%;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);
+  border-radius:11px;padding:12px 14px;font-family:inherit;font-size:.92rem}
+.req-f textarea{min-height:140px;resize:vertical}
+.req-f input:focus,.req-f textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.15)}
+.req-f .hint{display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-family:var(--mono);font-size:.74rem;color:var(--txt-3)}
+.req-send{width:100%;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;
+  border:0;border-radius:11px;padding:14px;font-size:.96rem;cursor:pointer}
+.req-send:disabled{opacity:.45;cursor:default}
+.req-ok{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);color:#a7f3d0;border-radius:11px;padding:13px 16px;margin-bottom:16px;font-size:.9rem}
+.req-mine{margin-top:34px;max-width:760px}
+.req-row{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.req-row:last-child{border-bottom:0}
+.req-row .rt{flex:1;min-width:0}
+.req-row .rt b{display:block;font-size:.95rem;margin-bottom:3px}
+.req-row .rt p{margin:0;color:var(--txt-2);font-family:var(--mono);font-size:.78rem;line-height:1.5}
+.st{flex:none;font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;
+  padding:4px 11px;border-radius:999px;border:1px solid var(--line-2);color:var(--txt-2);background:var(--bg-3)}
+.st.new{color:var(--accent-2);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.12)}
+.st.planned{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.12)}
+.st.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12)}
+.st.declined{color:var(--txt-3)}
+
+/* ---------- article hero (tutorials and guides) ---------- */
+.r-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:16px;padding:30px 28px;margin:18px 0 6px;
+  background:radial-gradient(circle at 1px 1px,rgba(160,196,255,.22) 1px,transparent 0) 0 0/24px 24px,
+             linear-gradient(160deg,#14141a,#0c0c0f)}
+.r-hero p{position:relative;margin:0;color:var(--txt-2);font-size:1rem;line-height:1.6;max-width:62ch}
+.r-hero .r-hero-meta{position:relative;display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.r-hero .pill{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid var(--line-2);
+  border-radius:999px;padding:6px 14px;font-family:var(--mono);font-size:.76rem;color:var(--txt-2)}
+.r-hero .pill.lvl{color:var(--green);border-color:rgba(52,211,153,.35)}
+
 /* ---------- library toolbar: search, sort, filter ---------- */
 .lib-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 22px}
 .lib-search{position:relative;flex:1;min-width:220px;max-width:360px}
@@ -463,17 +501,19 @@ button{font-family:inherit}
 
         <div class="sb-group">
           <div class="sb-group-t">Content Libraries</div>
-          <button class="nav" data-view="prompt"><span class="nic">💬</span>Prompts<span class="n-count" id="cnt-prompt"></span></button>
-          <button class="nav" data-view="image_prompt"><span class="nic">🎨</span>Image &amp; Video<span class="n-count" id="cnt-image_prompt"></span></button>
-          <button class="nav" data-view="skill"><span class="nic">🤖</span>Agents &amp; Skills<span class="n-count" id="cnt-skill"></span></button>
+          <button class="nav" data-view="prompt"><span class="nic">💬</span>LLM Prompts<span class="n-count" id="cnt-prompt"></span></button>
+          <button class="nav" data-view="image_prompt"><span class="nic">🎨</span>Image &amp; Video Prompts<span class="n-count" id="cnt-image_prompt"></span></button>
           <button class="nav" data-view="gpt"><span class="nic">🧠</span>Custom GPTs<span class="n-count" id="cnt-gpt"></span></button>
-          <button class="nav" data-view="automation"><span class="nic">⚡</span>Automations<span class="n-count" id="cnt-automation"></span></button>
-          <button class="nav" data-view="guide"><span class="nic">📖</span>Fundamentals<span class="n-count" id="cnt-guide"></span></button>
+          <button class="nav" data-view="automation"><span class="nic">⚡</span>Automation Templates<span class="n-count" id="cnt-automation"></span></button>
+          <button class="nav" data-view="guide"><span class="nic">📖</span>Prompting Fundamentals<span class="n-count" id="cnt-guide"></span></button>
           <button class="nav" data-view="video"><span class="nic">🎬</span>Tutorials<span class="n-count" id="cnt-video"></span></button>
+          <button class="nav" data-view="skill"><span class="nic">🤖</span>Agents &amp; Skills<span class="n-count" id="cnt-skill"></span></button>
+          <button class="nav" data-view="request"><span class="nic">📮</span>Request Content</button>
         </div>
 
         <div class="sb-spacer"></div>
         <div class="sb-foot">
+          <a class="nav" id="admin-link" href="admin.html" hidden style="margin:0 0 10px;width:100%"><span class="nic">🛠</span>Admin</a>
           <div class="sb-user">Signed in as <b id="who-email"></b></div>
           <button class="signout" id="signout">Sign out</button>
         </div>
@@ -607,6 +647,9 @@ button{font-family:inherit}
         me.name = res.d.name || '';
         me.hasName = !!res.d.hasName;
         me.isAdmin = !!res.d.isAdmin;
+        // the admin view is staff-only server-side; this just stops showing a
+        // link to a page that would refuse them anyway
+        if (me.isAdmin) document.getElementById('admin-link').hidden = false;
         boot();
       } else if (res.status === 403) {
         showGate('Your access is not active. If you were recently refunded that’s expected; otherwise contact support@aifounderuniversity.com.', true);
@@ -623,17 +666,19 @@ button{font-family:inherit}
   });
 
   /* ---------------- config ---------------- */
+  // Names match the source library exactly — "Prompts" and "LLM Prompts" are
+  // the same shelf and it should not be a guess which one a member is on.
   var KINDS = {
-    prompt:       { label: 'Prompts',            glyph: '💬' },
-    image_prompt: { label: 'Image & Video',      glyph: '🎨' },
-    skill:        { label: 'Agents & Skills',    glyph: '🤖' },
-    gpt:          { label: 'Custom GPTs',         glyph: '🧠' },
-    automation:   { label: 'Automation Templates',glyph: '⚡' },
-    guide:        { label: 'Fundamentals',       glyph: '📖' },
-    video:        { label: 'Tutorials',           glyph: '🎬' }
+    prompt:       { label: 'LLM Prompts',            glyph: '💬' },
+    image_prompt: { label: 'Image & Video Prompts',  glyph: '🎨' },
+    skill:        { label: 'Agents & Skills',        glyph: '🤖' },
+    gpt:          { label: 'Custom GPTs',            glyph: '🧠' },
+    automation:   { label: 'Automation Templates',   glyph: '⚡' },
+    guide:        { label: 'Prompting Fundamentals', glyph: '📖' },
+    video:        { label: 'Tutorials',              glyph: '🎬' }
   };
   // 'lesson' is intentionally excluded — courses have their own player.
-  var LIB_ORDER = ['prompt','image_prompt','skill','gpt','automation','guide','video'];
+  var LIB_ORDER = ['prompt','image_prompt','gpt','automation','guide','video','skill'];
   var DL_META = {
     plugin:  { label: 'Specialists & Plugins', glyph: '🧩', blurb: 'Install these in Claude.' },
     powerup: { label: 'Power-Ups',             glyph: '⚡', blurb: 'Focused packs for every job.' },
@@ -737,7 +782,7 @@ button{font-family:inherit}
     var navKey = raw;
     if (raw.indexOf('course-') === 0) { navKey = 'courses'; view = raw; }
     else {
-      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && !KINDS[raw]) raw = 'dashboard';
+      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && !KINDS[raw]) raw = 'dashboard';
       view = raw; navKey = raw;
     }
     [].forEach.call(document.querySelectorAll('.nav'), function (n) {
@@ -798,6 +843,7 @@ button{font-family:inherit}
     if (view === 'downloads') return renderDownloads(c);
     if (view === 'favorites') return renderFavorites(c);
     if (view === 'bookmarks') return renderBookmarks(c);
+    if (view === 'request') return renderRequest(c);
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
     return renderKind(c, view);
@@ -1069,6 +1115,72 @@ button{font-family:inherit}
       updateBookmarkCount();
       if (view === 'bookmarks') render();
     });
+  }
+
+  /* ---------------- request content ---------------- */
+  function statusPill(st) {
+    return '<span class="st ' + esc(st) + '">' + esc(st) + '</span>';
+  }
+
+  function renderRequest(c) {
+    c.innerHTML = '<h1 class="page-h">Request Content</h1>' +
+      '<p class="page-sub">Tell us what prompts, tutorials or resources you would like to see.</p>' +
+      '<div class="req-card">' +
+        '<h2>Submit a content request</h2>' +
+        '<p class="sub">We read every request and prioritise by how many people ask.</p>' +
+        '<div id="req-ok"></div>' +
+        '<div class="req-f"><label for="req-title">Title</label>' +
+          '<input id="req-title" type="text" maxlength="100" placeholder="e.g. LinkedIn post generator for B2B SaaS">' +
+          '<div class="hint"><span>Brief title for your request</span><span id="req-tc">0/100</span></div></div>' +
+        '<div class="req-f"><label for="req-body">Description</label>' +
+          '<textarea id="req-body" maxlength="1000" placeholder="Describe what you are looking for. What problem are you trying to solve? What kind of content would help?"></textarea>' +
+          '<div class="hint"><span></span><span id="req-bc">0/1000</span></div></div>' +
+        '<button class="req-send" id="req-send" disabled>Submit request</button>' +
+      '</div>' +
+      '<div class="req-mine" id="req-mine"></div>';
+
+    var t = document.getElementById('req-title'), b = document.getElementById('req-body'),
+        send = document.getElementById('req-send');
+    function tick() {
+      document.getElementById('req-tc').textContent = t.value.length + '/100';
+      document.getElementById('req-bc').textContent = b.value.length + '/1000';
+      send.disabled = !t.value.trim();
+    }
+    t.addEventListener('input', tick); b.addEventListener('input', tick); tick();
+
+    send.addEventListener('click', function () {
+      send.disabled = true; send.textContent = 'Sending…';
+      fetch('/api/requests/create', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: t.value.trim(), body: b.value.trim() })
+      }).then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          send.textContent = 'Submit request';
+          if (!d) { alert('Could not send that request. Please try again.'); tick(); return; }
+          document.getElementById('req-ok').innerHTML =
+            '<div class="req-ok">Thanks — your request is in. You can track it below.</div>';
+          t.value = ''; b.value = ''; tick();
+          loadMine();
+        })
+        .catch(function () { send.textContent = 'Submit request'; tick(); });
+    });
+
+    function loadMine() {
+      fetch('/api/requests/list', { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : { requests: [] }; })
+        .then(function (d) {
+          var rows = d.requests || [];
+          var el = document.getElementById('req-mine');
+          if (!rows.length) { el.innerHTML = ''; return; }
+          el.innerHTML = '<div class="sec-h"><h2>Your requests</h2><span class="c">' + rows.length + '</span></div>' +
+            rows.map(function (r) {
+              return '<div class="req-row"><span class="rt"><b>' + esc(r.title) + '</b>' +
+                (r.body ? '<p>' + esc(r.body) + '</p>' : '') + '</span>' + statusPill(r.status) + '</div>';
+            }).join('');
+        });
+    }
+    loadMine();
   }
 
   /* ---------------- courses ---------------- */
@@ -1611,7 +1723,7 @@ button{font-family:inherit}
 
         // the facts strip
         var facts = [];
-        if (meta.difficulty) facts.push('<span>Level <b>' + esc(meta.difficulty) + '</b></span>');
+        if (meta.difficulty && !meta.level) facts.push('<span>Level <b>' + esc(meta.difficulty) + '</b></span>');
         if (meta.duration) facts.push('<span>Duration <b>' + esc(meta.duration) + '</b></span>');
         if (meta.setupTime) facts.push('<span>Setup <b>' + esc(meta.setupTime) + '</b></span>');
         if (meta.estimatedTime) facts.push('<span>Time <b>' + esc(meta.estimatedTime) + '</b></span>');
@@ -1621,6 +1733,18 @@ button{font-family:inherit}
         if (meta.promptType === 'stack' && (meta.promptItems || []).length > 1) facts.push('<span><b>' + meta.promptItems.length + '-part</b> prompt stack</span>');
         if (meta.modelCompatibility && meta.modelCompatibility.length) facts.push('<span>Works with <b>' + esc(meta.modelCompatibility.join(', ')) + '</b></span>');
         if (facts.length) h += '<div class="r-meta">' + facts.join('') + '</div>';
+
+        // The source's articles open with a dotted hero carrying the blurb, the
+        // read time and the level. The title itself is already above, so only
+        // the parts that are not repeated are kept.
+        if (meta.readTime || meta.level) {
+          h += '<div class="r-hero">' +
+            (meta.heroText ? '<p>' + esc(meta.heroText) + '</p>' : '') +
+            '<div class="r-hero-meta">' +
+            (meta.readTime ? '<span class="pill">⏱ ' + esc(meta.readTime) + '</span>' : '') +
+            (meta.level ? '<span class="pill lvl">● ' + esc(meta.level) + '</span>' : '') +
+            '</div></div>';
+        }
 
         // video
         if (meta.videoUrl) {

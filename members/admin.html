@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin — AI Founder University</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0b;--bg-2:#111113;--bg-3:#161619;--bg-4:#1c1c20;
+  --line:#242429;--line-2:#33333a;--txt:#f4f4f5;--txt-2:#a1a1aa;--txt-3:#71717a;
+  --accent:#ff7a1a;--accent-2:#ffb020;--green:#34d399;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+
+#gate{min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px}
+#gate p{color:var(--txt-2);max-width:460px;line-height:1.6}
+#gate a{color:var(--accent-2);text-decoration:underline}
+
+#app{display:none;max-width:1100px;margin:0 auto;padding:clamp(20px,3vw,40px)}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.mark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(140deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:900;font-size:.78rem;flex:none}
+h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;margin:0}
+.who{margin-left:auto;font-family:var(--mono);font-size:.8rem;color:var(--txt-3)}
+.sub{color:var(--txt-2);font-family:var(--mono);font-size:.88rem;margin:0 0 26px}
+
+.tabs{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap}
+.tab{background:var(--bg-3);border:1px solid var(--line);color:var(--txt-2);border-radius:999px;padding:9px 18px;font-size:.9rem;cursor:pointer}
+.tab.on{background:rgba(255,122,26,.13);border-color:rgba(255,122,26,.34);color:#ffd9b3;font-weight:600}
+.tab .n{font-family:var(--mono);font-size:.74rem;color:var(--txt-3);margin-left:7px}
+.tab.on .n{color:var(--accent-2)}
+
+.card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.card .hd{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.card .hd b{font-size:1rem}
+.card .meta{font-family:var(--mono);font-size:.74rem;color:var(--txt-3)}
+.card p{margin:9px 0 0;color:var(--txt-2);font-size:.92rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.card .acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.card .acts button{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);border-radius:999px;padding:6px 14px;font-family:var(--mono);font-size:.74rem;cursor:pointer}
+.card .acts button:hover{border-color:var(--accent);color:var(--accent-2)}
+.card .acts button.on{background:rgba(255,122,26,.14);border-color:rgba(255,122,26,.4);color:#ffd9b3}
+.card .acts button.danger:hover{border-color:#f87171;color:#fca5a5}
+
+.st{flex:none;font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;padding:4px 11px;border-radius:999px;border:1px solid var(--line-2);color:var(--txt-2);background:var(--bg-3)}
+.st.new{color:var(--accent-2);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.12)}
+.st.planned{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.12)}
+.st.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12)}
+.st.declined{color:var(--txt-3)}
+.badge{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(255,122,26,.16);color:var(--accent-2);border:1px solid rgba(255,122,26,.3)}
+.reply{margin-left:16px;border-left:2px solid var(--line-2);padding-left:14px}
+.removed{opacity:.55;font-style:italic}
+.empty{color:var(--txt-3);font-family:var(--mono);font-size:.88rem;padding:40px 0;text-align:center}
+.back{display:inline-block;margin-top:30px;color:var(--txt-2);font-family:var(--mono);font-size:.85rem}
+.back:hover{color:var(--accent-2)}
+</style>
+</head>
+<body>
+
+  <div id="gate"><div><p id="gate-msg">Checking your access&hellip;</p></div></div>
+
+  <div id="app">
+    <div class="top">
+      <span class="mark">AI</span>
+      <h1>Admin</h1>
+      <span class="who" id="who"></span>
+    </div>
+    <p class="sub">Content requests from members, and every comment left on a course.</p>
+
+    <div class="tabs">
+      <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
+      <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
+    </div>
+
+    <div id="panel"></div>
+    <a class="back" href="index.html">&larr; Back to the member area</a>
+  </div>
+
+<script>
+(function () {
+  var STATUSES = ['new', 'planned', 'done', 'declined'];
+  var data = { requests: [], comments: [] };
+  var tab = 'requests';
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+  function when(iso){
+    var t = new Date(iso).getTime(); if (!t) return '';
+    var s = Math.round((Date.now() - t) / 1000);
+    if (s < 60) return 'just now';
+    if (s < 3600) return Math.floor(s / 60) + 'm ago';
+    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+    if (s < 604800) return Math.floor(s / 86400) + 'd ago';
+    return new Date(t).toLocaleDateString();
+  }
+
+  fetch('/api/admin/overview', { credentials: 'same-origin' })
+    .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+    .then(function (res) {
+      if (res.status === 200) {
+        data = res.d;
+        document.getElementById('gate').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        counts(); paint(); wire();
+      } else if (res.status === 403) {
+        document.getElementById('gate-msg').innerHTML =
+          'This page is for staff only. <a href="index.html">Back to the member area</a>';
+      } else {
+        window.location.replace('login.html');
+      }
+    })
+    .catch(function () {
+      document.getElementById('gate-msg').textContent = 'Could not load the admin view. Please refresh.';
+    });
+
+  function counts() {
+    var open = data.requests.filter(function (r) { return r.status === 'new'; }).length;
+    document.getElementById('n-req').textContent = open ? open + ' new' : data.requests.length;
+    document.getElementById('n-com').textContent = data.comments.filter(function (c) { return !c.removed; }).length;
+  }
+
+  function wire() {
+    [].forEach.call(document.querySelectorAll('.tab'), function (t) {
+      t.addEventListener('click', function () {
+        tab = t.getAttribute('data-tab');
+        [].forEach.call(document.querySelectorAll('.tab'), function (x) { x.classList.toggle('on', x === t); });
+        paint();
+      });
+    });
+  }
+
+  function paint() {
+    var p = document.getElementById('panel');
+    p.innerHTML = tab === 'requests' ? requestsHTML() : commentsHTML();
+    if (tab === 'requests') {
+      [].forEach.call(p.querySelectorAll('[data-set]'), function (b) {
+        b.addEventListener('click', function () {
+          var id = Number(b.getAttribute('data-id')), st = b.getAttribute('data-set');
+          fetch('/api/admin/request-status', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, status: st })
+          }).then(function (r) {
+            if (!r.ok) return;
+            data.requests.forEach(function (x) { if (x.id === id) x.status = st; });
+            counts(); paint();
+          });
+        });
+      });
+    } else {
+      [].forEach.call(p.querySelectorAll('[data-del]'), function (b) {
+        b.addEventListener('click', function () {
+          if (!window.confirm('Delete this comment? The member will see it as removed.')) return;
+          var id = Number(b.getAttribute('data-del'));
+          fetch('/api/comments/delete', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+          }).then(function (r) {
+            if (!r.ok) return;
+            data.comments.forEach(function (c) { if (c.id === id) { c.removed = true; c.body = ''; } });
+            counts(); paint();
+          });
+        });
+      });
+    }
+  }
+
+  function requestsHTML() {
+    if (!data.requests.length) return '<p class="empty">No content requests yet.</p>';
+    return data.requests.map(function (r) {
+      return '<div class="card"><div class="hd">' +
+        '<b>' + esc(r.title) + '</b>' +
+        '<span class="st ' + esc(r.status) + '">' + esc(r.status) + '</span>' +
+        '<span class="meta" style="margin-left:auto">' + esc(r.from) + ' · ' + esc(r.email) + ' · ' + esc(when(r.createdAt)) + '</span>' +
+        '</div>' +
+        (r.body ? '<p>' + esc(r.body) + '</p>' : '') +
+        '<div class="acts">' + STATUSES.map(function (s) {
+          return '<button data-id="' + r.id + '" data-set="' + s + '"' + (r.status === s ? ' class="on"' : '') + '>' + s + '</button>';
+        }).join('') + '</div></div>';
+    }).join('');
+  }
+
+  function commentsHTML() {
+    if (!data.comments.length) return '<p class="empty">No comments yet.</p>';
+    return data.comments.map(function (c) {
+      if (c.removed) {
+        return '<div class="card removed"><div class="hd"><b>Removed</b>' +
+          '<span class="meta" style="margin-left:auto">' + esc(c.course || '') + ' · ' + esc(when(c.createdAt)) + '</span></div></div>';
+      }
+      return '<div class="card' + (c.isReply ? ' reply' : '') + '"><div class="hd">' +
+        '<b>' + esc(c.author) + '</b>' +
+        (c.isAdmin ? '<span class="badge">Admin</span>' : '') +
+        '<span class="meta" style="margin-left:auto">' + esc(c.email) + ' · ' + esc(when(c.createdAt)) + '</span>' +
+        '</div>' +
+        '<span class="meta">' + (c.isReply ? 'reply · ' : '') + esc(c.course || '') +
+          (c.lesson ? ' · ' + esc(c.lesson) : '') + '</span>' +
+        '<p>' + esc(c.body) + '</p>' +
+        '<div class="acts"><button class="danger" data-del="' + c.id + '">Delete</button></div></div>';
+    }).join('');
+  }
+})();
+</script>
+</body>
+</html>
