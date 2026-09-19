@@ -14,3 +14,6 @@ tools/migrate/node_modules/
 tools/migrate/.sessions/
 tools/migrate/sites.json
 export/
+
+.vercel
+.env*
