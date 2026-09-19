@@ -1,5 +1,5 @@
 import { readSession } from '../../lib/session.js';
-import { isActive, getLibraryItem, getGallery, relatedLibraryItems } from '../../lib/db.js';
+import { isActive, getLibraryItem, getGallery, relatedLibraryItems, getGuide } from '../../lib/db.js';
 
 const assetUrl = (key) => (key ? `/api/library/asset?key=${encodeURIComponent(key)}` : null);
 
@@ -22,9 +22,10 @@ export default async function handler(req, res) {
     if (!item) return res.status(404).json({ error: 'not found' });
 
     const meta = item.meta || {};
-    const [tiles, related] = await Promise.all([
+    const [tiles, related, guideHtml] = await Promise.all([
       item.kind === 'image_prompt' ? getGallery(id) : Promise.resolve([]),
-      relatedLibraryItems(id, item.kind, item.category, 4)
+      relatedLibraryItems(id, item.kind, item.category, 4),
+      getGuide(id)
     ]);
 
     // The file lives in Blob; hand the browser our gated download URL, never the
@@ -32,7 +33,9 @@ export default async function handler(req, res) {
     const download = meta.fileKey
       ? { url: `${assetUrl(meta.fileKey)}&download=1`, name: meta.fileName || 'download' }
       : null;
-    const { fileKey, ...publicMeta } = meta;
+    // The long-form guide is served from our own origin and framed by the reader.
+
+    const { fileKey, guideKey, ...publicMeta } = meta;
 
     return res.status(200).json({
       id: item.id, kind: item.kind, course: item.course, category: item.category,
@@ -40,7 +43,7 @@ export default async function handler(req, res) {
       bodyHtml: item.body_html || '',
       tags: item.tags || [],
       meta: publicMeta,
-      download,
+      download, guideHtml: guideHtml || null,
       gallery: (tiles || []).map((t) => ({ prompt: t.prompt, image: assetUrl(t.asset_key) })),
       related: (related || []).map((r) => ({
         id: r.id, kind: r.kind, category: r.category, title: r.title,

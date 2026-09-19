@@ -150,11 +150,42 @@ gallery collection's content is its tiles. Falling back made those items render 
 description twice and hid the fact that something was missing — the reader now asks
 "is there a body?" and gets an honest answer.
 
+### Long-form guides
+
+16 skills and 42 videos do not keep their content in a text column at all — they
+point at `html_file_url`, a complete standalone web page with its own `<head>`, its
+own light-theme stylesheet and its own hero banner. Missing this is why Brand Kit and
+YouTube Video Factory showed a title, some chips and nothing else.
+
+`scripts/ingest-guides.mjs` takes those documents apart rather than framing them, so
+the content lives on this platform instead of inside someone else's page:
+
+- keeps the `<body>`, drops `<style>`, `<script>` and the document shell
+- drops the hero — the reader already renders the title, blurb and download button
+  natively from the item's own fields, so keeping it would duplicate all three
+- mirrors all 294 images into Blob as WebP and rewrites `src` to the gated URL
+- repoints the guide's own download link at our copy of the file
+- keeps the class names. All 58 guides share one markup vocabulary (`section-label`,
+  `callout`, `feature-card`, `instruction-block`, `step`, `table-wrap`…), so the member
+  area styles them under `.guide` and they come out in our own dark theme.
+
+It is parsed with `node-html-parser`, not regex — the hero and container nest several
+levels and string surgery leaves orphaned fragments behind. Output goes to
+`library_guides`, kept out of `library.meta` so the catalog queries stay light.
+
+### Where a download comes from
+
+Most skills name their file in `skill_url`. Four do not, and keep it only as a link
+inside their guide — so the ingest looks there too, which takes downloads from 61 to
+65 of 67. Two genuinely have none anywhere. Storage filenames carry an upload stamp
+(`1778487590258-c4uoswxow5o-brand-kit.skill`), which is stripped for display.
+
 ### Two jobs, on purpose
 
 ```bash
 npm run ingest      # metadata: ~1250 rows, a couple of minutes
 npm run galleries   # the 2,060 gallery images, much slower
+npm run guides      # the 58 long-form guides and their 294 images
 ```
 
 `ingest` also mirrors each skill's `.md` into Blob so it can be served through the gated

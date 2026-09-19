@@ -233,6 +233,67 @@ button{font-family:inherit}
 .plc-form .send{flex:none;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:9px 18px;font-size:.84rem;cursor:pointer}
 .plc-form .send:disabled{opacity:.45;cursor:default}
 
+/* ---------- long-form guide, rendered as part of the page ---------- */
+/* The source documents share one markup vocabulary across all 58 guides, so
+   these rules theme them into the member area rather than framing a foreign
+   page. Everything is scoped under .guide so nothing leaks into the app. */
+.guide{margin:22px 0 4px;color:var(--txt);line-height:1.72;font-size:.97rem}
+.guide > :first-child{margin-top:0}
+.guide h1,.guide h2,.guide h3,.guide h4{color:#fff;letter-spacing:-.02em;line-height:1.25;margin:30px 0 10px}
+.guide h1{font-size:1.6rem}.guide h2{font-size:1.32rem}.guide h3{font-size:1.08rem}.guide h4{font-size:.98rem}
+.guide p{margin:0 0 14px}
+.guide a{color:var(--accent-2);text-decoration:underline;text-underline-offset:2px}
+.guide strong{color:#fff;font-weight:700}
+.guide em{color:var(--txt-2)}
+.guide ul,.guide ol{margin:0 0 16px;padding-left:22px}
+.guide li{margin:0 0 7px}
+.guide img{max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line);margin:16px 0;display:block}
+.guide code{background:#0e0e10;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-family:var(--mono);font-size:.84em;color:var(--accent-2)}
+.guide pre{background:#0e0e10;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto}
+.guide pre code{border:0;padding:0;background:none;color:var(--txt)}
+.guide .divider{border:0;border-top:1px solid var(--line);margin:28px 0;height:0}
+.guide .section-label{display:inline-block;font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;color:var(--accent-2);font-weight:700;margin:26px 0 2px}
+
+/* callouts */
+.guide .callout{display:flex;gap:12px;background:var(--bg-3);border:1px solid var(--line-2);border-left:3px solid var(--txt-3);border-radius:10px;padding:14px 16px;margin:18px 0}
+.guide .callout > *:last-child{margin-bottom:0}
+.guide .callout p:last-child{margin-bottom:0}
+.guide .callout-icon{flex:none;font-size:1.05rem;line-height:1.5}
+.guide .callout-accent{border-left-color:var(--accent);background:rgba(255,122,26,.09)}
+.guide .callout-green{border-left-color:var(--green);background:rgba(52,211,153,.09)}
+.guide .callout-yellow{border-left-color:var(--accent-2);background:rgba(255,176,32,.09)}
+
+/* cards and grids */
+.guide .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:18px 0}
+.guide .feature-card,.guide .card,.guide .tool,.guide .feature{background:var(--bg-3);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+.guide .feature-card > *:last-child,.guide .card > *:last-child{margin-bottom:0}
+.guide .feature-title,.guide .tool-head{font-weight:700;color:#fff;margin-bottom:5px}
+.guide .feature-desc,.guide .tool-meta{color:var(--txt-2);font-size:.9rem}
+.guide .price{font-family:var(--mono);color:var(--accent-2);font-weight:700}
+
+/* numbered steps */
+.guide .instruction-block{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:18px 0}
+.guide .ib-label{font-family:var(--mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3);font-weight:700;margin-bottom:8px}
+.guide .steps-list{list-style:none;padding:0;margin:16px 0}
+.guide .step{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.guide .step:last-child{border-bottom:0}
+.guide .step-num{flex:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;font-size:.8rem;display:grid;place-items:center}
+.guide .step-body{flex:1;min-width:0}
+.guide .step-act{font-weight:700;color:#fff}
+
+/* tables */
+.guide .table-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:10px}
+.guide table{border-collapse:collapse;width:100%;font-size:.9rem}
+.guide th,.guide td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line)}
+.guide th{background:var(--bg-3);color:#fff;font-weight:700;font-size:.82rem}
+.guide tr:last-child td{border-bottom:0}
+
+/* the image strips some guides use */
+.guide .gallery-item{position:relative;margin:14px 0}
+.guide .gallery-label{font-family:var(--mono);font-size:.74rem;color:var(--txt-2);margin-top:6px}
+.guide .gallery-index{font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
+.guide .tutorial-img{margin:16px 0}
+
 /* ---------- bookmarks view ---------- */
 .bm-row{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--line);cursor:pointer}
 .bm-row:last-child{border-bottom:0}
@@ -1364,6 +1425,7 @@ button{font-family:inherit}
         if (meta.setupTime) facts.push('<span>Setup <b>' + esc(meta.setupTime) + '</b></span>');
         if (meta.estimatedTime) facts.push('<span>Time <b>' + esc(meta.estimatedTime) + '</b></span>');
         if (meta.instructor) facts.push('<span>By <b>' + esc(meta.instructor) + '</b></span>');
+        if (meta.platform) facts.push('<span>Runs on <b>' + esc(meta.platform) + '</b></span>');
         if (it.gallery && it.gallery.length) facts.push('<span><b>' + it.gallery.length + '</b> prompts in this collection</span>');
         if (meta.promptType === 'stack' && (meta.promptItems || []).length > 1) facts.push('<span><b>' + meta.promptItems.length + '-part</b> prompt stack</span>');
         if (meta.modelCompatibility && meta.modelCompatibility.length) facts.push('<span>Works with <b>' + esc(meta.modelCompatibility.join(', ')) + '</b></span>');
@@ -1403,11 +1465,26 @@ button{font-family:inherit}
             '<div class="panel-b' + (p.mono ? ' mono' : '') + '">' + body + '</div></div>';
         }
 
-        // downloadable file (Claude skills)
+        // downloadable file (skills, plugins, agents)
         if (it.download) {
-          h += '<a class="r-dl" href="' + esc(it.download.url) + '" download>&#11015; Download ' +
-            (it.kind === 'skill' ? 'Skill' : 'file') + '</a>' +
-            '<p class="r-dl-sub">Downloads ' + esc(it.download.name) + ' to use in Claude.</p>';
+          var dlName = it.download.name || 'file';
+          var label = /\.zip$/i.test(dlName) ? 'Download the .zip'
+            : (it.kind === 'skill' ? 'Download Skill' : 'Download file');
+          h += '<a class="r-dl" href="' + esc(it.download.url) + '" download>&#11015; ' + esc(label) + '</a>' +
+            '<p class="r-dl-sub">' + esc(dlName) + (meta.fileSize ? ' · ' + kb(meta.fileSize) : '') +
+            (/\.zip$/i.test(dlName) ? ' — unzip it first, then install the file inside.' : ' — to use in Claude.') + '</p>';
+        }
+
+        // the long-form guide, rendered as part of this page
+        if (it.guideHtml) h += '<div class="guide">' + it.guideHtml + '</div>';
+
+        // a video's supporting notes
+        if (meta.supportingText) h += '<div class="panel note"><div class="panel-b">' + esc(meta.supportingText) + '</div></div>';
+
+        // a guide that embeds something hosted elsewhere
+        if (meta.richHtml) h += '<div class="panel"><div class="panel-b">' + meta.richHtml + '</div></div>';
+        else if (meta.embedUrl) {
+          h += '<p class="r-sec-s"><a href="' + esc(meta.embedUrl) + '" target="_blank" rel="noopener" style="color:var(--accent-2)">Open the full guide &#8599;</a></p>';
         }
 
         // starters / capabilities
@@ -1442,7 +1519,7 @@ button{font-family:inherit}
           h += '</div>';
         }
 
-        if (!body && !parts.length && !(it.gallery || []).length && !meta.videoUrl && !it.download) {
+        if (!body && !parts.length && !(it.gallery || []).length && !meta.videoUrl && !it.download && !it.guideHtml && !meta.richHtml) {
           // A collection whose tiles have not been built yet is a different thing
           // from an item with nothing in it — say which.
           h += meta.contentMode === 'image_gallery'

@@ -11,7 +11,7 @@
  * Needs BLOB_READ_WRITE_TOKEN + the Neon DATABASE_URL in .env.local.
  */
 import { put } from '@vercel/blob';
-import { readFile, readdir, access } from 'node:fs/promises';
+import { readFile, readdir, access, stat as fstat } from 'node:fs/promises';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { upsertLibraryItem, upsertAsset, upsertCourse, getAsset } from '../lib/db.js';
@@ -26,10 +26,11 @@ const CT = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '
 const ctFor = (name) => CT[name.slice(name.lastIndexOf('.')).toLowerCase()] || 'application/octet-stream';
 
 const assetCache = new Map(); // localPath -> assetKey (avoid re-uploading)
-async function uploadAsset(localPath, key) {
+async function uploadAsset(localPath, key, contentType) {
   if (assetCache.has(localPath)) return assetCache.get(localPath);
+  if (await getAsset(key)) { assetCache.set(localPath, key); return key; }   // already up
   const body = await readFile(localPath);
-  const ct = ctFor(localPath);
+  const ct = contentType || ctFor(localPath);
   const { url } = await put(`library-assets/${key}`, body, {
     access: 'private', addRandomSuffix: true, contentType: ct, token: TOKEN
   });
@@ -126,7 +127,7 @@ function normTags(r) {
     if (typeof v === 'object') return push(v.name || v.title || v.label);
     String(v).split(',').map((x) => x.trim()).filter(Boolean).forEach((t) => out.add(t));
   };
-  push(r.tags); push(r.categories); push(r.search_keywords);
+  push(r.tags); push(r.categories); push(r.search_keywords); push(r.platform);
   return [...out].slice(0, 24);
 }
 
@@ -149,7 +150,8 @@ function metaFor(table, r) {
     modelCompatibility: asArray(r.model_compatibility), featured: r.is_featured || undefined
   });
   if (table === 'videos') {
-    return clean({ ...base, videoUrl: r.video_url, duration: r.duration, instructor: r.instructor_name });
+    return clean({ ...base, videoUrl: r.video_url, duration: r.duration, instructor: r.instructor_name,
+      supportingText: r.supporting_text });
   }
   if (table === 'image_prompts') {
     return clean({ ...base, contentMode: r.content_mode, promptText: r.prompt_text,
@@ -164,10 +166,14 @@ function metaFor(table, r) {
       starters: asArray(r.conversation_starters), knowledgeFiles: asArray(r.knowledge_files) });
   }
   if (table === 'automation_templates') {
-    return clean({ ...base, toolsRequired: asArray(r.tools_required), setupTime: r.estimated_setup_time });
+    return clean({ ...base, platform: r.platform, toolsRequired: asArray(r.tools_required),
+      setupTime: r.estimated_setup_time });
   }
   if (table === 'guides') {
-    return clean({ ...base, estimatedTime: r.estimated_time, prerequisites: asArray(r.prerequisites) });
+    // rich_content is { iframeUrl, htmlContent } on the few guides that embed one
+    const rc = typeof r.rich_content === 'string' ? (() => { try { return JSON.parse(r.rich_content); } catch { return null; } })() : r.rich_content;
+    return clean({ ...base, estimatedTime: r.estimated_time, prerequisites: asArray(r.prerequisites),
+      embedUrl: rc && rc.iframeUrl, richHtml: rc && rc.htmlContent });
   }
   return base;
 }
@@ -187,9 +193,22 @@ async function mirrorRemote(url, key, contentType) {
   return key;
 }
 
+/**
+ * Files in export/blackmagic/files are named <table>__<first 12 of id>__<remote
+ * filename>, so a row can find its own downloads and its long-form guide.
+ */
+const DOWNLOAD_RE = /https?:\/\/[^"'\s)]+\.(?:zip|skill|md)/i;
+// Storage filenames carry an upload stamp: 1778487590258-c4uoswxow5o-brand-kit.skill
+const prettyName = (n) => String(n || '').replace(/^\d{10,}-[a-z0-9]+-/i, '');
+
 async function ingestBlackMagic() {
   const dir = join(EXPORT, 'blackmagic');
   if (!(await exists(join(dir, 'data')))) { console.log('(no blackmagic/data — skipping)'); return; }
+  const filesDir = join(dir, 'files');
+  const fileList = (await exists(filesDir)) ? await readdir(filesDir) : [];
+  const localFor = (table, id, ext) =>
+    fileList.find((f) => f.startsWith(`${table}__${String(id).slice(0, 12)}__`) && (!ext || f.endsWith(ext)));
+  const localNamed = (name) => fileList.find((f) => f.endsWith('__' + name));
 
   // image-map ties a row (table+id) to its downloaded thumbnail file
   let imageMap = { images: [] };
@@ -202,7 +221,7 @@ async function ingestBlackMagic() {
     const raw = JSON.parse(await readFile(path, 'utf8'));
     const rows = Array.isArray(raw) ? raw : (raw.data || []);
     console.log(`\n${table}: ${rows.length} rows`);
-    let sort = 0, files = 0, bodies = 0;
+    let sort = 0, files = 0, bodies = 0, guides = 0;
     for (const r of rows) {
       if (!r || !r.id) continue;
       const id = `${cfg.kind}:${r.id}`;
@@ -216,13 +235,38 @@ async function ingestBlackMagic() {
 
       const meta = metaFor(table, r);
 
-      // A skill ships a .md the member is meant to download — mirror it into
-      // Blob so it is served through our own gated endpoint.
-      if (table === 'claude_skills' && r.skill_url) {
-        const name = r.skill_url.split('/').pop() || `${r.id}.md`;
-        const key = await mirrorRemote(r.skill_url, `bm/skills/${name}`, 'text/markdown; charset=utf-8');
-        if (key) { meta.fileKey = key; meta.fileName = name; files++; }
+      // Long-form guide. 16 skills and 42 videos keep their real content in a
+      // standalone HTML file rather than in `instructions` — without this they
+      // show a title and nothing else.
+      let guideHtml = null, guideFile = null;
+      if (r.html_file_url) {
+        guideFile = localFor(table, r.id, '.html');
+        if (guideFile) guideHtml = await readFile(join(filesDir, guideFile), 'utf8');
+        else console.warn(`    ! guide not on disk for ${r.title}`);
       }
+
+      // What the member downloads. Most skills name it in skill_url; four keep
+      // it only as a link inside their guide, so look there too.
+      let dlUrl = r.skill_url || null;
+      if (!dlUrl && guideHtml) dlUrl = (guideHtml.match(DOWNLOAD_RE) || [])[0] || null;
+      if (dlUrl) {
+        const remoteName = dlUrl.split('/').pop();
+        const nice = prettyName(remoteName);
+        const key = `bm/files/${nice}`;
+        const local = localNamed(remoteName);
+        const stored = local
+          ? await retry('upload ' + nice, () => uploadAsset(join(filesDir, local), key))
+          : await mirrorRemote(dlUrl, key);
+        if (stored) {
+          meta.fileKey = stored; meta.fileName = nice;
+          if (local) { try { meta.fileSize = (await fstat(join(filesDir, local))).size; } catch {} }
+          files++;
+          // Point the guide's own download button at our gated copy as well.
+          if (guideHtml) guideHtml = guideHtml.split(dlUrl).join(`/api/library/asset?key=${encodeURIComponent(stored)}&download=1`);
+        }
+      }
+
+      if (guideHtml) guides++;   // stored by scripts/ingest-guides.mjs
 
       const body = bodyOf(r);
       if (body) bodies++;
@@ -238,7 +282,7 @@ async function ingestBlackMagic() {
       }));
       items++;
     }
-    console.log(`  ${bodies}/${sort} with a real body` + (files ? `, ${files} downloadable files mirrored` : ''));
+    console.log(`  ${bodies}/${sort} with a real body` + (guides ? `, ${guides} long-form guides (see ingest-guides)` : '') + (files ? `, ${files} downloadable files` : ''));
   }
   console.log('\n  (gallery tiles are a separate job: scripts/ingest-galleries.mjs)');
 }
