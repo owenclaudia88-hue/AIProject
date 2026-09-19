@@ -1037,21 +1037,11 @@ button{font-family:inherit}
       if (!shown.length) {
         g.innerHTML = '<p class="empty">Nothing matches those filters.</p>';
       } else {
-        var groups = {};
-        page.forEach(function (it) {
-          var key = kind === 'lesson' ? (COURSE_NAMES[it.category] || it.category || 'Course') : (it.category || 'General');
-          (groups[key] ||= []).push(it);
-        });
-        var keys = Object.keys(groups).sort();
-        // grouping only helps when nothing is narrowing the list already
-        if (keys.length <= 1 || st.q || st.cats.length || st.sort !== 'new') {
-          g.innerHTML = gridOf(page);
-        } else {
-          g.innerHTML = keys.map(function (key) {
-            return '<div class="sec-h"><h2>' + esc(key) + '</h2><span class="c">' + groups[key].length + '</span></div>' + gridOf(groups[key]);
-          }).join('');
-        }
-        g.innerHTML += pagerHTML(shown.length, pages, st.page, from, page.length);
+        // One flat grid. Grouping by category used to split a page of 48 into a
+        // dozen headings, several of them holding a single card, which left the
+        // rows ragged and full of gaps. The category is on every card and in
+        // the filter, so the headings were not carrying their weight.
+        g.innerHTML = gridOf(page) + pagerHTML(shown.length, pages, st.page, from, page.length);
       }
       document.getElementById('lib-count').textContent =
         shown.length === items.length ? '' : shown.length + ' of ' + items.length;
@@ -1073,12 +1063,19 @@ button{font-family:inherit}
   // Which page buttons to show: always the first and last, the current one and
   // its neighbours, and an ellipsis for whatever the gap swallows.
   function pageWindow(page, pages) {
+    // Few enough to list in full — windowing here produced gaps like "1 2 4",
+    // which reads as a missing page rather than a shortened list.
+    if (pages <= 7) {
+      var all = [];
+      for (var i = 1; i <= pages; i++) all.push(i);
+      return all;
+    }
     var out = [], push = function (p) { if (out[out.length - 1] !== p) out.push(p); };
     push(1);
-    if (page - 2 > 2) push('…');
+    if (page - 1 > 2) push('…');
     for (var p = Math.max(2, page - 1); p <= Math.min(pages - 1, page + 1); p++) push(p);
-    if (page + 2 < pages - 1) push('…');
-    if (pages > 1) push(pages);
+    if (page + 1 < pages - 1) push('…');
+    push(pages);
     return out;
   }
 
