@@ -25,29 +25,13 @@ const exists = async (p) => { try { await access(p); return true; } catch { retu
 const CT = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.avif': 'image/avif' };
 const ctFor = (name) => CT[name.slice(name.lastIndexOf('.')).toLowerCase()] || 'application/octet-stream';
 
-const assetCache = new Map(); // localPath -> assetKey (avoid re-uploading)
-async function uploadAsset(localPath, key, contentType) {
-  if (assetCache.has(localPath)) return assetCache.get(localPath);
-  if (await getAsset(key)) { assetCache.set(localPath, key); return key; }   // already up
-  const body = await readFile(localPath);
-  const ct = contentType || ctFor(localPath);
-  const { url } = await put(`library-assets/${key}`, body, {
-    access: 'private', addRandomSuffix: true, contentType: ct, token: TOKEN
-  });
-  await upsertAsset(key, url, ct);
-  assetCache.set(localPath, key);
-  return key;
-}
-
-let items = 0, assets = 0;
-
 /**
  * Neon is reached over HTTP, one request per statement, and a long ingest makes
  * thousands of them — an occasional ECONNRESET is normal and not a reason to
  * lose the whole run. Every write goes through here.
  */
-async function retry(label, fn, tries = 5) {
-  let wait = 400;
+async function retry(label, fn, tries = 7) {
+  let wait = 500;
   for (let i = 1; ; i++) {
     try { return await fn(); }
     catch (err) {
@@ -58,6 +42,23 @@ async function retry(label, fn, tries = 5) {
     }
   }
 }
+
+const assetCache = new Map(); // localPath -> assetKey (avoid re-uploading)
+async function uploadAsset(localPath, key, contentType) {
+  if (assetCache.has(localPath)) return assetCache.get(localPath);
+  if (await retry('getAsset ' + key, () => getAsset(key))) { assetCache.set(localPath, key); return key; }   // already up
+  const body = await readFile(localPath);
+  const ct = contentType || ctFor(localPath);
+  const { url } = await put(`library-assets/${key}`, body, {
+    access: 'private', addRandomSuffix: true, contentType: ct, token: TOKEN
+  });
+  await retry('upsertAsset ' + key, () => upsertAsset(key, url, ct));
+  assetCache.set(localPath, key);
+  return key;
+}
+
+let items = 0, assets = 0;
+
 
 
 /* ---------------- 1. Circle course lessons ---------------- */
@@ -89,11 +90,11 @@ async function ingestCourses() {
     }
 
     const title = (meta.title || slug).replace(/ \| .*/, '').trim();
-    await upsertLibraryItem({
+    await retry('lesson ' + slug, () => upsertLibraryItem({
       id: `lesson:${slug}`, kind: 'lesson',
       course: meta.course || 'Course', category: meta.course || null,
       title, bodyHtml: html, sort: meta.sort ?? 0
-    });
+    }));
     items++;
   }
 }
@@ -197,7 +198,26 @@ async function mirrorRemote(url, key, contentType) {
  * Files in export/blackmagic/files are named <table>__<first 12 of id>__<remote
  * filename>, so a row can find its own downloads and its long-form guide.
  */
-const DOWNLOAD_RE = /https?:\/\/[^"'\s)]+\.(?:zip|skill|md)/i;
+// What a member downloads. `.plugin` was missed on the first pass, which is why
+// The Local Business Magnet and Faceless YouTube Operator looked like they had
+// no file at all — they ship one, just not with an extension we were looking for.
+const DOWNLOAD_EXT = ['plugin', 'zip', 'skill', 'md', 'docx', 'txt'];
+const DOWNLOAD_RE = new RegExp(`https?://[^"'\\s)<>]+\\.(?:${DOWNLOAD_EXT.join('|')})(?=["'\\s)<>])`, 'gi');
+
+/**
+ * The one file the item is really offering. A guide can link several (a plugin
+ * plus its zip, a README, a handful of prompt .txt files), so they are ranked
+ * rather than taking whichever appears first in the markup — the supporting
+ * files stay inside the guide, where their own labels explain them.
+ */
+function primaryDownload(html) {
+  const found = [...new Set(String(html || '').match(DOWNLOAD_RE) || [])];
+  if (!found.length) return null;
+  found.sort((a, b) =>
+    DOWNLOAD_EXT.indexOf(a.split('.').pop().toLowerCase()) -
+    DOWNLOAD_EXT.indexOf(b.split('.').pop().toLowerCase()));
+  return found[0];
+}
 // Storage filenames carry an upload stamp: 1778487590258-c4uoswxow5o-brand-kit.skill
 const prettyName = (n) => String(n || '').replace(/^\d{10,}-[a-z0-9]+-/i, '');
 
@@ -245,10 +265,27 @@ async function ingestBlackMagic() {
         else console.warn(`    ! guide not on disk for ${r.title}`);
       }
 
+      // An automation ships a blueprint .json to import into Make / n8n /
+      // Zapier. It is named after a Drive id upstream, so it is renamed to the
+      // template title — nobody wants to download 1vtimfqVuRrWWZV39cGBsX7baD8xIwhyx.json.
+      if (table === 'automation_templates') {
+        const bp = localFor(table, r.id, '.json');
+        if (bp) {
+          const nice = String(r.title || 'blueprint').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.json';
+          const key = `bm/files/${nice}`;
+          const stored = await retry('blueprint ' + nice, () => uploadAsset(join(filesDir, bp), key, 'application/json'));
+          if (stored) {
+            meta.fileKey = stored; meta.fileName = nice;
+            try { meta.fileSize = (await fstat(join(filesDir, bp))).size; } catch {}
+            files++;
+          }
+        }
+      }
+
       // What the member downloads. Most skills name it in skill_url; four keep
       // it only as a link inside their guide, so look there too.
       let dlUrl = r.skill_url || null;
-      if (!dlUrl && guideHtml) dlUrl = (guideHtml.match(DOWNLOAD_RE) || [])[0] || null;
+      if (!dlUrl && guideHtml) dlUrl = primaryDownload(guideHtml);
       if (dlUrl) {
         const remoteName = dlUrl.split('/').pop();
         const nice = prettyName(remoteName);
@@ -299,10 +336,10 @@ async function ingestCourseStructure() {
     let lessons = 0, seconds = 0;
     for (const s of c.sections) for (const l of s.lessons) { lessons++; seconds += durToSec(l.duration); }
     const stats = { sections: c.sections.length, lessons, minutes: Math.round(seconds / 60) };
-    await upsertCourse({
+    await retry('course ' + c.slug, () => upsertCourse({
       slug: c.slug, title: c.title, lessonCount: lessons, sort: sort++,
       data: { title: c.title, sections: c.sections, stats }
-    });
+    }));
     console.log(`  ${c.title}: ${stats.sections} sections · ${stats.lessons} lessons · ${stats.minutes} min`);
   }
 }

@@ -40,8 +40,8 @@ const arg = (n, d) => { const h = process.argv.find((a) => a.startsWith(`--${n}=
 const LIMIT = arg('limit', Infinity);
 const WIDTH = arg('width', 1000);
 
-async function retry(label, fn, tries = 5) {
-  let wait = 400;
+async function retry(label, fn, tries = 7) {
+  let wait = 500;
   for (let i = 1; ; i++) {
     try { return await fn(); }
     catch (err) {
@@ -57,6 +57,35 @@ const localFor = (table, id) =>
   fileList.find((f) => f.startsWith(`${table}__${String(id).slice(0, 12)}__`) && f.endsWith('.html'));
 
 let imgFetched = 0, imgSkipped = 0, imgFailed = 0, bytesIn = 0, bytesOut = 0;
+let fileFetched = 0, fileSkipped = 0, fileFailed = 0;
+
+const DOWNLOAD_RE = /\.(plugin|zip|skill|md|docx|txt)(\?|$)/i;
+// storage names carry an upload stamp: 1787079140389-9anzruy06ci-the-magnet.plugin
+const prettyName = (n) => String(n || '').replace(/^\d{10,}-[a-z0-9]+-/i, '');
+
+/**
+ * One file linked from a guide → Blob, returning our gated download URL. Shares
+ * the bm/files/ key space with the ingest, so the headline download and a link
+ * to the same file in the body resolve to one stored copy.
+ */
+async function mirrorFile(url) {
+  const name = prettyName(decodeURIComponent(url.split('/').pop().split('?')[0]));
+  const key = `bm/files/${name}`;
+  const gated = `/api/library/asset?key=${encodeURIComponent(key)}&download=1`;
+  if (await retry('getAsset file', () => getAsset(key))) { fileSkipped++; return gated; }
+  try {
+    const res = await retry('fetch file', () => fetch(url));
+    if (!res.ok) { fileFailed++; console.warn(`    ! ${res.status} ${name}`); return null; }
+    const buf = Buffer.from(await res.arrayBuffer());
+    const ct = res.headers.get('content-type') || 'application/octet-stream';
+    const { url: blobUrl } = await put(`library-assets/${key}`, buf, {
+      access: 'private', addRandomSuffix: true, token: TOKEN, contentType: ct
+    });
+    await retry('upsertAsset file', () => upsertAsset(key, blobUrl, ct));
+    fileFetched++;
+    return gated;
+  } catch (err) { fileFailed++; console.warn(`    ! file: ${err.message}`); return null; }
+}
 
 /** One guide image → WebP in Blob. Returns the gated URL to put in the src. */
 async function mirrorImage(itemId, idx, src) {
@@ -116,14 +145,20 @@ async function extract(html, itemId, downloadUrl) {
     imgs[i].setAttribute?.('loading', 'lazy');
   }
 
-  // links back to the source storage: point downloads at our gated copy, and
-  // drop anything else rather than leaving a link that leaks or rots
-  root.querySelectorAll('a').forEach((a) => {
+  // Links back to the source storage. A guide often offers more than the one
+  // headline file — a README, a connectors doc, a set of prompt .txt files —
+  // each with its own label explaining it, so they are mirrored individually
+  // rather than collapsed into the single top-level download button.
+  const links = root.querySelectorAll('a');
+  for (const a of links) {
     const href = a.getAttribute('href') || '';
-    if (!/uwcjoexhodkdkqdmlpns\.supabase\.co/.test(href)) return;
-    if (downloadUrl && /\.(zip|skill|md)(\?|$)/i.test(href)) a.setAttribute('href', downloadUrl);
-    else a.replaceWith(...a.childNodes);
-  });
+    if (!/uwcjoexhodkdkqdmlpns\.supabase\.co/.test(href)) continue;
+    if (DOWNLOAD_RE.test(href)) {
+      const gated = await mirrorFile(href);
+      if (gated) { a.setAttribute('href', gated); a.setAttribute('download', ''); continue; }
+    }
+    a.replaceWith(...a.childNodes);   // leaks or rots otherwise
+  }
 
   return root.innerHTML.trim();
 }
@@ -160,4 +195,5 @@ const mb = (n) => (n / 1048576).toFixed(1) + ' MB';
 console.log(`\ndone in ${((Date.now() - started) / 60000).toFixed(1)} min`);
 console.log(`  guides stored : ${done}${missing ? `   not on disk: ${missing}` : ''}`);
 console.log(`  images        : ${imgFetched} mirrored, ${imgSkipped} already had, ${imgFailed} failed`);
+console.log(`  linked files  : ${fileFetched} mirrored, ${fileSkipped} already had, ${fileFailed} failed`);
 if (imgFetched) console.log(`  ${mb(bytesIn)} → ${mb(bytesOut)}`);

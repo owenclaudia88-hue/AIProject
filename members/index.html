@@ -1364,14 +1364,21 @@ button{font-family:inherit}
   /* ---------------- reader ---------------- */
   var reader = document.getElementById('reader');
   // Wording for the panel that holds the item's own text, per kind.
+  //
+  // `copy` is null where the body is something to read rather than to paste.
+  // All 51 skill bodies are the same install note ("Claude Skills work inside
+  // Claude Code and Cowork only…"), a Custom GPT's body is a link blurb, and an
+  // automation's is "download the blueprint below" — a copy button on any of
+  // those offers the member nothing. The prompt text, the template and a GPT's
+  // system instructions are the things people actually paste, so those keep it.
   var BODY_PANEL = {
     prompt:       { title: 'The Prompt',   mono: true,  copy: 'Copy prompt' },
     image_prompt: { title: 'The Prompt',   mono: true,  copy: 'Copy prompt' },
-    skill:        { title: 'The Skill',    mono: false, copy: 'Copy text' },
-    gpt:          { title: 'Instructions', mono: false, copy: 'Copy text' },
-    automation:   { title: 'The Template', mono: true,  copy: 'Copy template' },
-    guide:        { title: 'The Guide',    mono: false, copy: 'Copy text' },
-    video:        { title: 'Notes',        mono: false, copy: 'Copy text' }
+    skill:        { title: 'How to use it', mono: false, copy: null },
+    gpt:          { title: 'How to use it', mono: false, copy: null },
+    automation:   { title: 'How to use it', mono: false, copy: null },
+    guide:        { title: 'The Guide',    mono: false, copy: null },
+    video:        { title: 'Notes',        mono: false, copy: null }
   };
   // Most items carry their own "how to use" note; these are the fallbacks for
   // the few that do not.
@@ -1448,9 +1455,10 @@ button{font-family:inherit}
         }
 
         var p = BODY_PANEL[it.kind] || { title: 'Details', mono: false, copy: 'Copy text' };
-        function panel(title, html, mono) {
+        function panel(title, html, mono, copyLabel) {
           h += '<div class="panel"><div class="panel-h">' + dots() +
-            '<span class="pt">' + esc(title) + '</span>' + copyBtn(textOf(html), p.copy, 'pc') + '</div>' +
+            '<span class="pt">' + esc(title) + '</span>' +
+            (copyLabel ? copyBtn(textOf(html), copyLabel, 'pc') : '') + '</div>' +
             '<div class="panel-b' + (mono ? ' mono' : '') + '">' + html + '</div></div>';
         }
 
@@ -1466,12 +1474,14 @@ button{font-family:inherit}
         if (parts.length > 1) {
           // a stack: several prompts meant to be used in order, each copyable
           parts.forEach(function (part, i) {
-            panel(part.title || (p.title + ' ' + (i + 1)), part.content || part.text || '', p.mono);
+            panel(part.title || ('Prompt ' + (i + 1)), part.content || part.text || '', true, 'Copy prompt');
           });
         } else {
-          if (body) panel(p.title, body, p.mono);
+          if (body) panel(p.title, body, p.mono, p.copy);
+          // a differing prompt_item is the thing the item actually sells — the
+          // GPT's system prompt — so it is always copyable, whatever its kind
           extras.forEach(function (part) {
-            panel(part.title || 'System instructions', part.content || part.text || '', true);
+            panel(part.title || 'System instructions', part.content || part.text || '', true, 'Copy');
           });
         }
 
