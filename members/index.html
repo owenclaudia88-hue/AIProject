@@ -269,6 +269,51 @@ button{font-family:inherit}
 .reader-body a{color:var(--accent-2)}
 .copy{margin-top:22px;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:11px 22px;cursor:pointer}
 
+/* ---------- reader: chips, panels, gallery, related ---------- */
+.r-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.chip{font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.03em;padding:4px 10px;border-radius:999px;background:var(--bg-4);color:var(--txt-2);border:1px solid var(--line-2)}
+.chip.k{background:rgba(255,122,26,.15);border-color:rgba(255,122,26,.34);color:var(--accent-2)}
+.r-meta{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:.74rem;color:var(--txt-3);margin:12px 0 0}
+.r-meta b{color:var(--txt-2);font-weight:600}
+
+.panel{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:20px 0;background:#0e0e10}
+.panel-h{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-3);border-bottom:1px solid var(--line)}
+.panel-h .dots{display:flex;gap:6px;flex:none}
+.panel-h .dots i{width:9px;height:9px;border-radius:50%;display:block}
+.panel-h .pt{font-family:var(--mono);font-size:.8rem;color:var(--txt-2);font-weight:700}
+.panel-h .pc{margin-left:auto;background:var(--bg-4);border:1px solid var(--line-2);color:var(--txt);font-family:var(--mono);font-size:.72rem;padding:6px 12px;border-radius:999px;cursor:pointer;flex:none}
+.panel-h .pc:hover{border-color:var(--accent);color:var(--accent-2)}
+.panel-b{padding:16px 18px;color:var(--txt);line-height:1.66;font-size:.93rem}
+.panel-b p:first-child{margin-top:0}.panel-b p:last-child{margin-bottom:0}
+.panel-b.mono{font-family:var(--mono);font-size:.85rem;white-space:pre-wrap;line-height:1.6}
+.panel.note{background:var(--bg-2)}
+.panel.note .panel-b{color:var(--txt-2);font-size:.88rem}
+
+.r-dl{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(180deg,#3b82f6,#2563eb);color:#fff;font-weight:800;border:0;border-radius:999px;padding:12px 24px;font-size:.92rem;cursor:pointer;text-decoration:none;margin:4px 0 2px}
+.r-dl:hover{filter:brightness(1.08)}
+.r-dl-sub{font-family:var(--mono);font-size:.72rem;color:var(--txt-3);margin:8px 0 0}
+
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px;margin:18px 0 6px}
+.gal figure{position:relative;margin:0;aspect-ratio:1;border-radius:11px;overflow:hidden;border:1px solid var(--line);background:var(--bg-3);cursor:pointer}
+.gal img{width:100%;height:100%;object-fit:cover;display:block}
+.gal .ov{position:absolute;inset:0;background:rgba(8,8,10,.92);opacity:0;transition:opacity .14s ease;display:flex;flex-direction:column;padding:11px;gap:8px}
+.gal figure:hover .ov,.gal figure.open .ov{opacity:1}
+.gal .ov p{margin:0;flex:1;overflow:auto;font-size:.71rem;line-height:1.45;color:var(--txt-2)}
+.gal .ov button{flex:none;background:var(--bg-4);border:1px solid var(--line-2);color:var(--txt);font-family:var(--mono);font-size:.7rem;padding:7px 10px;border-radius:8px;cursor:pointer}
+.gal .ov button:hover{border-color:var(--accent);color:var(--accent-2)}
+.gal figure.noimg{display:grid;place-items:center}
+.gal figure.noimg .ov{opacity:1;background:var(--bg-3)}
+
+.r-rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:14px}
+.r-rel .rc{background:var(--bg-3);border:1px solid var(--line);border-radius:12px;padding:13px 14px;cursor:pointer}
+.r-rel .rc:hover{border-color:var(--accent)}
+.r-rel .rc .rt{font-weight:700;font-size:.9rem;line-height:1.3;margin-bottom:4px}
+.r-rel .rc .rd{font-family:var(--mono);font-size:.72rem;color:var(--txt-3);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.r-sec{font-size:1.1rem;font-weight:800;letter-spacing:-.02em;margin:26px 0 2px}
+.r-sec-s{font-family:var(--mono);font-size:.76rem;color:var(--txt-3);margin:0}
+.r-video{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000;margin:18px 0}
+.r-video iframe,.r-video video{position:absolute;inset:0;width:100%;height:100%;border:0}
+
 /* backdrop for mobile sidebar */
 .scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:19}
 
@@ -418,9 +463,7 @@ button{font-family:inherit}
         </div>
         <button class="close" id="r-close" aria-label="Close">&times;</button>
       </div>
-      <p class="desc" id="r-desc"></p>
-      <div class="reader-body" id="r-body"></div>
-      <button class="copy" id="r-copy" hidden>Copy text</button>
+      <div id="r-content"></div>
     </div>
   </div>
 
@@ -1259,22 +1302,181 @@ button{font-family:inherit}
 
   /* ---------------- reader ---------------- */
   var reader = document.getElementById('reader');
+  // Wording for the panel that holds the item's own text, per kind.
+  var BODY_PANEL = {
+    prompt:       { title: 'The Prompt',   mono: true,  copy: 'Copy prompt' },
+    image_prompt: { title: 'The Prompt',   mono: true,  copy: 'Copy prompt' },
+    skill:        { title: 'The Skill',    mono: false, copy: 'Copy text' },
+    gpt:          { title: 'Instructions', mono: false, copy: 'Copy text' },
+    automation:   { title: 'The Template', mono: true,  copy: 'Copy template' },
+    guide:        { title: 'The Guide',    mono: false, copy: 'Copy text' },
+    video:        { title: 'Notes',        mono: false, copy: 'Copy text' }
+  };
+  // Most items carry their own "how to use" note; these are the fallbacks for
+  // the few that do not.
+  var HOW_TO = {
+    prompt:       'Copy &amp; paste the prompt below into your preferred LLM. Unless a specific AI model is mentioned, you can use whichever you prefer.',
+    image_prompt: 'Copy any prompt below into your image generator. Hover a picture to read the prompt that made it.',
+    automation:   'Import the template below into your automation tool, then reconnect your own accounts.'
+  };
+
+  function dots(){ return '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>'; }
+  function textOf(html){ var t=document.createElement('div'); t.innerHTML=html||''; return (t.innerText||t.textContent||'').trim(); }
+
+  // Copy handlers are wired by index into this list, so nothing has to be
+  // escaped into an onclick attribute.
+  var copyBank = [];
+  function copyBtn(text, label, cls) {
+    var i = copyBank.push(text) - 1;
+    return '<button class="' + cls + '" data-copy="' + i + '">' + esc(label) + '</button>';
+  }
+
   function openItem(id) {
-    fetch('/api/library/item?id=' + encodeURIComponent(id), { credentials:'same-origin' })
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(it){
+    fetch('/api/library/item?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (it) {
         if (!it) return;
-        document.getElementById('r-kind').textContent = (KINDS[it.kind]||{}).label || it.kind;
+        copyBank = [];
+        var meta = it.meta || {};
+        var body = it.bodyHtml || '';
+        // Older rows stored the description as the body too — show it once.
+        if (body && textOf(body) === String(it.description || '').trim()) body = '';
+
+        document.getElementById('r-kind').textContent = (KINDS[it.kind] || {}).label || it.kind;
         document.getElementById('r-title').textContent = it.title || '';
-        document.getElementById('r-desc').textContent = it.description || '';
-        document.getElementById('r-body').innerHTML = it.bodyHtml || '<p style="color:var(--txt-3)">No text for this item.</p>';
-        var copy = document.getElementById('r-copy');
-        copy.hidden = !it.bodyHtml;
-        copy.onclick = function(){
-          var tmp = document.createElement('div'); tmp.innerHTML = it.bodyHtml || '';
-          navigator.clipboard.writeText(tmp.innerText).then(function(){ copy.textContent='Copied!'; setTimeout(function(){copy.textContent='Copy text';},1500); });
-        };
-        reader.classList.add('show'); reader.scrollTop = 0;
+
+        var h = '';
+
+        // chips: the category first, then its tags
+        var chips = [];
+        if (it.category) chips.push('<span class="chip k">' + esc(it.category) + '</span>');
+        (it.tags || []).slice(0, 8).forEach(function (t) {
+          if (String(t).toLowerCase() !== String(it.category || '').toLowerCase()) chips.push('<span class="chip">' + esc(t) + '</span>');
+        });
+        if (chips.length) h += '<div class="r-chips">' + chips.join('') + '</div>';
+
+        if (it.description) h += '<p class="desc">' + esc(it.description) + '</p>';
+
+        // the facts strip
+        var facts = [];
+        if (meta.difficulty) facts.push('<span>Level <b>' + esc(meta.difficulty) + '</b></span>');
+        if (meta.duration) facts.push('<span>Duration <b>' + esc(meta.duration) + '</b></span>');
+        if (meta.setupTime) facts.push('<span>Setup <b>' + esc(meta.setupTime) + '</b></span>');
+        if (meta.estimatedTime) facts.push('<span>Time <b>' + esc(meta.estimatedTime) + '</b></span>');
+        if (meta.instructor) facts.push('<span>By <b>' + esc(meta.instructor) + '</b></span>');
+        if (it.gallery && it.gallery.length) facts.push('<span><b>' + it.gallery.length + '</b> prompts in this collection</span>');
+        if (meta.promptType === 'stack' && (meta.promptItems || []).length > 1) facts.push('<span><b>' + meta.promptItems.length + '-part</b> prompt stack</span>');
+        if (meta.modelCompatibility && meta.modelCompatibility.length) facts.push('<span>Works with <b>' + esc(meta.modelCompatibility.join(', ')) + '</b></span>');
+        if (facts.length) h += '<div class="r-meta">' + facts.join('') + '</div>';
+
+        // video
+        if (meta.videoUrl) {
+          h += '<div class="r-video">' + (/\.(mp4|webm|mov)(\?|$)/i.test(meta.videoUrl)
+            ? '<video controls preload="metadata" src="' + esc(meta.videoUrl) + '"></video>'
+            : '<iframe src="' + esc(meta.videoUrl) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>') + '</div>';
+          if (meta.videoText) h += '<p class="desc">' + esc(meta.videoText) + '</p>';
+        }
+
+        // how-to note — the item's own, or the fallback for its kind
+        var howTo = meta.howTo || (HOW_TO[it.kind] && (body || (it.gallery || []).length) ? HOW_TO[it.kind] : null);
+        if (howTo) {
+          h += '<div class="panel note"><div class="panel-h">' + dots() +
+            '<span class="pt">How to use this</span></div>' +
+            '<div class="panel-b">' + howTo + '</div></div>';
+        }
+
+        var p = BODY_PANEL[it.kind] || { title: 'Details', mono: false, copy: 'Copy text' };
+        // A "stack" is several prompts meant to be used in order — each gets its
+        // own panel and its own copy button, rather than one wall of text.
+        var parts = (meta.promptItems || []).filter(function (x) { return x && (x.content || x.text); });
+        if (parts.length > 1) {
+          parts.forEach(function (part, i) {
+            var pb = part.content || part.text || '';
+            h += '<div class="panel"><div class="panel-h">' + dots() +
+              '<span class="pt">' + esc(part.title || (p.title + ' ' + (i + 1))) + '</span>' +
+              copyBtn(textOf(pb), p.copy, 'pc') + '</div>' +
+              '<div class="panel-b' + (p.mono ? ' mono' : '') + '">' + pb + '</div></div>';
+          });
+        } else if (body) {
+          h += '<div class="panel"><div class="panel-h">' + dots() +
+            '<span class="pt">' + esc(p.title) + '</span>' + copyBtn(textOf(body), p.copy, 'pc') + '</div>' +
+            '<div class="panel-b' + (p.mono ? ' mono' : '') + '">' + body + '</div></div>';
+        }
+
+        // downloadable file (Claude skills)
+        if (it.download) {
+          h += '<a class="r-dl" href="' + esc(it.download.url) + '" download>&#11015; Download ' +
+            (it.kind === 'skill' ? 'Skill' : 'file') + '</a>' +
+            '<p class="r-dl-sub">Downloads ' + esc(it.download.name) + ' to use in Claude.</p>';
+        }
+
+        // starters / capabilities
+        if (meta.starters && meta.starters.length) {
+          h += '<div class="r-sec">Conversation starters</div>';
+          h += '<div class="panel"><div class="panel-b"><ul style="margin:0;padding-left:18px">' +
+            meta.starters.map(function (x) { return '<li>' + esc(typeof x === 'string' ? x : (x.text || x.title || '')) + '</li>'; }).join('') +
+            '</ul></div></div>';
+        }
+
+        // the gallery
+        if (it.gallery && it.gallery.length) {
+          h += '<div class="r-sec">' + it.gallery.length + ' prompts</div>' +
+            '<p class="r-sec-s">Hover a tile to read its prompt, then copy it.</p><div class="gal">';
+          it.gallery.forEach(function (g) {
+            var ov = '<div class="ov"><p>' + esc(g.prompt || 'No prompt recorded.') + '</p>' +
+              (g.prompt ? copyBtn(g.prompt, 'Copy prompt', '') : '') + '</div>';
+            h += g.image
+              ? '<figure><img loading="lazy" src="' + esc(g.image) + '" alt="">' + ov + '</figure>'
+              : '<figure class="noimg">' + ov + '</figure>';
+          });
+          h += '</div>';
+        }
+
+        // related
+        if (it.related && it.related.length) {
+          h += '<div class="r-sec">Related</div><p class="r-sec-s">More like this in your library.</p><div class="r-rel">';
+          it.related.forEach(function (r) {
+            h += '<div class="rc" data-open="' + esc(r.id) + '"><div class="rt">' + esc(r.title) + '</div>' +
+              (r.description ? '<div class="rd">' + esc(r.description) + '</div>' : '') + '</div>';
+          });
+          h += '</div>';
+        }
+
+        if (!body && !parts.length && !(it.gallery || []).length && !meta.videoUrl && !it.download) {
+          // A collection whose tiles have not been built yet is a different thing
+          // from an item with nothing in it — say which.
+          h += meta.contentMode === 'image_gallery'
+            ? '<p class="empty">This collection is still being prepared. Check back shortly.</p>'
+            : '<p class="empty">Nothing else recorded for this item yet.</p>';
+        }
+
+        var c = document.getElementById('r-content');
+        c.innerHTML = h;
+
+        [].forEach.call(c.querySelectorAll('[data-copy]'), function (b) {
+          b.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var was = b.textContent;
+            navigator.clipboard.writeText(copyBank[Number(b.getAttribute('data-copy'))] || '').then(function () {
+              b.textContent = 'Copied!';
+              setTimeout(function () { b.textContent = was; }, 1400);
+            });
+          });
+        });
+        // touch: no hover, so tapping a tile reveals its prompt
+        [].forEach.call(c.querySelectorAll('.gal figure'), function (fig) {
+          fig.addEventListener('click', function (e) {
+            if (e.target.closest('button')) return;
+            fig.classList.toggle('open');
+          });
+        });
+        [].forEach.call(c.querySelectorAll('[data-open]'), function (r) {
+          r.addEventListener('click', function () { openItem(r.getAttribute('data-open')); });
+        });
+
+        reader.classList.add('show');
+        reader.scrollTop = 0;
+        document.querySelector('.reader-inner').scrollIntoView({ block: 'start' });
       });
   }
   document.getElementById('r-close').addEventListener('click', function(){ reader.classList.remove('show'); });

@@ -112,6 +112,80 @@ needs it:
 Worth doing before taking significant revenue: have a lawyer read them, and add a
 registered address and jurisdiction if the business is incorporated somewhere specific.
 
+## The content library
+
+Everything in the member area outside the course player comes from `export/blackmagic/data/*-full.json`
+— complete table dumps, one file per content type. The paginated `NNN-GET-*.json`
+captures next to them are partial (whatever the page happened to fetch while browsing)
+and are **not** what the ingest reads. If something looks missing, check the `-full`
+file first; it has almost certainly been there all along.
+
+### What lands where
+
+```
+prompts-full.json         901 → kind 'prompt'        content → body, instructions → meta.howTo
+image_prompts-full.json   171 → kind 'image_prompt'  gallery_prompts → library_gallery (44 collections)
+claude_skills-full.json    67 → kind 'skill'         instructions → body, skill_url → downloadable .md
+videos-full.json           64 → kind 'video'         video_url/duration/instructor → meta
+automation_templates       20 → kind 'automation'    template_content → body
+custom_gpts-full.json      15 → kind 'gpt'           instructions → body, starters → meta
+guides-full.json            9 → kind 'guide'         content → body
+```
+
+The fixed columns (`title`, `description`, `body_html`, `category`, `thumb_key`) hold what
+every kind has. Everything else goes in two places:
+
+- **`library.tags`** — `tags`, `categories` and `search_keywords` merged and de-duplicated.
+  This is what draws the chips under an item's title. A prompt typically carries its
+  `category` plus its `categories`, which is why SWOT Analysis Strategist shows both
+  *Business Strategy* and *Sales & E-commerce*.
+- **`library.meta`** (jsonb) — whatever is specific to a kind: `howTo`, `promptItems`,
+  `promptType`, `difficulty`, `useCases`, `modelCompatibility`, `videoUrl`, `duration`,
+  `instructor`, `starters`, `capabilities`, `fileKey`. A new field needs no migration.
+
+### body_html never falls back to the description
+
+`bodyOf()` deliberately returns null rather than the description. A video has no body; a
+gallery collection's content is its tiles. Falling back made those items render their
+description twice and hid the fact that something was missing — the reader now asks
+"is there a body?" and gets an honest answer.
+
+### Two jobs, on purpose
+
+```bash
+npm run ingest      # metadata: ~1250 rows, a couple of minutes
+npm run galleries   # the 2,060 gallery images, much slower
+```
+
+`ingest` also mirrors each skill's `.md` into Blob so it can be served through the gated
+download endpoint rather than linking to someone else's storage.
+
+`galleries` fetches every tile's original PNG (~2 MB), re-encodes it to 800px WebP and
+stores that. Full-size originals are not mirrored on purpose: a 41-tile gallery of 2 MB
+PNGs is ~86 MB per page view. The prompt text is the product; the picture illustrates it.
+Pass `--width=` to change the size or `--limit=` to do a few collections first.
+
+Both are re-runnable and resumable — a tile whose asset already exists is skipped, so an
+interrupted run picks up where it stopped. Both retry transient Neon errors; over
+thousands of single-statement HTTP calls an occasional `ECONNRESET` is normal and is not
+a reason to lose the run.
+
+### How an item is laid out
+
+`/api/library/item` returns the item plus its `tags`, `meta`, `gallery` tiles, a gated
+`download` link and a few `related` items. The reader assembles from that:
+
+- chips from category + tags
+- a *How to use this* panel from `meta.howTo` (the item's own wording — there are 56
+  distinct variants, so it is real content, not boilerplate)
+- the body in a titled panel with its own copy button, named per kind (*The Prompt*,
+  *The Skill*, *The Template*…)
+- a **stack** (`meta.promptType === 'stack'`, 15 of them) renders one panel per part,
+  each separately copyable, instead of one wall of text
+- a gallery grid where each tile reveals its own prompt and copies it
+- a Download button when the item ships a file
+- a player when the item has a video
+
 ## Lesson toolbar: comments, wide mode, bookmarks
 
 Three icons sit at the top right of the lesson player, left to right:

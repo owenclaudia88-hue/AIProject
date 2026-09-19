@@ -14,7 +14,7 @@ import { put } from '@vercel/blob';
 import { readFile, readdir, access } from 'node:fs/promises';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { upsertLibraryItem, upsertAsset, upsertCourse } from '../lib/db.js';
+import { upsertLibraryItem, upsertAsset, upsertCourse, getAsset } from '../lib/db.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const EXPORT = join(HERE, '..', 'export');
@@ -39,6 +39,25 @@ async function uploadAsset(localPath, key) {
 }
 
 let items = 0, assets = 0;
+
+/**
+ * Neon is reached over HTTP, one request per statement, and a long ingest makes
+ * thousands of them — an occasional ECONNRESET is normal and not a reason to
+ * lose the whole run. Every write goes through here.
+ */
+async function retry(label, fn, tries = 5) {
+  let wait = 400;
+  for (let i = 1; ; i++) {
+    try { return await fn(); }
+    catch (err) {
+      if (i >= tries) throw err;
+      console.warn(`    retry ${i}/${tries - 1} (${label}): ${err.message}`);
+      await new Promise((r) => setTimeout(r, wait));
+      wait *= 2;
+    }
+  }
+}
+
 
 /* ---------------- 1. Circle course lessons ---------------- */
 async function ingestCourses() {
@@ -80,15 +99,93 @@ async function ingestCourses() {
 
 /* ---------------- 2. AI Black Magic content ---------------- */
 const BM_KINDS = {
-  prompts:              { kind: 'prompt',     label: 'Prompts' },
+  prompts:              { kind: 'prompt',       label: 'Prompts' },
   image_prompts:        { kind: 'image_prompt', label: 'Image & Video Prompts' },
-  claude_skills:        { kind: 'skill',      label: 'Agents & Skills' },
-  custom_gpts:          { kind: 'gpt',        label: 'Custom GPTs' },
-  guides:               { kind: 'guide',      label: 'Prompting Fundamentals' },
-  automation_templates: { kind: 'automation', label: 'Automation Templates' },
-  videos:               { kind: 'video',      labeled: 'Tutorials', label: 'Tutorials' }
+  claude_skills:        { kind: 'skill',        label: 'Agents & Skills' },
+  custom_gpts:          { kind: 'gpt',          label: 'Custom GPTs' },
+  guides:               { kind: 'guide',        label: 'Prompting Fundamentals' },
+  automation_templates: { kind: 'automation',   label: 'Automation Templates' },
+  videos:               { kind: 'video',        label: 'Tutorials' }
 };
-const bodyOf = (r) => r.content || r.body || r.instructions || r.html || r.description || '';
+
+/**
+ * The item's own body. Deliberately does NOT fall back to `description` — a row
+ * whose only text is its description (every video, and the gallery collections
+ * whose content lives in gallery_prompts) should report "no body" so the reader
+ * renders the right thing instead of printing the description twice.
+ */
+const bodyOf = (r) => r.content || r.body || r.instructions || r.html || r.template_content || r.prompt_text || null;
+
+/** tags / categories / search_keywords arrive as arrays, JSON strings or CSV. */
+function normTags(r) {
+  const out = new Set();
+  const push = (v) => {
+    if (v == null) return;
+    if (typeof v === 'string' && /^\s*\[/.test(v)) { try { return push(JSON.parse(v)); } catch { /* fall through */ } }
+    if (Array.isArray(v)) return v.forEach(push);
+    if (typeof v === 'object') return push(v.name || v.title || v.label);
+    String(v).split(',').map((x) => x.trim()).filter(Boolean).forEach((t) => out.add(t));
+  };
+  push(r.tags); push(r.categories); push(r.search_keywords);
+  return [...out].slice(0, 24);
+}
+
+const asArray = (v) => {
+  if (v == null) return null;
+  if (typeof v === 'string') { try { const p = JSON.parse(v); return Array.isArray(p) && p.length ? p : null; } catch { return v.trim() ? [v.trim()] : null; } }
+  return Array.isArray(v) && v.length ? v : null;
+};
+const clean = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v != null && v !== '' && !(Array.isArray(v) && !v.length)));
+
+/** Everything kind-specific the reader needs, kept out of the fixed columns. */
+function metaFor(table, r) {
+  // `instructions` is the per-item "how to use this" note on everything whose
+  // body lives in another column. Where instructions IS the body (skills, GPTs)
+  // bodyOf already used it, so leaving it out here avoids printing it twice.
+  const howTo = (r.content || r.body || r.template_content) ? r.instructions : null;
+  const base = clean({
+    howTo, promptItems: asArray(r.prompt_items), promptType: r.type,
+    difficulty: r.difficulty_level, useCases: asArray(r.use_cases),
+    modelCompatibility: asArray(r.model_compatibility), featured: r.is_featured || undefined
+  });
+  if (table === 'videos') {
+    return clean({ ...base, videoUrl: r.video_url, duration: r.duration, instructor: r.instructor_name });
+  }
+  if (table === 'image_prompts') {
+    return clean({ ...base, contentMode: r.content_mode, promptText: r.prompt_text,
+      videoUrl: r.video_url, videoText: r.video_text, galleryVideos: asArray(r.gallery_videos) });
+  }
+  if (table === 'claude_skills') {
+    return clean({ ...base, itemType: r.item_type, capabilities: asArray(r.capabilities),
+      starters: asArray(r.conversation_starters), promptItems: asArray(r.prompt_items) });
+  }
+  if (table === 'custom_gpts') {
+    return clean({ ...base, gptUrl: r.gpt_url, capabilities: asArray(r.capabilities),
+      starters: asArray(r.conversation_starters), knowledgeFiles: asArray(r.knowledge_files) });
+  }
+  if (table === 'automation_templates') {
+    return clean({ ...base, toolsRequired: asArray(r.tools_required), setupTime: r.estimated_setup_time });
+  }
+  if (table === 'guides') {
+    return clean({ ...base, estimatedTime: r.estimated_time, prerequisites: asArray(r.prerequisites) });
+  }
+  return base;
+}
+
+/** Pull a remote file straight into Blob (used for the skills' .md downloads). */
+async function mirrorRemote(url, key, contentType) {
+  if (await retry('getAsset ' + key, () => getAsset(key))) return key;   // already mirrored — resumable
+  const res = await retry('fetch ' + key, () => fetch(url));
+  if (!res.ok) { console.warn(`    ! ${res.status} fetching ${url}`); return null; }
+  const buf = Buffer.from(await res.arrayBuffer());
+  const { url: blobUrl } = await put(`library-assets/${key}`, buf, {
+    access: 'private', addRandomSuffix: true, token: TOKEN,
+    contentType: contentType || res.headers.get('content-type') || 'application/octet-stream'
+  });
+  await retry('asset ' + key, () => upsertAsset(key, blobUrl, contentType || 'application/octet-stream'));
+  assets++;
+  return key;
+}
 
 async function ingestBlackMagic() {
   const dir = join(EXPORT, 'blackmagic');
@@ -102,26 +199,48 @@ async function ingestBlackMagic() {
   for (const [table, cfg] of Object.entries(BM_KINDS)) {
     const path = join(dir, 'data', `${table}-full.json`);
     if (!(await exists(path))) continue;
-    const rows = JSON.parse(await readFile(path, 'utf8'));
+    const raw = JSON.parse(await readFile(path, 'utf8'));
+    const rows = Array.isArray(raw) ? raw : (raw.data || []);
     console.log(`\n${table}: ${rows.length} rows`);
-    let sort = 0;
+    let sort = 0, files = 0, bodies = 0;
     for (const r of rows) {
       if (!r || !r.id) continue;
+      const id = `${cfg.kind}:${r.id}`;
+
       let thumbKey = null;
       const localThumb = thumbFor.get(`${table}:${r.id}`);
       if (localThumb) {
         const p = join(dir, localThumb.replace(/^files\//, 'files/'));
         if (await exists(p)) { thumbKey = `bm/${basename(localThumb)}`; await uploadAsset(p, thumbKey); assets++; }
       }
-      await upsertLibraryItem({
-        id: `${cfg.kind}:${r.id}`, kind: cfg.kind,
+
+      const meta = metaFor(table, r);
+
+      // A skill ships a .md the member is meant to download — mirror it into
+      // Blob so it is served through our own gated endpoint.
+      if (table === 'claude_skills' && r.skill_url) {
+        const name = r.skill_url.split('/').pop() || `${r.id}.md`;
+        const key = await mirrorRemote(r.skill_url, `bm/skills/${name}`, 'text/markdown; charset=utf-8');
+        if (key) { meta.fileKey = key; meta.fileName = name; files++; }
+      }
+
+      const body = bodyOf(r);
+      if (body) bodies++;
+
+      await retry('upsert ' + id, () => upsertLibraryItem({
+        id, kind: cfg.kind,
         category: r.category || cfg.label, title: r.title || r.name || '(untitled)',
-        description: r.description || null, bodyHtml: bodyOf(r) || null,
-        thumbKey, sort: sort++
-      });
+        description: r.description || null,
+        bodyHtml: body,
+        thumbKey, sort: sort++,
+        tags: normTags(r),
+        meta: Object.keys(meta).length ? meta : null
+      }));
       items++;
     }
+    console.log(`  ${bodies}/${sort} with a real body` + (files ? `, ${files} downloadable files mirrored` : ''));
   }
+  console.log('\n  (gallery tiles are a separate job: scripts/ingest-galleries.mjs)');
 }
 
 /* ---------------- 3. Course structure (sections → lessons) ---------------- */

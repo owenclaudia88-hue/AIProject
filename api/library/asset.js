@@ -12,7 +12,8 @@ export default async function handler(req, res) {
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
 
-    const key = new URL(req.url, 'http://localhost').searchParams.get('key');
+    const params = new URL(req.url, 'http://localhost').searchParams;
+    const key = params.get('key');
     if (!key) return res.status(400).json({ error: 'missing key' });
 
     const asset = await getAsset(key);
@@ -35,6 +36,11 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', asset.content_type || result.blob?.contentType || 'application/octet-stream');
     res.setHeader('Content-Length', String(buf.length));
     res.setHeader('Cache-Control', 'private, max-age=3600');
+    // ?download=1 turns the same gated stream into a file save (skill .md files).
+    if (params.get('download')) {
+      const name = (key.split('/').pop() || 'download').replace(/[^\w.-]+/g, '-');
+      res.setHeader('Content-Disposition', `attachment; filename="${name}"`);
+    }
     return res.status(200).end(buf);
   } catch (err) {
     console.error('[library/asset]', err);
