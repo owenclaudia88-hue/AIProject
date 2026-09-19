@@ -83,7 +83,27 @@ button{font-family:inherit}
 .card .dots{position:absolute;top:11px;left:12px;display:flex;gap:6px}
 .card .dots i{width:9px;height:9px;border-radius:50%;display:block}
 .d-r{background:#ff5f57}.d-y{background:#febc2e}.d-g{background:#28c840}
-.card .head .glyph{font-size:2.5rem;opacity:.9;filter:saturate(1.1)}
+.card .head{background:linear-gradient(160deg,#1a1a22,#101016)}
+.card .head .kmark{display:flex;align-items:center;gap:13px;padding:0 18px;width:100%;justify-content:flex-start}
+.card .head .kmark svg{width:62px;height:62px;flex:none}
+.card .head .klabel{font-family:var(--mono);font-size:.95rem;font-weight:500;color:var(--txt);letter-spacing:-.01em}
+@media(max-width:520px){.card .head .kmark svg{width:52px;height:52px}.card .head .klabel{font-size:.86rem}}
+
+/* ---------- pagination ---------- */
+.pager{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  margin:26px 0 8px;padding-top:18px;border-top:1px solid var(--line)}
+.pager .showing{font-family:var(--mono);font-size:.82rem;color:var(--txt-3)}
+.pager .ctrls{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.pg{background:var(--bg-3);border:1px solid var(--line);color:var(--txt-2);border-radius:9px;
+  min-width:36px;height:36px;padding:0 11px;font-size:.86rem;font-family:var(--mono);cursor:pointer}
+.pg:hover:not(:disabled){border-color:var(--line-2);color:var(--txt)}
+.pg:disabled{opacity:.35;cursor:default}
+.pg.now{background:rgba(255,122,26,.14);border-color:rgba(255,122,26,.4);color:#ffd9b3;font-weight:700}
+.pager .of{font-family:var(--mono);font-size:.82rem;color:var(--txt-2);padding:0 6px}
+.pager .goto{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.8rem;color:var(--txt-3)}
+.pager .goto input{width:62px;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);
+  border-radius:9px;padding:8px 10px;font-family:var(--mono);font-size:.82rem}
+.pager .goto input:focus{outline:none;border-color:var(--accent)}
 .card .fav{position:absolute;top:9px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer;font-size:.95rem;z-index:2}
 .card .fav:hover{background:rgba(0,0,0,.65)}
 .card .fav.on{color:#ff5f7a;border-color:rgba(255,95,122,.5)}
@@ -683,14 +703,16 @@ button{font-family:inherit}
   /* ---------------- config ---------------- */
   // Names match the source library exactly — "Prompts" and "LLM Prompts" are
   // the same shelf and it should not be a guess which one a member is on.
+  // `label` names the shelf, `one` names a single item — a card reading
+  // "LLM Prompts" describes a category rather than the thing in front of you.
   var KINDS = {
-    prompt:       { label: 'LLM Prompts',            glyph: '💬' },
-    image_prompt: { label: 'Image & Video Prompts',  glyph: '🎨' },
-    skill:        { label: 'Agents & Skills',        glyph: '🤖' },
-    gpt:          { label: 'Custom GPTs',            glyph: '🧠' },
-    automation:   { label: 'Automation Templates',   glyph: '⚡' },
-    guide:        { label: 'Prompting Fundamentals', glyph: '📖' },
-    video:        { label: 'Tutorials',              glyph: '🎬' }
+    prompt:       { label: 'LLM Prompts',            one: 'LLM Prompt',   glyph: '💬' },
+    image_prompt: { label: 'Image & Video Prompts',  one: 'Image Prompt', glyph: '🎨' },
+    skill:        { label: 'Agents & Skills',        one: 'Claude Skill', glyph: '🤖' },
+    gpt:          { label: 'Custom GPTs',            one: 'Custom GPT',   glyph: '🧠' },
+    automation:   { label: 'Automation Templates',   one: 'Automation',   glyph: '⚡' },
+    guide:        { label: 'Prompting Fundamentals', one: 'Guide',        glyph: '📖' },
+    video:        { label: 'Tutorials',              one: 'Tutorial',     glyph: '🎬' }
   };
   // 'lesson' is intentionally excluded — courses have their own player.
   var LIB_ORDER = ['prompt','image_prompt','gpt','automation','guide','video','skill'];
@@ -809,14 +831,58 @@ button{font-family:inherit}
   }
 
   /* ---------------- card rendering ---------------- */
+
+  // Each library gets its own colourway. The card used to show the same emoji
+  // the sidebar uses, blown up to 2.5rem, which said nothing about the item and
+  // looked like a placeholder.
+  var KIND_COLORS = {
+    prompt:       ['#f472b6', '#a78bfa', '#38bdf8'],
+    image_prompt: ['#fb923c', '#f472b6', '#c084fc'],
+    skill:        ['#2dd4bf', '#38bdf8', '#818cf8'],
+    gpt:          ['#4ade80', '#2dd4bf', '#38bdf8'],
+    automation:   ['#fbbf24', '#fb923c', '#f87171'],
+    guide:        ['#a78bfa', '#818cf8', '#38bdf8'],
+    video:        ['#f87171', '#fb923c', '#fbbf24'],
+    lesson:       ['#fbbf24', '#fb923c', '#f472b6']
+  };
+
+  // A fan of dots, widest at the top, tapering to a two-dot tail — drawn rather
+  // than shipped as seven image files, so it stays crisp and costs nothing.
+  var MARK_ROWS = [5, 7, 7, 6, 4, 2, 1, 1];
+
+  function kindMark(kind) {
+    var c = KIND_COLORS[kind] || ['#a1a1aa', '#71717a', '#52525b'];
+    var id = 'km' + kind.replace(/[^a-z]/g, '');
+    var step = 13, r = 4.1, cols = 7, dots = '';
+    for (var row = 0; row < MARK_ROWS.length; row++) {
+      var n = MARK_ROWS[row];
+      var offset = (cols - n) / 2;
+      for (var i = 0; i < n; i++) {
+        var cx = 8 + (offset + i) * step;
+        var cy = 8 + row * step;
+        // fade the tail so the shape reads as one object
+        var o = row >= 5 ? 0.75 : 1;
+        dots += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="' + r +
+          '" fill="url(#' + id + ')" opacity="' + o + '"/>';
+      }
+    }
+    return '<svg viewBox="0 0 106 118" aria-hidden="true">' +
+      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0.6" y2="1">' +
+        '<stop offset="0" stop-color="' + c[0] + '"/>' +
+        '<stop offset="0.5" stop-color="' + c[1] + '"/>' +
+        '<stop offset="1" stop-color="' + c[2] + '"/>' +
+      '</linearGradient></defs>' + dots + '</svg>';
+  }
+
   function cardHTML(it) {
     var k = KINDS[it.kind] || { label: it.kind, glyph: '📦' };
     var h = hue(it.category || it.kind);
     var head = it.thumb
       ? '<div class="head" style="background-image:url(\'' + it.thumb + '\')"><span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>' + favBtn(it) + '</div>'
-      : '<div class="head" style="background:linear-gradient(135deg,hsl(' + h + ',55%,22%),hsl(' + ((h+40)%360) + ',50%,12%))">'
+      : '<div class="head">'
           + '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>'
-          + '<span class="glyph">' + k.glyph + '</span>' + favBtn(it) + '</div>';
+          + '<span class="kmark">' + kindMark(it.kind) + '<span class="klabel">' + esc(k.one || k.label) + '</span></span>'
+          + favBtn(it) + '</div>';
     return '<div class="card" data-id="' + esc(it.id) + '">' + head +
       '<div class="body">' +
         '<div class="cat">' + esc(it.category || k.label) + '</div>' +
@@ -904,7 +970,8 @@ button{font-family:inherit}
   /* ---------------- library search, sort and filters ---------------- */
   var LIB_SORTS = [['new','Newest to Oldest'],['old','Oldest to Newest'],['fav','Most Favorited'],['az','A – Z'],['za','Z – A']];
   var libState = {};                       // per library, so switching tabs keeps your place
-  function libSt(kind) { return libState[kind] || (libState[kind] = { q: '', sort: 'new', cats: [] }); }
+  function libSt(kind) { return libState[kind] || (libState[kind] = { q: '', sort: 'new', cats: [], page: 1 }); }
+  var PER_PAGE = 48;   // matches the source library
 
   // Every label an item can be filtered by: its category plus its own tags.
   function labelsOf(it) {
@@ -960,38 +1027,101 @@ button{font-family:inherit}
     // Only the grid is redrawn as you type, so the search box keeps focus.
     function paint() {
       var shown = libApply(items, st);
+      var pages = Math.max(1, Math.ceil(shown.length / PER_PAGE));
+      if (st.page > pages) st.page = pages;
+      if (st.page < 1) st.page = 1;
+      var from = (st.page - 1) * PER_PAGE;
+      var page = shown.slice(from, from + PER_PAGE);
+
       var g = document.getElementById('lib-grid');
       if (!shown.length) {
         g.innerHTML = '<p class="empty">Nothing matches those filters.</p>';
       } else {
         var groups = {};
-        shown.forEach(function (it) {
+        page.forEach(function (it) {
           var key = kind === 'lesson' ? (COURSE_NAMES[it.category] || it.category || 'Course') : (it.category || 'General');
           (groups[key] ||= []).push(it);
         });
         var keys = Object.keys(groups).sort();
         // grouping only helps when nothing is narrowing the list already
         if (keys.length <= 1 || st.q || st.cats.length || st.sort !== 'new') {
-          g.innerHTML = gridOf(shown);
+          g.innerHTML = gridOf(page);
         } else {
           g.innerHTML = keys.map(function (key) {
             return '<div class="sec-h"><h2>' + esc(key) + '</h2><span class="c">' + groups[key].length + '</span></div>' + gridOf(groups[key]);
           }).join('');
         }
+        g.innerHTML += pagerHTML(shown.length, pages, st.page, from, page.length);
       }
       document.getElementById('lib-count').textContent =
         shown.length === items.length ? '' : shown.length + ' of ' + items.length;
       bindCards(g);
+      bindPager(g, pages, paint, st);
     }
     paint();
 
     var qEl = document.getElementById('lib-q'), qT;
     qEl.addEventListener('input', function () {
       clearTimeout(qT);
-      qT = setTimeout(function () { st.q = qEl.value.trim(); paint(); }, 140);
+      qT = setTimeout(function () { st.q = qEl.value.trim(); st.page = 1; paint(); }, 140);
     });
-    document.getElementById('lib-sort').addEventListener('change', function (e) { st.sort = e.target.value; paint(); });
+    document.getElementById('lib-sort').addEventListener('change', function (e) { st.sort = e.target.value; st.page = 1; paint(); });
     document.getElementById('lib-filter').addEventListener('click', function () { openFilter(kind, items, st, function () { render(); }); });
+  }
+
+  /* ---------------- pagination ---------------- */
+  // Which page buttons to show: always the first and last, the current one and
+  // its neighbours, and an ellipsis for whatever the gap swallows.
+  function pageWindow(page, pages) {
+    var out = [], push = function (p) { if (out[out.length - 1] !== p) out.push(p); };
+    push(1);
+    if (page - 2 > 2) push('…');
+    for (var p = Math.max(2, page - 1); p <= Math.min(pages - 1, page + 1); p++) push(p);
+    if (page + 2 < pages - 1) push('…');
+    if (pages > 1) push(pages);
+    return out;
+  }
+
+  function pagerHTML(total, pages, page, from, count) {
+    if (total <= PER_PAGE) return '';
+    var btns = pageWindow(page, pages).map(function (p) {
+      return p === '…'
+        ? '<span class="of">…</span>'
+        : '<button class="pg' + (p === page ? ' now' : '') + '" data-page="' + p + '">' + p + '</button>';
+    }).join('');
+    return '<div class="pager">' +
+      '<span class="showing">Showing ' + (from + 1) + '–' + (from + count) + ' of ' + total + ' items</span>' +
+      '<span class="ctrls">' +
+        '<button class="pg" data-page="1"' + (page === 1 ? ' disabled' : '') + ' aria-label="First">&laquo;</button>' +
+        '<button class="pg" data-page="' + (page - 1) + '"' + (page === 1 ? ' disabled' : '') + '>Previous</button>' +
+        btns +
+        '<button class="pg" data-page="' + (page + 1) + '"' + (page === pages ? ' disabled' : '') + '>Next</button>' +
+        '<button class="pg" data-page="' + pages + '"' + (page === pages ? ' disabled' : '') + ' aria-label="Last">&raquo;</button>' +
+        '<span class="goto">Go to <input type="number" min="1" max="' + pages + '" id="pg-go" placeholder="#"></span>' +
+      '</span></div>';
+  }
+
+  function bindPager(scope, pages, paint, st) {
+    [].forEach.call(scope.querySelectorAll('[data-page]'), function (b) {
+      b.addEventListener('click', function () {
+        var p = Number(b.getAttribute('data-page'));
+        if (!p || p < 1 || p > pages || p === st.page) return;
+        st.page = p;
+        paint();
+        // a new page starts at the top of the list, not wherever you were
+        var bar = document.querySelector('.lib-bar');
+        if (bar) bar.scrollIntoView({ block: 'start' });
+      });
+    });
+    var go = scope.querySelector('#pg-go');
+    if (go) go.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      var p = Number(go.value);
+      if (!p || p < 1 || p > pages) { go.value = ''; return; }
+      st.page = p; paint();
+      var bar = document.querySelector('.lib-bar');
+      if (bar) bar.scrollIntoView({ block: 'start' });
+    });
   }
 
   /* ---------------- filter dialog ---------------- */
@@ -1035,7 +1165,7 @@ button{font-family:inherit}
       refresh();
     };
     document.getElementById('fil-apply').onclick = function () {
-      st.cats = chosen; filEl.classList.remove('show'); done();
+      st.cats = chosen; st.page = 1; filEl.classList.remove('show'); done();
     };
   }
   document.getElementById('fil-x').addEventListener('click', function () { filEl.classList.remove('show'); });
