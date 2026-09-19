@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Your member area — AI Founder University</title>
+<link rel="icon" href="../assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="../assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -469,6 +472,10 @@ button{font-family:inherit}
   body.nav-open .scrim{display:block}
   .hamb{display:grid;place-items:center}
 }
+
+/* the brand lockup — one image, so it cannot drift between pages */
+.brand-logo{height:34px;width:auto;display:block;flex:none}
+@media(max-width:600px){.brand-logo{height:28px}}
 </style>
 </head>
 <body>
@@ -488,8 +495,7 @@ button{font-family:inherit}
       <!-- ============ SIDEBAR ============ -->
       <aside class="sidebar" id="sidebar">
         <div class="sb-brand">
-          <span class="mark">AI</span>
-          <span class="name">AI Founder<br>University</span>
+          <img class="brand-logo" src="../assets/logo.webp" alt="AI Founder University" width="720" height="139">
         </div>
 
         <div class="sb-group">

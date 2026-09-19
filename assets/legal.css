@@ -60,3 +60,7 @@ footer .links{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;font-s
 footer .links a{color:var(--txt-2);text-decoration:none}
 footer .links a:hover{color:var(--accent-2)}
 footer .fine{font-size:.78rem;color:var(--txt-3);max-width:760px;margin:0 auto;line-height:1.65}
+
+/* the brand lockup — one image, so it cannot drift between pages */
+.brand-logo{height:34px;width:auto;display:block;flex:none}
+@media(max-width:600px){.brand-logo{height:28px}}

@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Admin — AI Founder University</title>
+<link rel="icon" href="../assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="../assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,6 +63,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .empty{color:var(--txt-3);font-family:var(--mono);font-size:.88rem;padding:40px 0;text-align:center}
 .back{display:inline-block;margin-top:30px;color:var(--txt-2);font-family:var(--mono);font-size:.85rem}
 .back:hover{color:var(--accent-2)}
+
+/* the brand lockup — one image, so it cannot drift between pages */
+.brand-logo{height:34px;width:auto;display:block;flex:none}
+@media(max-width:600px){.brand-logo{height:28px}}
 </style>
 </head>
 <body>
@@ -68,7 +75,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
   <div id="app">
     <div class="top">
-      <span class="mark">AI</span>
+      <img class="brand-logo" src="../assets/logo.webp" alt="AI Founder University" width="720" height="139">
       <h1>Admin</h1>
       <span class="who" id="who"></span>
     </div>

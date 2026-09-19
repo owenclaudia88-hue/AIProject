@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Library — AI Founder University</title>
+<link rel="icon" href="../assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="../assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,12 +57,16 @@ h1{font-size:clamp(1.5rem,3vw,2rem);font-weight:400;letter-spacing:-.02em;margin
 .reader-body pre{padding:14px;overflow:auto}
 .reader-body a{color:var(--accent-2)}
 .copy{margin-top:20px;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;font-family:inherit;border:0;border-radius:999px;padding:11px 22px;cursor:pointer}
+
+/* the brand lockup — one image, so it cannot drift between pages */
+.brand-logo{height:34px;width:auto;display:block;flex:none}
+@media(max-width:600px){.brand-logo{height:28px}}
 </style>
 </head>
 <body>
   <header>
     <div class="wrap top">
-      <div class="brand"><span class="mark">AI</span><span class="brand-name">AI Founder University</span></div>
+      <div class="brand"><img class="brand-logo" src="../assets/logo.webp" alt="AI Founder University" width="720" height="139"></div>
       <a class="back" href="/members/">&larr; Back to dashboard</a>
     </div>
   </header>

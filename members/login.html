@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sign in — AI Founder University</title>
+<link rel="icon" href="../assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="../assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,11 +33,15 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
 .note.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.4);color:#fca5a5}
 .foot{margin-top:22px;font-size:.82rem;color:var(--txt-3);line-height:1.6}
 .foot a{color:var(--accent-2);text-decoration:none}
+
+/* the brand lockup — one image, so it cannot drift between pages */
+.brand-logo{height:34px;width:auto;display:block;flex:none}
+@media(max-width:600px){.brand-logo{height:28px}}
 </style>
 </head>
 <body>
   <div class="card">
-    <div class="brand"><span class="mark">AI</span><span class="brand-name">AI Founder University</span></div>
+    <div class="brand"><img class="brand-logo" src="../assets/logo.webp" alt="AI Founder University" width="720" height="139"></div>
     <h1>Sign in</h1>
     <p class="sub">Enter the email you bought with. We'll send you a one-time sign-in link — no password needed.</p>
 
