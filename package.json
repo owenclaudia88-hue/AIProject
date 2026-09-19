@@ -15,7 +15,8 @@
     "ingest": "node --env-file=.env.local scripts/ingest-library.mjs",
     "galleries": "node --env-file=.env.local scripts/ingest-galleries.mjs",
     "guides": "node --env-file=.env.local scripts/ingest-guides.mjs",
-    "fundamentals": "node --env-file=.env.local scripts/ingest-fundamentals.mjs"
+    "fundamentals": "node --env-file=.env.local scripts/ingest-fundamentals.mjs",
+    "ingest:all": "npm run ingest && npm run guides && npm run fundamentals && npm run galleries"
   },
   "devDependencies": {
     "node-html-parser": "^9.0.4",

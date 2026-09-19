@@ -180,6 +180,22 @@ inside their guide — so the ingest looks there too, which takes downloads from
 65 of 67. Two genuinely have none anywhere. Storage filenames carry an upload stamp
 (`1778487590258-c4uoswxow5o-brand-kit.skill`), which is stripped for display.
 
+### Run them in this order
+
+```bash
+npm run ingest:all      # ingest -> guides -> fundamentals -> galleries
+```
+
+They are separate because they take wildly different amounts of time, but they
+are not independent: `guides` lifts the read time and level out of an article's
+hero and merges them onto the item, and `fundamentals` clears the body of the
+guides whose article it inlines. Both write into rows `ingest` owns.
+
+`upsertLibraryItem` therefore **merges** `meta` rather than replacing it. It used
+to assign, which meant every run of the main ingest silently deleted the hero
+facts all 56 articles had — nothing errored, the pills just quietly vanished.
+Keys the main ingest sets still win; keys it knows nothing about survive.
+
 ### Two jobs, on purpose
 
 ```bash
