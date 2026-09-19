@@ -1448,21 +1448,31 @@ button{font-family:inherit}
         }
 
         var p = BODY_PANEL[it.kind] || { title: 'Details', mono: false, copy: 'Copy text' };
-        // A "stack" is several prompts meant to be used in order — each gets its
-        // own panel and its own copy button, rather than one wall of text.
-        var parts = (meta.promptItems || []).filter(function (x) { return x && (x.content || x.text); });
-        if (parts.length > 1) {
-          parts.forEach(function (part, i) {
-            var pb = part.content || part.text || '';
-            h += '<div class="panel"><div class="panel-h">' + dots() +
-              '<span class="pt">' + esc(part.title || (p.title + ' ' + (i + 1))) + '</span>' +
-              copyBtn(textOf(pb), p.copy, 'pc') + '</div>' +
-              '<div class="panel-b' + (p.mono ? ' mono' : '') + '">' + pb + '</div></div>';
-          });
-        } else if (body) {
+        function panel(title, html, mono) {
           h += '<div class="panel"><div class="panel-h">' + dots() +
-            '<span class="pt">' + esc(p.title) + '</span>' + copyBtn(textOf(body), p.copy, 'pc') + '</div>' +
-            '<div class="panel-b' + (p.mono ? ' mono' : '') + '">' + body + '</div></div>';
+            '<span class="pt">' + esc(title) + '</span>' + copyBtn(textOf(html), p.copy, 'pc') + '</div>' +
+            '<div class="panel-b' + (mono ? ' mono' : '') + '">' + html + '</div></div>';
+        }
+
+        var parts = (meta.promptItems || []).filter(function (x) { return x && (x.content || x.text); });
+        // Most single-item prompts store the same text twice — once as the body,
+        // once as the lone prompt_item — so a part that repeats the body adds
+        // nothing. A Custom GPT is the opposite case: its body is the short "open
+        // this GPT" note and the part is the system prompt it actually sells, so
+        // dropping the part there loses the whole point of the item.
+        var bodyText = textOf(body);
+        var extras = parts.filter(function (x) { return textOf(x.content || x.text) !== bodyText; });
+
+        if (parts.length > 1) {
+          // a stack: several prompts meant to be used in order, each copyable
+          parts.forEach(function (part, i) {
+            panel(part.title || (p.title + ' ' + (i + 1)), part.content || part.text || '', p.mono);
+          });
+        } else {
+          if (body) panel(p.title, body, p.mono);
+          extras.forEach(function (part) {
+            panel(part.title || 'System instructions', part.content || part.text || '', true);
+          });
         }
 
         // downloadable file (skills, plugins, agents)
