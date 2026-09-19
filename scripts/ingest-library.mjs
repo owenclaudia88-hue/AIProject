@@ -341,8 +341,11 @@ async function ingestBlackMagic() {
         body = body.replace(/href="https:\/\/drive\.google\.com\/[^"]*"/gi,
           `href="/api/library/asset?key=${encodeURIComponent(meta.fileKey)}&download=1" download`);
       }
-      // the source hard-codes a purple button style inline, which fights our theme
-      if (body) body = body.replace(/\sstyle="[^"]*"/gi, '');
+      // Inline styles are deliberately kept. The source styles its call-to-action
+      // links as buttons that way, and stripping them turned a Custom GPT's
+      // "open this GPT" button into a line of plain text. The one place that
+      // styling fought our theme was automations, and those no longer render a
+      // body at all — the Template Instructions panel replaced it.
       if (body) bodies++;
 
       await retry('upsert ' + id, () => upsertLibraryItem({

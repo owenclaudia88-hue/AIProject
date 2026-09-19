@@ -18,8 +18,9 @@
 import { put } from '@vercel/blob';
 import sharp from 'sharp';
 import { parse } from 'node-html-parser';
+import { readFile } from 'node:fs/promises';
 import { neon } from '@neondatabase/serverless';
-import { getAsset, upsertAsset, putGuide, mergeMeta } from '../lib/db.js';
+import { getAsset, upsertAsset, putGuide, mergeMeta, clearBody } from '../lib/db.js';
 
 const TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 if (!TOKEN) { console.error('BLOB_READ_WRITE_TOKEN not set (use --env-file=.env.local)'); process.exit(1); }
@@ -87,22 +88,47 @@ async function extractArticle(html, itemId) {
     if (/super\.site|notion\.so/.test(href) || href.startsWith('/')) a.replaceWith(...a.childNodes);
   });
 
+  // srcset wins over src in the browser, so leaving it in means the images
+  // still come from the source CDN however carefully src was rewritten.
+  root.querySelectorAll('img').forEach((n) => {
+    ['srcset', 'srcSet', 'sizes', 'data-nimg', 'decoding'].forEach((a) => n.removeAttribute(a));
+  });
+
+  // `id` is deliberately kept: the article's own table of contents links to
+  // #block-… anchors and stripping them left every one of those links dead.
   root.querySelectorAll('*').forEach((n) => {
     n.removeAttribute('class');
     n.removeAttribute('style');
-    n.removeAttribute('id');
     n.removeAttribute('data-block-id');
+    // Notion's lightbox stashes the original CDN url in data-full-size; the
+    // browser never loads it, but it is still a link back to their storage.
+    for (const [k, v] of Object.entries(n.attributes || {})) {
+      if (/images\.spr\.so|super\.site|notion\.so/.test(String(v))) n.removeAttribute(k);
+    }
   });
 
   return root.innerHTML.trim();
 }
 
-const rows = await sql`select id, title, meta from library where kind = 'guide' and meta ? 'embedUrl'`;
+// The embed URL is read from the export rather than from meta: this script
+// nulls meta.embedUrl once the article is inlined, so reading it back would
+// leave the job unable to run a second time.
+const SRC = JSON.parse(await readFile(new URL('../export/blackmagic/data/guides-full.json', import.meta.url), 'utf8'));
+const embedFor = new Map();
+for (const g of (Array.isArray(SRC) ? SRC : (SRC.data || []))) {
+  let rc = g.rich_content;
+  if (typeof rc === 'string') { try { rc = JSON.parse(rc); } catch { rc = null; } }
+  if (rc && rc.iframeUrl) embedFor.set('guide:' + g.id, rc.iframeUrl);
+}
+const rows = (await sql`select id, title from library where kind = 'guide'`)
+  .filter((r) => embedFor.has(r.id))
+  .map((r) => ({ id: r.id, title: r.title, embedUrl: embedFor.get(r.id) }));
+
 console.log(`${rows.length} fundamentals to bring in\n`);
 
 let done = 0;
 for (const r of rows) {
-  const url = r.meta.embedUrl;
+  const url = r.embedUrl;
   try {
     const res = await retry('fetch page', () => fetch(url));
     if (!res.ok) { console.warn(`  ! ${res.status} ${r.title}`); continue; }
@@ -111,6 +137,9 @@ for (const r of rows) {
     await retry('putGuide ' + r.id, () => putGuide(r.id, html));
     // the embed is no longer the content, so stop advertising it
     await retry('meta ' + r.id, () => mergeMeta(r.id, { embedUrl: null, richHtml: null }));
+    // The body was the embed — an <iframe> pointing at the page we just
+    // inlined — so it is not content, it is the thing we replaced.
+    await retry('clearBody ' + r.id, () => clearBody(r.id));
     done++;
     console.log(`  [${done}] ${r.title} — ${(html.length / 1024).toFixed(0)} KB`);
   } catch (err) { console.warn(`  ! ${r.title}: ${err.message}`); }

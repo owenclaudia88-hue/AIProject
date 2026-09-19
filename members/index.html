@@ -16,6 +16,9 @@
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 *{box-sizing:border-box}
+/* .nav and friends set display, which overrides the browser's [hidden] rule —
+   without this the staff-only Admin link shows for everyone. */
+[hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--bg);color:var(--txt);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
@@ -233,6 +236,9 @@ button{font-family:inherit}
 .plc-form .send{flex:none;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:9px 18px;font-size:.84rem;cursor:pointer}
 .plc-form .send:disabled{opacity:.45;cursor:default}
 
+.panel-b > p > a:only-child,.panel-b > a{display:inline-block;background:var(--bg-4);border:1px solid var(--line-2);
+  color:var(--txt);font-weight:700;font-size:.88rem;padding:10px 18px;border-radius:10px;text-decoration:none;margin:4px 0}
+.panel-b > p > a:only-child:hover,.panel-b > a:hover{border-color:var(--accent);color:var(--accent-2)}
 .tpl-btn{display:inline-block;background:var(--bg-4);border:1px solid var(--line-2);color:var(--txt);font-weight:700;font-size:.88rem;padding:11px 20px;border-radius:10px;text-decoration:none}
 .tpl-btn:hover{border-color:var(--accent);color:var(--accent-2)}
 
@@ -1896,6 +1902,19 @@ button{font-family:inherit}
         });
         [].forEach.call(c.querySelectorAll('[data-open]'), function (r) {
           r.addEventListener('click', function () { openItem(r.getAttribute('data-open')); });
+        });
+        // An article's own table of contents links to #block-… anchors. Left
+        // alone they rewrite location.hash, which is what the app routes on, so
+        // clicking one threw the member back to the dashboard. Scroll instead.
+        [].forEach.call(c.querySelectorAll('.guide a[href^="#"]'), function (a) {
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            var id = a.getAttribute('href').slice(1);
+            var target = id && (document.getElementById(id) || c.querySelector('[id="' + id + '"]'));
+            // not smooth: these articles run to 20,000+ pixels and a smooth
+            // scroll that far takes several seconds of nothing appearing to happen
+            if (target) target.scrollIntoView({ block: 'start' });
+          });
         });
 
         reader.classList.add('show');
