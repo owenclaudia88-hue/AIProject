@@ -233,6 +233,9 @@ button{font-family:inherit}
 .plc-form .send{flex:none;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:9px 18px;font-size:.84rem;cursor:pointer}
 .plc-form .send:disabled{opacity:.45;cursor:default}
 
+.tpl-btn{display:inline-block;background:var(--bg-4);border:1px solid var(--line-2);color:var(--txt);font-weight:700;font-size:.88rem;padding:11px 20px;border-radius:10px;text-decoration:none}
+.tpl-btn:hover{border-color:var(--accent);color:var(--accent-2)}
+
 /* ---------- long-form guide, rendered as part of the page ---------- */
 /* The source documents share one markup vocabulary across all 58 guides, so
    these rules theme them into the member area rather than framing a foreign
@@ -329,6 +332,43 @@ button{font-family:inherit}
 .reader-body pre{padding:14px;overflow:auto}
 .reader-body a{color:var(--accent-2)}
 .copy{margin-top:22px;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:11px 22px;cursor:pointer}
+
+/* ---------- library toolbar: search, sort, filter ---------- */
+.lib-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 22px}
+.lib-search{position:relative;flex:1;min-width:220px;max-width:360px}
+.lib-search input{width:100%;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:11px 14px 11px 38px;font-size:.9rem;font-family:var(--mono)}
+.lib-search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.15)}
+.lib-search .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--txt-3);font-size:.9rem;pointer-events:none}
+.lib-btn{display:inline-flex;align-items:center;gap:9px;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:11px 15px;font-size:.88rem;font-family:var(--mono);cursor:pointer}
+.lib-btn:hover{border-color:var(--line-2)}
+.lib-btn.on{border-color:var(--accent);color:var(--accent-2)}
+.lib-btn .n{background:var(--accent);color:#1a0d00;font-weight:700;border-radius:999px;padding:1px 7px;font-size:.72rem}
+.lib-sort{position:relative}
+.lib-sort select{appearance:none;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:11px 34px 11px 15px;font-size:.88rem;font-family:var(--mono);cursor:pointer}
+.lib-sort select:focus{outline:none;border-color:var(--accent)}
+.lib-sort .ar{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--txt-3);pointer-events:none;font-size:.7rem}
+.lib-count{font-family:var(--mono);font-size:.8rem;color:var(--txt-3);margin-left:auto}
+
+/* filter dialog */
+.fil{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(4px);z-index:70;display:none;align-items:center;justify-content:center;padding:20px}
+.fil.show{display:flex}
+.fil-box{background:var(--bg-2);border:1px solid var(--line);border-radius:18px;width:min(520px,100%);max-height:min(80vh,680px);display:flex;flex-direction:column;overflow:hidden}
+.fil-head{padding:20px 22px 14px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.fil-head h2{margin:0 0 4px;font-size:1.2rem;font-weight:800;letter-spacing:-.02em}
+.fil-head p{margin:0;color:var(--txt-2);font-family:var(--mono);font-size:.8rem;line-height:1.5}
+.fil-head .x{background:none;border:0;color:var(--txt-2);font-size:1.4rem;cursor:pointer;line-height:1}
+.fil-body{overflow-y:auto;padding:16px 22px}
+.fil-sec{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3);font-weight:700;margin:6px 0 10px}
+.fil-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.fil-opt{display:inline-flex;align-items:center;gap:8px;background:var(--bg-3);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:.83rem;cursor:pointer;user-select:none}
+.fil-opt:hover{border-color:var(--line-2)}
+.fil-opt.on{background:rgba(255,122,26,.14);border-color:rgba(255,122,26,.4);color:#ffd9b3}
+.fil-opt .c{font-family:var(--mono);font-size:.72rem;color:var(--txt-3)}
+.fil-opt.on .c{color:var(--accent-2)}
+.fil-foot{padding:14px 22px 18px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.fil-clear{background:none;border:1px solid var(--line-2);color:var(--txt-2);border-radius:999px;padding:10px 18px;font-size:.85rem;cursor:pointer}
+.fil-clear:hover{color:var(--txt)}
+.fil-apply{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:11px 22px;font-size:.88rem;cursor:pointer}
 
 /* ---------- reader: chips, panels, gallery, related ---------- */
 .r-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
@@ -512,6 +552,24 @@ button{font-family:inherit}
       <div class="ps-head">Lessons <button class="x" id="pl-side-x" aria-label="Close">&times;</button></div>
       <div id="pl-side-list"></div>
     </aside>
+  </div>
+
+  <!-- library filter dialog -->
+  <div class="fil" id="fil">
+    <div class="fil-box">
+      <div class="fil-head">
+        <div>
+          <h2 id="fil-title">Filter</h2>
+          <p>Filter by category and tag to find exactly what you need.</p>
+        </div>
+        <button class="x" id="fil-x" aria-label="Close">&times;</button>
+      </div>
+      <div class="fil-body" id="fil-body"></div>
+      <div class="fil-foot">
+        <button class="fil-clear" id="fil-clear">Clear all</button>
+        <button class="fil-apply" id="fil-apply">Apply filters</button>
+      </div>
+    </div>
   </div>
 
   <!-- reader overlay -->
@@ -782,29 +840,145 @@ button{font-family:inherit}
     bindCards(c);
   }
 
+  /* ---------------- library search, sort and filters ---------------- */
+  var LIB_SORTS = [['new','Newest to Oldest'],['old','Oldest to Newest'],['fav','Most Favorited'],['az','A – Z'],['za','Z – A']];
+  var libState = {};                       // per library, so switching tabs keeps your place
+  function libSt(kind) { return libState[kind] || (libState[kind] = { q: '', sort: 'new', cats: [] }); }
+
+  // Every label an item can be filtered by: its category plus its own tags.
+  function labelsOf(it) {
+    var out = it.category ? [it.category] : [];
+    (it.tags || []).forEach(function (t) { if (out.indexOf(t) < 0) out.push(t); });
+    return out;
+  }
+
+  function libApply(items, st) {
+    var out = items;
+    if (st.q) {
+      var q = st.q.toLowerCase();
+      out = out.filter(function (it) {
+        return (it.title + ' ' + (it.description || '') + ' ' + labelsOf(it).join(' ')).toLowerCase().indexOf(q) >= 0;
+      });
+    }
+    if (st.cats.length) {
+      out = out.filter(function (it) {
+        var l = labelsOf(it);
+        return st.cats.some(function (c) { return l.indexOf(c) >= 0; });
+      });
+    }
+    var t = function (x) { return x.createdAt ? new Date(x.createdAt).getTime() : 0; };
+    var by = {
+      new: function (a, b) { return t(b) - t(a); },
+      old: function (a, b) { return t(a) - t(b); },
+      fav: function (a, b) { return (b.likes || 0) - (a.likes || 0); },
+      az:  function (a, b) { return String(a.title).localeCompare(String(b.title)); },
+      za:  function (a, b) { return String(b.title).localeCompare(String(a.title)); }
+    }[st.sort] || null;
+    return by ? out.slice().sort(by) : out;
+  }
+
   function renderKind(c, kind) {
     var meta = KINDS[kind] || { label: kind };
     var items = all.filter(function (it) { return it.kind === kind; });
-    var html = '<h1 class="page-h">' + esc(meta.label) + '</h1>' +
-      '<p class="page-sub">' + items.length + ' items in your library.</p>';
+    var st = libSt(kind);
 
-    // group by category (courses group by course name)
-    var groups = {};
-    items.forEach(function (it) {
-      var key = kind === 'lesson' ? (COURSE_NAMES[it.category] || it.category || 'Course') : (it.category || 'General');
-      (groups[key] ||= []).push(it);
-    });
-    var keys = Object.keys(groups).sort();
-    if (keys.length <= 1) {
-      html += gridOf(items);
-    } else {
-      keys.forEach(function (key) {
-        html += '<div class="sec-h"><h2>' + esc(key) + '</h2><span class="c">' + groups[key].length + '</span></div>' + gridOf(groups[key]);
-      });
-    }
+    var html = '<h1 class="page-h">' + esc(meta.label) + '</h1>' +
+      '<p class="page-sub">' + items.length + ' items in your library.</p>' +
+      '<div class="lib-bar">' +
+        '<span class="lib-search"><span class="ic">🔍</span>' +
+        '<input id="lib-q" type="search" placeholder="Search ' + esc((meta.label || '').toLowerCase()) + '…" autocomplete="off" value="' + esc(st.q) + '"></span>' +
+        '<span class="lib-sort"><select id="lib-sort">' +
+          LIB_SORTS.map(function (o) { return '<option value="' + o[0] + '"' + (st.sort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+        '</select><span class="ar">▾</span></span>' +
+        '<button class="lib-btn' + (st.cats.length ? ' on' : '') + '" id="lib-filter">⚑ Filter' +
+          (st.cats.length ? '<span class="n">' + st.cats.length + '</span>' : '') + '</button>' +
+        '<span class="lib-count" id="lib-count"></span>' +
+      '</div><div id="lib-grid"></div>';
     c.innerHTML = html;
-    bindCards(c);
+
+    // Only the grid is redrawn as you type, so the search box keeps focus.
+    function paint() {
+      var shown = libApply(items, st);
+      var g = document.getElementById('lib-grid');
+      if (!shown.length) {
+        g.innerHTML = '<p class="empty">Nothing matches those filters.</p>';
+      } else {
+        var groups = {};
+        shown.forEach(function (it) {
+          var key = kind === 'lesson' ? (COURSE_NAMES[it.category] || it.category || 'Course') : (it.category || 'General');
+          (groups[key] ||= []).push(it);
+        });
+        var keys = Object.keys(groups).sort();
+        // grouping only helps when nothing is narrowing the list already
+        if (keys.length <= 1 || st.q || st.cats.length || st.sort !== 'new') {
+          g.innerHTML = gridOf(shown);
+        } else {
+          g.innerHTML = keys.map(function (key) {
+            return '<div class="sec-h"><h2>' + esc(key) + '</h2><span class="c">' + groups[key].length + '</span></div>' + gridOf(groups[key]);
+          }).join('');
+        }
+      }
+      document.getElementById('lib-count').textContent =
+        shown.length === items.length ? '' : shown.length + ' of ' + items.length;
+      bindCards(g);
+    }
+    paint();
+
+    var qEl = document.getElementById('lib-q'), qT;
+    qEl.addEventListener('input', function () {
+      clearTimeout(qT);
+      qT = setTimeout(function () { st.q = qEl.value.trim(); paint(); }, 140);
+    });
+    document.getElementById('lib-sort').addEventListener('change', function (e) { st.sort = e.target.value; paint(); });
+    document.getElementById('lib-filter').addEventListener('click', function () { openFilter(kind, items, st, function () { render(); }); });
   }
+
+  /* ---------------- filter dialog ---------------- */
+  var filEl = document.getElementById('fil');
+  function openFilter(kind, items, st, done) {
+    var counts = {};
+    items.forEach(function (it) { labelsOf(it).forEach(function (l) { counts[l] = (counts[l] || 0) + 1; }); });
+    var labels = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b); });
+    var chosen = st.cats.slice();
+
+    document.getElementById('fil-title').textContent = 'Filter ' + ((KINDS[kind] || {}).label || kind);
+    var body = document.getElementById('fil-body');
+    body.innerHTML = '<div class="fil-sec">Categories &amp; tags</div><div class="fil-list">' +
+      labels.map(function (l) {
+        return '<span class="fil-opt' + (chosen.indexOf(l) >= 0 ? ' on' : '') + '" data-l="' + esc(l) + '">' +
+          esc(l) + '<span class="c">' + counts[l] + '</span></span>';
+      }).join('') + '</div>';
+
+    function matching() {
+      return chosen.length
+        ? items.filter(function (it) { var l = labelsOf(it); return chosen.some(function (c) { return l.indexOf(c) >= 0; }); }).length
+        : items.length;
+    }
+    function refresh() {
+      document.getElementById('fil-apply').textContent = 'Apply filters (' + matching() + ')';
+    }
+    [].forEach.call(body.querySelectorAll('.fil-opt'), function (o) {
+      o.addEventListener('click', function () {
+        var l = o.getAttribute('data-l'), i = chosen.indexOf(l);
+        if (i >= 0) { chosen.splice(i, 1); o.classList.remove('on'); }
+        else { chosen.push(l); o.classList.add('on'); }
+        refresh();
+      });
+    });
+    refresh();
+
+    filEl.classList.add('show');
+    document.getElementById('fil-clear').onclick = function () {
+      chosen = [];
+      [].forEach.call(body.querySelectorAll('.fil-opt'), function (o) { o.classList.remove('on'); });
+      refresh();
+    };
+    document.getElementById('fil-apply').onclick = function () {
+      st.cats = chosen; filEl.classList.remove('show'); done();
+    };
+  }
+  document.getElementById('fil-x').addEventListener('click', function () { filEl.classList.remove('show'); });
+  filEl.addEventListener('click', function (e) { if (e.target === filEl) filEl.classList.remove('show'); });
 
   function renderDownloads(c) {
     var html = '<h1 class="page-h">Specialists &amp; Plugins</h1>' +
@@ -1380,15 +1554,25 @@ button{font-family:inherit}
     guide:        { title: 'The Guide',    mono: false, copy: null },
     video:        { title: 'Notes',        mono: false, copy: null }
   };
-  // Most items carry their own "how to use" note; these are the fallbacks for
-  // the few that do not.
-  var HOW_TO = {
-    prompt:       'Copy &amp; paste the prompt below into your preferred LLM. Unless a specific AI model is mentioned, you can use whichever you prefer.',
-    image_prompt: 'Copy any prompt below into your image generator. Hover a picture to read the prompt that made it.',
-    automation:   'Import the template below into your automation tool, then reconnect your own accounts.'
-  };
+  // Only the item's own note is ever shown. There used to be invented fallbacks
+  // here, which meant a panel could claim something the source never said.
+  var HOW_TO = {};
 
   function dots(){ return '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>'; }
+
+  // A share link is not an embed link. Vimeo's unlisted URLs carry the privacy
+  // hash as a second path segment (vimeo.com/<id>/<hash>) and it has to move to
+  // ?h= or the player refuses to load.
+  function embedUrl(u) {
+    u = String(u || '');
+    var m = /vimeo\.com\/(?:video\/)?(\d+)(?:\/([0-9a-z]+))?/i.exec(u);
+    if (m) return 'https://player.vimeo.com/video/' + m[1] + (m[2] ? '?h=' + m[2] : '');
+    m = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{6,})/i.exec(u);
+    if (m) return 'https://www.youtube.com/embed/' + m[1];
+    m = /loom\.com\/(?:share|embed)\/([\w-]+)/i.exec(u);
+    if (m) return 'https://www.loom.com/embed/' + m[1];
+    return u;
+  }
   function textOf(html){ var t=document.createElement('div'); t.innerHTML=html||''; return (t.innerText||t.textContent||'').trim(); }
 
   // Copy handlers are wired by index into this list, so nothing has to be
@@ -1442,7 +1626,7 @@ button{font-family:inherit}
         if (meta.videoUrl) {
           h += '<div class="r-video">' + (/\.(mp4|webm|mov)(\?|$)/i.test(meta.videoUrl)
             ? '<video controls preload="metadata" src="' + esc(meta.videoUrl) + '"></video>'
-            : '<iframe src="' + esc(meta.videoUrl) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>') + '</div>';
+            : '<iframe src="' + esc(embedUrl(meta.videoUrl)) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>') + '</div>';
           if (meta.videoText) h += '<p class="desc">' + esc(meta.videoText) + '</p>';
         }
 
@@ -1485,14 +1669,33 @@ button{font-family:inherit}
           });
         }
 
-        // downloadable file (skills, plugins, agents)
-        if (it.download) {
+        // An automation mirrors the source's Template Instructions block: the
+        // blueprint to import, then the walk-through for wiring up accounts.
+        if (it.kind === 'automation' && (it.download || meta.setupUrl)) {
+          var plat = meta.platform ? meta.platform.charAt(0).toUpperCase() + meta.platform.slice(1) : 'your automation tool';
+          h += '<div class="panel"><div class="panel-h">' + dots() +
+            '<span class="pt">Template Instructions</span></div><div class="panel-b">';
+          if (it.download) {
+            h += '<p>Click the link below to download the JSON blueprint and import it in your ' + esc(plat) + ' account.</p>' +
+              '<p><a class="tpl-btn" href="' + esc(it.download.url) + '" download>' + esc(it.title) + ' via ' + esc(plat) + '</a></p>';
+          }
+          if (meta.setupUrl) {
+            h += '<p>Follow the instructions below to connect your accounts and get it set up correctly.</p>' +
+              '<p><a class="tpl-btn" href="' + esc(meta.setupUrl) + '" target="_blank" rel="noopener">View Instructions &#8599;</a></p>';
+          }
+          h += '</div></div>';
+        }
+
+        // downloadable file (skills, plugins, agents) — the automation panel
+        // above already offers its blueprint, so it is not repeated here
+        if (it.download && it.kind !== 'automation') {
           var dlName = it.download.name || 'file';
           var label = /\.zip$/i.test(dlName) ? 'Download the .zip'
             : (it.kind === 'skill' ? 'Download Skill' : 'Download file');
           h += '<a class="r-dl" href="' + esc(it.download.url) + '" download>&#11015; ' + esc(label) + '</a>' +
             '<p class="r-dl-sub">' + esc(dlName) + (meta.fileSize ? ' · ' + kb(meta.fileSize) : '') +
-            (/\.zip$/i.test(dlName) ? ' — unzip it first, then install the file inside.' : ' — to use in Claude.') + '</p>';
+            (/\.zip$/i.test(dlName) ? ' — unzip it first, then install the file inside.'
+              : it.kind === 'skill' ? ' — to use in Claude.' : '') + '</p>';
         }
 
         // the long-form guide, rendered as part of this page

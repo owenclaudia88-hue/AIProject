@@ -116,7 +116,13 @@ const BM_KINDS = {
  * whose content lives in gallery_prompts) should report "no body" so the reader
  * renders the right thing instead of printing the description twice.
  */
-const bodyOf = (r) => r.content || r.body || r.instructions || r.html || r.template_content || r.prompt_text || null;
+const bodyOf = (r) => {
+  // template_content is an object ({overview, downloadUrl}) on automations, and
+  // including it here dumped raw JSON into the page for the seven rows with no
+  // instructions. Its overview duplicates the description anyway.
+  const v = r.content || r.body || r.instructions || r.html || r.prompt_text;
+  return typeof v === 'string' && v.trim() ? v : null;
+};
 
 /** tags / categories / search_keywords arrive as arrays, JSON strings or CSV. */
 function normTags(r) {
@@ -141,11 +147,15 @@ const clean = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !=
 
 /** Everything kind-specific the reader needs, kept out of the fixed columns. */
 function metaFor(table, r) {
-  // `instructions` is the per-item "how to use this" note on everything whose
-  // body lives in another column. Where instructions IS the body (skills, GPTs)
-  // bodyOf already used it, so leaving it out here avoids printing it twice.
-  const howTo = (r.content || r.body || r.template_content) ? r.instructions : null;
+  // `instructions` is the per-item "how to use this" note — but on some kinds it
+  // IS the body, and an automation was showing it twice because template_content
+  // is a non-empty object, so the old guard thought a different body existed.
+  // Compare against what bodyOf actually picked instead of guessing.
+  const howTo = r.instructions && bodyOf(r) !== r.instructions ? r.instructions : null;
   const base = clean({
+    // 13 automations and most videos carry a Vimeo walkthrough; the note that
+    // says "the video above will explain…" only makes sense if we show it.
+    videoUrl: r.video_url,
     howTo, promptItems: asArray(r.prompt_items), promptType: r.type,
     difficulty: r.difficulty_level, useCases: asArray(r.use_cases),
     modelCompatibility: asArray(r.model_compatibility), featured: r.is_featured || undefined
@@ -224,6 +234,13 @@ const prettyName = (n) => String(n || '').replace(/^\d{10,}-[a-z0-9]+-/i, '');
 async function ingestBlackMagic() {
   const dir = join(EXPORT, 'blackmagic');
   if (!(await exists(join(dir, 'data')))) { console.log('(no blackmagic/data — skipping)'); return; }
+  // links.json holds every URL the export found per row. The seven automations
+  // with no instructions HTML still have their blueprint and setup links here,
+  // which is how the source site renders buttons for them.
+  let linkRows = [];
+  try { linkRows = JSON.parse(await readFile(join(dir, 'links.json'), 'utf8')).links || []; } catch {}
+  const linksFor = (table, id) => linkRows.filter((l) => l.table === table && l.id === id);
+
   const filesDir = join(dir, 'files');
   const fileList = (await exists(filesDir)) ? await readdir(filesDir) : [];
   const localFor = (table, id, ext) =>
@@ -254,6 +271,17 @@ async function ingestBlackMagic() {
       }
 
       const meta = metaFor(table, r);
+
+      // An automation is always the same shape on the source site: a blueprint
+      // to import and a walk-through for connecting the accounts. Thirteen rows
+      // spell that out in an instructions blob and seven leave it empty, so it
+      // is rebuilt from the links instead — one consistent panel for all 20,
+      // rather than a wall of text here and nothing there.
+      if (table === 'automation_templates') {
+        const setup = linksFor(table, r.id)
+          .find((l) => l.kind === 'link' && !/vimeo\.com|drive\.google/.test(l.url));
+        if (setup) meta.setupUrl = setup.url;
+      }
 
       // Long-form guide. 16 skills and 42 videos keep their real content in a
       // standalone HTML file rather than in `instructions` — without this they
@@ -305,7 +333,16 @@ async function ingestBlackMagic() {
 
       if (guideHtml) guides++;   // stored by scripts/ingest-guides.mjs
 
-      const body = bodyOf(r);
+      // the instructions blob only ever restates the two buttons and the video,
+      // all of which the reader now renders itself
+      let body = table === 'automation_templates' ? null : bodyOf(r);
+      if (body && meta.fileKey) {
+        // the body links the blueprint on Google Drive — point it at our copy
+        body = body.replace(/href="https:\/\/drive\.google\.com\/[^"]*"/gi,
+          `href="/api/library/asset?key=${encodeURIComponent(meta.fileKey)}&download=1" download`);
+      }
+      // the source hard-codes a purple button style inline, which fights our theme
+      if (body) body = body.replace(/\sstyle="[^"]*"/gi, '');
       if (body) bodies++;
 
       await retry('upsert ' + id, () => upsertLibraryItem({
@@ -315,6 +352,8 @@ async function ingestBlackMagic() {
         bodyHtml: body,
         thumbKey, sort: sort++,
         tags: normTags(r),
+        sourceCreatedAt: r.created_at || null,
+        likes: typeof r.likes_count === 'number' ? r.likes_count : null,
         meta: Object.keys(meta).length ? meta : null
       }));
       items++;

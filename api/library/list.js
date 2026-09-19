@@ -18,6 +18,7 @@ export default async function handler(req, res) {
       (groups[r.kind] ||= []).push({
         id: r.id, title: r.title, course: r.course, category: r.category,
         description: r.description, tags: r.tags || [],
+        createdAt: r.source_created_at, likes: r.likes ?? 0,
         thumb: r.thumb_key ? `/api/library/asset?key=${encodeURIComponent(r.thumb_key)}` : null
       });
     }
