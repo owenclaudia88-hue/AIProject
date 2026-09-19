@@ -166,6 +166,7 @@ button{font-family:inherit}
 .pl-content pre,.pl-content code{background:#0e0e10;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:.85rem}
 .pl-content pre{padding:14px;overflow:auto}
 .pl-content a{color:var(--accent-2)}
+.pl-content .lesson-video-embed{display:flex;align-items:center;justify-content:center;gap:10px;aspect-ratio:16/9;border-radius:12px;border:1px solid var(--line);background:radial-gradient(120% 120% at 50% 35%,#221206,#0b0b0d);color:var(--txt-2);font-family:var(--mono);font-size:.85rem;margin:16px 0}
 .pl-complete{display:flex;justify-content:center;padding:26px 0 60px}
 .pl-complete button{background:#101013;border:1px solid var(--line-2);color:var(--txt);font-weight:800;font-size:1rem;padding:14px 30px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
 .pl-complete button:hover{border-color:var(--accent)}
@@ -182,12 +183,73 @@ button{font-family:inherit}
 .ps-row.done .rc{background:var(--green);border-color:var(--green)}
 .ps-row .rt{flex:1;line-height:1.35}
 .ps-row .rd{font-family:var(--mono);font-size:.72rem;color:var(--txt-3);flex:none}
+/* ---------- player toolbar: comments / wide / bookmark ---------- */
+.pt-tools{margin-left:auto;display:flex;align-items:center;gap:2px}
+.player-topbar .pt-menu{margin-left:6px}
+.pt-ic{position:relative;background:none;border:1px solid transparent;color:var(--txt-2);width:36px;height:36px;border-radius:9px;cursor:pointer;display:grid;place-items:center}
+.pt-ic:hover{background:var(--bg-3);color:var(--txt)}
+.pt-ic.on{color:var(--accent-2);background:rgba(255,122,26,.13);border-color:rgba(255,122,26,.28)}
+.pt-ic svg{width:19px;height:19px;display:block;pointer-events:none}
+.pt-ic .tip{position:absolute;top:calc(100% + 9px);right:0;background:#000;border:1px solid var(--line-2);color:#fff;font-family:var(--mono);font-size:.7rem;white-space:nowrap;padding:5px 9px;border-radius:7px;opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:5}
+.pt-ic:hover .tip{opacity:1}
+.pt-ic .n{position:absolute;top:3px;right:2px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--accent);color:#1a0d00;font-family:var(--mono);font-size:.6rem;font-weight:700;display:none;align-items:center;justify-content:center}
+.pt-ic .n.show{display:flex}
+
+/* ---------- comments panel ---------- */
+.pl-comments{display:none;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-left:1px solid var(--line);background:var(--bg-2)}
+.player.comments-open .pl-comments{display:flex}
+.player.comments-open{grid-template-columns:1fr minmax(320px,400px) 300px}
+.player.wide{grid-template-columns:1fr}
+.player.wide .player-side{display:none}
+.player.wide.comments-open{grid-template-columns:1fr minmax(320px,420px)}
+.plc-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.plc-head h3{margin:0;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.plc-head .x{background:none;border:0;color:var(--txt-2);font-size:1.4rem;line-height:1;cursor:pointer}
+.plc-head .x:hover{color:var(--txt)}
+.plc-list{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+.cmt{display:flex;gap:10px}
+.cmt .av{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:.72rem;font-weight:800;color:#141008}
+.cmt .cb{flex:1;min-width:0}
+.cmt .ch{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.cmt .cn{font-weight:700;font-size:.86rem}
+.cmt .badge{font-family:var(--mono);font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:2px 6px;border-radius:999px;background:rgba(255,122,26,.16);color:var(--accent-2);border:1px solid rgba(255,122,26,.3)}
+.cmt .ct{font-family:var(--mono);font-size:.68rem;color:var(--txt-3)}
+.cmt .cl{font-family:var(--mono);font-size:.67rem;color:var(--txt-3);margin:2px 0 3px}
+.cmt .ctext{font-size:.88rem;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.cmt.removed .ctext{color:var(--txt-3);font-style:italic}
+.cmt .ca{display:flex;gap:14px;margin-top:6px}
+.cmt .ca button{background:none;border:0;padding:0;color:var(--txt-3);font-family:var(--mono);font-size:.72rem;cursor:pointer}
+.cmt .ca button:hover{color:var(--accent-2)}
+.cmt-replies{margin:12px 0 0 12px;padding-left:16px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.plc-empty{color:var(--txt-3);font-family:var(--mono);font-size:.82rem;line-height:1.65;text-align:center;padding:40px 12px}
+.plc-form{flex:none;border-top:1px solid var(--line);padding:12px 14px 14px}
+.plc-form .nm,.plc-form textarea{width:100%;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);border-radius:10px;font-family:inherit;font-size:.87rem;padding:10px 12px}
+.plc-form .nm{margin-bottom:8px}
+.plc-form textarea{min-height:74px;resize:vertical;display:block}
+.plc-form .nm:focus,.plc-form textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.14)}
+.plc-form .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+.plc-form .hint{font-family:var(--mono);font-size:.68rem;color:var(--txt-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plc-form .hint button{background:none;border:0;padding:0;color:var(--accent-2);font-family:var(--mono);font-size:.68rem;cursor:pointer}
+.plc-form .send{flex:none;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:9px 18px;font-size:.84rem;cursor:pointer}
+.plc-form .send:disabled{opacity:.45;cursor:default}
+
+/* ---------- bookmarks view ---------- */
+.bm-row{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--line);cursor:pointer}
+.bm-row:last-child{border-bottom:0}
+.bm-row:hover{background:var(--bg-3)}
+.bm-row .bi{color:var(--accent-2);flex:none}
+.bm-row .bt{flex:1;font-size:.94rem}
+.bm-row .bx{background:none;border:0;color:var(--txt-3);font-size:.76rem;font-family:var(--mono);cursor:pointer;flex:none}
+.bm-row .bx:hover{color:#fca5a5}
+
 @media(max-width:820px){
   .player{grid-template-columns:1fr}
   .player-side{position:fixed;right:0;top:0;height:100%;width:min(88vw,360px);transform:translateX(100%);transition:transform .22s ease;z-index:3}
   .player.menu-open .player-side{transform:none}
   .player-topbar .pt-menu{display:inline-block}
   .player-side .ps-head .x{display:block}
+  .player.comments-open,.player.wide.comments-open{grid-template-columns:1fr}
+  .pl-comments{position:fixed;right:0;top:0;height:100%;width:min(94vw,420px);z-index:4}
 }
 
 /* ---------- reader overlay ---------- */
@@ -244,6 +306,7 @@ button{font-family:inherit}
           <div class="sb-group-t">Main</div>
           <button class="nav" data-view="dashboard"><span class="nic">🏠</span>Dashboard</button>
           <button class="nav" data-view="favorites"><span class="nic">❤️</span>Favorites<span class="n-count" id="cnt-fav">0</span></button>
+          <button class="nav" data-view="bookmarks"><span class="nic">🔖</span>Bookmarks<span class="n-count" id="cnt-bookmarks">0</span></button>
         </div>
 
         <div class="sb-group">
@@ -291,6 +354,20 @@ button{font-family:inherit}
     <div class="player-main">
       <div class="player-topbar">
         <button class="pt-back" id="pl-back">&larr; <span id="pl-course-title">Course</span></button>
+        <span class="pt-tools">
+          <button class="pt-ic" id="pt-comments" aria-label="Comments">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h3v4l4.5-4H20a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1Z"/><path d="M7.5 9h9M7.5 12.5h6"/></svg>
+            <span class="n" id="pt-comments-n"></span><span class="tip">Comments</span>
+          </button>
+          <button class="pt-ic" id="pt-wide" aria-label="Widen the lesson">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/><path d="M6.5 9.3l1.6 1.6 2.4-2.6M6.5 14.4h4.4"/></svg>
+            <span class="tip" id="pt-wide-tip">Widen lesson</span>
+          </button>
+          <button class="pt-ic" id="pt-bookmark" aria-label="Bookmark lesson">
+            <svg id="pt-bookmark-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4.5L6 21V4.5Z"/></svg>
+            <span class="tip" id="pt-bookmark-tip">Bookmark lesson</span>
+          </button>
+        </span>
         <button class="pt-menu" id="pl-menu-btn">☰ Lessons</button>
       </div>
       <div class="player-body">
@@ -310,6 +387,21 @@ button{font-family:inherit}
         </div>
       </div>
     </div>
+    <aside class="pl-comments" id="pl-comments">
+      <div class="plc-head">
+        <h3>Comments</h3>
+        <button class="x" id="plc-x" aria-label="Close comments">&times;</button>
+      </div>
+      <div class="plc-list" id="plc-list"></div>
+      <div class="plc-form">
+        <input class="nm" id="plc-name" type="text" maxlength="60" placeholder="Your display name" hidden>
+        <textarea id="plc-text" maxlength="4000" placeholder="Type a message…"></textarea>
+        <div class="row">
+          <span class="hint" id="plc-hint"></span>
+          <button class="send" id="plc-send">Post</button>
+        </div>
+      </div>
+    </aside>
     <aside class="player-side" id="pl-side">
       <div class="ps-head">Lessons <button class="x" id="pl-side-x" aria-label="Close">&times;</button></div>
       <div id="pl-side-list"></div>
@@ -349,6 +441,10 @@ button{font-family:inherit}
         gate.style.display = 'none';
         appEl.style.display = 'block';
         document.getElementById('who-email').textContent = res.d.email;
+        me.email = res.d.email;
+        me.name = res.d.name || '';
+        me.hasName = !!res.d.hasName;
+        me.isAdmin = !!res.d.isAdmin;
         boot();
       } else if (res.status === 403) {
         showGate('Your access is not active. If you were recently refunded that’s expected; otherwise contact support@aifounderuniversity.com.', true);
@@ -390,6 +486,7 @@ button{font-family:inherit}
     'video-shorts-specialist-for-claude': 'Video Shorts Specialist'
   };
 
+  var me = { email: '', name: '', hasName: false, isAdmin: false };
   var all = [];        // library items (with .kind)
   var downloads = {};  // grouped downloadables
   var courses = [];    // course list (cards)
@@ -413,6 +510,21 @@ button{font-family:inherit}
   })();
   function saveFavs() { try { localStorage.setItem('afu_favs', JSON.stringify(Array.from(favs))); } catch (e) {} }
 
+  /* bookmarked lessons — these live on the server, so they follow the member
+     between devices (unlike favorites and progress, which stay local). */
+  var bookmarks = [], bookmarkIds = {};
+  function setBookmarks(list) {
+    bookmarks = list || [];
+    bookmarkIds = {};
+    bookmarks.forEach(function (b) { bookmarkIds[b.lessonId] = true; });
+    updateBookmarkCount();
+  }
+  function isBookmarked(libId) { return !!bookmarkIds[libId]; }
+  function updateBookmarkCount() {
+    var el = document.getElementById('cnt-bookmarks');
+    if (el) el.textContent = bookmarks.length;
+  }
+
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
   function hue(s){var h=0;s=String(s||'x');for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360;return h;}
 
@@ -421,13 +533,15 @@ button{font-family:inherit}
     Promise.all([
       fetch('/api/library/list', { credentials:'same-origin' }).then(function(r){return r.ok?r.json():{groups:{}};}),
       fetch('/api/content/list', { credentials:'same-origin' }).then(function(r){return r.ok?r.json():{groups:{}};}),
-      fetch('/api/courses/list', { credentials:'same-origin' }).then(function(r){return r.ok?r.json():{courses:[]};})
+      fetch('/api/courses/list', { credentials:'same-origin' }).then(function(r){return r.ok?r.json():{courses:[]};}),
+      fetch('/api/bookmarks/list', { credentials:'same-origin' }).then(function(r){return r.ok?r.json():{bookmarks:[]};})
     ]).then(function (arr) {
       var lib = arr[0].groups || {};
       LIB_ORDER.forEach(function(k){ (lib[k]||[]).forEach(function(it){ it.kind=k; all.push(it); }); });
       Object.keys(lib).forEach(function(k){ if(LIB_ORDER.indexOf(k)<0 && k!=='lesson')(lib[k]||[]).forEach(function(it){it.kind=k;all.push(it);}); });
       downloads = arr[1].groups || {};
       courses = arr[2].courses || [];
+      setBookmarks(arr[3].bookmarks || []);
 
       counts = {};
       all.forEach(function(it){ counts[it.kind]=(counts[it.kind]||0)+1; });
@@ -461,7 +575,7 @@ button{font-family:inherit}
     var navKey = raw;
     if (raw.indexOf('course-') === 0) { navKey = 'courses'; view = raw; }
     else {
-      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'courses' && !KINDS[raw]) raw = 'dashboard';
+      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && !KINDS[raw]) raw = 'dashboard';
       view = raw; navKey = raw;
     }
     [].forEach.call(document.querySelectorAll('.nav'), function (n) {
@@ -521,6 +635,7 @@ button{font-family:inherit}
     if (view === 'dashboard') return renderDashboard(c);
     if (view === 'downloads') return renderDownloads(c);
     if (view === 'favorites') return renderFavorites(c);
+    if (view === 'bookmarks') return renderBookmarks(c);
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
     return renderKind(c, view);
@@ -624,6 +739,60 @@ button{font-family:inherit}
     bindCards(c);
   }
 
+  function renderBookmarks(c) {
+    var html = '<h1 class="page-h">Bookmarks</h1>' +
+      '<p class="page-sub">' + bookmarks.length + ' saved lesson' + (bookmarks.length === 1 ? '' : 's') +
+      ' — pick up where you left off.</p>';
+    if (!bookmarks.length) {
+      c.innerHTML = html + '<p class="empty">No bookmarks yet. Open a lesson and tap the bookmark icon to save it here.</p>';
+      return;
+    }
+    var byCourse = {};
+    bookmarks.forEach(function (b) { (byCourse[b.course] ||= []).push(b); });
+    Object.keys(byCourse).forEach(function (slug) {
+      var co = courses.filter(function (x) { return x.slug === slug; })[0];
+      var name = (co && co.title) || COURSE_NAMES[slug] || slug;
+      html += '<div class="sec-h"><h2>' + esc(name) + '</h2><span class="c">' + byCourse[slug].length + '</span></div>' +
+        '<div class="section">';
+      byCourse[slug].forEach(function (b) {
+        html += '<div class="bm-row" data-slug="' + esc(slug) + '" data-lesson="' + esc(b.lessonId) + '">' +
+          '<span class="bi">🔖</span><span class="bt">' + esc(b.title || b.lessonId) + '</span>' +
+          '<button class="bx" data-remove="' + esc(b.lessonId) + '">Remove</button></div>';
+      });
+      html += '</div>';
+    });
+    c.innerHTML = html;
+    [].forEach.call(c.querySelectorAll('.bm-row'), function (row) {
+      row.addEventListener('click', function (e) {
+        if (e.target.closest('.bx')) return;
+        openLessonById(row.getAttribute('data-slug'), row.getAttribute('data-lesson'));
+      });
+    });
+    [].forEach.call(c.querySelectorAll('.bx'), function (b) {
+      b.addEventListener('click', function (e) { e.stopPropagation(); removeBookmark(b.getAttribute('data-remove')); });
+    });
+  }
+
+  function postBookmark(lessonId, slug, title) {
+    return fetch('/api/bookmarks/toggle', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lessonId: lessonId, course: slug, title: title })
+    }).then(function (r) { return r.ok ? r.json() : null; });
+  }
+
+  function removeBookmark(lessonId) {
+    var bm = bookmarks.filter(function (x) { return x.lessonId === lessonId; })[0];
+    if (!bm) return;
+    postBookmark(lessonId, bm.course, bm.title).then(function (d) {
+      if (!d) return;
+      delete bookmarkIds[lessonId];
+      bookmarks = bookmarks.filter(function (x) { return x.lessonId !== lessonId; });
+      updateBookmarkCount();
+      if (view === 'bookmarks') render();
+    });
+  }
+
   /* ---------------- courses ---------------- */
   function sectionHeading(name, idx) {
     return /^section\s*\d+/i.test(name || '') ? name : ('SECTION ' + (idx + 1) + ' · ' + (name || ('Section ' + (idx + 1))));
@@ -671,6 +840,15 @@ button{font-family:inherit}
     return fetch('/api/courses/get?slug=' + encodeURIComponent(slug), { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (tree) { if (tree) courseCache[slug] = tree; return tree; });
+  }
+
+  function openLessonById(slug, lessonId) {
+    loadCourse(slug).then(function (tree) {
+      if (!tree) return;
+      var flat = flatLessons(tree), idx = 0;
+      for (var i = 0; i < flat.length; i++) { if (flat[i].libId === lessonId) { idx = i; break; } }
+      openLesson(slug, idx);
+    });
   }
 
   function flatLessons(tree) {
@@ -741,10 +919,26 @@ button{font-family:inherit}
     document.getElementById('pl-next').addEventListener('click', function () { if (curIdx < curFlat.length - 1) gotoLesson(curIdx + 1); });
     document.getElementById('pl-complete').addEventListener('click', completeLesson);
     document.getElementById('pl-menu-btn').addEventListener('click', function () { playerEl.classList.toggle('menu-open'); });
+    document.getElementById('pt-comments').addEventListener('click', toggleComments);
+    document.getElementById('pt-wide').addEventListener('click', toggleWide);
+    document.getElementById('pt-bookmark').addEventListener('click', toggleBookmarkCurrent);
+    document.getElementById('plc-x').addEventListener('click', closeComments);
+    document.getElementById('plc-send').addEventListener('click', submitComment);
+    document.getElementById('plc-text').addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') submitComment();
+    });
+    try { if (localStorage.getItem('afu_wide') === '1') setWide(true); } catch (e) {}
     document.getElementById('pl-side-x').addEventListener('click', function () { playerEl.classList.remove('menu-open'); });
     document.addEventListener('keydown', function (e) {
       if (!playerEl.classList.contains('show')) return;
-      if (e.key === 'Escape') closePlayer();
+      var t = e.target, tag = t && t.tagName;
+      var typing = tag === 'INPUT' || tag === 'TEXTAREA' || (t && t.isContentEditable);
+      if (e.key === 'Escape') {
+        if (typing) { t.blur(); return; }
+        if (playerEl.classList.contains('comments-open')) closeComments();
+        else closePlayer();
+      }
+      else if (typing) return;
       else if (e.key === 'ArrowLeft' && curIdx > 0) gotoLesson(curIdx - 1);
       else if (e.key === 'ArrowRight' && curIdx < curFlat.length - 1) gotoLesson(curIdx + 1);
     });
@@ -756,6 +950,8 @@ button{font-family:inherit}
       curCourseSlug = slug;
       curFlat = flatLessons(tree);
       document.getElementById('pl-course-title').textContent = tree.title;
+      document.getElementById('plc-name').hidden = me.hasName;
+      loadComments(slug, true);
       playerEl.classList.add('show');
       document.body.style.overflow = 'hidden';
       gotoLesson(idx);
@@ -790,6 +986,8 @@ button{font-family:inherit}
     document.getElementById('pl-prev').disabled = idx === 0;
     document.getElementById('pl-next').disabled = idx === curFlat.length - 1;
     updateCompleteBtn();
+    updateBookmarkBtn();
+    updateHint();
     renderSideMenu();
 
     var body = document.getElementById('pl-content');
@@ -819,6 +1017,207 @@ button{font-family:inherit}
     progress[l.libId] = true; saveProgress();
     if (curIdx < curFlat.length - 1) gotoLesson(curIdx + 1);
     else { updateCompleteBtn(); renderSideMenu(); }
+  }
+
+  /* --- middle button: hide the lesson rail to widen the reading column --- */
+  function setWide(on) {
+    playerEl.classList.toggle('wide', on);
+    document.getElementById('pt-wide').classList.toggle('on', on);
+    document.getElementById('pt-wide-tip').textContent = on ? 'Show lessons' : 'Widen lesson';
+    try { localStorage.setItem('afu_wide', on ? '1' : '0'); } catch (e) {}
+  }
+  function toggleWide() { setWide(!playerEl.classList.contains('wide')); }
+
+  /* --- right button: bookmark this lesson --- */
+  function updateBookmarkBtn() {
+    var l = curFlat[curIdx];
+    var on = !!(l && isBookmarked(l.libId));
+    document.getElementById('pt-bookmark').classList.toggle('on', on);
+    document.getElementById('pt-bookmark-svg').setAttribute('fill', on ? 'currentColor' : 'none');
+    document.getElementById('pt-bookmark-tip').textContent = on ? 'Remove bookmark' : 'Bookmark lesson';
+  }
+
+  function toggleBookmarkCurrent() {
+    var l = curFlat[curIdx];
+    if (!l) return;
+    var btn = document.getElementById('pt-bookmark');
+    btn.disabled = true;
+    postBookmark(l.libId, curCourseSlug, l.title).then(function (d) {
+      if (!d) return;
+      if (d.bookmarked) {
+        bookmarkIds[l.libId] = true;
+        bookmarks.unshift({ lessonId: l.libId, course: curCourseSlug, title: l.title });
+      } else {
+        delete bookmarkIds[l.libId];
+        bookmarks = bookmarks.filter(function (x) { return x.lessonId !== l.libId; });
+      }
+      updateBookmarkCount(); updateBookmarkBtn();
+      if (view === 'bookmarks') render();
+    }).catch(function () {}).then(function () { btn.disabled = false; });
+  }
+
+  /* --- left button: the course discussion --- */
+  var commentsLoaded = null;  // slug currently shown in the panel
+  var replyTo = null;         // comment id being replied to
+
+  function toggleComments() {
+    var open = playerEl.classList.toggle('comments-open');
+    document.getElementById('pt-comments').classList.toggle('on', open);
+    if (open) {
+      if (commentsLoaded !== curCourseSlug) loadComments(curCourseSlug, true);
+      document.getElementById('plc-text').focus();
+    }
+  }
+  function closeComments() {
+    playerEl.classList.remove('comments-open');
+    document.getElementById('pt-comments').classList.remove('on');
+  }
+
+  function setCommentCount(n) {
+    var el = document.getElementById('pt-comments-n');
+    el.textContent = n > 99 ? '99+' : String(n);
+    el.classList.toggle('show', n > 0);
+  }
+
+  function loadComments(slug, force) {
+    if (!slug) return Promise.resolve();
+    var list = document.getElementById('plc-list');
+    if (force || commentsLoaded !== slug) list.innerHTML = '<p class="plc-empty">Loading…</p>';
+    return fetch('/api/comments/list?course=' + encodeURIComponent(slug), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || slug !== curCourseSlug) return;
+        commentsLoaded = slug;
+        var items = d.comments || [];
+        renderComments(items);
+        setCommentCount(items.filter(function (x) { return !x.removed; }).length);
+      })
+      .catch(function () {
+        list.innerHTML = '<p class="plc-empty" style="color:#fca5a5">Could not load the comments.</p>';
+      });
+  }
+
+  function when(iso) {
+    var t = new Date(iso).getTime();
+    if (!t) return '';
+    var s2 = Math.round((Date.now() - t) / 1000);
+    if (s2 < 60) return 'just now';
+    if (s2 < 3600) return Math.floor(s2 / 60) + 'm ago';
+    if (s2 < 86400) return Math.floor(s2 / 3600) + 'h ago';
+    if (s2 < 604800) return Math.floor(s2 / 86400) + 'd ago';
+    return new Date(t).toLocaleDateString();
+  }
+
+  function cmtHTML(c) {
+    if (c.removed) {
+      return '<div class="cmt removed" data-id="' + c.id + '">' +
+        '<span class="av" style="background:var(--bg-4);color:var(--txt-3)">–</span>' +
+        '<div class="cb"><div class="ch"><span class="cn" style="color:var(--txt-3)">Removed</span></div>' +
+        '<div class="ctext">This comment was removed.</div></div></div>';
+    }
+    var h = hue(c.author || 'member');
+    var initial = String(c.author || '?').trim().charAt(0).toUpperCase();
+    return '<div class="cmt" data-id="' + c.id + '">' +
+      '<span class="av" style="background:linear-gradient(140deg,hsl(' + h + ',72%,64%),hsl(' + ((h + 40) % 360) + ',72%,50%))">' + esc(initial) + '</span>' +
+      '<div class="cb">' +
+        '<div class="ch"><span class="cn">' + esc(c.author) + '</span>' +
+        (c.isAdmin ? '<span class="badge">Admin</span>' : '') +
+        '<span class="ct">' + esc(when(c.createdAt)) + '</span></div>' +
+        (c.lessonTitle ? '<div class="cl">on ' + esc(c.lessonTitle) + '</div>' : '') +
+        '<div class="ctext">' + esc(c.body) + '</div>' +
+        '<div class="ca"><button data-reply="' + c.id + '">Reply</button>' +
+        (c.canDelete ? '<button data-del="' + c.id + '">Delete</button>' : '') + '</div>' +
+      '</div></div>';
+  }
+
+  function threadHTML(c, kids) {
+    var replies = kids[c.id] || [];
+    return cmtHTML(c) + (replies.length
+      ? '<div class="cmt-replies">' + replies.map(function (r) { return threadHTML(r, kids); }).join('') + '</div>'
+      : '');
+  }
+
+  function renderComments(items) {
+    var list = document.getElementById('plc-list');
+    if (!items.length) {
+      list.innerHTML = '<p class="plc-empty">No comments on this course yet.<br>Ask the first question — we answer here.</p>';
+      return;
+    }
+    var kids = {}, seen = {};
+    items.forEach(function (c) { seen[c.id] = true; });
+    items.forEach(function (c) { if (c.parentId != null && seen[c.parentId]) (kids[c.parentId] ||= []).push(c); });
+    var html = '';
+    items.forEach(function (c) {
+      // replies render under their parent; one whose parent is gone stands alone
+      if (c.parentId != null && seen[c.parentId]) return;
+      html += '<div>' + threadHTML(c, kids) + '</div>';
+    });
+    list.innerHTML = html;
+    [].forEach.call(list.querySelectorAll('[data-reply]'), function (b) {
+      b.addEventListener('click', function () { startReply(Number(b.getAttribute('data-reply'))); });
+    });
+    [].forEach.call(list.querySelectorAll('[data-del]'), function (b) {
+      b.addEventListener('click', function () { removeComment(Number(b.getAttribute('data-del'))); });
+    });
+    list.scrollTop = list.scrollHeight;
+  }
+
+  function startReply(id) {
+    replyTo = id;
+    updateHint();
+    document.getElementById('plc-text').focus();
+  }
+
+  function updateHint() {
+    var hint = document.getElementById('plc-hint');
+    if (!hint) return;
+    if (replyTo) {
+      var nameEl = document.querySelector('.cmt[data-id="' + replyTo + '"] .cn');
+      hint.innerHTML = 'Replying to ' + esc(nameEl ? nameEl.textContent : 'comment') + ' · <button type="button" id="plc-cancel">cancel</button>';
+      document.getElementById('plc-cancel').addEventListener('click', function () { replyTo = null; updateHint(); });
+    } else {
+      var l = curFlat[curIdx];
+      hint.textContent = l ? ('On: ' + l.title) : '';
+    }
+  }
+
+  function submitComment() {
+    var text = document.getElementById('plc-text');
+    var nameEl = document.getElementById('plc-name');
+    var send = document.getElementById('plc-send');
+    var body = text.value.trim();
+    if (!body || !curCourseSlug) return;
+    var l = curFlat[curIdx] || {};
+    var payload = {
+      course: curCourseSlug, lessonId: l.libId, lessonTitle: l.title,
+      parentId: replyTo, body: body
+    };
+    var newName = !nameEl.hidden ? nameEl.value.trim() : '';
+    if (newName) payload.displayName = newName;
+    send.disabled = true;
+    fetch('/api/comments/create', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { alert('Could not post that comment. Please try again.'); return; }
+        text.value = '';
+        replyTo = null;
+        if (newName) { me.hasName = true; me.name = newName; nameEl.hidden = true; }
+        return loadComments(curCourseSlug, true).then(updateHint);
+      })
+      .catch(function () { alert('Could not post that comment. Please try again.'); })
+      .then(function () { send.disabled = false; });
+  }
+
+  function removeComment(id) {
+    if (!window.confirm('Delete this comment?')) return;
+    fetch('/api/comments/delete', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id })
+    }).then(function (r) { if (r.ok) loadComments(curCourseSlug, true); });
   }
 
   function renderSideMenu() {

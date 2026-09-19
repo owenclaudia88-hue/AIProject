@@ -112,6 +112,59 @@ needs it:
 Worth doing before taking significant revenue: have a lawyer read them, and add a
 registered address and jurisdiction if the business is incorporated somewhere specific.
 
+## Lesson toolbar: comments, wide mode, bookmarks
+
+Three icons sit at the top right of the lesson player, left to right:
+
+| Icon | What it does | Where it lives |
+|---|---|---|
+| 💬 Comments | Opens the course discussion in a column between the lesson and the lesson rail | `comments` table |
+| ▤ Widen lesson | Hides the lesson rail so the lesson gets the full width | `localStorage` (`afu_wide`) |
+| 🔖 Bookmark | Saves the lesson to the **Bookmarks** view in the sidebar | `bookmarks` table |
+
+### Comments
+
+One thread per **course**, not per lesson — every member sees every comment, and each one is
+labelled with the lesson it was posted from. Replies hang off `parent_id`, so an admin answer
+sits under the question it answers.
+
+- `GET  /api/comments/list?course=<slug>` → `{ comments, isAdmin }`
+- `POST /api/comments/create` → `{ course, lessonId?, lessonTitle?, parentId?, body, displayName? }`
+- `POST /api/comments/delete` → `{ id }`
+
+Things worth knowing:
+
+- **Emails never reach the browser.** The list endpoint returns a display name only, plus
+  `canDelete` so the UI knows which delete buttons to draw. Ownership is re-checked on the
+  server for every delete — the flag is a hint, not the permission.
+- **Display names.** A member sets theirs the first time they post (the name box above the
+  composer); it is stored on `customers.name`. Until then they show as their email
+  local-part, prettified — `dan.p@…` becomes "Dan P".
+- **Admins** are whoever is listed in `ADMIN_EMAILS` (comma-separated). They get the orange
+  *Admin* badge and can delete any comment.
+- **Deletes are soft.** A comment that already has replies stays in the thread as "This
+  comment was removed", so an answer never loses its question. One with no replies vanishes.
+- Bodies are stored and rendered as **plain text** — never HTML — and are capped at 4000
+  characters server-side.
+
+### Bookmarks
+
+Per member, stored server-side, so they follow someone between devices. (Favorites and
+lesson progress are still `localStorage` — they do not.)
+
+- `GET  /api/bookmarks/list` → `{ bookmarks }`
+- `POST /api/bookmarks/toggle` → `{ lessonId, course, title? }` → `{ bookmarked }`
+
+The toggle returns the state the lesson ended up in and the button settles on that answer
+rather than its own guess, so a double-tap cannot desync it. Saved lessons appear under
+**Bookmarks** in the sidebar, grouped by course; clicking one opens the player at that lesson.
+
+### Schema
+
+`schema.sql` is the readable source of truth, but nothing needs running by hand —
+`ensureSchema()` in `lib/db.js` creates `comments`, `bookmarks` and the `customers.name`
+column on the first request after deploy, the same way it does for every other table.
+
 ## Deployment path
 
 `vercel.json` makes this project serve the site at **both**:
