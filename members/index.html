@@ -83,7 +83,8 @@ button{font-family:inherit}
 .card .dots{position:absolute;top:11px;left:12px;display:flex;gap:6px}
 .card .dots i{width:9px;height:9px;border-radius:50%;display:block}
 .d-r{background:#ff5f57}.d-y{background:#febc2e}.d-g{background:#28c840}
-.card .head{background:linear-gradient(160deg,#1a1a22,#101016)}
+.card .head .glyph{font-size:2.5rem;opacity:.9;filter:saturate(1.1)}
+.card .head.hmark{background:linear-gradient(160deg,#1a1a22,#101016)}
 .card .head .kmark{display:flex;align-items:center;gap:13px;padding:0 18px;width:100%;justify-content:flex-start}
 .card .head .kmark svg{width:62px;height:62px;flex:none}
 .card .head .klabel{font-family:var(--mono);font-size:.95rem;font-weight:500;color:var(--txt);letter-spacing:-.01em}
@@ -883,18 +884,11 @@ button{font-family:inherit}
 
   /* ---------------- card rendering ---------------- */
 
-  // Each library gets its own colourway. The card used to show the same emoji
-  // the sidebar uses, blown up to 2.5rem, which said nothing about the item and
-  // looked like a placeholder.
+  // Prompt cards only. A prompt has nothing to show a picture of, so its card
+  // used to be a speech-balloon emoji at 2.5rem, which read as a placeholder.
+  // The other libraries' glyphs are doing their job and are left alone.
   var KIND_COLORS = {
-    prompt:       ['#f472b6', '#a78bfa', '#38bdf8'],
-    image_prompt: ['#fb923c', '#f472b6', '#c084fc'],
-    skill:        ['#2dd4bf', '#38bdf8', '#818cf8'],
-    gpt:          ['#4ade80', '#2dd4bf', '#38bdf8'],
-    automation:   ['#fbbf24', '#fb923c', '#f87171'],
-    guide:        ['#a78bfa', '#818cf8', '#38bdf8'],
-    video:        ['#f87171', '#fb923c', '#fbbf24'],
-    lesson:       ['#fbbf24', '#fb923c', '#f472b6']
+    prompt: ['#f472b6', '#a78bfa', '#38bdf8']
   };
 
   // A fan of dots, widest at the top, tapering to a two-dot tail — drawn rather
@@ -928,12 +922,21 @@ button{font-family:inherit}
   function cardHTML(it) {
     var k = KINDS[it.kind] || { label: it.kind, glyph: '📦' };
     var h = hue(it.category || it.kind);
-    var head = it.thumb
-      ? '<div class="head" style="background-image:url(\'' + it.thumb + '\')"><span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>' + favBtn(it) + '</div>'
-      : '<div class="head">'
-          + '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>'
-          + '<span class="kmark">' + kindMark(it.kind) + '<span class="klabel">' + esc(k.one || k.label) + '</span></span>'
-          + favBtn(it) + '</div>';
+    var dots = '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>';
+    var head;
+    if (it.thumb) {
+      head = '<div class="head" style="background-image:url(\'' + it.thumb + '\')">' + dots + favBtn(it) + '</div>';
+    } else if (it.kind === 'prompt') {
+      // Only the prompt library gets the drawn mark. Everywhere else the glyph
+      // already reads clearly, and one shape in seven colours would say less
+      // than seven different glyphs do.
+      head = '<div class="head hmark">' + dots +
+        '<span class="kmark">' + kindMark(it.kind) + '<span class="klabel">' + esc(k.one || k.label) + '</span></span>' +
+        favBtn(it) + '</div>';
+    } else {
+      head = '<div class="head" style="background:linear-gradient(135deg,hsl(' + h + ',55%,22%),hsl(' + ((h + 40) % 360) + ',50%,12%))">' +
+        dots + '<span class="glyph">' + k.glyph + '</span>' + favBtn(it) + '</div>';
+    }
     return '<div class="card" data-id="' + esc(it.id) + '">' + head +
       '<div class="body">' +
         '<div class="cat">' + esc(it.category || k.label) + '</div>' +
