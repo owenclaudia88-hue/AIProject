@@ -62,7 +62,8 @@ if (notReady.length) {
   console.log('');
 }
 
-let matched = 0, ambiguous = 0, unmatched = 0;
+const MIN_TITLE_SCORE = 0.2;   // word overlap a pair must reach to be written
+let matched = 0, ambiguous = 0, unmatched = 0, weak = 0;
 const takenBy = new Map();   // video guid -> lesson title (a video belongs to one lesson)
 
 for (const c of await listCourses()) {
@@ -93,9 +94,19 @@ for (const c of await listCourses()) {
         continue;
       }
 
+      // Durations collide: a 12:20 lesson once drew a 739s video from another
+      // course, one second out with nothing in common but the length. A match
+      // has to agree on the title too, or it is only reported, never written.
+      if (best.score < MIN_TITLE_SCORE) {
+        console.log(`   WEAK   ${lesson.duration}  ${lesson.title}`);
+        console.log(`            → ${best.v.title}`);
+        console.log(`            titles do not agree (${best.score.toFixed(2)}) — not saved`);
+        weak++;
+        continue;
+      }
+
       takenBy.set(best.v.guid, lesson.title);
-      const flag = best.score < 0.3 ? '  (titles differ — worth a look)' : '';
-      console.log(`   ok     ${lesson.duration}  ${lesson.title}\n            → ${best.v.title}${flag}`);
+      console.log(`   ok     ${lesson.duration}  ${lesson.title}\n            → ${best.v.title}`);
       if (isVideoId(best.v.guid) && lesson.videoId !== best.v.guid) { lesson.videoId = best.v.guid; touched++; }
       matched++;
     }
@@ -108,7 +119,7 @@ for (const c of await listCourses()) {
 }
 
 const spare = videos.filter(v => !takenBy.has(v.guid));
-console.log(`\nmatched ${matched} · ambiguous ${ambiguous} · no video found ${unmatched}`);
+console.log(`\nmatched ${matched} · weak, not saved ${weak} · ambiguous ${ambiguous} · no video found ${unmatched}`);
 if (spare.length) {
   console.log(`\n${spare.length} video(s) in the library matched no lesson:`);
   spare.forEach(v => console.log(`   ${String(v.length ?? '?').padStart(5)}s  ${v.title}`));
