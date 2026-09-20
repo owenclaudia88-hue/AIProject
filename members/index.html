@@ -1615,7 +1615,27 @@ button{font-family:inherit}
         loadHls().then(function (ok) {
           if (mine !== videoGen) return;
           if (!ok) { box.innerHTML = videoMessage('Could not load the video player.'); return; }
-          var hls = new window.Hls({ capLevelToPlayerSize: true });
+          var cfg = { capLevelToPlayerSize: true };
+          // The signed query covers the whole video directory, but hls.js
+          // resolves each segment relative to the playlist and so drops it —
+          // the playlist would load and every segment after it would 403.
+          // Put the same token back on each request.
+          var qs = v.url.split('?')[1] || '';
+          if (qs) {
+            var BaseLoader = window.Hls.DefaultConfig.loader;
+            cfg.loader = function (c) {
+              var l = new BaseLoader(c);
+              var load = l.load.bind(l);
+              l.load = function (ctx, lcfg, cbs) {
+                if (ctx.url.indexOf('token=') === -1) {
+                  ctx.url += (ctx.url.indexOf('?') === -1 ? '?' : '&') + qs;
+                }
+                return load(ctx, lcfg, cbs);
+              };
+              return l;
+            };
+          }
+          var hls = new window.Hls(cfg);
           curHls = hls;
           hls.loadSource(v.url);
           hls.attachMedia(el);
