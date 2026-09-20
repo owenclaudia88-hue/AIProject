@@ -40,6 +40,24 @@ const storageState = JSON.parse(await readFile(join(ROOT, 'tools/migrate/.sessio
 // A lesson whose title is itself a Mastering-Claude advert — drop outright.
 const DROP_TITLE = /exclusive invitation|master claude to run your business/i;
 
+// The prompt vaults are the one external resource we already host ourselves.
+// Keyed by the Notion page name, so the old links match whatever trailing
+// ?source=copy_link / ?pvs= Circle happened to save with them.
+const OWN_NOTION = {
+  'The-Ultimate-Prompts-for-Claude':       'https://courageous-feeling-3b1.notion.site/The-Ultimate-Prompts-for-Claude-218c7652bcfe82249b4c812d0dec3aa2',
+  'The-Marketer-s-Prompts-for-Claude':     'https://courageous-feeling-3b1.notion.site/The-Marketer-s-Prompts-for-Claude-20dc7652bcfe82329c63015d18488fbe',
+  'The-Business-Owner-s-Prompts-for-Claude':'https://courageous-feeling-3b1.notion.site/The-Business-Owner-s-Prompts-for-Claude-5e6c7652bcfe820a8546012e57056fbc',
+  'The-Coach-s-Prompts-for-Claude':        'https://courageous-feeling-3b1.notion.site/The-Coach-s-Prompts-for-Claude-767c7652bcfe83ff90fe81f0f9b27b14',
+  'The-Personal-Growth-Prompts-for-Claude':'https://courageous-feeling-3b1.notion.site/The-Personal-Growth-Prompts-for-Claude-420c7652bcfe82ef8992812dee328ede'
+};
+const ownNotionFor = (href) => {
+  const h = String(href || '').toLowerCase();
+  if (!h.includes('notion.site/') && !h.includes('notion.so/')) return null;
+  for (const [name, url] of Object.entries(OWN_NOTION))
+    if (h.includes(name.toLowerCase() + '-')) return url;
+  return null;
+};
+
 const browser = await chromium.launch({ headless: true });
 const ctx = await browser.newContext({ storageState, viewport: { width: 1400, height: 1000 } });
 const page = await ctx.newPage();
@@ -191,7 +209,11 @@ for (const course of struct.courses) {
         .replace(/<iframe[\s\S]*?<\/iframe>/gi, VPH)
         .replace(/(?:blob:)?https?:\/\/[^"'<>\s]*hyperentrepreneur\.com[^"'<>\s]*/gi, '#');
 
-      for (const r of (res.resources || [])) resourceReport.push({ course: course.title, lesson: lesson.title, href: r.href, text: r.text });
+      // swap the previous owner's prompt vaults for ours
+      html = html.replace(/https?:\/\/[^"'<>\s]*notion\.(?:site|so)\/[^"'<>\s]*/gi,
+                          (u) => ownNotionFor(u) || u);
+
+      for (const r of (res.resources || [])) { if (ownNotionFor(r.href)) continue; resourceReport.push({ course: course.title, lesson: lesson.title, href: r.href, text: r.text }); }
       for (const v of (res.videos || [])) videoReport.push({ course: course.title, lesson: lesson.title, src: v });
 
       // If the only thing left is a video placeholder, empty the body — the
