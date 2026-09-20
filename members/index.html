@@ -1443,7 +1443,10 @@ button{font-family:inherit}
     var flat = [];
     (tree.sections || []).forEach(function (s, si) {
       (s.lessons || []).forEach(function (l) {
-        flat.push({ libId: l.libId, title: l.title, duration: l.duration, sectionName: s.name, sectionIdx: si });
+        // hasVideo has to come along: the player reads it off the flattened
+        // lesson, and leaving it behind here showed every lesson as
+        // "coming soon" however well the signing worked.
+        flat.push({ libId: l.libId, title: l.title, duration: l.duration, hasVideo: !!l.hasVideo, sectionName: s.name, sectionIdx: si });
       });
     });
     return flat;
