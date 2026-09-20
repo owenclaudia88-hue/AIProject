@@ -16,7 +16,9 @@
     "galleries": "node --env-file=.env.local scripts/ingest-galleries.mjs",
     "guides": "node --env-file=.env.local scripts/ingest-guides.mjs",
     "fundamentals": "node --env-file=.env.local scripts/ingest-fundamentals.mjs",
-    "ingest:all": "npm run ingest && npm run guides && npm run fundamentals && npm run galleries"
+    "ingest:all": "npm run ingest && npm run guides && npm run fundamentals && npm run galleries",
+    "bunny:keys": "node scripts/set-bunny-keys.mjs",
+    "bunny:match": "node --env-file=.env.local scripts/match-bunny-videos.mjs"
   },
   "devDependencies": {
     "node-html-parser": "^9.0.4",
