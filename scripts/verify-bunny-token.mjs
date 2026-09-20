@@ -49,12 +49,28 @@ if (openStatus === 200) {
   console.log('  so anyone with the link can watch. Turn it on at Pull zone → Security.');
 }
 
-/* ---------------- each scheme ---------------- */
+/* ---------------- each key, each scheme ---------------- */
 const expires = Math.floor(Date.now() / 1000) + 3600;
 let winner = null;
 
-for (const scheme of TOKEN_SCHEMES) {
-  const qs = signQuery(dir, expires, { tokenKey: cfg.tokenKey, scheme });
+// Bunny shows more than one "token authentication key" and the docs don't say
+// which signs CDN requests, so try each one we were given rather than guess.
+const keys = [{ label: 'TOKEN_KEY', value: cfg.tokenKey }];
+if (cfg.tokenKeyAlt && cfg.tokenKeyAlt !== cfg.tokenKey) {
+  keys.push({ label: 'TOKEN_KEY_ALT', value: cfg.tokenKeyAlt });
+}
+// Long shot, but it costs one hash each and rules the key out for good: some
+// Bunny setups sign with the library API key rather than a separate one.
+if (cfg.apiKey && cfg.apiKey !== cfg.tokenKey) {
+  keys.push({ label: 'API_KEY', value: cfg.apiKey });
+}
+
+const PATH_MODES = ['dir', 'file'];
+
+for (const key of keys) for (const scheme of TOKEN_SCHEMES) for (const pathMode of PATH_MODES) {
+  // 'file' signs the exact path; 'dir' signs the folder so the segments share it
+  const signed = pathMode === 'file' ? `${dir}playlist.m3u8` : dir;
+  const qs = signQuery(signed, expires, { tokenKey: key.value, scheme, pathMode });
   const playlistStatus = await status(url('playlist.m3u8', qs));
   let segmentNote = '';
 
@@ -73,16 +89,26 @@ for (const scheme of TOKEN_SCHEMES) {
         segmentNote = segUrl ? `   segment → ${await status(segUrl)}` : '   (no segment listed)';
       }
     } catch (e) { segmentNote = `   segment check failed: ${e.message}`; }
-    if (!winner) winner = scheme;
+    if (!winner) winner = { scheme, pathMode, key: key.label };
   }
-  console.log(`scheme "${scheme}"`.padEnd(29) + `→ ${playlistStatus}${segmentNote}`);
+  console.log(`${key.label} · ${scheme} · ${pathMode}`.padEnd(40) + `→ ${playlistStatus}${segmentNote}`);
 }
 
 /* ---------------- verdict ---------------- */
 console.log('');
 if (winner) {
-  console.log(`Use this signature. Add to .env.local (and Vercel):\n\n    BUNNY_STREAM_TOKEN_SCHEME=${winner}\n`);
-  if (winner === 'sha256') console.log('(that is also the default, so the line is optional)');
+  console.log(`Working combination: ${winner.key} · ${winner.scheme} · ${winner.pathMode}\n`);
+  console.log('Add to .env.local (and Vercel):\n');
+  console.log(`    BUNNY_STREAM_TOKEN_SCHEME=${winner.scheme}`);
+  console.log(`    BUNNY_STREAM_TOKEN_PATH_MODE=${winner.pathMode}\n`);
+  if (winner.pathMode === 'file') {
+    console.log('Note: a file token covers only the playlist, so the segments are signed');
+    console.log('separately by the player. Directory mode would be preferable if it works.');
+  }
+  if (winner.key === 'TOKEN_KEY_ALT') {
+    console.log('\nThe alternate key is the one that works — move its value into');
+    console.log('BUNNY_STREAM_TOKEN_KEY so the site uses it, then drop the _ALT line.');
+  }
 } else if (openStatus === 200) {
   console.log('Token authentication is off, so nothing needed to sign yet.');
   console.log('Turn it on, then run this again to confirm signing works.');
