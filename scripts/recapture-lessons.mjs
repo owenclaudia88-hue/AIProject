@@ -114,6 +114,11 @@ for (const course of struct.courses) {
           if (/bogdan vaida/i.test(n.textContent || '')) n.remove();
         });
 
+        // Circle wraps every inline image in a zoom button. We have no lightbox
+        // and none of its Tailwind, so the button kept its browser default
+        // chrome — a pale box drawn around each image on a dark lesson page.
+        [...root.querySelectorAll('button')].forEach(b => b.replaceWith(...b.childNodes));
+
         // inline video players (Circle-hosted) won't play for our members and
         // carry the old brand — swap each for a placeholder, collect the src.
         const videos = [];
