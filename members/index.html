@@ -1614,10 +1614,24 @@ button{font-family:inherit}
         if (v.poster) el.poster = v.poster;
         box.innerHTML = ''; box.appendChild(el);
 
-        if (el.canPlayType('application/vnd.apple.mpegurl')) { el.src = v.url; return; }
+        // Chrome answers "maybe" to canPlayType for HLS but cannot actually
+        // play it — it rejects the source and the video sits at 0:00 with no
+        // duration, looking for all the world like a broken stream. So the
+        // question to ask is whether Media Source Extensions exist: where they
+        // do, hls.js does the work; where they don't (iPhone Safari) the
+        // browser plays HLS itself and hls.js is never even downloaded.
+        if (!window.MediaSource && !window.ManagedMediaSource) {
+          if (el.canPlayType('application/vnd.apple.mpegurl')) { el.src = v.url; return; }
+          box.innerHTML = videoMessage('This browser cannot play the video.');
+          return;
+        }
         loadHls().then(function (ok) {
           if (mine !== videoGen) return;
-          if (!ok) { box.innerHTML = videoMessage('Could not load the video player.'); return; }
+          if (!ok || !window.Hls.isSupported()) {
+            if (el.canPlayType('application/vnd.apple.mpegurl')) { el.src = v.url; return; }
+            box.innerHTML = videoMessage('Could not load the video player.');
+            return;
+          }
           var cfg = { capLevelToPlayerSize: true };
           // The signed query covers the whole video directory, but hls.js
           // resolves each segment relative to the playlist and so drops it —
