@@ -111,10 +111,16 @@ for (const key of keys) for (const scheme of TOKEN_SCHEMES) for (const pathMode 
         const segUrl = seg
           ? `https://${cfg.host}${dir}${child.trim().replace(/[^/]+$/, '')}${seg.trim()}?${qs}`
           : null;
-        segmentNote = segUrl ? `   segment → ${await status(segUrl)}` : '   (no segment listed)';
+        if (segUrl) {
+          const segStatus = await status(segUrl);
+          segmentNote = `   segment → ${segStatus}`;
+          // The playlist passing is not enough. A token that covers only the
+          // playlist lets playback start and then dies on the first segment,
+          // so a combination only counts if the segment passes too.
+          if (segStatus === 200 && !winner) winner = { scheme, pathMode, key: key.label };
+        } else segmentNote = '   (no segment listed)';
       }
     } catch (e) { segmentNote = `   segment check failed: ${e.message}`; }
-    if (!winner) winner = { scheme, pathMode, key: key.label };
   }
   console.log(`${key.label} · ${scheme} · ${pathMode}`.padEnd(40) + `→ ${playlistStatus}${segmentNote}`);
 }
