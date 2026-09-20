@@ -36,17 +36,42 @@ if (!videoId) {
 const dir = `/${videoId}/`;
 const url = (file, qs) => `https://${cfg.host}${dir}${file}` + (qs ? `?${qs}` : '');
 
+// The zone also restricts by referrer, and a bare server-side fetch sends
+// none — which is its own 403 and looks exactly like a bad token. Send what
+// the member's browser would, so what we are measuring really is the token.
+const SITE = process.env.SITE_URL || 'https://aifounderuniversity.com';
+const HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36',
+  Referer: SITE.replace(/\/*$/, '/')
+};
+
 async function status(u) {
-  try { const r = await fetch(u, { redirect: 'manual' }); return r.status; }
+  try { const r = await fetch(u, { headers: HEADERS, redirect: 'manual' }); return r.status; }
   catch (e) { return `ERR ${e.message}`; }
 }
 
+/* ---------------- is the referrer rule, not the token, doing the rejecting? --- */
+// Worth stating plainly, because a refused bare request looks identical to a
+// refused token and cost a long time to tell apart once already.
+const bare = await (async () => {
+  try { return (await fetch(url('playlist.m3u8'), { redirect: 'manual' })).status; }
+  catch { return 'ERR'; }
+})();
+
 /* ---------------- unsigned: is the zone actually locked? ---------------- */
 const openStatus = await status(url('playlist.m3u8'));
-console.log(`unsigned playlist            → ${openStatus}`);
+console.log(`no referrer, no token        → ${bare}${bare === 403 ? '   (referrer rule is active)' : ''}`);
+console.log(`with referrer, no token      → ${openStatus}`);
+
 if (openStatus === 200) {
-  console.log('\n  WARNING: the unsigned URL plays. CDN token authentication is still OFF,');
-  console.log('  so anyone with the link can watch. Turn it on at Pull zone → Security.');
+  console.log('\n  Token authentication is OFF: an unsigned URL plays, so every token');
+  console.log('  below is simply ignored and proves nothing. The videos are currently');
+  console.log('  protected by the referrer rule alone — a link pasted into a browser');
+  console.log('  address bar sends no referrer and is refused, but one embedded on');
+  console.log('  another site that fakes the referrer is not.');
+  console.log('\n  To sign URLs properly: turn Token authentication ON at');
+  console.log('  Pull zone → Security → Token authentication, then run this again.');
+  process.exit(0);
 }
 
 /* ---------------- each key, each scheme ---------------- */
@@ -78,10 +103,10 @@ for (const key of keys) for (const scheme of TOKEN_SCHEMES) for (const pathMode 
     // Pull a real segment name out of the playlist and try it with the same
     // token — this is what proves the directory token is working.
     try {
-      const body = await (await fetch(url('playlist.m3u8', qs))).text();
+      const body = await (await fetch(url('playlist.m3u8', qs), { headers: HEADERS })).text();
       const child = body.split('\n').find(l => l.trim() && !l.startsWith('#'));
       if (child) {
-        const sub = await (await fetch(url(child.trim(), qs))).text();
+        const sub = await (await fetch(url(child.trim(), qs), { headers: HEADERS })).text();
         const seg = sub.split('\n').find(l => l.trim() && !l.startsWith('#'));
         const segUrl = seg
           ? `https://${cfg.host}${dir}${child.trim().replace(/[^/]+$/, '')}${seg.trim()}?${qs}`
