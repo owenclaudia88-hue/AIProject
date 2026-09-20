@@ -188,6 +188,23 @@ button{font-family:inherit}
 .video-wrap iframe,.video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0}
 /* letterbox rather than stretch — not every lesson was recorded at 16:9 */
 .video-wrap video{object-fit:contain;background:#000}
+/* A phone turned sideways is only ~375px tall, and a 16:9 box across the full
+   width comes out taller than that — the controls end up below the fold, which
+   is exactly when someone has turned the phone to watch. Drive the size off
+   the height instead so the whole player fits, and let the width follow. */
+@media(orientation:landscape) and (max-height:600px){
+  .player-body{padding-top:8px}
+  /* The top bar, the lesson counter row and the title sit above the video and
+     measured 142px together, most of it the 38px prev/next buttons. Shrink
+     those, then take what is left of the screen — the whole player, controls
+     included, has to be on screen without scrolling. */
+  .video-wrap{height:min(calc(100vh - 146px),calc((100vw - 32px) * 0.5625));
+              width:auto;max-width:100%;margin-inline:auto}
+  .player h1.pl-title{font-size:1.05rem;margin:2px 0 8px}
+  .pl-eyebrow{font-size:.7rem}
+  .pl-nav button{width:30px;height:30px;font-size:.85rem}
+  .pl-dur{margin-bottom:12px}
+}
 .pl-dur{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:0 0 22px}
 .pl-content{color:var(--txt);line-height:1.7;font-size:.99rem}
 .pl-content img{max-width:100%;border-radius:10px;margin:14px 0}
@@ -2052,7 +2069,7 @@ button{font-family:inherit}
         // video
         if (meta.videoUrl) {
           h += '<div class="r-video">' + (/\.(mp4|webm|mov)(\?|$)/i.test(meta.videoUrl)
-            ? '<video controls preload="metadata" src="' + esc(meta.videoUrl) + '"></video>'
+            ? '<video controls playsinline preload="metadata" src="' + esc(meta.videoUrl) + '"></video>'
             : '<iframe src="' + esc(embedUrl(meta.videoUrl)) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>') + '</div>';
           if (meta.videoText) h += '<p class="desc">' + esc(meta.videoText) + '</p>';
         }
