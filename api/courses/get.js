@@ -17,11 +17,19 @@ export default async function handler(req, res) {
     const row = await getCourse(slug);
     if (!row) return res.status(404).json({ error: 'not found' });
 
+    // The Bunny video id stays server-side: the player asks /api/video/sign for
+    // a short-lived URL instead, so the id is never sitting in the page for
+    // someone to lift. All the tree needs to say is whether a video exists.
     const data = row.data || {};
+    const sections = (data.sections || []).map(s => ({
+      ...s,
+      lessons: (s.lessons || []).map(({ videoId, ...l }) => ({ ...l, hasVideo: !!videoId }))
+    }));
+
     return res.status(200).json({
       slug: row.slug, title: row.title,
       lessonCount: row.lesson_count,
-      sections: data.sections || [],
+      sections,
       stats: data.stats || null
     });
   } catch (err) {

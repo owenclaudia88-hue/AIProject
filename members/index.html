@@ -186,6 +186,8 @@ button{font-family:inherit}
 .video-ph .pbtn{width:66px;height:66px;border-radius:50%;background:linear-gradient(180deg,var(--accent-2),var(--accent));display:grid;place-items:center;color:#1a0d00;font-size:1.5rem;box-shadow:0 10px 30px rgba(255,122,26,.3)}
 .video-ph .pmsg{font-family:var(--mono);font-size:.82rem;color:var(--txt-2)}
 .video-wrap iframe,.video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* letterbox rather than stretch — not every lesson was recorded at 16:9 */
+.video-wrap video{object-fit:contain;background:#000}
 .pl-dur{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:0 0 22px}
 .pl-content{color:var(--txt);line-height:1.7;font-size:.99rem}
 .pl-content img{max-width:100%;border-radius:10px;margin:14px 0}
@@ -1548,18 +1550,86 @@ button{font-family:inherit}
     playerEl.classList.remove('show');
     playerEl.classList.remove('menu-open');
     document.body.style.overflow = '';
+    // stop playback and release the stream — the player is only hidden, so a
+    // video left mounted would keep downloading and talking over the page
+    teardownVideo();
     // refresh the course detail so progress ticks update
     if (curCourseSlug && view === 'course-' + curCourseSlug) render();
   }
 
-  // Placeholder for the video. Real embeds get swapped in here later: when a
-  // lesson carries a `video` URL, render the iframe/player instead of this box.
-  function videoEmbed(lesson) {
-    if (lesson && lesson.video) {
-      return '<iframe src="' + esc(lesson.video) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
-    }
+  /* ---------------- lesson video ---------------- */
+  // Videos are served from Bunny Stream as HLS and played in our own <video>,
+  // not an embedded player. The URL is signed per member and expires, so it is
+  // fetched when the lesson opens rather than baked into the page.
+
+  var HLS_SRC = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js';
+  var hlsReady = null;
+  function loadHls() {
+    // Safari plays HLS natively, so most iPhones never download this at all.
+    if (window.Hls) return Promise.resolve(true);
+    if (hlsReady) return hlsReady;
+    hlsReady = new Promise(function (done) {
+      var s = document.createElement('script');
+      s.src = HLS_SRC;
+      s.onload = function () { done(!!window.Hls); };
+      s.onerror = function () { done(false); };
+      document.head.appendChild(s);
+    });
+    return hlsReady;
+  }
+
+  var curHls = null;      // the live Hls instance, so it can be torn down
+  var videoGen = 0;       // guards against a slow response for a lesson we left
+
+  function teardownVideo() {
+    videoGen++;
+    if (curHls) { try { curHls.destroy(); } catch (e) {} curHls = null; }
+    var box = document.getElementById('pl-video');
+    if (box) box.innerHTML = '';
+  }
+
+  function videoMessage(text) {
     return '<div class="video-ph"><div class="pbtn">▶</div>' +
-      '<div class="pmsg">Video lesson — coming soon</div></div>';
+      '<div class="pmsg">' + esc(text) + '</div></div>';
+  }
+
+  function mountVideo(lesson) {
+    teardownVideo();
+    var mine = videoGen;
+    var box = document.getElementById('pl-video');
+    if (!lesson || !lesson.hasVideo) { box.innerHTML = videoMessage('Video lesson — coming soon'); return; }
+
+    box.innerHTML = videoMessage('Loading video…');
+    fetch('/api/video/sign?lesson=' + encodeURIComponent(lesson.libId), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (v) {
+        if (mine !== videoGen) return;                       // moved on already
+        if (!v || !v.url) { box.innerHTML = videoMessage('Video lesson — coming soon'); return; }
+
+        var el = document.createElement('video');
+        el.controls = true; el.playsInline = true; el.preload = 'metadata';
+        if (v.poster) el.poster = v.poster;
+        box.innerHTML = ''; box.appendChild(el);
+
+        if (el.canPlayType('application/vnd.apple.mpegurl')) { el.src = v.url; return; }
+        loadHls().then(function (ok) {
+          if (mine !== videoGen) return;
+          if (!ok) { box.innerHTML = videoMessage('Could not load the video player.'); return; }
+          var hls = new window.Hls({ capLevelToPlayerSize: true });
+          curHls = hls;
+          hls.loadSource(v.url);
+          hls.attachMedia(el);
+          hls.on(window.Hls.Events.ERROR, function (_e, d) {
+            // Recoverable stalls happen on flaky connections; only a fatal
+            // error is worth replacing the player over.
+            if (!d.fatal) return;
+            if (d.type === window.Hls.ErrorTypes.NETWORK_ERROR) { hls.startLoad(); return; }
+            if (d.type === window.Hls.ErrorTypes.MEDIA_ERROR) { hls.recoverMediaError(); return; }
+            if (mine === videoGen) box.innerHTML = videoMessage('This video could not be played.');
+          });
+        });
+      })
+      .catch(function () { if (mine === videoGen) box.innerHTML = videoMessage('Video lesson — coming soon'); });
   }
 
   function gotoLesson(idx) {
@@ -1567,7 +1637,7 @@ button{font-family:inherit}
     var l = curFlat[idx];
     document.getElementById('pl-count').textContent = 'Lesson ' + (idx + 1) + ' of ' + curFlat.length;
     document.getElementById('pl-title').textContent = l.title;
-    document.getElementById('pl-video').innerHTML = videoEmbed(l);
+    mountVideo(l);
     document.getElementById('pl-dur').textContent = l.duration ? ('Duration ' + l.duration) : '';
     document.getElementById('pl-prev').disabled = idx === 0;
     document.getElementById('pl-next').disabled = idx === curFlat.length - 1;
