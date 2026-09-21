@@ -181,13 +181,37 @@ button{font-family:inherit}
 .pl-nav button{background:var(--bg-3);border:1px solid var(--line);color:var(--txt);width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:1rem}
 .pl-nav button:disabled{opacity:.35;cursor:default}
 .player h1.pl-title{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;letter-spacing:-.02em;margin:8px 0 18px;line-height:1.2}
-.video-wrap{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;border:1px solid var(--line);margin-bottom:8px}
-.video-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(120% 120% at 50% 35%,#21120,#0b0b0d)}
+/* No overflow:hidden here — the quality menu drops out of the bottom of the
+   frame on a short player and would be clipped. The children round their own
+   corners instead. */
+.video-wrap{position:relative;aspect-ratio:16/9;border-radius:14px;background:#000;border:1px solid var(--line);margin-bottom:8px}
+.video-ph{position:absolute;inset:0;border-radius:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:radial-gradient(120% 120% at 50% 35%,#21120,#0b0b0d)}
 .video-ph .pbtn{width:66px;height:66px;border-radius:50%;background:linear-gradient(180deg,var(--accent-2),var(--accent));display:grid;place-items:center;color:#1a0d00;font-size:1.5rem;box-shadow:0 10px 30px rgba(255,122,26,.3)}
 .video-ph .pmsg{font-family:var(--mono);font-size:.82rem;color:var(--txt-2)}
-.video-wrap iframe,.video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-wrap iframe,.video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:inherit}
 /* letterbox rather than stretch — not every lesson was recorded at 16:9 */
 .video-wrap video{object-fit:contain;background:#000}
+
+/* ---------- quality picker ---------- */
+/* Sits top-right, clear of the browser's own controls along the bottom. */
+.q-menu{position:absolute;top:10px;right:10px;z-index:3;font-family:var(--mono)}
+.q-btn{background:rgba(10,10,12,.72);border:1px solid rgba(255,255,255,.18);color:#fff;
+  border-radius:8px;padding:7px 11px;font-size:.74rem;font-family:var(--mono);cursor:pointer;
+  backdrop-filter:blur(6px);opacity:.55;transition:opacity .15s}
+.video-wrap:hover .q-btn,.lesson-clip:hover .q-btn,.q-btn:focus-visible,.q-btn[aria-expanded="true"]{opacity:1}
+.q-list{position:absolute;top:calc(100% + 6px);right:0;min-width:116px;background:rgba(14,14,17,.96);
+  border:1px solid var(--line-2);border-radius:10px;padding:5px;display:flex;flex-direction:column;
+  gap:2px;box-shadow:0 12px 30px rgba(0,0,0,.5);backdrop-filter:blur(8px)}
+.q-list[hidden]{display:none}
+.q-list button{background:none;border:0;color:var(--txt-2);text-align:left;padding:8px 11px;
+  border-radius:7px;font-size:.76rem;font-family:var(--mono);cursor:pointer;white-space:nowrap}
+.q-list button:hover{background:rgba(255,255,255,.07);color:#fff}
+.q-list button.on{color:#ffd9b3;background:rgba(255,122,26,.14)}
+/* a phone has no hover, so the button stays legible and the targets grow */
+@media(hover:none){
+  .q-btn{opacity:.85;padding:9px 13px;font-size:.78rem}
+  .q-list button{padding:11px 14px;font-size:.82rem}
+}
 /* A phone turned sideways is only ~375px tall, and a 16:9 box across the full
    width comes out taller than that — the controls end up below the fold, which
    is exactly when someone has turned the phone to watch. Drive the size off
@@ -214,9 +238,9 @@ button{font-family:inherit}
 .pl-content a{color:var(--accent-2)}
 /* a recording sitting inside the lesson body, one per marker */
 .pl-content .lesson-clip{position:relative;aspect-ratio:16/9;margin:18px 0;border-radius:12px;
-  overflow:hidden;background:#000;border:1px solid var(--line)}
+  background:#000;border:1px solid var(--line)}
 .pl-content .lesson-clip video{position:absolute;inset:0;width:100%;height:100%;border:0;
-  object-fit:contain;background:#000}
+  object-fit:contain;background:#000;border-radius:inherit}
 .pl-content .lesson-clip .clip-msg{position:absolute;inset:0;display:flex;align-items:center;
   justify-content:center;font-family:var(--mono);font-size:.82rem;color:var(--txt-2)}
 .pl-content .lesson-video-embed{display:flex;align-items:center;justify-content:center;gap:10px;aspect-ratio:16/9;border-radius:12px;border:1px solid var(--line);background:radial-gradient(120% 120% at 50% 35%,#221206,#0b0b0d);color:var(--txt-2);font-family:var(--mono);font-size:.85rem;margin:16px 0}
@@ -1725,6 +1749,9 @@ button{font-family:inherit}
       hlsPool.push(hls);
       hls.loadSource(v.url);
       hls.attachMedia(el);
+      hls.on(window.Hls.Events.MANIFEST_PARSED, function () {
+        if (mine === videoGen) addQualityMenu(el.parentNode, hls);
+      });
       hls.on(window.Hls.Events.ERROR, function (_e, d) {
         // Recoverable stalls happen on flaky connections; only a fatal
         // error is worth replacing the player over.
@@ -1734,6 +1761,74 @@ button{font-family:inherit}
         if (mine === videoGen) onFail('This video could not be played.');
       });
     });
+  }
+
+  /**
+   * A quality picker. The browser's own controls have no such thing — hls.js
+   * chooses by bandwidth and there is no way to overrule it — so this adds a
+   * small menu over the top-right of the picture: Auto, plus each resolution
+   * the stream actually carries.
+   */
+  function addQualityMenu(wrap, hls) {
+    if (!wrap || wrap.querySelector('.q-menu')) return;
+    var levels = hls.levels || [];
+    if (levels.length < 2) return;      // nothing to choose between
+
+    // highest first, which is the order people expect to read them in
+    var order = levels.map(function (l, i) { return { i: i, h: l.height }; })
+                      .sort(function (a, b) { return b.h - a.h; });
+
+    var menu = document.createElement('div');
+    menu.className = 'q-menu';
+    menu.innerHTML =
+      '<button type="button" class="q-btn" aria-haspopup="true" aria-expanded="false">Auto</button>' +
+      '<div class="q-list" hidden>' +
+        '<button type="button" data-level="-1" class="on">Auto</button>' +
+        order.map(function (o) {
+          return '<button type="button" data-level="' + o.i + '">' + o.h + 'p</button>';
+        }).join('') +
+      '</div>';
+    wrap.appendChild(menu);
+
+    var btn = menu.querySelector('.q-btn');
+    var list = menu.querySelector('.q-list');
+
+    // hls.currentLevel reports the level actually playing even when the choice
+    // is automatic, so it cannot tell you which mode you are in —
+    // autoLevelEnabled is the one that answers that.
+    function label() {
+      var lv = levels[hls.currentLevel];
+      if (hls.autoLevelEnabled) return lv ? 'Auto · ' + lv.height + 'p' : 'Auto';
+      return lv ? lv.height + 'p' : 'Auto';
+    }
+    function refresh() { btn.textContent = label(); }
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = !list.hidden;
+      list.hidden = open;
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+
+    list.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-level]');
+      if (!b) return;
+      hls.currentLevel = Number(b.getAttribute('data-level'));
+      [].forEach.call(list.querySelectorAll('button'), function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      list.hidden = true;
+      btn.setAttribute('aria-expanded', 'false');
+      refresh();
+    });
+
+    // close when the attention goes elsewhere
+    document.addEventListener('click', function () {
+      list.hidden = true; btn.setAttribute('aria-expanded', 'false');
+    });
+
+    // while on Auto the label follows whatever hls.js settles on
+    hls.on(window.Hls.Events.LEVEL_SWITCHED, refresh);
+    refresh();
   }
 
   /**
