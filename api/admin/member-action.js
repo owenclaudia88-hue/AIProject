@@ -2,7 +2,7 @@ import { readSession } from '../../lib/session.js';
 import { revokeAccess, restoreAccess, grantAccess, getCustomer, createLoginToken, normalizeEmail } from '../../lib/db.js';
 import { sendPurchaseConfirmation } from '../../lib/email.js';
 import { isAdmin } from '../../lib/admin.js';
-import { refundPayment } from '../../lib/funnel.js';
+import { memberPayments, refundChargeById, resolveCustomerId, cancelActiveSubscriptions } from '../../lib/funnel.js';
 
 /**
  * POST /api/admin/member-action  { email, action, confirm }
@@ -67,8 +67,20 @@ export default async function handler(req, res) {
 
     if (action === 'revoke') {
       await revokeAccess(email);
-      console.log(`[admin] ${actor} revoked ${email}`);
-      return res.status(200).json({ ok: true, status: 'revoked' });
+
+      // Removing access also ends their billing — a cancelled member should
+      // not still be charged $39 next month. Best-effort: access is already
+      // gone, so a Stripe hiccup here is reported, not fatal.
+      let cancelledSubscriptions = [];
+      try {
+        const customerId = await resolveCustomerId(customer);
+        if (customerId) cancelledSubscriptions = await cancelActiveSubscriptions(customerId);
+      } catch (err) {
+        console.error('[admin/member-action] subscription cancel failed for', email, err.message);
+      }
+
+      console.log(`[admin] ${actor} revoked ${email}, cancelled ${cancelledSubscriptions.length} subscription(s)`);
+      return res.status(200).json({ ok: true, status: 'revoked', cancelledSubscriptions });
     }
 
     if (action === 'restore') {
@@ -78,28 +90,39 @@ export default async function handler(req, res) {
     }
 
     if (action === 'refund') {
-      // Typing the address is the deliberate step. Stripe cannot reverse a
-      // refund, so this must never be one click away.
-      if (normalizeEmail(body.confirm || '') !== email) {
-        return res.status(400).json({ error: 'Type the member\'s email address to confirm the refund.' });
-      }
-      if (!customer.last_payment_intent) {
-        return res.status(400).json({ error: 'No payment on file for this member — refund it in Stripe directly.' });
-      }
-
-      let refund;
-      try {
-        refund = await refundPayment(customer.last_payment_intent);
-      } catch (err) {
-        console.error('[admin/member-action] refund failed:', err.message);
-        // Access is untouched when the money did not move — the two must not
-        // drift apart.
-        return res.status(502).json({ error: `Stripe refused the refund: ${err.message}` });
+      // Refund money only — access is handled by Cancel access, so a $39
+      // membership charge can be refunded without also pulling their access,
+      // and the $1 can be refunded without guessing what that should mean.
+      //
+      // The charge ids to refund come from the browser but are never trusted:
+      // we re-list this member's own payments and refund only ids found there,
+      // so a crafted request cannot refund a stranger's charge.
+      const { items } = await memberPayments(customer);
+      const refundable = new Map(items.filter((i) => i.refundable).map((i) => [i.ref, i]));
+      if (!refundable.size) {
+        return res.status(400).json({ error: 'Nothing left to refund for this member.' });
       }
 
-      await revokeAccess(email);
-      console.log(`[admin] ${actor} refunded ${email} (${refund.id}) and revoked access`);
-      return res.status(200).json({ ok: true, status: 'revoked', refund });
+      const wantAll = body.all === true;
+      const targets = wantAll
+        ? [...refundable.keys()]
+        : (typeof body.ref === 'string' && refundable.has(body.ref) ? [body.ref] : []);
+
+      if (!targets.length) {
+        return res.status(400).json({ error: 'That payment is not one of this member\'s refundable charges.' });
+      }
+
+      const refunded = [], failed = [];
+      for (const ref of targets) {
+        try { refunded.push(await refundChargeById(ref)); }
+        catch (err) {
+          console.error('[admin/member-action] refund failed for', ref, err.message);
+          failed.push({ ref, why: err.message });
+        }
+      }
+
+      console.log(`[admin] ${actor} refunded ${refunded.length} charge(s) for ${email}`);
+      return res.status(200).json({ ok: true, refunded, failed });
     }
 
     return res.status(400).json({ error: 'unknown action' });

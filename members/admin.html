@@ -94,6 +94,18 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   border-radius:999px;padding:7px 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
 .dl .bulk:hover{border-color:var(--accent)}
 .dl .bulk:disabled{opacity:.6;cursor:default}
+/* ---------- refund picker ---------- */
+.refund-panel{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.refund-panel .rp-load{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:4px 0}
+.refund-panel .rp-head{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--txt-3);margin-bottom:8px}
+.refund-panel .rp-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}
+.refund-panel .rp-desc{font-family:var(--mono);font-size:.8rem;color:var(--txt-2)}
+.refund-panel .rp-sub{font-family:var(--mono);font-size:.74rem;color:var(--txt-3);margin:10px 0 4px}
+.refund-panel .rp-btn{margin-left:auto;background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);
+  border-radius:999px;padding:6px 14px;font-family:var(--mono);font-size:.74rem;cursor:pointer}
+.refund-panel .rp-btn:hover{border-color:#f87171;color:#fca5a5}
+.refund-panel .rp-btn:disabled{opacity:.6;cursor:default}
+.refund-panel .rp-btn.all{margin:12px 0 0;margin-left:0}
 .sched{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-2);
   border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:14px;
   font-family:var(--mono);font-size:.8rem;color:var(--txt-2)}
@@ -403,6 +415,81 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       .catch(function () { window.alert('That did not work.'); btn.disabled = false; btn.textContent = was; });
   }
 
+  /* ---------------- refund picker ---------------- */
+
+  // Opens (or closes, on a second click) a panel under the member's card that
+  // lists every payment they've made and lets you refund any one, or all.
+  function openRefundPanel(btn) {
+    var email = btn.getAttribute('data-email');
+    var card = btn.closest('.card');
+    if (!card) return;
+    var open = card.querySelector('.refund-panel');
+    if (open) { open.remove(); return; }
+    var panel = document.createElement('div');
+    panel.className = 'refund-panel';
+    card.appendChild(panel);
+    loadRefundPanel(panel, email);
+  }
+
+  function loadRefundPanel(panel, email) {
+    panel.innerHTML = '<p class="rp-load">Loading payments…</p>';
+    fetch('/api/admin/member-payments?email=' + encodeURIComponent(email), { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.status !== 200) { panel.innerHTML = '<p class="rp-load">' + esc(res.d.error || 'Could not load payments.') + '</p>'; return; }
+        renderRefundPanel(panel, email, res.d);
+      })
+      .catch(function () { panel.innerHTML = '<p class="rp-load">Could not load payments.</p>'; });
+  }
+
+  function renderRefundPanel(panel, email, d) {
+    var pays = d.payments || [];
+    if (!pays.length) { panel.innerHTML = '<p class="rp-load">No payments found for this member.</p>'; return; }
+    var refundable = pays.filter(function (p) { return p.refundable; });
+
+    var rows = pays.map(function (p) {
+      var tag = p.refunded ? '<span class="st declined">refunded</span>'
+        : p.refundable ? '' : '<span class="st declined">not refundable</span>';
+      var act = p.refundable
+        ? '<button class="rp-btn" data-refund-ref="' + esc(p.ref) + '">Refund ' + esc(money(p.amount, p.currency)) + '</button>'
+        : '';
+      return '<div class="rp-row"><span class="rp-desc">' + esc(money(p.amount, p.currency)) +
+        ' · ' + esc(p.label) + ' · ' + esc(day(p.date)) + '</span>' + tag + act + '</div>';
+    }).join('');
+
+    var subNote = (d.subscriptions && d.subscriptions.length)
+      ? '<div class="rp-sub">Active membership subscription — cancel it with “Cancel access”.</div>' : '';
+    var all = refundable.length > 1
+      ? '<button class="rp-btn all" data-refund-all="1">Refund all ' + refundable.length + ' payments</button>' : '';
+
+    panel.innerHTML = '<div class="rp-head">Payments</div>' + rows + subNote + all;
+
+    [].forEach.call(panel.querySelectorAll('[data-refund-ref]'), function (b) {
+      b.addEventListener('click', function () { doRefund(email, { ref: b.getAttribute('data-refund-ref') }, b, panel); });
+    });
+    var allBtn = panel.querySelector('[data-refund-all]');
+    if (allBtn) allBtn.addEventListener('click', function () { doRefund(email, { all: true }, allBtn, panel); });
+  }
+
+  function doRefund(email, sel, btn, panel) {
+    var what = sel.all ? 'ALL refundable payments for ' + email : 'this payment';
+    if (!window.confirm('Refund ' + what + '?\n\nThis moves real money and cannot be undone. Access is not changed — use “Cancel access” for that.')) return;
+    btn.disabled = true; var was = btn.textContent; btn.textContent = 'Refunding…';
+    fetch('/api/admin/member-action', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ email: email, action: 'refund' }, sel))
+    })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.status !== 200) { window.alert(res.d.error || 'That did not work.'); btn.disabled = false; btn.textContent = was; return; }
+        var n = (res.d.refunded || []).length, f = (res.d.failed || []).length;
+        window.alert(n + ' payment' + (n === 1 ? '' : 's') + ' refunded' + (f ? ', ' + f + ' failed' : '') + '.');
+        loadRefundPanel(panel, email);   // refresh so refunded rows update
+      })
+      .catch(function () { window.alert('That did not work.'); btn.disabled = false; btn.textContent = was; });
+  }
+
   function wireMemberActions(scope) {
     [].forEach.call(scope.querySelectorAll('[data-remind]'), function (b) {
       b.addEventListener('click', function () {
@@ -458,15 +545,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         var payload = { email: email, action: act };
 
         if (act === 'refund') {
-          // Stripe cannot reverse a refund, so make it deliberate: the address
-          // has to be typed, not just clicked past.
-          var typed = window.prompt(
-            'Refund ' + email + ' in full and cancel their access?\n\n' +
-            'This cannot be undone. Type their email address to confirm:');
-          if (!typed) return;
-          payload.confirm = typed;
+          // Refund now opens a picker of this member's payments rather than
+          // firing straight away — one click no longer moves money.
+          openRefundPanel(b);
+          return;
         } else if (act === 'revoke') {
-          if (!window.confirm('Cancel access for ' + email + '?\n\nThey keep their account and you can restore it here.')) return;
+          if (!window.confirm('Cancel access for ' + email + '?\n\nThis also cancels their membership subscription in Stripe, so they are not charged again. They keep their account and you can restore access here (the subscription is not restored).')) return;
         } else if (act === 'grant') {
           payload.paymentIntent = b.getAttribute('data-pi') || undefined;
           payload.name = b.getAttribute('data-name') || undefined;
@@ -493,6 +577,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
                 : 'Access granted, but the welcome email did not send' +
                   (res.d.emailError ? ' (' + res.d.emailError + ')' : '') +
                   '.\n\nThey can still sign in from the login page using this address.');
+            }
+            if (act === 'revoke') {
+              var nsub = (res.d.cancelledSubscriptions || []).length;
+              if (nsub) window.alert('Access cancelled, and ' + nsub + ' subscription' + (nsub === 1 ? '' : 's') + ' cancelled in Stripe.');
             }
             members = null;                 // refetch so the figures move too
             paintMembers(document.getElementById('panel'));
