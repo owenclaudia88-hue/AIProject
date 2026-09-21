@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/checkout.css">
 <script src="https://js.stripe.com/v3/"></script>
+<script src="/assets/track.js"></script>
 </head>
 <body>
 
@@ -388,6 +389,19 @@
     if (!validateStep(1)) return;
     goTo(2);
     document.querySelector('.co-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Details are filled in by now, so the event carries them — hashed on the
+    // server — which is what lets Meta match the person later.
+    if (window.aifuTrack) {
+      var nm = val('fullname').trim().split(/\s+/);
+      window.aifuTrack('InitiateCheckout', {
+        email: val('email'),
+        firstName: nm[0] || '',
+        lastName: nm.length > 1 ? nm[nm.length - 1] : '',
+        city: val('city'),
+        zip: val('postcode'),
+        country: val('country')
+      });
+    }
   });
 
   /* ---------------- Stripe ---------------- */
@@ -440,7 +454,11 @@
       var res = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
+        // so the server-side Purchase can be attributed to the ad click
+        body: JSON.stringify({
+          fbclid: window.aifuFbclid ? window.aifuFbclid() : '',
+          fbp: window.aifuFbp ? window.aifuFbp() : ''
+        })
       });
       if (!res.ok) {
         var detail = await res.json().catch(function () { return {}; });

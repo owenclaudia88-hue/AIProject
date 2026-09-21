@@ -42,6 +42,10 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const email = typeof body.email === 'string' ? body.email.slice(0, 320) : undefined;
 
+    const clientIp = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+      || req.headers['x-real-ip'] || '';
+    const clientUa = req.headers['user-agent'] || '';
+
     // When the membership subscription is configured, the $1 purchase also has
     // to save the card so the subscription can charge it after the trial. That
     // needs a Customer on the PaymentIntent and setup_future_usage — without a
@@ -66,7 +70,17 @@ export default async function handler(req, res) {
       ...(customerId ? { customer: customerId, setup_future_usage: 'off_session' } : {}),
       metadata: {
         product: PRODUCT_NAME,
-        source: '70-ai-specialists-for-claude'
+        source: '70-ai-specialists-for-claude',
+        // Carried so the webhook can attribute the Purchase to the ad click
+        // that started it. The webhook is the only place that knows the
+        // payment succeeded, and by then the browser is long gone.
+        ...(typeof body.fbclid === 'string' && body.fbclid ? { fbclid: body.fbclid.slice(0, 300) } : {}),
+        ...(typeof body.fbp === 'string' && body.fbp ? { fbp: body.fbp.slice(0, 100) } : {}),
+        // The buyer's IP and browser, kept for the same reason: Meta matches a
+        // conversion far better with them, and the webhook only ever sees
+        // Stripe's own IP, never the buyer's.
+        ...(clientIp ? { client_ip: clientIp } : {}),
+        ...(clientUa ? { client_ua: clientUa.slice(0, 480) } : {})
       }
     });
 

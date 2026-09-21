@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { grantAccess, revokeAccess, createLoginToken } from '../lib/db.js';
 import { sendPurchaseConfirmation } from '../lib/email.js';
+import { sendPurchase } from '../lib/meta-capi.js';
 
 /**
  * Stripe webhook receiver.
@@ -92,6 +93,33 @@ export default async function handler(req, res) {
           // Don't fail the webhook over email — access is already granted and
           // they can request a fresh link from the login page.
           console.error('[stripe-webhook] Welcome email failed:', mailErr.message);
+        }
+
+        // Tell Meta the sale happened. Server to server on purpose: this is
+        // the only point that knows the money actually arrived, and it can't
+        // be lost to an ad blocker or a closed tab. The event id is the
+        // PaymentIntent, so a webhook retry is de-duplicated rather than
+        // counted as a second sale. The buyer's IP and browser were kept on
+        // the intent at checkout because here we would only see Stripe's.
+        try {
+          const bd = charge?.billing_details || {};
+          const parts = String(name || '').trim().split(/\s+/);
+          await sendPurchase({
+            sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/checkout.html`,
+            email,
+            firstName: parts[0] || null,
+            lastName: parts.length > 1 ? parts[parts.length - 1] : null,
+            city: bd.address?.city || null,
+            zip: bd.address?.postal_code || null,
+            country: bd.address?.country || null,
+            fbclid: pi.metadata?.fbclid || null,
+            fbp: pi.metadata?.fbp || null,
+            ip: pi.metadata?.client_ip || null,
+            ua: pi.metadata?.client_ua || null
+          }, { amount: pi.amount, currency: pi.currency, eventId: pi.id });
+        } catch (capiErr) {
+          // Never let tracking fail a sale that has already been fulfilled.
+          console.error('[stripe-webhook] Meta Purchase event failed:', capiErr.message);
         }
 
         // The same $1 purchase also enrols the buyer in the monthly membership
