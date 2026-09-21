@@ -1725,7 +1725,19 @@ button{font-family:inherit}
         onFail('Could not load the video player.');
         return;
       }
-      var cfg = { capLevelToPlayerSize: true };
+      var cfg = {
+        // Don't fetch more pixels than the screen can show. These are screen
+        // recordings watched in a box a few hundred pixels wide, and the
+        // bandwidth is billed by the gigabyte.
+        capLevelToPlayerSize: true,
+        // hls.js assumes 500kbps until it has measured the connection, which
+        // starts every lesson at 360p — soft, on recordings whose whole point
+        // is legible text — and then climbs a rung at a time. Opening at a
+        // more realistic guess starts it sharp; a genuinely slow connection
+        // still drops within a fragment or two, because the measurement
+        // immediately replaces the guess.
+        abrEwmaDefaultEstimate: 3000000
+      };
       // The signed query covers the whole video directory, but hls.js
       // resolves each segment relative to the playlist and so drops it —
       // the playlist would load and every segment after it would 403.
