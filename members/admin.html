@@ -71,6 +71,26 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .brand-logo{width:176px;max-width:44vw;height:auto;display:block;flex:none}
 @media(max-width:600px){.brand-logo{width:150px}}
 
+/* ---------- members view ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:3px}
+.stat .v{font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
+.stat .l{font-family:var(--mono);font-size:.74rem;color:var(--txt-3)}
+.stat .s{font-family:var(--mono);font-size:.7rem;color:var(--txt-3);opacity:.75}
+.warn{font-family:var(--mono);font-size:.8rem;color:var(--accent-2);margin:0 0 14px}
+.alert{background:rgba(255,176,32,.09);border:1px solid rgba(255,176,32,.32);border-radius:14px;
+  padding:14px 18px;margin-bottom:12px}
+.alert b{color:var(--accent-2)}
+.alert p{margin:6px 0 0;color:var(--txt-2);font-size:.88rem;line-height:1.55}
+.sech{font-size:1rem;font-weight:700;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
+.sech .meta{font-family:var(--mono);font-size:.74rem;color:var(--txt-3);font-weight:400}
+.dl{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:4px 0 2px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dl a{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);border-radius:999px;
+  padding:6px 14px}
+.dl a:hover{border-color:var(--accent);color:var(--accent-2)}
+
 /* ---------- staff sign-in ---------- */
 #staff-signin{width:min(380px,90vw);text-align:left}
 #staff-signin h2{color:var(--txt)}
@@ -107,11 +127,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       <h1>Admin</h1>
       <span class="who" id="who"></span>
     </div>
-    <p class="sub">Content requests from members, and every comment left on a course.</p>
+    <p class="sub">Members, content requests, and every comment left on a course.</p>
 
     <div class="tabs">
       <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
+      <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
     </div>
 
     <div id="panel"></div>
@@ -122,6 +143,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 (function () {
   var STATUSES = ['new', 'planned', 'done', 'declined'];
   var data = { requests: [], comments: [] };
+  var members = null;          // loaded the first time the tab is opened
+  var membersError = '';
   var tab = 'requests';
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
@@ -189,6 +212,143 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       });
   });
 
+  /* ---------------- members ---------------- */
+
+  function money(cents, cur) {
+    try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: (cur || 'usd').toUpperCase() }).format((cents || 0) / 100); }
+    catch (e) { return ((cents || 0) / 100).toFixed(2) + ' ' + String(cur || '').toUpperCase(); }
+  }
+  function day(iso) { var t = new Date(iso).getTime(); return t ? new Date(t).toLocaleDateString() : ''; }
+
+  function paintMembers(p) {
+    if (membersError) { p.innerHTML = '<p class="empty">' + esc(membersError) + '</p>'; return; }
+    if (!members) {
+      p.innerHTML = '<p class="empty">Loading members&hellip;</p>';
+      fetch('/api/admin/members', { credentials: 'same-origin' })
+        .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.status !== 200) { membersError = res.d.error || 'Could not load members.'; }
+          else { members = res.d; document.getElementById('n-mem').textContent = res.d.counts.active + ' active'; }
+          if (tab === 'members') paintMembers(document.getElementById('panel'));
+        })
+        .catch(function () {
+          membersError = 'Could not load members.';
+          if (tab === 'members') paintMembers(document.getElementById('panel'));
+        });
+      return;
+    }
+
+    var f = members.funnel;
+    var h = '';
+
+    /* the numbers */
+    h += '<div class="stats">' +
+      stat(members.counts.active, 'Active members') +
+      stat(members.counts.revoked, 'Revoked') +
+      (f ? stat(f.people, 'Reached checkout') : '') +
+      (f ? stat(f.conversionRate + '%', 'Converted to paid', f.converted + ' of ' + f.people) : '') +
+      '</div>';
+    if (members.funnelError) h += '<p class="warn">' + esc(members.funnelError) + '</p>';
+
+    /* paid but no access — the thing that needs acting on */
+    if (f && f.paidWithoutAccess && f.paidWithoutAccess.length) {
+      h += '<div class="alert"><b>' + f.paidWithoutAccess.length + ' paid but have no access.</b>' +
+        '<p>A payment went through and the account was never created — usually a webhook that did not arrive. Give them access here.</p></div>';
+      f.paidWithoutAccess.forEach(function (x) {
+        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' +
+          '<span class="st new">paid, no access</span>' +
+          '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + money(x.amount, x.currency) + ' · ' + esc(day(x.createdAt)) + '</span></div>' +
+          '<div class="acts"><button data-act="grant" data-email="' + esc(x.email) + '" data-pi="' + esc(x.paymentIntent) + '" data-name="' + esc(x.name || '') + '">Give them access</button></div></div>';
+      });
+    }
+
+    /* downloads */
+    h += '<div class="dl">Download: ' +
+      '<a href="/api/admin/export?set=members">members</a>' +
+      '<a href="/api/admin/export?set=leads">non-buyers</a>' +
+      '<a href="/api/admin/export?set=all">everyone</a></div>';
+
+    /* the members themselves */
+    h += '<h3 class="sech">Members</h3>';
+    if (!members.members.length) h += '<p class="empty">No members yet.</p>';
+    members.members.forEach(function (m) {
+      var active = m.status === 'active';
+      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' +
+        '<span class="st ' + (active ? 'done' : 'declined') + '">' + esc(m.status) + '</span>' +
+        '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(day(m.joinedAt)) + '</span></div>' +
+        '<div class="acts">' +
+          (active
+            ? '<button class="danger" data-act="revoke" data-email="' + esc(m.email) + '">Cancel access</button>'
+            : '<button data-act="restore" data-email="' + esc(m.email) + '">Restore access</button>') +
+          (m.paymentIntent ? '<button class="danger" data-act="refund" data-email="' + esc(m.email) + '">Refund&hellip;</button>' : '') +
+        '</div></div>';
+    });
+
+    /* everyone who started and did not finish */
+    if (f && f.didNotConvert && f.didNotConvert.length) {
+      h += '<h3 class="sech">Started checkout, did not buy <span class="meta">' + f.didNotConvert.length + '</span></h3>';
+      f.didNotConvert.forEach(function (x) {
+        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' +
+          '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + esc(day(x.createdAt)) + '</span></div></div>';
+      });
+    }
+
+    p.innerHTML = h;
+    wireMemberActions(p);
+  }
+
+  function stat(value, label, sub) {
+    return '<div class="stat"><span class="v">' + esc(value) + '</span>' +
+      '<span class="l">' + esc(label) + '</span>' +
+      (sub ? '<span class="s">' + esc(sub) + '</span>' : '') + '</div>';
+  }
+
+  function wireMemberActions(scope) {
+    [].forEach.call(scope.querySelectorAll('[data-act]'), function (b) {
+      b.addEventListener('click', function () {
+        var act = b.getAttribute('data-act');
+        var email = b.getAttribute('data-email');
+        var payload = { email: email, action: act };
+
+        if (act === 'refund') {
+          // Stripe cannot reverse a refund, so make it deliberate: the address
+          // has to be typed, not just clicked past.
+          var typed = window.prompt(
+            'Refund ' + email + ' in full and cancel their access?\n\n' +
+            'This cannot be undone. Type their email address to confirm:');
+          if (!typed) return;
+          payload.confirm = typed;
+        } else if (act === 'revoke') {
+          if (!window.confirm('Cancel access for ' + email + '?\n\nThey keep their account and you can restore it here.')) return;
+        } else if (act === 'grant') {
+          payload.paymentIntent = b.getAttribute('data-pi') || undefined;
+          payload.name = b.getAttribute('data-name') || undefined;
+        }
+
+        b.disabled = true; var was = b.textContent; b.textContent = 'Working…';
+        fetch('/api/admin/member-action', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+          .then(function (res) {
+            if (res.status !== 200) {
+              window.alert(res.d.error || 'That did not work.');
+              b.disabled = false; b.textContent = was;
+              return;
+            }
+            members = null;                 // refetch so the figures move too
+            paintMembers(document.getElementById('panel'));
+          })
+          .catch(function () {
+            window.alert('That did not work.');
+            b.disabled = false; b.textContent = was;
+          });
+      });
+    });
+  }
+
   function counts() {
     var open = data.requests.filter(function (r) { return r.status === 'new'; }).length;
     document.getElementById('n-req').textContent = open ? open + ' new' : data.requests.length;
@@ -207,6 +367,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
   function paint() {
     var p = document.getElementById('panel');
+    if (tab === 'members') { paintMembers(p); return; }
     p.innerHTML = tab === 'requests' ? requestsHTML() : commentsHTML();
     if (tab === 'requests') {
       [].forEach.call(p.querySelectorAll('[data-set]'), function (b) {
