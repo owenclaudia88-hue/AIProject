@@ -1,4 +1,5 @@
 import { isActive, createLoginToken, normalizeEmail } from '../../lib/db.js';
+import { isAdmin } from '../../lib/admin.js';
 import { sendMagicLink } from '../../lib/email.js';
 
 /**
@@ -21,8 +22,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Enter a valid email address.' });
     }
 
-    // Only active customers get a link — but never reveal that either way.
-    if (await isActive(email)) {
+    // Active customers get a link, and so do staff — who run the place and
+    // should not have to buy the product to sign in and answer a support
+    // question. Either way the reply below is the same, so this still cannot
+    // be used to find out who holds an account.
+    if (isAdmin(email) || await isActive(email)) {
       const token = await createLoginToken(email);
       const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
       const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;

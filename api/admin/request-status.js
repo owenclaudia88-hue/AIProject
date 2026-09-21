@@ -1,5 +1,5 @@
 import { readSession } from '../../lib/session.js';
-import { isActive, setRequestStatus } from '../../lib/db.js';
+import { setRequestStatus } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 
 const ALLOWED = ['new', 'planned', 'done', 'declined'];
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const email = readSession(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
-    if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
+    // Staff are staff whether or not they ever bought the product.
     if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 
     const b = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
