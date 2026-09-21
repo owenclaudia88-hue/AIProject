@@ -23,7 +23,14 @@ export default async function handler(req, res) {
     const data = row.data || {};
     const sections = (data.sections || []).map(s => ({
       ...s,
-      lessons: (s.lessons || []).map(({ videoId, ...l }) => ({ ...l, hasVideo: !!videoId }))
+      lessons: (s.lessons || []).map(({ videoId, clips, ...l }) => ({
+        ...l,
+        hasVideo: !!videoId,
+        // The shape is not secret and the player needs it before the video
+        // loads, or the frame is drawn at 16:9 and then jumps.
+        // Clips keep their titles for the same reason; only the ids are held back.
+        clips: (clips || []).map(({ videoId: _id, ...c }) => c)
+      }))
     }));
 
     return res.status(200).json({

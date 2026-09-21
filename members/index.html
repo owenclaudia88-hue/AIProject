@@ -212,6 +212,13 @@ button{font-family:inherit}
 .pl-content pre,.pl-content code{background:#0e0e10;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:.85rem}
 .pl-content pre{padding:14px;overflow:auto}
 .pl-content a{color:var(--accent-2)}
+/* a recording sitting inside the lesson body, one per marker */
+.pl-content .lesson-clip{position:relative;aspect-ratio:16/9;margin:18px 0;border-radius:12px;
+  overflow:hidden;background:#000;border:1px solid var(--line)}
+.pl-content .lesson-clip video{position:absolute;inset:0;width:100%;height:100%;border:0;
+  object-fit:contain;background:#000}
+.pl-content .lesson-clip .clip-msg{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:.82rem;color:var(--txt-2)}
 .pl-content .lesson-video-embed{display:flex;align-items:center;justify-content:center;gap:10px;aspect-ratio:16/9;border-radius:12px;border:1px solid var(--line);background:radial-gradient(120% 120% at 50% 35%,#221206,#0b0b0d);color:var(--txt-2);font-family:var(--mono);font-size:.85rem;margin:16px 0}
 .pl-complete{display:flex;justify-content:center;padding:26px 0 60px}
 .pl-complete button{background:#101013;border:1px solid var(--line-2);color:var(--txt);font-weight:800;font-size:1rem;padding:14px 30px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
@@ -1463,7 +1470,9 @@ button{font-family:inherit}
         // hasVideo has to come along: the player reads it off the flattened
         // lesson, and leaving it behind here showed every lesson as
         // "coming soon" however well the signing worked.
-        flat.push({ libId: l.libId, title: l.title, duration: l.duration, hasVideo: !!l.hasVideo, sectionName: s.name, sectionIdx: si });
+        flat.push({ libId: l.libId, title: l.title, duration: l.duration, hasVideo: !!l.hasVideo,
+                    aspect: l.aspect || null, clips: l.clips || [],
+                    sectionName: s.name, sectionIdx: si });
       });
     });
     return flat;
@@ -1598,12 +1607,15 @@ button{font-family:inherit}
     return hlsReady;
   }
 
-  var curHls = null;      // the live Hls instance, so it can be torn down
+  // Every live Hls instance — the lesson's own video and any inside its body.
+  // All of them keep downloading until destroyed, so all of them get torn down.
+  var hlsPool = [];
   var videoGen = 0;       // guards against a slow response for a lesson we left
 
   function teardownVideo() {
     videoGen++;
-    if (curHls) { try { curHls.destroy(); } catch (e) {} curHls = null; }
+    hlsPool.forEach(function (h) { try { h.destroy(); } catch (e) {} });
+    hlsPool = [];
     var box = document.getElementById('pl-video');
     if (box) {
       box.innerHTML = '';
@@ -1621,8 +1633,16 @@ button{font-family:inherit}
     teardownVideo();
     var mine = videoGen;
     var box = document.getElementById('pl-video');
-    if (!lesson || !lesson.hasVideo) { box.innerHTML = videoMessage('Video lesson — coming soon'); return; }
+    // Some lessons are written pieces, or carry their videos inline in the
+    // body instead. Showing them an empty frame implies something failed to
+    // load, so take the frame away entirely rather than apologise in it.
+    if (!lesson || !lesson.hasVideo) { box.style.display = 'none'; box.innerHTML = ''; return; }
 
+    box.style.display = '';
+    // Set the frame to the video's shape before anything loads. The shape came
+    // down with the course tree precisely so the frame never has to be drawn
+    // at 16:9 first and corrected a moment later.
+    if (lesson.aspect) box.style.aspectRatio = String(lesson.aspect);
     box.innerHTML = videoMessage('Loading video…');
     fetch('/api/video/sign?lesson=' + encodeURIComponent(lesson.libId), { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
@@ -1657,48 +1677,97 @@ button{font-family:inherit}
           box.innerHTML = videoMessage('This browser cannot play the video.');
           return;
         }
-        loadHls().then(function (ok) {
-          if (mine !== videoGen) return;
-          if (!ok || !window.Hls.isSupported()) {
-            if (el.canPlayType('application/vnd.apple.mpegurl')) { el.src = v.url; return; }
-            box.innerHTML = videoMessage('Could not load the video player.');
-            return;
-          }
-          var cfg = { capLevelToPlayerSize: true };
-          // The signed query covers the whole video directory, but hls.js
-          // resolves each segment relative to the playlist and so drops it —
-          // the playlist would load and every segment after it would 403.
-          // Put the same token back on each request.
-          var qs = v.url.split('?')[1] || '';
-          if (qs) {
-            var BaseLoader = window.Hls.DefaultConfig.loader;
-            cfg.loader = function (c) {
-              var l = new BaseLoader(c);
-              var load = l.load.bind(l);
-              l.load = function (ctx, lcfg, cbs) {
-                if (ctx.url.indexOf('token=') === -1) {
-                  ctx.url += (ctx.url.indexOf('?') === -1 ? '?' : '&') + qs;
-                }
-                return load(ctx, lcfg, cbs);
-              };
-              return l;
-            };
-          }
-          var hls = new window.Hls(cfg);
-          curHls = hls;
-          hls.loadSource(v.url);
-          hls.attachMedia(el);
-          hls.on(window.Hls.Events.ERROR, function (_e, d) {
-            // Recoverable stalls happen on flaky connections; only a fatal
-            // error is worth replacing the player over.
-            if (!d.fatal) return;
-            if (d.type === window.Hls.ErrorTypes.NETWORK_ERROR) { hls.startLoad(); return; }
-            if (d.type === window.Hls.ErrorTypes.MEDIA_ERROR) { hls.recoverMediaError(); return; }
-            if (mine === videoGen) box.innerHTML = videoMessage('This video could not be played.');
-          });
-        });
+        attachStream(el, v, mine, function (msg) { box.innerHTML = videoMessage(msg); });
       })
       .catch(function () { if (mine === videoGen) box.innerHTML = videoMessage('Video lesson — coming soon'); });
+  }
+
+  /**
+   * Point a <video> at a signed HLS URL. Shared by the lesson's own video and
+   * by the recordings inside a lesson body, which need exactly the same
+   * treatment: the token reapplied per request, and hls.js preferred over
+   * Chrome's word that it can play HLS natively.
+   */
+  function attachStream(el, v, mine, onFail) {
+    if (!window.MediaSource && !window.ManagedMediaSource) {
+      if (el.canPlayType('application/vnd.apple.mpegurl')) { el.src = v.url; return; }
+      onFail('This browser cannot play the video.');
+      return;
+    }
+    loadHls().then(function (ok) {
+      if (mine !== videoGen) return;
+      if (!ok || !window.Hls.isSupported()) {
+        if (el.canPlayType('application/vnd.apple.mpegurl')) { el.src = v.url; return; }
+        onFail('Could not load the video player.');
+        return;
+      }
+      var cfg = { capLevelToPlayerSize: true };
+      // The signed query covers the whole video directory, but hls.js
+      // resolves each segment relative to the playlist and so drops it —
+      // the playlist would load and every segment after it would 403.
+      // Put the same token back on each request.
+      var qs = v.url.split('?')[1] || '';
+      if (qs) {
+        var BaseLoader = window.Hls.DefaultConfig.loader;
+        cfg.loader = function (c) {
+          var l = new BaseLoader(c);
+          var load = l.load.bind(l);
+          l.load = function (ctx, lcfg, cbs) {
+            if (ctx.url.indexOf('token=') === -1) {
+              ctx.url += (ctx.url.indexOf('?') === -1 ? '?' : '&') + qs;
+            }
+            return load(ctx, lcfg, cbs);
+          };
+          return l;
+        };
+      }
+      var hls = new window.Hls(cfg);
+      hlsPool.push(hls);
+      hls.loadSource(v.url);
+      hls.attachMedia(el);
+      hls.on(window.Hls.Events.ERROR, function (_e, d) {
+        // Recoverable stalls happen on flaky connections; only a fatal
+        // error is worth replacing the player over.
+        if (!d.fatal) return;
+        if (d.type === window.Hls.ErrorTypes.NETWORK_ERROR) { hls.startLoad(); return; }
+        if (d.type === window.Hls.ErrorTypes.MEDIA_ERROR) { hls.recoverMediaError(); return; }
+        if (mine === videoGen) onFail('This video could not be played.');
+      });
+    });
+  }
+
+  /**
+   * Fill in the recordings that sit inside a lesson body. The body arrives
+   * with an empty marker per clip; each gets its own signed URL.
+   */
+  function mountClips(scope, lesson) {
+    var marks = scope.querySelectorAll('.lesson-clip');
+    if (!marks.length) return;
+    var mine = videoGen;
+
+    [].forEach.call(marks, function (mark) {
+      var idx = Number(mark.getAttribute('data-clip'));
+      var meta = (lesson.clips || [])[idx] || {};
+      if (meta.aspect) mark.style.aspectRatio = String(meta.aspect);
+      mark.innerHTML = '<div class="clip-msg">Loading video…</div>';
+
+      fetch('/api/video/sign?lesson=' + encodeURIComponent(lesson.libId) + '&clip=' + idx,
+            { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (v) {
+          if (mine !== videoGen) return;
+          if (!v || !v.url) { mark.innerHTML = '<div class="clip-msg">Video unavailable.</div>'; return; }
+          var el = document.createElement('video');
+          el.controls = true; el.playsInline = true; el.preload = 'metadata';
+          if (v.poster) el.poster = v.poster;
+          mark.innerHTML = ''; mark.appendChild(el);
+          el.addEventListener('loadedmetadata', function () {
+            if (el.videoWidth && el.videoHeight) mark.style.aspectRatio = el.videoWidth + ' / ' + el.videoHeight;
+          });
+          attachStream(el, v, mine, function (msg) { mark.innerHTML = '<div class="clip-msg">' + esc(msg) + '</div>'; });
+        })
+        .catch(function () { if (mine === videoGen) mark.innerHTML = ''; });
+    });
   }
 
   function gotoLesson(idx) {
@@ -1722,6 +1791,8 @@ button{font-family:inherit}
       .then(function (it) {
         body.innerHTML = (it && it.bodyHtml) ? it.bodyHtml
           : '<p style="color:var(--txt-3)">Lesson notes will appear here.</p>';
+        // a lesson can carry its own recordings in the body — fill them in
+        mountClips(body, l);
       })
       .catch(function () { body.innerHTML = '<p style="color:#fca5a5">Could not load this lesson.</p>'; });
 

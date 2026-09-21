@@ -23,7 +23,18 @@ export default async function handler(req, res) {
     const { host } = bunnyConfig();
     if (!host) return res.status(503).json({ error: 'video not configured' });
 
-    const videoId = await lessonVideoId(lesson);
+    // ?clip=N asks for one of the recordings inside the lesson body rather
+    // than the lesson's own video.
+    const rawClip = params.get('clip');
+    let clip = null;
+    if (rawClip !== null) {
+      clip = Number(rawClip);
+      if (!Number.isInteger(clip) || clip < 0 || clip > 50) {
+        return res.status(400).json({ error: 'bad clip' });
+      }
+    }
+
+    const videoId = await lessonVideoId(lesson, clip);
     // Not every lesson has a video — the prompt-vault ones are text only.
     if (!videoId) return res.status(404).json({ error: 'no video' });
 

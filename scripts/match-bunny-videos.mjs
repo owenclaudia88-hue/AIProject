@@ -72,8 +72,10 @@ for (const c of await listCourses()) {
   let touched = 0;
   console.log(`\n=== ${course.title}`);
 
+  var position = 0;   // 1-based place in the course, across sections
   for (const section of data.sections) {
     for (const lesson of section.lessons) {
+      position++;
       const want = durToSec(lesson.duration);
       if (want === null) { console.log(`   —      (no video)          ${lesson.title}`); continue; }
 
@@ -85,8 +87,27 @@ for (const c of await listCourses()) {
 
       if (!cands.length) { console.log(`   MISS   ${lesson.duration}  ${lesson.title}`); unmatched++; continue; }
 
-      const best = cands[0];
-      const tie = cands.length > 1 && cands[1].score === best.score;
+      let best = cands[0];
+      let tie = cands.length > 1 && cands[1].score === best.score;
+
+      // A course can hold the same lesson twice — two parts recorded to the
+      // same length under the same name — and the library then holds two
+      // equally-named videos. The uploaded filenames carry "Lesson N of M",
+      // so break the tie on whichever N sits nearest this lesson's place in
+      // the course. Only a tiebreak: it never overrides a better title match.
+      if (tie) {
+        const numberOf = (t) => { const m = /lesson\s+(\d+)/i.exec(t || ''); return m ? +m[1] : null; };
+        const top = cands.filter(c => c.score === best.score);
+        const numbered = top.filter(c => numberOf(c.v.title) !== null);
+        if (numbered.length === top.length && new Set(numbered.map(c => numberOf(c.v.title))).size === top.length) {
+          numbered.sort((a, b) =>
+            Math.abs(numberOf(a.v.title) - position) - Math.abs(numberOf(b.v.title) - position));
+          best = numbered[0];
+          tie = false;
+          console.log(`   (tie broken on lesson number: chose "${best.v.title}" for position ${position})`);
+        }
+      }
+
       if (tie) {
         console.log(`   AMBIG  ${lesson.duration}  ${lesson.title}`);
         cands.slice(0, 3).forEach(x => console.log(`            candidate: ${x.v.title}  [${x.v.guid}]`));
@@ -108,6 +129,15 @@ for (const c of await listCourses()) {
       takenBy.set(best.v.guid, lesson.title);
       console.log(`   ok     ${lesson.duration}  ${lesson.title}\n            → ${best.v.title}`);
       if (isVideoId(best.v.guid) && lesson.videoId !== best.v.guid) { lesson.videoId = best.v.guid; touched++; }
+
+      // Record the shape as well. Almost none of these are 16:9, and without
+      // knowing the proportions up front the player draws a 16:9 frame and
+      // then jumps to the right one the moment the video reports its size.
+      // The dimensions are not secret — only the video id is withheld.
+      if (best.v.width && best.v.height) {
+        const aspect = +(best.v.width / best.v.height).toFixed(4);
+        if (lesson.aspect !== aspect) { lesson.aspect = aspect; touched++; }
+      }
       matched++;
     }
   }
