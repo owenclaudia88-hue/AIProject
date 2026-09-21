@@ -1605,7 +1605,11 @@ button{font-family:inherit}
     videoGen++;
     if (curHls) { try { curHls.destroy(); } catch (e) {} curHls = null; }
     var box = document.getElementById('pl-video');
-    if (box) box.innerHTML = '';
+    if (box) {
+      box.innerHTML = '';
+      // back to the default shape, or the next lesson inherits this one's
+      box.style.aspectRatio = '';
+    }
   }
 
   function videoMessage(text) {
@@ -1630,6 +1634,17 @@ button{font-family:inherit}
         el.controls = true; el.playsInline = true; el.preload = 'metadata';
         if (v.poster) el.poster = v.poster;
         box.innerHTML = ''; box.appendChild(el);
+
+        // These lessons are screen recordings and almost none of them are 16:9
+        // — they run from 1.55 to 1.82. Against a frame fixed at 16:9 the
+        // picture is pinned to the top and bottom edges with slivers of black
+        // down the sides. Take the shape from the video itself once it is
+        // known, so the frame is the video's own shape and its rounded corners
+        // belong to the picture rather than cropping it.
+        el.addEventListener('loadedmetadata', function () {
+          if (mine !== videoGen || !el.videoWidth || !el.videoHeight) return;
+          box.style.aspectRatio = el.videoWidth + ' / ' + el.videoHeight;
+        });
 
         // Chrome answers "maybe" to canPlayType for HLS but cannot actually
         // play it — it rejects the source and the video sits at 0:00 with no
