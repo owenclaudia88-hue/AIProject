@@ -67,9 +67,18 @@ export default async function handler(req, res) {
         // Grant access. grantAccess is an idempotent upsert, so Stripe retries
         // are safe. It also tells us whether this row was new, so the welcome
         // email is only sent on the first successful payment for this buyer.
+        // Checkout asks for a full name and sends it as billing_details.name.
+        // Where it lands depends on how the PaymentIntent came back: older
+        // shapes carry an expanded `charges` list, newer ones only
+        // `latest_charge`, so take whichever is actually here.
+        const charge = pi.charges?.data?.[0]
+          || (pi.latest_charge && typeof pi.latest_charge === 'object' ? pi.latest_charge : null);
+        const name = charge?.billing_details?.name || pi.shipping?.name || undefined;
+
         const created = await grantAccess(email, {
           paymentIntent: pi.id,
-          stripeCustomerId: typeof pi.customer === 'string' ? pi.customer : undefined
+          stripeCustomerId: typeof pi.customer === 'string' ? pi.customer : undefined,
+          name
         });
         console.log('[stripe-webhook] Access granted:', email);
 

@@ -52,7 +52,10 @@ button{font-family:inherit}
 .sb-spacer{flex:1}
 .sb-foot{padding:14px 20px 4px;border-top:1px solid var(--line);margin-top:8px}
 .sb-user{font-size:.78rem;color:var(--txt-3);word-break:break-all;margin-bottom:8px}
-.sb-user b{color:var(--txt-2);font-weight:600}
+.sb-user b{color:var(--txt-2);font-weight:600;display:block}
+/* the name identifies the person, the address identifies which account —
+   both matter, so keep the email but let the name lead */
+.sb-email{display:block;font-size:.72rem;color:var(--txt-3);opacity:.75;margin-top:1px}
 .signout{background:none;border:1px solid var(--line-2);color:var(--txt-2);font-size:.82rem;padding:8px 14px;border-radius:999px;cursor:pointer;width:100%}
 .signout:hover{background:var(--bg-3);color:var(--txt)}
 
@@ -651,7 +654,7 @@ button{font-family:inherit}
         <div class="sb-spacer"></div>
         <div class="sb-foot">
           <a class="nav" id="admin-link" href="admin.html" hidden style="margin:0 0 10px;width:100%"><span class="nic">🛠</span>Admin</a>
-          <div class="sb-user">Signed in as <b id="who-email"></b></div>
+          <div class="sb-user">Signed in as <b id="who-name"></b><span class="sb-email" id="who-email"></span></div>
           <button class="signout" id="signout">Sign out</button>
         </div>
       </aside>
@@ -780,6 +783,7 @@ button{font-family:inherit}
         gate.style.display = 'none';
         appEl.style.display = 'block';
         document.getElementById('who-email').textContent = res.d.email;
+        document.getElementById('who-name').textContent = res.d.name || res.d.email;
         me.email = res.d.email;
         me.name = res.d.name || '';
         me.hasName = !!res.d.hasName;
@@ -1035,8 +1039,12 @@ button{font-family:inherit}
   }
 
   function renderDashboard(c) {
-    var name = (document.getElementById('who-email').textContent || '').split('@')[0].split(/[.\-_]/)[0];
-    name = name ? name.charAt(0).toUpperCase() + name.slice(1) : '';
+    // Use the name they gave at checkout, which /api/me already sends — this
+    // was picking the email apart instead, which is how a member ends up
+    // greeted as "Owenclaudia88". First name only: it is a hello, not a
+    // letterhead. Anyone with no stored name still gets the tidied email
+    // local-part, because that is what displayNameFor falls back to.
+    var name = String(me.name || '').trim().split(/\s+/)[0] || '';
     var html = '<h1 class="page-h">Welcome back' + (name ? ', ' + esc(name) : '') + '.</h1>' +
       '<p class="page-sub">You have full access to everything — courses, plugins, and the full content library.</p>';
 
