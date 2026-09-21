@@ -42,12 +42,28 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const email = typeof body.email === 'string' ? body.email.slice(0, 320) : undefined;
 
+    // When the membership subscription is configured, the $1 purchase also has
+    // to save the card so the subscription can charge it after the trial. That
+    // needs a Customer on the PaymentIntent and setup_future_usage — without a
+    // customer Stripe will not retain the payment method. The email is not
+    // known yet (the form posts it on confirm), so the customer starts empty
+    // and the webhook fills in name/email once the payment lands.
+    const wantsSubscription = !!process.env.STRIPE_MONTHLY_PRICE_ID;
+    let customerId;
+    if (wantsSubscription) {
+      const customer = await stripe.customers.create({
+        metadata: { source: '70-ai-specialists-for-claude' }
+      });
+      customerId = customer.id;
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: PRICE_AMOUNT,
       currency: PRICE_CURRENCY,
       automatic_payment_methods: { enabled: true },
       description: PRODUCT_NAME,
       receipt_email: email,
+      ...(customerId ? { customer: customerId, setup_future_usage: 'off_session' } : {}),
       metadata: {
         product: PRODUCT_NAME,
         source: '70-ai-specialists-for-claude'
