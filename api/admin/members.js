@@ -1,7 +1,8 @@
 import { readSession } from '../../lib/session.js';
-import { listCustomers, displayNameFor } from '../../lib/db.js';
+import { listCustomers, displayNameFor, outreachLog, optOuts } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
+import { reminderSettings } from '../../lib/reminders.js';
 
 /**
  * GET /api/admin/members — everyone who has an account, everyone who started
@@ -17,7 +18,9 @@ export default async function handler(req, res) {
   if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 
   try {
-    const customers = await listCustomers();
+    const [customers, reminded, optedOut, reminders] = await Promise.all([
+      listCustomers(), outreachLog('checkout-reminder'), optOuts(), reminderSettings()
+    ]);
 
     let funnel = null, funnelError = null;
     try {
@@ -42,7 +45,12 @@ export default async function handler(req, res) {
     const accounts = new Map(members.map((m) => [m.email, m.status]));
     const didNotConvert = (funnel?.people || [])
       .filter((p) => !p.paid && p.email && !accounts.has(p.email))
-      .map((p) => ({ email: p.email, name: p.name, status: p.status, createdAt: p.createdAt }));
+      .map((p) => ({
+        email: p.email, name: p.name, status: p.status, createdAt: p.createdAt,
+        // so staff can see who has already been nudged, and who asked not to be
+        remindedAt: reminded.get(p.email) || null,
+        unsubscribed: optedOut.has(p.email)
+      }));
 
     // Paid, not refunded, and yet has no access — a webhook that never
     // arrived, or a payment taken before it was wired up. Nobody would ever
@@ -63,7 +71,8 @@ export default async function handler(req, res) {
         revoked: members.filter((m) => m.status !== 'active').length
       },
       funnel: funnel ? { ...funnel.stats, didNotConvert, paidWithoutAccess } : null,
-      funnelError
+      funnelError,
+      reminders
     });
   } catch (err) {
     console.error('[admin/members]', err);

@@ -90,6 +90,22 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .dl a{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);border-radius:999px;
   padding:6px 14px}
 .dl a:hover{border-color:var(--accent);color:var(--accent-2)}
+.dl .bulk{background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.4);color:#ffd9b3;
+  border-radius:999px;padding:7px 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
+.dl .bulk:hover{border-color:var(--accent)}
+.dl .bulk:disabled{opacity:.6;cursor:default}
+.sched{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-2);
+  border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:14px;
+  font-family:var(--mono);font-size:.8rem;color:var(--txt-2)}
+.sched .tog{display:flex;align-items:center;gap:8px;cursor:pointer}
+.sched .tog input{width:16px;height:16px;accent-color:var(--accent)}
+.sched .sep{color:var(--txt-3)}
+.sched input[type=number]{width:74px;background:var(--bg-3);border:1px solid var(--line);
+  color:var(--txt);border-radius:9px;padding:7px 10px;font-family:var(--mono);font-size:.8rem}
+.sched input[type=number]:focus{outline:none;border-color:var(--accent)}
+.sched .bulk{background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.4);color:#ffd9b3;
+  border-radius:999px;padding:7px 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
+.sched .hint{flex:1 1 100%;color:var(--txt-3);font-size:.74rem}
 
 /* ---------- staff sign-in ---------- */
 #staff-signin{width:min(380px,90vw);text-align:left}
@@ -286,10 +302,36 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
     /* everyone who started and did not finish */
     if (f && f.didNotConvert && f.didNotConvert.length) {
+      // who could still be written to: not unsubscribed, not already reminded
+      var canRemind = f.didNotConvert.filter(function (x) { return !x.unsubscribed && !x.remindedAt; });
       h += '<h3 class="sech">Started checkout, did not buy <span class="meta">' + f.didNotConvert.length + '</span></h3>';
+
+      // the automatic schedule, and the switch for it
+      var rs = members.reminders || { enabled: true, delayHours: 2 };
+      h += '<div class="sched">' +
+        '<label class="tog"><input type="checkbox" id="rem-on"' + (rs.enabled ? ' checked' : '') + '>' +
+          '<span>Email them automatically</span></label>' +
+        '<span class="sep">after</span>' +
+        '<input type="number" id="rem-hours" min="0.25" max="168" step="0.25" value="' + esc(rs.delayHours) + '">' +
+        '<span class="sep">hours</span>' +
+        '<button class="bulk" id="rem-save">Save</button>' +
+        '<span class="hint" id="rem-hint">Checked every 15 minutes. Anyone already reminded or unsubscribed is skipped.</span>' +
+        '</div>';
+
+      if (canRemind.length) {
+        h += '<div class="dl" style="margin-bottom:12px">' +
+          '<button class="bulk" id="remind-all">Send to all ' + canRemind.length + ' now</button>' +
+          '<span>Don\'t wait for the schedule.</span></div>';
+      }
       f.didNotConvert.forEach(function (x) {
-        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' +
-          '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + esc(day(x.createdAt)) + '</span></div></div>';
+        var note = x.unsubscribed ? '<span class="st declined">unsubscribed</span>'
+          : x.remindedAt ? '<span class="st planned">reminded ' + esc(day(x.remindedAt)) + '</span>' : '';
+        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + note +
+          '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + esc(day(x.createdAt)) + '</span></div>' +
+          (x.unsubscribed ? '' :
+            '<div class="acts"><button data-remind="' + esc(x.email) + '">' +
+            (x.remindedAt ? 'Send another reminder' : 'Send reminder') + '</button></div>') +
+          '</div>';
       });
     }
 
@@ -303,7 +345,71 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       (sub ? '<span class="s">' + esc(sub) + '</span>' : '') + '</div>';
   }
 
+  function sendReminders(emails, btn) {
+    if (!emails.length) return;
+    var many = emails.length > 1;
+    if (!window.confirm(many
+      ? 'Email a checkout reminder to ' + emails.length + ' people?'
+      : 'Email a checkout reminder to ' + emails[0] + '?')) return;
+
+    var was = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Sending…';
+    fetch('/api/admin/send-reminder', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emails: emails })
+    })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.status !== 200) { window.alert(res.d.error || 'That did not work.'); btn.disabled = false; btn.textContent = was; return; }
+        var msg = res.d.sent.length + ' reminder' + (res.d.sent.length === 1 ? '' : 's') + ' sent.';
+        // Say which ones did not go and why, rather than quietly sending fewer.
+        if (res.d.skipped.length) {
+          msg += '\n\nNot sent:\n' + res.d.skipped.map(function (s) { return '  ' + s.email + ' — ' + s.why; }).join('\n');
+        }
+        window.alert(msg);
+        members = null;
+        paintMembers(document.getElementById('panel'));
+      })
+      .catch(function () { window.alert('That did not work.'); btn.disabled = false; btn.textContent = was; });
+  }
+
   function wireMemberActions(scope) {
+    [].forEach.call(scope.querySelectorAll('[data-remind]'), function (b) {
+      b.addEventListener('click', function () { sendReminders([b.getAttribute('data-remind')], b); });
+    });
+    var save = scope.querySelector('#rem-save');
+    if (save) save.addEventListener('click', function () {
+      var on = scope.querySelector('#rem-on').checked;
+      var hours = scope.querySelector('#rem-hours').value;
+      var hint = scope.querySelector('#rem-hint');
+      save.disabled = true; save.textContent = 'Saving…';
+      fetch('/api/admin/settings', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: on, delayHours: hours })
+      })
+        .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          save.disabled = false; save.textContent = 'Save';
+          if (res.status !== 200) { hint.textContent = res.d.error || 'That did not save.'; return; }
+          hint.textContent = res.d.enabled
+            ? 'Saved — reminders go out ' + res.d.delayHours + ' hours after an abandoned checkout.'
+            : 'Saved — automatic reminders are off. You can still send them by hand.';
+          if (members) members.reminders = res.d;
+        })
+        .catch(function () { save.disabled = false; save.textContent = 'Save'; hint.textContent = 'That did not save.'; });
+    });
+
+    var all = scope.querySelector('#remind-all');
+    if (all) all.addEventListener('click', function () {
+      var f = members && members.funnel;
+      var list = ((f && f.didNotConvert) || [])
+        .filter(function (x) { return !x.unsubscribed && !x.remindedAt; })
+        .map(function (x) { return x.email; });
+      sendReminders(list, all);
+    });
+
     [].forEach.call(scope.querySelectorAll('[data-act]'), function (b) {
       b.addEventListener('click', function () {
         var act = b.getAttribute('data-act');

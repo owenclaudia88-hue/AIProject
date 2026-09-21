@@ -1,8 +1,23 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/70-ai-specialists-for-claude", "destination": "/index.html" },
-    { "source": "/70-ai-specialists-for-claude/", "destination": "/index.html" },
-    { "source": "/70-ai-specialists-for-claude/:path*", "destination": "/:path*" }
+    {
+      "source": "/70-ai-specialists-for-claude",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/70-ai-specialists-for-claude/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/70-ai-specialists-for-claude/:path*",
+      "destination": "/:path*"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/send-reminders",
+      "schedule": "*/15 * * * *"
+    }
   ]
 }
