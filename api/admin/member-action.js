@@ -1,12 +1,14 @@
 import { readSession } from '../../lib/session.js';
-import { revokeAccess, restoreAccess, grantAccess, getCustomer, normalizeEmail } from '../../lib/db.js';
+import { revokeAccess, restoreAccess, grantAccess, getCustomer, createLoginToken, normalizeEmail } from '../../lib/db.js';
+import { sendPurchaseConfirmation } from '../../lib/email.js';
 import { isAdmin } from '../../lib/admin.js';
 import { refundPayment } from '../../lib/funnel.js';
 
 /**
  * POST /api/admin/member-action  { email, action, confirm }
  *
- *   grant    — give access to someone who paid but never got it.
+ *   grant    — give access to someone who paid but never got it, and send
+ *              them the same welcome email the webhook would have.
  *   revoke   — take away access. Reversible from this same screen.
  *   restore  — give it back.
  *   refund   — return the money through Stripe, then revoke.
@@ -39,7 +41,25 @@ export default async function handler(req, res) {
         name: typeof body.name === 'string' ? body.name : undefined
       });
       console.log(`[admin] ${actor} granted access to ${email}`);
-      return res.status(200).json({ ok: true, status: 'active' });
+
+      // Send the same welcome the webhook would have sent. Granting by hand
+      // is repairing a purchase that never completed, so from the buyer's
+      // side it should look exactly like it working the first time — an
+      // account they cannot reach is no better than no account.
+      let emailed = false, emailError = null;
+      try {
+        const token = await createLoginToken(email);
+        const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
+        await sendPurchaseConfirmation(email, `${site}/api/auth/verify?token=${encodeURIComponent(token)}`);
+        emailed = true;
+      } catch (mailErr) {
+        // Access is already granted and that is the part that matters, so a
+        // failed send is reported rather than rolled back.
+        console.error('[admin/member-action] welcome email failed:', mailErr.message);
+        emailError = mailErr.message;
+      }
+
+      return res.status(200).json({ ok: true, status: 'active', emailed, emailError });
     }
 
     const customer = await getCustomer(email);

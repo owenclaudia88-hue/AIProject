@@ -253,12 +253,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     /* paid but no access — the thing that needs acting on */
     if (f && f.paidWithoutAccess && f.paidWithoutAccess.length) {
       h += '<div class="alert"><b>' + f.paidWithoutAccess.length + ' paid but have no access.</b>' +
-        '<p>A payment went through and the account was never created — usually a webhook that did not arrive. Give them access here.</p></div>';
+        '<p>A payment went through and the account was never created — usually a webhook that did not arrive. Granting access here also sends them the welcome email with their sign-in link.</p></div>';
       f.paidWithoutAccess.forEach(function (x) {
         h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' +
           '<span class="st new">paid, no access</span>' +
           '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + money(x.amount, x.currency) + ' · ' + esc(day(x.createdAt)) + '</span></div>' +
-          '<div class="acts"><button data-act="grant" data-email="' + esc(x.email) + '" data-pi="' + esc(x.paymentIntent) + '" data-name="' + esc(x.name || '') + '">Give them access</button></div></div>';
+          '<div class="acts"><button data-act="grant" data-email="' + esc(x.email) + '" data-pi="' + esc(x.paymentIntent) + '" data-name="' + esc(x.name || '') + '">Give access &amp; email them</button></div></div>';
       });
     }
 
@@ -337,6 +337,15 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
               window.alert(res.d.error || 'That did not work.');
               b.disabled = false; b.textContent = was;
               return;
+            }
+            // Say plainly whether the welcome actually went out. Access
+            // without the email is a member who still cannot find the door.
+            if (act === 'grant') {
+              window.alert(res.d.emailed
+                ? 'Access granted, and the welcome email with their sign-in link is on its way.'
+                : 'Access granted, but the welcome email did not send' +
+                  (res.d.emailError ? ' (' + res.d.emailError + ')' : '') +
+                  '.\n\nThey can still sign in from the login page using this address.');
             }
             members = null;                 // refetch so the figures move too
             paintMembers(document.getElementById('panel'));
