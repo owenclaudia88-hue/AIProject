@@ -2,7 +2,7 @@ import { readSession } from '../../lib/session.js';
 import { listCustomers, displayNameFor, outreachLog, optOuts } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
-import { reminderSettings } from '../../lib/reminders.js';
+import { reminderSettings, STEPS } from '../../lib/reminders.js';
 
 /**
  * GET /api/admin/members — everyone who has an account, everyone who started
@@ -18,9 +18,12 @@ export default async function handler(req, res) {
   if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 
   try {
-    const [customers, reminded, optedOut, reminders] = await Promise.all([
-      listCustomers(), outreachLog('checkout-reminder'), optOuts(), reminderSettings()
+    const [customers, optedOut, reminders, ...logs] = await Promise.all([
+      listCustomers(), optOuts(), reminderSettings(),
+      ...STEPS.map((s) => outreachLog(s.kind))
     ]);
+    // kind -> Map(email -> when it was sent)
+    const sentByKind = new Map(STEPS.map((s, i) => [s.kind, logs[i]]));
 
     let funnel = null, funnelError = null;
     try {
@@ -47,8 +50,9 @@ export default async function handler(req, res) {
       .filter((p) => !p.paid && p.email && !accounts.has(p.email))
       .map((p) => ({
         email: p.email, name: p.name, status: p.status, createdAt: p.createdAt,
-        // so staff can see who has already been nudged, and who asked not to be
-        remindedAt: reminded.get(p.email) || null,
+        // when each step of the sequence went out, so staff can see exactly
+        // where someone is in it rather than just "reminded" or not
+        sent: Object.fromEntries(STEPS.map((s) => [s.kind, sentByKind.get(s.kind).get(p.email) || null])),
         unsubscribed: optedOut.has(p.email)
       }));
 

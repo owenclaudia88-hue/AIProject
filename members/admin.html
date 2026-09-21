@@ -103,6 +103,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .sched input[type=number]{width:74px;background:var(--bg-3);border:1px solid var(--line);
   color:var(--txt);border-radius:9px;padding:7px 10px;font-family:var(--mono);font-size:.8rem}
 .sched input[type=number]:focus{outline:none;border-color:var(--accent)}
+.sched input[type=text]{background:var(--bg-3);border:1px solid var(--line);color:var(--txt);
+  border-radius:9px;padding:7px 10px;font-family:var(--mono);font-size:.8rem}
+.sched input[type=text]:focus{outline:none;border-color:var(--accent)}
 .sched .bulk{background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.4);color:#ffd9b3;
   border-radius:999px;padding:7px 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
 .sched .hint{flex:1 1 100%;color:var(--txt-3);font-size:.74rem}
@@ -236,6 +239,17 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   }
   function day(iso) { var t = new Date(iso).getTime(); return t ? new Date(t).toLocaleDateString() : ''; }
 
+  // Mirrors the server's rule so the dashboard never offers a button the API
+  // would refuse: not unsubscribed, hasn't had this one, and has had the one
+  // before it.
+  function canSend(person, step, steps) {
+    if (person.unsubscribed) return false;
+    var sent = person.sent || {};
+    if (sent[step.kind]) return false;
+    if (step.after === 'checkout') return true;
+    return !!sent[step.after];
+  }
+
   function paintMembers(p) {
     if (membersError) { p.innerHTML = '<p class="empty">' + esc(membersError) + '</p>'; return; }
     if (!members) {
@@ -303,34 +317,49 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     /* everyone who started and did not finish */
     if (f && f.didNotConvert && f.didNotConvert.length) {
       // who could still be written to: not unsubscribed, not already reminded
-      var canRemind = f.didNotConvert.filter(function (x) { return !x.unsubscribed && !x.remindedAt; });
       h += '<h3 class="sech">Started checkout, did not buy <span class="meta">' + f.didNotConvert.length + '</span></h3>';
 
-      // the automatic schedule, and the switch for it
-      var rs = members.reminders || { enabled: true, delayHours: 2 };
+      // the automatic sequence, its waits, and the switch for the lot
+      var rs = members.reminders || { enabled: true, steps: [], regularPriceLabel: '' };
+      var steps = rs.steps || [];
       h += '<div class="sched">' +
         '<label class="tog"><input type="checkbox" id="rem-on"' + (rs.enabled ? ' checked' : '') + '>' +
           '<span>Email them automatically</span></label>' +
-        '<span class="sep">after</span>' +
-        '<input type="number" id="rem-hours" min="0.25" max="168" step="0.25" value="' + esc(rs.delayHours) + '">' +
-        '<span class="sep">hours</span>' +
+        steps.map(function (s, i) {
+          return '<span class="sep">' + (i === 0 ? '·' : '·') + ' ' + esc(s.label) + ' after</span>' +
+            '<input type="number" data-delay="' + esc(s.delayKey) + '" min="0.25" max="168" step="0.25" value="' + esc(s.delayHours) + '">' +
+            '<span class="sep">h ' + (s.after === 'checkout' ? 'from checkout' : 'from the first') + '</span>';
+        }).join('') +
+        '<span class="sep">· full price shown in the follow-up</span>' +
+        '<input type="text" id="rem-price" placeholder="$285" value="' + esc(rs.regularPriceLabel || '') + '" style="width:88px">' +
         '<button class="bulk" id="rem-save">Save</button>' +
-        '<span class="hint" id="rem-hint">Checked every 15 minutes. Anyone already reminded or unsubscribed is skipped.</span>' +
+        '<span class="hint" id="rem-hint">Checked every 15 minutes. Anyone who has paid, already had it, or unsubscribed is skipped. Leave the price blank to drop that line from the email.</span>' +
         '</div>';
 
-      if (canRemind.length) {
-        h += '<div class="dl" style="margin-bottom:12px">' +
-          '<button class="bulk" id="remind-all">Send to all ' + canRemind.length + ' now</button>' +
-          '<span>Don\'t wait for the schedule.</span></div>';
-      }
+      // one "send now" per step, for whoever is currently due it
+      var bulk = steps.map(function (s) {
+        var list = f.didNotConvert.filter(function (x) { return canSend(x, s, steps); });
+        return list.length
+          ? '<button class="bulk" data-sendall="' + esc(s.kind) + '">Send ' + esc(s.label.toLowerCase()) + ' to ' + list.length + ' now</button>'
+          : '';
+      }).filter(Boolean).join('');
+      if (bulk) h += '<div class="dl" style="margin-bottom:12px">' + bulk + '<span>Don\'t wait for the schedule.</span></div>';
       f.didNotConvert.forEach(function (x) {
-        var note = x.unsubscribed ? '<span class="st declined">unsubscribed</span>'
-          : x.remindedAt ? '<span class="st planned">reminded ' + esc(day(x.remindedAt)) + '</span>' : '';
-        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + note +
+        var sent = x.sent || {};
+        // where they are in the sequence, in order
+        var notes = x.unsubscribed ? '<span class="st declined">unsubscribed</span>'
+          : steps.filter(function (s) { return sent[s.kind]; })
+                 .map(function (s) { return '<span class="st planned">' + esc(s.label.toLowerCase()) + ' ' + esc(day(sent[s.kind])) + '</span>'; })
+                 .join('');
+
+        var acts = x.unsubscribed ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
+          .map(function (s) {
+            return '<button data-remind="' + esc(x.email) + '" data-kind="' + esc(s.kind) + '">Send ' + esc(s.label.toLowerCase()) + '</button>';
+          }).join('');
+
+        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + notes +
           '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + esc(day(x.createdAt)) + '</span></div>' +
-          (x.unsubscribed ? '' :
-            '<div class="acts"><button data-remind="' + esc(x.email) + '">' +
-            (x.remindedAt ? 'Send another reminder' : 'Send reminder') + '</button></div>') +
+          (acts ? '<div class="acts">' + acts + '</div>' : '') +
           '</div>';
       });
     }
@@ -345,7 +374,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       (sub ? '<span class="s">' + esc(sub) + '</span>' : '') + '</div>';
   }
 
-  function sendReminders(emails, btn) {
+  function sendReminders(emails, btn, kind) {
     if (!emails.length) return;
     var many = emails.length > 1;
     if (!window.confirm(many
@@ -357,7 +386,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     fetch('/api/admin/send-reminder', {
       method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ emails: emails })
+      body: JSON.stringify({ emails: emails, kind: kind })
     })
       .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
       .then(function (res) {
@@ -376,38 +405,50 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
   function wireMemberActions(scope) {
     [].forEach.call(scope.querySelectorAll('[data-remind]'), function (b) {
-      b.addEventListener('click', function () { sendReminders([b.getAttribute('data-remind')], b); });
+      b.addEventListener('click', function () {
+        sendReminders([b.getAttribute('data-remind')], b, b.getAttribute('data-kind'));
+      });
     });
     var save = scope.querySelector('#rem-save');
     if (save) save.addEventListener('click', function () {
       var on = scope.querySelector('#rem-on').checked;
-      var hours = scope.querySelector('#rem-hours').value;
+      var delays = {};
+      [].forEach.call(scope.querySelectorAll('[data-delay]'), function (i) {
+        delays[i.getAttribute('data-delay')] = i.value;
+      });
+      var price = (scope.querySelector('#rem-price') || {}).value || '';
       var hint = scope.querySelector('#rem-hint');
       save.disabled = true; save.textContent = 'Saving…';
       fetch('/api/admin/settings', {
         method: 'POST', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled: on, delayHours: hours })
+        body: JSON.stringify({ enabled: on, delays: delays, regularPriceLabel: price })
       })
         .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
         .then(function (res) {
           save.disabled = false; save.textContent = 'Save';
           if (res.status !== 200) { hint.textContent = res.d.error || 'That did not save.'; return; }
           hint.textContent = res.d.enabled
-            ? 'Saved — reminders go out ' + res.d.delayHours + ' hours after an abandoned checkout.'
+            ? 'Saved — ' + res.d.steps.map(function (s) {
+                return s.label.toLowerCase() + ' at ' + s.delayHours + 'h';
+              }).join(', ') + '.'
             : 'Saved — automatic reminders are off. You can still send them by hand.';
           if (members) members.reminders = res.d;
         })
         .catch(function () { save.disabled = false; save.textContent = 'Save'; hint.textContent = 'That did not save.'; });
     });
 
-    var all = scope.querySelector('#remind-all');
-    if (all) all.addEventListener('click', function () {
-      var f = members && members.funnel;
-      var list = ((f && f.didNotConvert) || [])
-        .filter(function (x) { return !x.unsubscribed && !x.remindedAt; })
-        .map(function (x) { return x.email; });
-      sendReminders(list, all);
+    [].forEach.call(scope.querySelectorAll('[data-sendall]'), function (b) {
+      b.addEventListener('click', function () {
+        var kind = b.getAttribute('data-sendall');
+        var steps = (members && members.reminders && members.reminders.steps) || [];
+        var step = steps.filter(function (s) { return s.kind === kind; })[0];
+        var f = members && members.funnel;
+        var list = ((f && f.didNotConvert) || [])
+          .filter(function (x) { return canSend(x, step, steps); })
+          .map(function (x) { return x.email; });
+        sendReminders(list, b, kind);
+      });
     });
 
     [].forEach.call(scope.querySelectorAll('[data-act]'), function (b) {
