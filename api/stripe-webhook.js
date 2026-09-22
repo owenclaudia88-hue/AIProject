@@ -59,23 +59,35 @@ export default async function handler(req, res) {
         const pi = event.data.object;
         console.log('[stripe-webhook] Payment succeeded:', pi.id, pi.amount, pi.currency);
 
-        const email = pi.receipt_email || pi.charges?.data?.[0]?.billing_details?.email;
+        // Checkout asks for a full name and sends it as billing_details.name.
+        // Where it lands depends on how the PaymentIntent came back: older
+        // shapes carry an expanded `charges` list, newer ones only
+        // `latest_charge`, so take whichever is actually here.
+        let charge = pi.charges?.data?.[0]
+          || (pi.latest_charge && typeof pi.latest_charge === 'object' ? pi.latest_charge : null);
+        // On every API version since 2022-08-01 a PaymentIntent has no
+        // `charges` list, and `latest_charge` arrives as a bare id rather than
+        // an object — webhook payloads are never expanded. Without fetching it
+        // the billing details are simply absent, which is why buyers' names
+        // had to be backfilled from Stripe afterwards, and why the Purchase
+        // event reached Meta without a name, city, postcode or country.
+        if (!charge && typeof pi.latest_charge === 'string') {
+          try { charge = await stripe.charges.retrieve(pi.latest_charge); }
+          catch (chErr) { console.error('[stripe-webhook] could not fetch charge:', chErr.message); }
+        }
+        const name = charge?.billing_details?.name || pi.shipping?.name || undefined;
+
+        // Resolved after the charge, so the billing address can stand in if
+        // the receipt email is ever missing.
+        const email = pi.receipt_email || charge?.billing_details?.email;
         if (!email) {
           console.warn('[stripe-webhook] No email on PaymentIntent', pi.id, '- cannot grant access');
           break;
         }
 
-        // Grant access. grantAccess is an idempotent upsert, so Stripe retries
-        // are safe. It also tells us whether this row was new, so the welcome
-        // email is only sent on the first successful payment for this buyer.
-        // Checkout asks for a full name and sends it as billing_details.name.
-        // Where it lands depends on how the PaymentIntent came back: older
-        // shapes carry an expanded `charges` list, newer ones only
-        // `latest_charge`, so take whichever is actually here.
-        const charge = pi.charges?.data?.[0]
-          || (pi.latest_charge && typeof pi.latest_charge === 'object' ? pi.latest_charge : null);
-        const name = charge?.billing_details?.name || pi.shipping?.name || undefined;
-
+        // grantAccess is an idempotent upsert, so Stripe retries are safe. It
+        // also says whether the row was new, so the welcome email only goes on
+        // the first successful payment for this buyer.
         const created = await grantAccess(email, {
           paymentIntent: pi.id,
           stripeCustomerId: typeof pi.customer === 'string' ? pi.customer : undefined,
