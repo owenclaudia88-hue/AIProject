@@ -522,7 +522,8 @@
         redirect: 'if_required',
         confirmParams: {
           return_url: successUrl,
-          receipt_email: val('email'),
+          // No receipt_email on purpose — that is what makes Stripe send its
+          // own receipt, and we send ours from the webhook instead.
           payment_method_data: {
             billing_details: {
               name: val('fullname'),

@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { grantAccess, revokeAccess, createLoginToken } from '../lib/db.js';
-import { sendPurchaseConfirmation } from '../lib/email.js';
+import { sendPurchaseConfirmation, sendReceipt } from '../lib/email.js';
 import { sendPurchase } from '../lib/meta-capi.js';
 
 /**
@@ -77,9 +77,24 @@ export default async function handler(req, res) {
         }
         const name = charge?.billing_details?.name || pi.shipping?.name || undefined;
 
-        // Resolved after the charge, so the billing address can stand in if
-        // the receipt email is ever missing.
-        const email = pi.receipt_email || charge?.billing_details?.email;
+        // A PaymentIntent tied to an invoice is the monthly membership being
+        // billed, not somebody buying. Everything below this line is
+        // fulfilment of a purchase — the receipt, the Meta conversion, and
+        // above all enrolling them in a subscription — and running any of it
+        // on a renewal would be wrong: the renewal's id is not the original
+        // one, so the idempotency key would not hold and each month would
+        // start ANOTHER $39 subscription. Renewal receipts are sent
+        // separately, from the invoice events.
+        if (pi.invoice || charge?.invoice) {
+          console.log('[stripe-webhook] Membership renewal, not a purchase:', pi.id);
+          break;
+        }
+
+        // Checkout puts the address on the intent's metadata as well, so a
+        // failed charge fetch above cannot cost someone their access.
+        // receipt_email is no longer set (that is what made Stripe send its
+        // own receipt) but old intents still carry it, so it stays in the chain.
+        const email = pi.metadata?.buyer_email || pi.receipt_email || charge?.billing_details?.email;
         if (!email) {
           console.warn('[stripe-webhook] No email on PaymentIntent', pi.id, '- cannot grant access');
           break;
@@ -105,6 +120,29 @@ export default async function handler(req, res) {
           // Don't fail the webhook over email — access is already granted and
           // they can request a fresh link from the login page.
           console.error('[stripe-webhook] Welcome email failed:', mailErr.message);
+        }
+
+        // The receipt, which Stripe used to send. Kept separate from the
+        // welcome above so that a buyer who already had access — a second
+        // purchase, or access granted by hand first — still gets proof of
+        // payment for the money they just spent. Its own try/catch for the
+        // same reason: a receipt that won't send must not cost anyone access.
+        if (charge) {
+          try {
+            await sendReceipt(email, {
+              name,
+              amount: charge.amount,
+              currency: charge.currency,
+              chargeId: charge.id,
+              paidAt: charge.created * 1000,
+              card: charge.payment_method_details?.card || null,
+              address: charge.billing_details?.address || null
+            });
+          } catch (rcErr) {
+            console.error('[stripe-webhook] Receipt email failed:', rcErr.message);
+          }
+        } else {
+          console.warn('[stripe-webhook] No charge for', pi.id, '- receipt not sent');
         }
 
         // Tell Meta the sale happened. Server to server on purpose: this is
