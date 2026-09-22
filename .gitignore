@@ -17,3 +17,6 @@ export/
 
 .vercel
 .env*
+
+# vendor originals kept as a fallback before rebranding; not shipped
+export/product/.original-vendor-zips/
