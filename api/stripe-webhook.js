@@ -185,9 +185,18 @@ export default async function handler(req, res) {
       case 'charge.refunded': {
         const charge = event.data.object;
         const email = charge.billing_details?.email || charge.receipt_email;
-        console.log('[stripe-webhook] Refunded:', charge.id, email || '(no email)');
-        // Revoke access, matching the 14-day guarantee in terms.html#refunds.
-        if (email) { await revokeAccess(email); console.log('[stripe-webhook] Access revoked:', email); }
+        // A charge carrying an invoice came from the monthly membership;
+        // one without is the original purchase. Refunding a month's
+        // membership is a billing correction and must not take away access —
+        // the dashboard's refund button says exactly that, and only the
+        // purchase refund is the 14-day guarantee in terms.html#refunds.
+        const isMembershipCharge = !!charge.invoice;
+        console.log('[stripe-webhook] Refunded:', charge.id, email || '(no email)',
+          isMembershipCharge ? '(membership charge — access kept)' : '(purchase — revoking)');
+        if (email && !isMembershipCharge) {
+          await revokeAccess(email);
+          console.log('[stripe-webhook] Access revoked:', email);
+        }
         break;
       }
 
