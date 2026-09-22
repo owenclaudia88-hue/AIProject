@@ -100,7 +100,7 @@ export default async function handler(req, res) {
           const token = await createLoginToken(email);
           const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
           const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
-          if (created) await sendPurchaseConfirmation(email, loginUrl);
+          if (created) await sendPurchaseConfirmation(email, loginUrl, { name });
         } catch (mailErr) {
           // Don't fail the webhook over email — access is already granted and
           // they can request a fresh link from the login page.

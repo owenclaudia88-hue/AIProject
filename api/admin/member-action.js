@@ -50,7 +50,8 @@ export default async function handler(req, res) {
       try {
         const token = await createLoginToken(email);
         const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
-        await sendPurchaseConfirmation(email, `${site}/api/auth/verify?token=${encodeURIComponent(token)}`);
+        await sendPurchaseConfirmation(email, `${site}/api/auth/verify?token=${encodeURIComponent(token)}`,
+          { name: typeof body.name === 'string' ? body.name : undefined });
         emailed = true;
       } catch (mailErr) {
         // Access is already granted and that is the part that matters, so a
