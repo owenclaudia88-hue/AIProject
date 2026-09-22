@@ -94,6 +94,36 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   border-radius:999px;padding:7px 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
 .dl .bulk:hover{border-color:var(--accent)}
 .dl .bulk:disabled{opacity:.6;cursor:default}
+/* ---------- traffic view ---------- */
+.range{display:flex;gap:8px;margin:0 0 18px;flex-wrap:wrap;align-items:center}
+.range button{background:var(--bg-3);border:1px solid var(--line);color:var(--txt-2);border-radius:999px;
+  padding:6px 14px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
+.range button.on{background:rgba(255,122,26,.13);border-color:rgba(255,122,26,.34);color:#ffd9b3}
+.chart{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:8px}
+.chart .bars{display:flex;align-items:flex-end;gap:3px;height:170px}
+.chart .col{flex:1;min-width:4px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;
+  border-radius:3px;overflow:hidden;cursor:default}
+/* Nested, not side by side: every buyer started a checkout and every checkout
+   was a visitor, so the segments really are one inside the other. */
+.chart .seg-v{background:var(--bg-4)}
+.chart .seg-c{background:rgba(255,176,32,.55)}
+.chart .seg-p{background:var(--green)}
+.chart .col:hover .seg-v{background:var(--line-2)}
+.chart .axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.68rem;
+  color:var(--txt-3);margin-top:8px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:.72rem;color:var(--txt-3);
+  margin:0 0 22px;padding-left:2px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.tbls{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.tbl{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.tbl h4{margin:0 0 10px;font-size:.78rem;font-family:var(--mono);text-transform:uppercase;
+  letter-spacing:.07em;color:var(--txt-3);font-weight:700}
+.tbl .row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.tbl .row:last-child{border-bottom:0}
+.tbl .row .k{font-family:var(--mono);font-size:.78rem;color:var(--txt-2);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.tbl .row .n{margin-left:auto;font-family:var(--mono);font-size:.78rem;color:var(--txt);flex:none}
 /* ---------- refund picker ---------- */
 .refund-panel{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
 .refund-panel .rp-load{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:4px 0}
@@ -164,6 +194,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
       <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
+      <button class="tab" data-tab="traffic">Traffic</button>
     </div>
 
     <div id="panel"></div>
@@ -176,6 +207,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   var data = { requests: [], comments: [] };
   var members = null;          // loaded the first time the tab is opened
   var membersError = '';
+  var traffic = null;          // same again, keyed by the window being shown
+  var trafficError = '';
+  var trafficDays = 30;
   var tab = 'requests';
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
@@ -260,6 +294,121 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     if (sent[step.kind]) return false;
     if (step.after === 'checkout') return true;
     return !!sent[step.after];
+  }
+
+  function paintTraffic(p) {
+    if (trafficError) { p.innerHTML = '<p class="empty">' + esc(trafficError) + '</p>'; return; }
+    if (!traffic || traffic.days !== trafficDays) {
+      p.innerHTML = '<p class="empty">Loading traffic&hellip;</p>';
+      fetch('/api/admin/traffic?days=' + trafficDays, { credentials: 'same-origin' })
+        .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.status !== 200) trafficError = res.d.error || 'Could not load traffic.';
+          else traffic = res.d;
+          if (tab === 'traffic') paintTraffic(document.getElementById('panel'));
+        })
+        .catch(function () {
+          trafficError = 'Could not load traffic.';
+          if (tab === 'traffic') paintTraffic(document.getElementById('panel'));
+        });
+      return;
+    }
+
+    var t = traffic.totals, h = '';
+
+    h += '<div class="range">' +
+      [7, 30, 90].map(function (d) {
+        return '<button data-days="' + d + '"' + (d === trafficDays ? ' class="on"' : '') +
+          '>Last ' + d + ' days</button>';
+      }).join('') + '</div>';
+
+    h += '<div class="stats">' +
+      stat(t.visitors.toLocaleString(), 'Visitors', t.views.toLocaleString() + ' page views') +
+      stat(t.checkouts.toLocaleString(), 'Started checkout', t.visitorToCheckout + '% of visitors') +
+      stat(t.purchases.toLocaleString(), 'Purchases', t.checkoutToPurchase + '% of checkouts') +
+      stat(t.visitorToPurchase + '%', 'Visitor to buyer', t.purchases + ' of ' + t.visitors) +
+      '</div>';
+
+    // Purchases go back further than traffic does, so the window is clamped to
+    // the day tracking started. Without saying so, a 7-day view that only has
+    // two days in it looks like a collapse in traffic.
+    if (traffic.trackingSince) {
+      var startedMs = new Date(traffic.trackingSince).getTime();
+      if (startedMs > Date.now() - trafficDays * 86400000 + 86400000) {
+        h += '<p class="warn">Traffic has only been recorded since ' +
+          esc(day(traffic.trackingSince)) + ', so these cover that period rather than the full ' +
+          trafficDays + ' days.</p>';
+      }
+    }
+
+    if (!traffic.daily.length) {
+      h += '<p class="empty">Nothing recorded yet. Views start appearing here as soon as somebody lands on the site.</p>';
+      p.innerHTML = h;
+      wireRange(p);
+      return;
+    }
+
+    // Scale every column against the busiest day, so the shape of the chart is
+    // the shape of the traffic rather than of whatever the latest day happens
+    // to be.
+    var peak = Math.max.apply(null, traffic.daily.map(function (d) { return d.visitors; })) || 1;
+    h += '<div class="chart"><div class="bars">';
+    traffic.daily.forEach(function (d) {
+      var pv = Math.round((d.purchases / peak) * 100);
+      var pc = Math.round((d.checkouts / peak) * 100);
+      var pvis = Math.round((d.visitors / peak) * 100);
+      // Each visible band is the difference between its ring and the next one
+      // in, because the three counts nest rather than add up.
+      var title = day(d.day) + ' — ' + d.visitors + ' visitors, ' + d.views + ' views, ' +
+        d.checkouts + ' checkouts, ' + d.purchases + ' purchases';
+      h += '<div class="col" title="' + esc(title) + '">' +
+        '<div class="seg-v" style="height:' + Math.max(0, pvis - pc) + '%"></div>' +
+        '<div class="seg-c" style="height:' + Math.max(0, pc - pv) + '%"></div>' +
+        '<div class="seg-p" style="height:' + pv + '%"></div>' +
+        '</div>';
+    });
+    h += '</div><div class="axis"><span>' + esc(day(traffic.daily[0].day)) + '</span>' +
+      '<span>' + esc(day(traffic.daily[traffic.daily.length - 1].day)) + '</span></div></div>';
+
+    h += '<div class="legend">' +
+      '<span><i style="background:var(--bg-4)"></i>Visitors</span>' +
+      '<span><i style="background:rgba(255,176,32,.55)"></i>Started checkout</span>' +
+      '<span><i style="background:var(--green)"></i>Purchased</span>' +
+      '<span>hover a bar for the day’s numbers</span></div>';
+
+    // `pick` turns a row into its label, so the same table renders a path, a
+    // country name or a "City, Country" without four near-identical functions.
+    function table(title, rows, pick, empty) {
+      var body = rows.length ? rows.map(function (r) {
+        return '<div class="row"><span class="k">' + esc(pick(r)) + '</span>' +
+          '<span class="n">' + Number(r.visitors).toLocaleString() + '</span></div>';
+      }).join('') : '<p class="empty" style="padding:14px 0">' + esc(empty || 'Nothing yet.') + '</p>';
+      return '<div class="tbl"><h4>' + esc(title) + '</h4>' + body + '</div>';
+    }
+
+    h += '<h3 class="sech">Where they came from and what they looked at</h3>';
+    h += '<div class="tbls">' +
+      table('Countries', traffic.countries, function (r) { return r.name || r.country; }) +
+      table('Cities', traffic.cities || [], function (r) {
+        return r.city + (r.name ? ', ' + r.name : '');
+      }, 'Cities need IPINFO_TOKEN set.') +
+      table('Pages', traffic.paths, function (r) { return r.path; }) +
+      table('Referrers', traffic.referrers, function (r) { return r.referrer; }) +
+      table('Devices', traffic.devices, function (r) { return r.device; }) +
+      '</div>';
+
+    p.innerHTML = h;
+    wireRange(p);
+  }
+
+  function wireRange(p) {
+    [].forEach.call(p.querySelectorAll('[data-days]'), function (b) {
+      b.addEventListener('click', function () {
+        trafficDays = Number(b.getAttribute('data-days'));
+        trafficError = '';
+        paintTraffic(document.getElementById('panel'));
+      });
+    });
   }
 
   function paintMembers(p) {
@@ -612,6 +761,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   function paint() {
     var p = document.getElementById('panel');
     if (tab === 'members') { paintMembers(p); return; }
+    if (tab === 'traffic') { paintTraffic(p); return; }
     p.innerHTML = tab === 'requests' ? requestsHTML() : commentsHTML();
     if (tab === 'requests') {
       [].forEach.call(p.querySelectorAll('[data-set]'), function (b) {

@@ -1,4 +1,11 @@
 import { CLIENT_EVENTS } from '../lib/meta-capi.js';
+import { recordPageEvent } from '../lib/db.js';
+import { resolveGeo } from '../lib/geo.js';
+
+// Crawlers, previewers and uptime checks. Not exhaustive and never will be,
+// but it keeps the obvious ones out of the numbers — without it the busiest
+// "visitor" on a new site is usually Googlebot.
+const BOT = /bot|crawler|spider|crawl|slurp|facebookexternalhit|headless|lighthouse|preview|monitor|curl|wget|python-requests|axios|postman/i;
 
 /**
  * POST /api/track  { event, fbclid?, fbp?, sourceUrl?, email?, firstName?, ... }
@@ -35,10 +42,49 @@ export default async function handler(req, res) {
 
     const str = (v, max = 200) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : undefined);
 
+    const ua = req.headers['user-agent'] || '';
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+      || req.headers['x-real-ip'] || '';
+
+    // Our own copy of the event, kept before Meta is called so a Meta outage
+    // or a missing token cannot cost us the number. Meta only ever reports
+    // what its attribution can see; this is the figure we control.
+    if (!BOT.test(ua)) {
+      // Only the referring host, never the full URL — a search or a link from
+      // a private page can carry all sorts in its query string, and none of it
+      // is any use for counting where traffic came from.
+      let referrer = null;
+      try {
+        const r = new URL(String(body.referrer || ''));
+        const self = new URL(site).host;
+        if (r.host && r.host !== self) referrer = r.host.replace(/^www\./, '');
+      } catch { /* no referrer, or not a URL — counts as direct */ }
+
+      let path = '/';
+      try { path = new URL(sourceUrl).pathname || '/'; } catch { /* keep the default */ }
+
+      // IPinfo when a token is set, so we get the city too, cached per address
+      // so it is one lookup a month rather than one per view. Falls back to the
+      // country Vercel already resolved at the edge.
+      const geo = await resolveGeo(ip, req.headers['x-vercel-ip-country']);
+
+      await recordPageEvent({
+        event: eventName,
+        path,
+        visitor: str(body.visitor, 64),
+        session: str(body.session, 64),
+        referrer,
+        country: geo.country,
+        region: geo.region,
+        city: geo.city,
+        device: /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ? 'mobile' : 'desktop'
+      });
+    }
+
     await sender({
       sourceUrl,
-      ip: (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.headers['x-real-ip'] || null,
-      ua: req.headers['user-agent'] || null,
+      ip: ip || null,
+      ua: ua || null,
       fbclid: str(body.fbclid, 300),
       fbp: str(body.fbp, 100),
       // Sent once the checkout form has them — they make the match far better,

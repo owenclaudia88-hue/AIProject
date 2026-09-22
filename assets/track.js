@@ -30,6 +30,37 @@
 
   var fbclid = stash();
 
+  /*
+   * Who is visiting, without knowing who is visiting.
+   *
+   * `visitor` is a random id kept in localStorage so a returning reader counts
+   * once rather than every time, and `session` is kept in sessionStorage so a
+   * single sitting can be told apart from the next one. Neither is derived
+   * from anything about the person — no IP, no fingerprint — so the pair says
+   * "same browser as before" and nothing else.
+   *
+   * Storage can be refused outright in private mode, so both fall back to a
+   * per-page id. That inflates the visitor count slightly rather than losing
+   * the view entirely, which is the right way round.
+   */
+  function rid() {
+    try {
+      if (window.crypto && window.crypto.randomUUID) return window.crypto.randomUUID();
+    } catch (e) { /* fall through */ }
+    return 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+
+  function durable(store, key) {
+    try {
+      var v = window[store].getItem(key);
+      if (!v) { v = rid(); window[store].setItem(key, v); }
+      return v;
+    } catch (e) { return rid(); }
+  }
+
+  var visitor = durable('localStorage', 'aifu_vid');
+  var session = durable('sessionStorage', 'aifu_sid');
+
   // Anything the page already knows about the visitor improves the match.
   window.aifuTrack = function (event, extra) {
     var payload = extra || {};
@@ -37,6 +68,9 @@
     payload.fbclid = fbclid || undefined;
     payload.fbp = cookie('_fbp') || undefined;
     payload.sourceUrl = window.location.href;
+    payload.visitor = visitor;
+    payload.session = session;
+    payload.referrer = document.referrer || undefined;
     try {
       fetch('/api/track', {
         method: 'POST',
