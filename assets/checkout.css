@@ -301,7 +301,10 @@ footer .fine{font-size:.76rem;color:var(--txt-3);max-width:760px;margin:0 auto 1
 .hero{margin-bottom:26px}
 .hero-badge{
   position:relative;overflow:hidden;isolation:isolate;
-  display:inline-flex;align-items:center;gap:9px;margin:0 0 18px;
+  /* Centred over the column. An inline-flex pill will not take auto margins,
+     so it is a block-level flex shrunk to its own content. */
+  display:flex;width:max-content;max-width:100%;
+  align-items:center;gap:9px;margin:0 auto 18px;
   background:linear-gradient(180deg,var(--bg-3),var(--bg-2));
   border:1px solid rgba(255,176,32,.28);border-radius:999px;
   padding:7px 15px;font-size:.82rem;font-weight:700;color:var(--txt-2);
