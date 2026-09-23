@@ -1,5 +1,6 @@
 import { reminderSettings, dueFor, sendStepTo } from '../../lib/reminders.js';
 import { setSetting } from '../../lib/db.js';
+import { syncBounces } from '../../lib/bounces.js';
 
 /**
  * The scheduled run, called by Vercel Cron every 15 minutes.
@@ -38,6 +39,13 @@ export default async function handler(req, res) {
     console.error('[cron/send-reminders] could not record the run:', err.message));
 
   try {
+    // Refresh the bounce list before deciding who to write to. This runs every
+    // fifteen minutes and the shortest gap in the sequence is hours, so an
+    // address that died on the first email is always known before the second
+    // would repeat it into the same dead mailbox.
+    const bounces = await syncBounces();
+    if (bounces?.filed) console.log(`[cron] filed ${bounces.filed} new bounce(s)`);
+
     const settings = await reminderSettings();
     if (!settings.enabled) {
       await setSetting('reminderLastRunReport', 'switched off').catch(() => {});
@@ -62,7 +70,7 @@ export default async function handler(req, res) {
       .map(([kind, r]) => `${kind}: ${r.sent}/${r.due}`).join(', ') || 'nothing due';
     await setSetting('reminderLastRunReport', summary).catch(() => {});
 
-    return res.status(200).json({ ok: true, lastRunAt: startedAt, ...report });
+    return res.status(200).json({ ok: true, lastRunAt: startedAt, bounces, ...report });
   } catch (err) {
     console.error('[cron/send-reminders]', err);
     return res.status(500).json({ error: 'server' });

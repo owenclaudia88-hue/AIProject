@@ -293,6 +293,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   // before it.
   function canSend(person, step, steps) {
     if (person.unsubscribed) return false;
+    // A dead mailbox. Offering the button would only produce another hard
+    // bounce, which is what erodes the reputation the receipts depend on.
+    if (person.bounced) return false;
     var sent = person.sent || {};
     if (sent[step.kind]) return false;
     if (step.after === 'checkout') return true;
@@ -592,7 +595,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             ? 'Last checked ' + esc(when(rs.lastRunAt)) +
               (rs.lastRunReport ? ' (' + esc(rs.lastRunReport) + ').' : '.') + ' '
             : 'The scheduled check has not run yet. ') +
-          'Anyone who has paid, already had it, or unsubscribed is skipped. ' +
+          'Anyone who has paid, already had it, unsubscribed, or whose address bounced is skipped. ' +
           'Leave the price blank to drop that line from the email.</span>' +
         '</div>';
 
@@ -607,12 +610,13 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       f.didNotConvert.forEach(function (x) {
         var sent = x.sent || {};
         // where they are in the sequence, in order
-        var notes = x.unsubscribed ? '<span class="st declined">unsubscribed</span>'
+        var notes = x.bounced ? '<span class="st declined">email does not exist</span>'
+          : x.unsubscribed ? '<span class="st declined">unsubscribed</span>'
           : steps.filter(function (s) { return sent[s.kind]; })
                  .map(function (s) { return '<span class="st planned">' + esc(s.label.toLowerCase()) + ' ' + esc(day(sent[s.kind])) + '</span>'; })
                  .join('');
 
-        var acts = x.unsubscribed ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
+        var acts = (x.unsubscribed || x.bounced) ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
           .map(function (s) {
             return '<button data-remind="' + esc(x.email) + '" data-kind="' + esc(s.kind) + '">Send ' + esc(s.label.toLowerCase()) + '</button>';
           }).join('');

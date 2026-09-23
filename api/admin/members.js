@@ -1,5 +1,5 @@
 import { readSession } from '../../lib/session.js';
-import { listCustomers, displayNameFor, outreachLog, optOuts } from '../../lib/db.js';
+import { listCustomers, displayNameFor, outreachLog, optOuts, bouncedEmails } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
 import { reminderSettings, abandonedCheckouts, STEPS } from '../../lib/reminders.js';
@@ -18,8 +18,8 @@ export default async function handler(req, res) {
   if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 
   try {
-    const [customers, optedOut, reminders, ...logs] = await Promise.all([
-      listCustomers(), optOuts(), reminderSettings(),
+    const [customers, optedOut, bounced, reminders, ...logs] = await Promise.all([
+      listCustomers(), optOuts(), bouncedEmails(), reminderSettings(),
       ...STEPS.map((s) => outreachLog(s.kind))
     ]);
     // kind -> Map(email -> when it was sent)
@@ -59,7 +59,10 @@ export default async function handler(req, res) {
         // when each step of the sequence went out, so staff can see exactly
         // where someone is in it rather than just "reminded" or not
         sent: Object.fromEntries(STEPS.map((s) => [s.kind, sentByKind.get(s.kind).get(p.email) || null])),
-        unsubscribed: optedOut.has(p.email)
+        unsubscribed: optedOut.has(p.email),
+        // An address that does not exist. Shown rather than hidden, so a dead
+        // lead reads as dead instead of as one the sequence forgot.
+        bounced: bounced.has(p.email)
       }));
 
     // Paid, not refunded, and yet has no access — a webhook that never
