@@ -1,5 +1,5 @@
 import { CLIENT_EVENTS } from '../lib/meta-capi.js';
-import { recordPageEvent } from '../lib/db.js';
+import { recordPageEvent, recordLead } from '../lib/db.js';
 import { resolveGeo } from '../lib/geo.js';
 
 // Crawlers, previewers and uptime checks. Not exhaustive and never will be,
@@ -84,6 +84,20 @@ export default async function handler(req, res) {
       // Whether Meta will be able to tie this back to the ad that paid for it.
       hasFbc: !!(str(body.fbclid, 300) || str(body.fbp, 100))
     });
+
+    // InitiateCheckout is the one moment we learn who somebody is: it fires
+    // when the name and email have been filled in, and everything after it
+    // depends on them going through with the payment. File them now or lose
+    // them — Stripe never sees an email unless a card is actually submitted.
+    if (eventName === 'InitiateCheckout' && str(body.email, 320)) {
+      const parts = [str(body.firstName, 100), str(body.lastName, 100)].filter(Boolean);
+      await recordLead(str(body.email, 320), {
+        name: parts.join(' ') || undefined,
+        city: str(body.city, 80),
+        zip: str(body.zip, 32),
+        country: str(body.country, 8) || geo.country || undefined
+      });
+    }
 
     await sender({
       sourceUrl,

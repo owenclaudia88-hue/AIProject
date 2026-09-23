@@ -194,6 +194,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
       <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
+      <button class="tab" data-tab="leads">Leads &amp; buyers<span class="n" id="n-leads"></span></button>
       <button class="tab" data-tab="traffic">Traffic</button>
     </div>
 
@@ -207,6 +208,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   var data = { requests: [], comments: [] };
   var members = null;          // loaded the first time the tab is opened
   var membersError = '';
+  var leads = null;            // loaded when the tab is first opened
+  var leadsError = '';
   var traffic = null;          // same again, keyed by the window being shown
   var trafficError = '';
   var trafficDays = 30;
@@ -294,6 +297,82 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     if (sent[step.kind]) return false;
     if (step.after === 'checkout') return true;
     return !!sent[step.after];
+  }
+
+  function paintLeads(p) {
+    if (leadsError) { p.innerHTML = '<p class="empty">' + esc(leadsError) + '</p>'; return; }
+    if (!leads) {
+      p.innerHTML = '<p class="empty">Loading&hellip;</p>';
+      fetch('/api/admin/leads', { credentials: 'same-origin' })
+        .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.status !== 200) leadsError = res.d.error || 'Could not load leads.';
+          else {
+            leads = res.d;
+            document.getElementById('n-leads').textContent = res.d.leads.length;
+          }
+          if (tab === 'leads') paintLeads(document.getElementById('panel'));
+        })
+        .catch(function () {
+          leadsError = 'Could not load leads.';
+          if (tab === 'leads') paintLeads(document.getElementById('panel'));
+        });
+      return;
+    }
+
+    var c = leads.counts, h = '';
+
+    h += '<div class="stats">' +
+      stat(c.reachedCheckout, 'Opened checkout', 'distinct people') +
+      stat(c.gaveDetails, 'Gave name &amp; email', c.detailsRate + '% of those') +
+      stat(c.purchased, 'Purchased', c.detailsToPurchase + '% of those who gave details') +
+      stat(c.gaveDetailsNoPurchase, 'Details, no purchase', 'worth chasing') +
+      '</div>';
+
+    if (c.leftBeforeDetails > 0) {
+      h += '<p class="warn">' + c.leftBeforeDetails + ' opened the checkout and left without typing a name.</p>';
+    }
+    // The two figures come from different places and different periods —
+    // leads from the day someone first filled the form, checkout visits only
+    // from the day traffic started being recorded. Comparing them without
+    // saying so would overstate the drop-off.
+    if (leads.trackingSince) {
+      h += '<p class="warn">Checkout visits are only counted from ' +
+        esc(day(leads.trackingSince)) + ', when traffic tracking started. Leads go back further.</p>';
+    }
+
+    h += '<div class="dl">Download: ' +
+      '<a href="/api/admin/export?set=leads">non-buyers</a>' +
+      '<a href="/api/admin/export?set=members">buyers</a>' +
+      '<a href="/api/admin/export?set=all">everyone</a></div>';
+
+    var addr = function (x) {
+      var bits = [x.address, x.city, x.zip, x.country].filter(Boolean);
+      return bits.length ? bits.join(', ') : '';
+    };
+
+    h += '<h3 class="sech">Purchased <span class="meta">' + leads.buyers.length + '</span></h3>';
+    if (!leads.buyers.length) h += '<p class="empty">Nobody yet.</p>';
+    leads.buyers.forEach(function (b) {
+      h += '<div class="card"><div class="hd"><b>' + esc(b.name) + '</b>' +
+        '<span class="st ' + (b.status === 'active' ? 'done' : 'declined') + '">' + esc(b.status) + '</span>' +
+        '<span class="meta" style="margin-left:auto">' + esc(b.email) + ' &middot; ' + esc(day(b.joinedAt)) + '</span></div>' +
+        (addr(b) ? '<p style="font-family:var(--mono);font-size:.78rem">' + esc(addr(b)) + '</p>' : '') +
+        '</div>';
+    });
+
+    var unconverted = leads.leads.filter(function (l) { return !l.purchased; });
+    h += '<h3 class="sech">Gave details, never bought <span class="meta">' + unconverted.length + '</span></h3>';
+    if (!unconverted.length) h += '<p class="empty">Nobody in this state.</p>';
+    unconverted.forEach(function (l) {
+      h += '<div class="card"><div class="hd"><b>' + esc(l.name || l.email.split('@')[0]) + '</b>' +
+        '<span class="st new">no purchase</span>' +
+        '<span class="meta" style="margin-left:auto">' + esc(l.email) + ' &middot; ' + esc(day(l.firstSeen)) + '</span></div>' +
+        (addr(l) ? '<p style="font-family:var(--mono);font-size:.78rem">' + esc(addr(l)) + '</p>' : '') +
+        '</div>';
+    });
+
+    p.innerHTML = h;
   }
 
   function paintTraffic(p) {
@@ -772,6 +851,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   function paint() {
     var p = document.getElementById('panel');
     if (tab === 'members') { paintMembers(p); return; }
+    if (tab === 'leads') { paintLeads(p); return; }
     if (tab === 'traffic') { paintTraffic(p); return; }
     p.innerHTML = tab === 'requests' ? requestsHTML() : commentsHTML();
     if (tab === 'requests') {

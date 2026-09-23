@@ -103,10 +103,17 @@ export default async function handler(req, res) {
         // grantAccess is an idempotent upsert, so Stripe retries are safe. It
         // also says whether the row was new, so the welcome email only goes on
         // the first successful payment for this buyer.
+        // The address comes with the charge, so keep it here rather than
+        // fetching it back from Stripe every time a dashboard lists members.
+        const addr = charge?.billing_details?.address || {};
         const created = await grantAccess(email, {
           paymentIntent: pi.id,
           stripeCustomerId: typeof pi.customer === 'string' ? pi.customer : undefined,
-          name
+          name,
+          city: addr.city || undefined,
+          zip: addr.postal_code || undefined,
+          country: addr.country || undefined,
+          address: [addr.line1, addr.line2].filter(Boolean).join(', ') || undefined
         });
         console.log('[stripe-webhook] Access granted:', email);
 
