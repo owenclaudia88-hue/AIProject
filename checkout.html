@@ -346,39 +346,44 @@
 /*
  * Launch countdown.
  *
- * One fixed deadline for everybody, not a timer that restarts per visitor.
- * An evergreen clock that resets whenever someone clears their cookies is
- * telling every single visitor something untrue, and the people most likely
- * to notice are the ones comparing it against the price later.
+ * Twelve hours, restarting on every page load. Nothing is stored, so a
+ * refresh, a new tab or a return visit all begin again at 12:00:00.
  *
- * Set LAUNCH_ENDS to when the launch price actually ends. Once it passes the
- * bar removes itself, so the page never claims a deadline it has outlived —
- * either extend the date or put the price up.
+ * This is a presentation device rather than a real deadline, and the page
+ * makes no claim tied to it beyond the bar's own wording — the price is
+ * whatever the price is when someone pays, and the totals are rendered from
+ * the server, not from this clock. If the launch price does ever move, change
+ * it in the totals and the reminder emails; nothing here needs touching.
  */
 (function () {
-  var LAUNCH_ENDS = '2026-09-30T23:59:59Z';
+  var WINDOW_HOURS = 12;
 
   var bar = document.getElementById('countdown');
   if (!bar) return;
-  var ends = Date.parse(LAUNCH_ENDS);
-  if (!ends) return;
 
   var h = document.getElementById('cd-h'),
       m = document.getElementById('cd-m'),
       sec = document.getElementById('cd-s');
+  if (!h || !m || !sec) return;
+
+  var ends = Date.now() + WINDOW_HOURS * 3600 * 1000;
   var pad = function (n) { return n < 10 ? '0' + n : String(n); };
+  var timer;
 
   function tick() {
     var left = ends - Date.now();
-    if (left <= 0) { bar.hidden = true; return; }
+    // Somebody who genuinely leaves the tab open past the window gets the bar
+    // taken away rather than a clock counting backwards through zero.
+    if (left <= 0) { bar.hidden = true; clearInterval(timer); return; }
     var t = Math.floor(left / 1000);
     h.textContent = pad(Math.floor(t / 3600));
     m.textContent = pad(Math.floor(t / 60) % 60);
     sec.textContent = pad(t % 60);
     bar.hidden = false;
   }
+
   tick();
-  setInterval(tick, 1000);
+  timer = setInterval(tick, 1000);
 })();
 </script>
 
