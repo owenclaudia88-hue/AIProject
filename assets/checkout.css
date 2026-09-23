@@ -254,8 +254,12 @@ footer .fine{font-size:.76rem;color:var(--txt-3);max-width:760px;margin:0 auto 1
 /* ---------- responsive ---------- */
 @media (max-width:900px){
   .co-grid{grid-template-columns:1fr;gap:24px}
-  /* order summary first on mobile, so the price is seen before the form */
-  .summary{position:static;order:-1}
+  /* The summary follows the form. It used to be pulled above it, which put
+     the first input nearly two phone screens down behind a product
+     description people had already read on the sales page — seven of the
+     first nine people to open this checkout typed nothing at all. The hero
+     above the form now carries the offer instead. */
+  .summary{position:static;order:0}
   .sum-body{padding:18px}
   main{padding-block:26px 56px}
 }
@@ -274,3 +278,72 @@ footer .fine{font-size:.76rem;color:var(--txt-3);max-width:760px;margin:0 auto 1
    stretched the lockup out of shape at 320px. */
 .brand-logo{width:176px;max-width:44vw;height:auto;display:block;flex:none}
 @media(max-width:600px){.brand-logo{width:150px}}
+
+
+/* ---------- launch countdown ---------- */
+/* A real deadline, set once in checkout.html. When it passes the bar removes
+   itself rather than looping, so the urgency is either true or absent. */
+.co-countdown{
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));
+  color:#1a0d00;padding-top:env(safe-area-inset-top,0px);
+}
+.co-countdown-inner{
+  display:flex;align-items:center;justify-content:center;gap:clamp(14px,4vw,30px);
+  flex-wrap:wrap;padding-block:10px;text-align:center;
+}
+.cd-label{font-weight:800;font-size:clamp(.92rem,2.6vw,1.05rem);letter-spacing:-.01em}
+.cd-clock{display:flex;gap:clamp(14px,4vw,26px)}
+.cd-unit{display:flex;flex-direction:column;line-height:1.05}
+.cd-unit b{font-size:clamp(1.05rem,3.4vw,1.35rem);font-weight:900;font-variant-numeric:tabular-nums}
+.cd-unit i{font-style:normal;font-size:.68rem;font-weight:700;opacity:.72}
+
+/* ---------- hero ---------- */
+.hero{margin-bottom:26px}
+.hero-badge{
+  position:relative;overflow:hidden;isolation:isolate;
+  display:inline-flex;align-items:center;gap:9px;margin:0 0 18px;
+  background:linear-gradient(180deg,var(--bg-3),var(--bg-2));
+  border:1px solid rgba(255,176,32,.28);border-radius:999px;
+  padding:7px 15px;font-size:.82rem;font-weight:700;color:var(--txt-2);
+  box-shadow:0 0 0 1px rgba(255,176,32,.05), 0 6px 20px -12px rgba(255,122,26,.7);
+}
+/* A slow shine crossing the pill, then a long pause. The badge is the one
+   piece of social proof above the form, so it earns a glance — but a
+   continuous shimmer next to a payment form reads as a scam, hence the
+   9-second gap between passes. */
+.hero-badge::after{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,214,150,.20) 50%,transparent 62%);
+  transform:translateX(-120%);
+  animation:badge-shine 9s ease-in-out 1.5s infinite;
+}
+@keyframes badge-shine{
+  0%,78%{transform:translateX(-120%)}
+  92%,100%{transform:translateX(120%)}
+}
+.hero-stars{
+  color:var(--accent-2);letter-spacing:.06em;
+  text-shadow:0 0 10px rgba(255,176,32,.45);
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-badge::after{animation:none;opacity:0}
+}
+.hero h1{
+  font-size:clamp(1.55rem,5.4vw,2.35rem);font-weight:800;letter-spacing:-.03em;
+  line-height:1.15;margin:0 0 14px;
+}
+.hero-sub{color:var(--txt-2);font-size:clamp(.98rem,2.8vw,1.08rem);margin:0 0 12px;max-width:52ch}
+.hero-forever{color:var(--txt-2);font-size:clamp(.98rem,2.8vw,1.08rem);margin:0 0 20px;max-width:52ch}
+.hero-forever strong{color:var(--txt)}
+.hero-art{margin:0 0 4px}
+.hero-art svg{width:100%;height:auto;max-height:290px}
+
+@media (max-width:900px){
+  /* The offer is read here, so the art can be smaller and the form sooner. */
+  .hero{margin-bottom:20px}
+  .hero-art svg{max-height:210px}
+}
+@media (max-width:560px){
+  .hero-badge{font-size:.76rem;padding:6px 13px;margin-bottom:14px}
+  .hero-art svg{max-height:180px}
+}

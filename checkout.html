@@ -7,7 +7,7 @@
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32">
 <link rel="icon" href="assets/favicon.png" sizes="any">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="description" content="Complete your order for 70 AI Specialists for Claude. One payment, no subscription, 14-day money-back guarantee.">
+<meta name="description" content="Complete your order for 70 AI Specialists for Claude. $1 today, then $39/month after a 7-day free trial. 14-day money-back guarantee.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +17,19 @@
 <script src="/assets/track.js"></script>
 </head>
 <body>
+
+<!-- Real deadline, not a per-visitor timer that quietly restarts. Set
+     LAUNCH_ENDS in the script below; once it passes the bar removes itself. -->
+<div class="co-countdown" id="countdown" hidden>
+  <div class="wrap co-countdown-inner">
+    <span class="cd-label">Launch pricing ends soon</span>
+    <span class="cd-clock" aria-live="off">
+      <span class="cd-unit"><b id="cd-h">00</b><i>hours</i></span>
+      <span class="cd-unit"><b id="cd-m">00</b><i>minutes</i></span>
+      <span class="cd-unit"><b id="cd-s">00</b><i>seconds</i></span>
+    </span>
+  </div>
+</div>
 
 <header class="co-top">
   <div class="wrap co-top-inner">
@@ -37,8 +50,57 @@
 
     <!-- ============ FORM ============ -->
     <div>
-      <h1>Complete your order</h1>
-      <p class="sub">You&rsquo;re one step away from your AI team. Instant access, delivered by email.</p>
+      <div class="hero">
+        <p class="hero-badge">
+          <span>70,000+ happy customers</span>
+          <span class="hero-stars" aria-label="rated 4.7 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+        </p>
+        <h1>70 AI Specialists + Business Growth System for Claude</h1>
+        <p class="hero-sub">70 expert AI specialists &mdash; pre-built, pre-trained, ready to work in your
+          business today.</p>
+        <p class="hero-forever">Each one powered by Claude. <strong>Each one yours forever.</strong></p>
+
+        <div class="hero-art" role="img"
+             aria-label="The 70 AI Specialists bundle: a main guide with the specialist library and prompt pack">
+          <svg viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="spine" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ffb020"/><stop offset="1" stop-color="#ff7a1a"/>
+              </linearGradient>
+              <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#1c1c20"/><stop offset="1" stop-color="#121214"/>
+              </linearGradient>
+              <radialGradient id="glow" cx="50%" cy="55%" r="50%">
+                <stop offset="0" stop-color="#ff7a1a" stop-opacity=".40"/>
+                <stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="210" cy="152" rx="185" ry="120" fill="url(#glow)"/>
+            <!-- the two satellites, angled back -->
+            <g transform="rotate(-8 96 150)">
+              <rect x="52" y="96" width="92" height="118" rx="7" fill="url(#face)" stroke="#33333a"/>
+              <rect x="52" y="96" width="7" height="118" rx="3" fill="url(#spine)"/>
+              <rect x="70" y="116" width="54" height="5" rx="2.5" fill="#3f3f46"/>
+              <rect x="70" y="129" width="38" height="5" rx="2.5" fill="#2c2c31"/>
+            </g>
+            <g transform="rotate(9 322 158)">
+              <rect x="278" y="104" width="92" height="118" rx="7" fill="url(#face)" stroke="#33333a"/>
+              <rect x="278" y="104" width="7" height="118" rx="3" fill="url(#spine)"/>
+              <rect x="296" y="124" width="54" height="5" rx="2.5" fill="#3f3f46"/>
+              <rect x="296" y="137" width="38" height="5" rx="2.5" fill="#2c2c31"/>
+            </g>
+            <!-- the main volume -->
+            <rect x="142" y="58" width="136" height="176" rx="9" fill="url(#face)" stroke="#3f3f46"/>
+            <rect x="142" y="58" width="10" height="176" rx="4" fill="url(#spine)"/>
+            <text x="168" y="104" fill="#f4f4f5" font-family="Inter,sans-serif" font-size="19" font-weight="800">70 AI</text>
+            <text x="168" y="126" fill="#f4f4f5" font-family="Inter,sans-serif" font-size="19" font-weight="800">Specialists</text>
+            <text x="168" y="146" fill="#ffb020" font-family="Inter,sans-serif" font-size="12" font-weight="700">for Claude</text>
+            <rect x="168" y="162" width="86" height="4" rx="2" fill="#2c2c31"/>
+            <rect x="168" y="172" width="64" height="4" rx="2" fill="#2c2c31"/>
+            <text x="168" y="208" fill="#71717a" font-family="Inter,sans-serif" font-size="9" font-weight="600">10,000 BATTLE-TESTED PROMPTS</text>
+          </svg>
+        </div>
+      </div>
 
       <form id="checkout-form" novalidate>
         <div class="co-box">
@@ -197,7 +259,7 @@
     <aside class="summary" aria-label="Order summary">
       <div class="sum-card">
         <div class="sum-head">
-          <h2>Your order</h2>
+          <h2>Get instant access to:</h2>
           <span class="secure-badge">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
@@ -206,15 +268,6 @@
         </div>
 
         <div class="sum-body">
-          <div class="prod">
-            <span class="prod-ico" aria-hidden="true">70</span>
-            <div>
-              <div class="prod-name">70 AI Specialists + Business Growth System for Claude</div>
-              <p class="prod-desc">70 expert AI Specialists &mdash; pre-built, pre-trained, ready to work in your
-              business today. Each one powered by Claude. Each one yours forever.</p>
-            </div>
-          </div>
-
           <ul class="incl">
             <li><span class="tick">&check;</span>20 Marketing &amp; Campaign Specialists</li>
             <li><span class="tick">&check;</span>9 Social Media Specialists</li>
@@ -246,7 +299,9 @@
               <span><span class="was">$285</span><span class="v">$1</span></span>
             </div>
           </div>
-          <p class="once">One payment. No subscription.</p>
+          <p class="once">$1 today. Your membership then continues at
+            <strong>$39/month after a 7-day free trial</strong> &mdash; cancel any time,
+            and everything you get today stays yours.</p>
 
           <div class="guarantee-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -255,13 +310,6 @@
             <p><strong>14-day money-back guarantee</strong>
             Not for you? Email us within 14 days and we&rsquo;ll refund you in full &mdash; no forms, no
             reason needed. <a href="terms.html#refunds">Read the policy</a>.</p>
-          </div>
-
-          <div class="trust">
-            <span class="stars" aria-hidden="true">★★★★★</span>
-            <strong>4.7</strong>
-            <span>&middot;</span>
-            <span>70,000+ happy customers</span>
           </div>
 
           <p class="urgency">⚠️ Launch pricing ends soon &mdash; then $285.</p>
@@ -285,6 +333,46 @@
     <p class="fine">&copy; 2026 AI Founder University. All rights reserved. This site is not a part of the Facebook website or Facebook Inc.</p>
   </div>
 </footer>
+
+<script>
+/*
+ * Launch countdown.
+ *
+ * One fixed deadline for everybody, not a timer that restarts per visitor.
+ * An evergreen clock that resets whenever someone clears their cookies is
+ * telling every single visitor something untrue, and the people most likely
+ * to notice are the ones comparing it against the price later.
+ *
+ * Set LAUNCH_ENDS to when the launch price actually ends. Once it passes the
+ * bar removes itself, so the page never claims a deadline it has outlived —
+ * either extend the date or put the price up.
+ */
+(function () {
+  var LAUNCH_ENDS = '2026-09-30T23:59:59Z';
+
+  var bar = document.getElementById('countdown');
+  if (!bar) return;
+  var ends = Date.parse(LAUNCH_ENDS);
+  if (!ends) return;
+
+  var h = document.getElementById('cd-h'),
+      m = document.getElementById('cd-m'),
+      sec = document.getElementById('cd-s');
+  var pad = function (n) { return n < 10 ? '0' + n : String(n); };
+
+  function tick() {
+    var left = ends - Date.now();
+    if (left <= 0) { bar.hidden = true; return; }
+    var t = Math.floor(left / 1000);
+    h.textContent = pad(Math.floor(t / 3600));
+    m.textContent = pad(Math.floor(t / 60) % 60);
+    sec.textContent = pad(t % 60);
+    bar.hidden = false;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
 
 <script>
 (function () {
