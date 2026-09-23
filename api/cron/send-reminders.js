@@ -1,4 +1,5 @@
 import { reminderSettings, dueFor, sendStepTo } from '../../lib/reminders.js';
+import { setSetting } from '../../lib/db.js';
 
 /**
  * The scheduled run, called by Vercel Cron every 15 minutes.
@@ -25,9 +26,23 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'unauthorized' });
   }
 
+  // Leave a mark on every run, before doing any work.
+  //
+  // Whether the schedule is actually firing was previously unanswerable: a job
+  // that finds nobody due writes nothing, sends nothing, and looks identical
+  // to a job that never ran at all. Vercel keeps only a few minutes of
+  // request logs, so by the time the question comes up the evidence is gone.
+  // Recorded first so a run that later throws still proves it happened.
+  const startedAt = new Date().toISOString();
+  await setSetting('reminderLastRunAt', startedAt).catch((err) =>
+    console.error('[cron/send-reminders] could not record the run:', err.message));
+
   try {
     const settings = await reminderSettings();
-    if (!settings.enabled) return res.status(200).json({ ok: true, skipped: 'reminders are switched off' });
+    if (!settings.enabled) {
+      await setSetting('reminderLastRunReport', 'switched off').catch(() => {});
+      return res.status(200).json({ ok: true, skipped: 'reminders are switched off' });
+    }
 
     const report = {};
     // Later steps first: a person who has just been sent step one is not
@@ -43,7 +58,11 @@ export default async function handler(req, res) {
       console.log(`[cron] ${step.kind}: sent ${sent.length}, ${skipped.length} failed`);
     }
 
-    return res.status(200).json({ ok: true, ...report });
+    const summary = Object.entries(report)
+      .map(([kind, r]) => `${kind}: ${r.sent}/${r.due}`).join(', ') || 'nothing due';
+    await setSetting('reminderLastRunReport', summary).catch(() => {});
+
+    return res.status(200).json({ ok: true, lastRunAt: startedAt, ...report });
   } catch (err) {
     console.error('[cron/send-reminders]', err);
     return res.status(500).json({ error: 'server' });

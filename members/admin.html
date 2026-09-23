@@ -585,7 +585,15 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         '<span class="sep">· full price shown in the follow-up</span>' +
         '<input type="text" id="rem-price" placeholder="$285" value="' + esc(rs.regularPriceLabel || '') + '" style="width:88px">' +
         '<button class="bulk" id="rem-save">Save</button>' +
-        '<span class="hint" id="rem-hint">Checked every 15 minutes. Anyone who has paid, already had it, or unsubscribed is skipped. Leave the price blank to drop that line from the email.</span>' +
+        '<span class="hint" id="rem-hint">' +
+          // Proof the schedule is alive. Without it, a job that has silently
+          // stopped is indistinguishable from one with nobody due.
+          (rs.lastRunAt
+            ? 'Last checked ' + esc(when(rs.lastRunAt)) +
+              (rs.lastRunReport ? ' (' + esc(rs.lastRunReport) + ').' : '.') + ' '
+            : 'The scheduled check has not run yet. ') +
+          'Anyone who has paid, already had it, or unsubscribed is skipped. ' +
+          'Leave the price blank to drop that line from the email.</span>' +
         '</div>';
 
       // one "send now" per step, for whoever is currently due it
