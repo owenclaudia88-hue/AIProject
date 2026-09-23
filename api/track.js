@@ -77,7 +77,11 @@ export default async function handler(req, res) {
         country: geo.country,
         region: geo.region,
         city: geo.city,
-        device: /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ? 'mobile' : 'desktop'
+        device: /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ? 'mobile' : 'desktop',
+        // Whether Meta will be able to tie this back to the ad that paid for
+        // it. With no browser pixel there is no _fbp cookie, so the click id
+        // is the only strong signal there is.
+        hasFbc: !!(str(body.fbclid, 300) || str(body.fbp, 100))
       });
     }
 

@@ -329,6 +329,17 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       stat(t.visitorToPurchase + '%', 'Visitor to buyer', t.purchases + ' of ' + t.visitors) +
       '</div>';
 
+    // The number that explains an ad account reporting nothing. Without a
+    // click id Meta cannot connect anything that happens here to the ad that
+    // paid for the visit, so those people are invisible in its reporting
+    // however far down the funnel they get.
+    if (typeof t.attributable === 'number') {
+      h += '<div class="stats" style="margin-bottom:18px">' +
+        stat(t.attributable + ' of ' + t.visitors, 'Meta can attribute',
+             t.attributableRate + '% carry an ad click id') +
+        '</div>';
+    }
+
     // Purchases go back further than traffic does, so the window is clamped to
     // the day tracking started. Without saying so, a 7-day view that only has
     // two days in it looks like a collapse in traffic.
