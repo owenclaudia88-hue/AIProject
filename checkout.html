@@ -393,14 +393,24 @@
     // server — which is what lets Meta match the person later.
     if (window.aifuTrack) {
       var nm = val('fullname').trim().split(/\s+/);
-      window.aifuTrack('InitiateCheckout', {
+      var who = {
         email: val('email'),
         firstName: nm[0] || '',
         lastName: nm.length > 1 ? nm[nm.length - 1] : '',
+        // Still empty at this point — they are step 2 fields. The server fills
+        // the country in from the IP so the event is not sent without one.
         city: val('city'),
         zip: val('postcode'),
         country: val('country')
-      });
+      };
+      // Two events for one action, deliberately. On this checkout the first
+      // step asks for a name and email and nothing else, so handing those over
+      // and starting the checkout genuinely are the same moment — but they are
+      // different things to optimise an ad campaign for, and a campaign
+      // already runs against InitiateCheckout. Sending both keeps that one
+      // working while making a leads campaign possible.
+      window.aifuTrackOnce('Lead', who);
+      window.aifuTrackOnce('InitiateCheckout', who);
     }
   });
 

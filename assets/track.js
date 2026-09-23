@@ -149,6 +149,24 @@
     } catch (e) { /* tracking must never break the page */ }
   };
 
+  /*
+   * Fire a conversion event at most once per visit.
+   *
+   * Stepping back to correct a typo and forward again is one person deciding
+   * once, not two conversions. Meta de-duplicates on event_id, which these do
+   * not share, so without this the same visitor counts repeatedly — inflating
+   * the metric and teaching the optimiser the wrong thing.
+   */
+  window.aifuTrackOnce = function (event, extra) {
+    var key = 'aifu_fired_' + event;
+    try {
+      if (window.sessionStorage.getItem(key)) return false;
+      window.sessionStorage.setItem(key, '1');
+    } catch (e) { /* storage refused — send it rather than lose it */ }
+    window.aifuTrack(event, extra);
+    return true;
+  };
+
   // The click id, for the checkout to attach to the payment. The purchase is
   // reported hours or days later by the Stripe webhook, long after this page
   // is gone, so these have to ride along with the PaymentIntent.

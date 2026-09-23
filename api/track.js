@@ -85,11 +85,12 @@ export default async function handler(req, res) {
       hasFbc: !!(str(body.fbclid, 300) || str(body.fbp, 100))
     });
 
-    // InitiateCheckout is the one moment we learn who somebody is: it fires
-    // when the name and email have been filled in, and everything after it
-    // depends on them going through with the payment. File them now or lose
-    // them — Stripe never sees an email unless a card is actually submitted.
-    if (eventName === 'InitiateCheckout' && str(body.email, 320)) {
+    // The one moment we learn who somebody is: the name and email are in, and
+    // everything after it depends on them going through with the payment. File
+    // them now or lose them — Stripe never sees an email unless a card is
+    // actually submitted. Either event carries the details; the upsert means
+    // both firing costs nothing.
+    if ((eventName === 'Lead' || eventName === 'InitiateCheckout') && str(body.email, 320)) {
       const parts = [str(body.firstName, 100), str(body.lastName, 100)].filter(Boolean);
       await recordLead(str(body.email, 320), {
         name: parts.join(' ') || undefined,
