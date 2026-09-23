@@ -526,8 +526,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     h += '<div class="stats">' +
       stat(members.counts.active, 'Active members') +
       stat(members.counts.revoked, 'Revoked') +
-      (f ? stat(f.people, 'Reached checkout') : '') +
-      (f ? stat(f.conversionRate + '%', 'Converted to paid', f.converted + ' of ' + f.people) : '') +
+      (f && f.people != null ? stat(f.people, 'Reached checkout') : '') +
+      (f && f.conversionRate != null
+        ? stat(f.conversionRate + '%', 'Converted to paid', f.converted + ' of ' + f.people) : '') +
       '</div>';
     if (members.funnelError) h += '<p class="warn">' + esc(members.funnelError) + '</p>';
 

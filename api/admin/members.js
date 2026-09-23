@@ -2,7 +2,7 @@ import { readSession } from '../../lib/session.js';
 import { listCustomers, displayNameFor, outreachLog, optOuts } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
-import { reminderSettings, STEPS } from '../../lib/reminders.js';
+import { reminderSettings, abandonedCheckouts, STEPS } from '../../lib/reminders.js';
 
 /**
  * GET /api/admin/members — everyone who has an account, everyone who started
@@ -33,6 +33,11 @@ export default async function handler(req, res) {
       funnelError = 'Could not reach Stripe, so the checkout figures are missing.';
     }
 
+    // Reads our own leads table as well as Stripe, and tolerates Stripe being
+    // down — so the people to chase still appear even when the funnel numbers
+    // above could not be worked out.
+    const abandoned = await abandonedCheckouts();
+
     const members = customers.map((c) => ({
       email: c.email,
       name: displayNameFor(c.email, c.name),
@@ -43,11 +48,12 @@ export default async function handler(req, res) {
       updatedAt: c.updated_at
     }));
 
-    // Anyone who entered an address at checkout and never ended up with an
-    // account. This is the list worth doing something about.
+    // Anyone who gave their details at checkout and never ended up with an
+    // account. This is the list worth doing something about — and it comes
+    // from the same function the reminder sequence uses, so what the dashboard
+    // shows and what actually gets emailed cannot drift apart.
     const accounts = new Map(members.map((m) => [m.email, m.status]));
-    const didNotConvert = (funnel?.people || [])
-      .filter((p) => !p.paid && p.email && !accounts.has(p.email))
+    const didNotConvert = abandoned
       .map((p) => ({
         email: p.email, name: p.name, status: p.status, createdAt: p.createdAt,
         // when each step of the sequence went out, so staff can see exactly
@@ -74,7 +80,14 @@ export default async function handler(req, res) {
         active: members.filter((m) => m.status === 'active').length,
         revoked: members.filter((m) => m.status !== 'active').length
       },
-      funnel: funnel ? { ...funnel.stats, didNotConvert, paidWithoutAccess } : null,
+      // The Stripe stats may be missing, but the people to chase no longer
+      // depend on Stripe — so they are returned either way rather than
+      // disappearing along with the numbers above.
+      funnel: {
+        ...(funnel ? funnel.stats : {}),
+        didNotConvert,
+        paidWithoutAccess
+      },
       funnelError,
       reminders
     });
