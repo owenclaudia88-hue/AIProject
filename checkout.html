@@ -60,9 +60,17 @@
           business today.</p>
         <p class="hero-forever">Each one powered by Claude. <strong>Each one yours forever.</strong></p>
 
-        <div class="hero-art" role="img"
-             aria-label="The 70 AI Specialists bundle: a main guide with the specialist library and prompt pack">
-          <svg viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- The real product shot. The vector below stands in only until
+             assets/hero.webp exists, so a missing file degrades to something
+             deliberate rather than a broken-image icon on the checkout. -->
+        <div class="hero-art">
+          <!-- parentNode, not an id further down the document: the error can
+               fire while the browser is still parsing, before the fallback
+               below it exists. -->
+          <img src="assets/hero.webp" width="900" height="900" alt="The 70 AI Specialists for Claude bundle" loading="eager" decoding="async"
+               onerror="this.parentNode.classList.add('no-img')">
+          <svg class="hero-fallback" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg"
+               role="img" aria-label="The 70 AI Specialists bundle">
             <defs>
               <linearGradient id="spine" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0" stop-color="#ffb020"/><stop offset="1" stop-color="#ff7a1a"/>

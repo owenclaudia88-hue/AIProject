@@ -335,15 +335,38 @@ footer .fine{font-size:.76rem;color:var(--txt-3);max-width:760px;margin:0 auto 1
 .hero-sub{color:var(--txt-2);font-size:clamp(.98rem,2.8vw,1.08rem);margin:0 0 12px;max-width:52ch}
 .hero-forever{color:var(--txt-2);font-size:clamp(.98rem,2.8vw,1.08rem);margin:0 0 20px;max-width:52ch}
 .hero-forever strong{color:var(--txt)}
-.hero-art{margin:0 0 4px}
-.hero-art svg{width:100%;height:auto;max-height:290px}
+.hero-art{position:relative;margin:0 0 4px;display:flex;justify-content:center}
+/* The light the product is standing in. A transparent PNG on a flat dark page
+   reads as a sticker; the glow behind it and the shadow under it are what put
+   it in the room. Sized off the box rather than the canvas so the halo sits
+   behind the product, not the empty corners of a square file. */
+.hero-art::before{
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  left:50%;top:48%;transform:translate(-50%,-50%);
+  width:96%;aspect-ratio:1;
+  background:radial-gradient(circle,
+    rgba(255,122,26,.30) 0%,
+    rgba(255,122,26,.16) 34%,
+    rgba(255,122,26,.05) 55%,
+    transparent 72%);
+  filter:blur(18px);
+}
+/* The stand-in only appears if the real product shot is missing. */
+.hero-art .hero-fallback{display:none}
+.hero-art.no-img .hero-fallback{display:block}
+.hero-art.no-img img{display:none}
+.hero-art svg,.hero-art img{
+  position:relative;z-index:1;
+  width:auto;max-width:100%;height:auto;max-height:340px;object-fit:contain;
+  filter:drop-shadow(0 26px 34px rgba(0,0,0,.6));
+}
 
 @media (max-width:900px){
   /* The offer is read here, so the art can be smaller and the form sooner. */
   .hero{margin-bottom:20px}
-  .hero-art svg{max-height:210px}
+  .hero-art svg,.hero-art img{max-height:270px}
 }
 @media (max-width:560px){
   .hero-badge{font-size:.76rem;padding:6px 13px;margin-bottom:14px}
-  .hero-art svg{max-height:180px}
+  .hero-art svg,.hero-art img{max-height:240px}
 }
