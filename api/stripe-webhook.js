@@ -163,6 +163,7 @@ export default async function handler(req, res) {
             zip: bd.address?.postal_code || null,
             country: bd.address?.country || null,
             fbclid: pi.metadata?.fbclid || null,
+            fbclidAt: Number(pi.metadata?.fbclid_at) || null,
             fbp: pi.metadata?.fbp || null,
             ip: pi.metadata?.client_ip || null,
             ua: pi.metadata?.client_ua || null

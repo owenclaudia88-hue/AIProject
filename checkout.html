@@ -457,6 +457,9 @@
         // so the server-side Purchase can be attributed to the ad click
         body: JSON.stringify({
           fbclid: window.aifuFbclid ? window.aifuFbclid() : '',
+          // When the ad was clicked, not when it was paid for. The webhook
+          // reports the sale later and would otherwise date the click to then.
+          fbclidAt: window.aifuFbclidAt ? window.aifuFbclidAt() : 0,
           fbp: window.aifuFbp ? window.aifuFbp() : ''
         })
       });

@@ -82,6 +82,7 @@ export default async function handler(req, res) {
         // that started it. The webhook is the only place that knows the
         // payment succeeded, and by then the browser is long gone.
         ...(typeof body.fbclid === 'string' && body.fbclid ? { fbclid: body.fbclid.slice(0, 300) } : {}),
+        ...(Number(body.fbclidAt) > 0 ? { fbclid_at: String(Math.round(Number(body.fbclidAt))) } : {}),
         ...(typeof body.fbp === 'string' && body.fbp ? { fbp: body.fbp.slice(0, 100) } : {}),
         // The buyer's IP and browser, kept for the same reason: Meta matches a
         // conversion far better with them, and the webhook only ever sees
