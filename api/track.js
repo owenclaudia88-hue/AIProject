@@ -88,9 +88,13 @@ export default async function handler(req, res) {
     // The one moment we learn who somebody is: the name and email are in, and
     // everything after it depends on them going through with the payment. File
     // them now or lose them — Stripe never sees an email unless a card is
-    // actually submitted. Either event carries the details; the upsert means
-    // both firing costs nothing.
-    if ((eventName === 'Lead' || eventName === 'InitiateCheckout') && str(body.email, 320)) {
+    // actually submitted.
+    //
+    // Guarded on the email rather than the event name on purpose. Meta's Lead
+    // now fires on arrival at the checkout, where there is nothing to file, so
+    // an address is the thing that decides — whichever event happens to carry
+    // one. A lead in our records is always somebody we could write to.
+    if (str(body.email, 320)) {
       const parts = [str(body.firstName, 100), str(body.lastName, 100)].filter(Boolean);
       await recordLead(str(body.email, 320), {
         name: parts.join(' ') || undefined,

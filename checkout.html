@@ -299,6 +299,24 @@
   var paymentElement = null, mounted = false;
   var btnLabel = btn.innerHTML;
 
+  /*
+   * Reaching this page is the lead.
+   *
+   * They clicked through from the sales page, so they have shown intent — and
+   * there are several times more of them than there are people who go on to
+   * type a name, which is what an ad campaign needs to learn from. Meta wants
+   * roughly fifty conversions a week before it stops guessing.
+   *
+   * Worth being clear what this does and does not say: these people cannot be
+   * emailed. Nobody is a lead in our own records until they hand over a name
+   * and an address, which happens a step later and is what fills the leads
+   * table. The two numbers will not agree, and should not.
+   *
+   * Fired once per visit, so wandering back and forth to the sales page is one
+   * person deciding rather than four conversions.
+   */
+  if (window.aifuTrackOnce) window.aifuTrackOnce('Lead');
+
   /* ---------------- validation ---------------- */
 
   var STEP = {
@@ -403,13 +421,10 @@
         zip: val('postcode'),
         country: val('country')
       };
-      // Two events for one action, deliberately. On this checkout the first
-      // step asks for a name and email and nothing else, so handing those over
-      // and starting the checkout genuinely are the same moment — but they are
-      // different things to optimise an ad campaign for, and a campaign
-      // already runs against InitiateCheckout. Sending both keeps that one
-      // working while making a leads campaign possible.
-      window.aifuTrackOnce('Lead', who);
+      // Lead is not sent here — it fires when they reach this page at all,
+      // which is where the volume an ad campaign needs actually is. This is
+      // the deeper step, and InitiateCheckout keeps meaning exactly what the
+      // campaign already running against it has learned.
       window.aifuTrackOnce('InitiateCheckout', who);
     }
   });
