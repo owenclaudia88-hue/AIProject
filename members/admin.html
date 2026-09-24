@@ -288,6 +288,19 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   }
   function day(iso) { var t = new Date(iso).getTime(); return t ? new Date(t).toLocaleDateString() : ''; }
 
+  // What a step's clock actually runs from, read off the step it chains to.
+  // This used to be hardcoded as "from checkout" or "from the first", which a
+  // two-step sequence got away with — the moment a third was added it told
+  // you the explainer was timed from the first email when it is timed from
+  // the second.
+  function afterLabel(step, steps) {
+    if (step.after === 'checkout') return 'from checkout';
+    for (var i = 0; i < steps.length; i++) {
+      if (steps[i].kind === step.after) return 'from the ' + steps[i].label.toLowerCase();
+    }
+    return 'from the previous email';
+  }
+
   // Mirrors the server's rule so the dashboard never offers a button the API
   // would refuse: not unsubscribed, hasn't had this one, and has had the one
   // before it.
@@ -583,7 +596,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         steps.map(function (s, i) {
           return '<span class="sep">' + (i === 0 ? '·' : '·') + ' ' + esc(s.label) + ' after</span>' +
             '<input type="number" data-delay="' + esc(s.delayKey) + '" min="0.25" max="168" step="0.25" value="' + esc(s.delayHours) + '">' +
-            '<span class="sep">h ' + (s.after === 'checkout' ? 'from checkout' : 'from the first') + '</span>';
+            '<span class="sep">h ' + esc(afterLabel(s, steps)) + '</span>';
         }).join('') +
         '<span class="sep">· full price shown in the follow-up</span>' +
         '<input type="text" id="rem-price" placeholder="$285" value="' + esc(rs.regularPriceLabel || '') + '" style="width:88px">' +
