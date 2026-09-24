@@ -37,10 +37,14 @@ function categoryName(dir) {
 // Prepended to every routine, never to the guide itself. Somebody who bought
 // this because they saw a Slack screenshot has never heard the word "routine",
 // and dropping them straight into a cron expression loses them.
+// The Start Here reference is a real link. It was bold text, which told a
+// first-time buyer to go and find something without giving them any way to,
+// and this is the audience least likely to go hunting for it.
+// data-open is the reader's own cross-reference mechanism, already wired.
 const FIRST_TIME =
-  '> **New to this?** Read **Start Here** first — it explains what a Routine is, '
-  + 'where to find them in Claude, and how to set one up, with screenshots. '
-  + 'Two minutes, and then this page makes sense.\n\n';
+  '> **New to this?** Read <a class="xref" data-open="routine:start-here">Start Here</a> '
+  + 'first — it explains what a Routine is, where to find them in Claude, and how '
+  + 'to set one up, with screenshots. Two minutes, and then this page makes sense.\n\n';
 
 /**
  * Pull the facts out of the document rather than keeping them in a sidecar
@@ -105,7 +109,11 @@ for (const { dir, file } of files) {
   // button. Leaving it in the body printed the whole thing twice and gave
   // people two blocks to choose between when only one is the right one.
   if (meta.prompt) {
-    source = source.replace(/```[\s\S]*?```/, '**↓ The instructions are in the panel below this one, with a copy button.**').trim();
+    // A pointer that only describes where to go is no use to somebody reading
+    // on a phone with the panel off-screen. This jumps them to it.
+    source = source.replace(/```[\s\S]*?```/,
+      '<a class="xref" data-scroll="routine-instructions">'
+      + '↓ Open the instructions, with a copy button</a>').trim();
   }
   const isGuide = dir === 'training';
   // Loud, not silent. A routine whose prompt failed to parse would otherwise
