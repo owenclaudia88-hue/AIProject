@@ -84,7 +84,12 @@ files.sort((a, b) => (a.dir + a.file).localeCompare(b.dir + b.file));
 
 let n = 0;
 for (const { dir, file } of files) {
-  const md = await readFile(join(ROOT, dir, file), 'utf8');
+  // Line endings normalised on the way in. Git rewrites these files to CRLF on
+  // checkout, and every pattern below anchors on a bare newline — which
+  // silently produced routines with no prompt at all rather than failing,
+  // because a regex that does not match simply returns null.
+  const md = (await readFile(join(ROOT, dir, file), 'utf8'))
+    .replaceAll(String.fromCharCode(13), '');
   const meta = parse(md);
   const slug = basename(file, '.md').replace(/^\d+-/, '');
   const id = `routine:${slug}`;
@@ -100,9 +105,15 @@ for (const { dir, file } of files) {
   // button. Leaving it in the body printed the whole thing twice and gave
   // people two blocks to choose between when only one is the right one.
   if (meta.prompt) {
-    source = source.replace(/```[\s\S]*?```/, '_The instructions are in the panel above, with a copy button._').trim();
+    source = source.replace(/```[\s\S]*?```/, '**↓ The instructions are in the panel below this one, with a copy button.**').trim();
   }
   const isGuide = dir === 'training';
+  // Loud, not silent. A routine whose prompt failed to parse would otherwise
+  // ingest cleanly and present an empty copy button to a paying customer.
+  if (!isGuide && !meta.prompt) {
+    console.error(`  !! ${file}: no prompt found. Check the fenced block.`);
+    process.exitCode = 1;
+  }
   const bodyHtml = marked.parse(isGuide ? source : FIRST_TIME + source);
 
   const tags = [category];

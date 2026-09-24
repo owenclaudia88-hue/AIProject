@@ -2302,13 +2302,6 @@ button{font-family:inherit}
             '<div class="panel-b' + (mono ? ' mono' : '') + '">' + html + '</div></div>';
         }
 
-        // A routine's prompt goes first and alone. It is the only part of the
-        // page that belongs in Claude, and it is what someone opened this for.
-        if (it.kind === 'routine' && meta.prompt) {
-          panel('Instructions — paste this into Claude',
-                '<pre>' + esc(meta.prompt) + '</pre>', true, 'Copy instructions');
-        }
-
         var parts = (meta.promptItems || []).filter(function (x) { return x && (x.content || x.text); });
         // Most single-item prompts store the same text twice — once as the body,
         // once as the lone prompt_item — so a part that repeats the body adds
@@ -2330,6 +2323,14 @@ button{font-family:inherit}
           extras.forEach(function (part) {
             panel(part.title || 'System instructions', part.content || part.text || '', true, 'Copy');
           });
+        }
+
+        // A routine's prompt sits below the setup, not above it: you read how
+        // to set it up, and the thing you have to paste is the next thing you
+        // reach. The setup panel ends by pointing down at it.
+        if (it.kind === 'routine' && meta.prompt) {
+          panel('Instructions — paste this into Claude',
+                '<pre>' + esc(meta.prompt) + '</pre>', true, 'Copy instructions');
         }
 
         // An automation mirrors the source's Template Instructions block: the
