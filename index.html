@@ -879,6 +879,18 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
    stretched the lockup out of shape at 320px. */
 .brand-logo{width:176px;max-width:44vw;height:auto;display:block;flex:none}
 @media(max-width:600px){.brand-logo{width:150px}}
+
+/* ---------- v2 polish ---------- */
+.hl{background:linear-gradient(100deg,#ffb020 0%,#ff7a1a 55%,#ff5a3c 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+h2{letter-spacing:-.025em}
+.card{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.card:hover{transform:translateY(-3px);border-color:rgba(255,122,26,.35);box-shadow:0 18px 40px -24px rgba(255,122,26,.45)}
+.laptop .mockup-img,.phone-scene .mockup-img{filter:drop-shadow(0 30px 60px rgba(255,122,26,.18)) drop-shadow(0 12px 24px rgba(0,0,0,.5))}
+.phone-scene img.mockup-img{width:min(420px,90%)}
+.phone-scene .float-pill{top:auto;bottom:10%;left:0;z-index:2}
+@media (max-width:820px){.phone-scene img.mockup-img{width:min(320px,84%)}.phone-scene .float-pill{bottom:6%;top:auto;left:-2%}}
+.bacc.open{border-color:rgba(255,122,26,.4)}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 </style>
 <script src="/assets/track.js"></script>
 </head>
@@ -916,13 +928,13 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
         <span class="stars">★★★★★</span>
         <strong>4.7</strong>
         <span class="bar">|</span>
-        <span>Trusted by 70,000+ entrepreneurs and marketers</span>
+        <span>Used by 70,000+ founders and marketers</span>
       </div>
-      <p class="hero_eyebrow">Heard of — or just switched to — Claude?</p>
-      <h1>Turn Claude Into a High-Performing AI Team.</h1>
-      <p class="h1-sub"><em>70 Specialists to 10x your output and cut your costs by 50%</em></p>
-      <p class="lead">One specialist for every part of your business. Your social media manager, copywriter, strategist, sales coach, analyst, HR lead — and 65 more.</p>
-      <p class="lead"><strong>One payment of <span class="amber">$1</span> today. No monthly fees. Results from day one.</strong></p>
+      <p class="hero_eyebrow">Just moved to Claude and not sure where to start?</p>
+      <h1>Give Claude a Job Description. <span class="hl">Then Give It 69 More.</span></h1>
+      <p class="h1-sub"><em>70 ready-made experts for the work you keep putting off</em></p>
+      <p class="lead">A marketer, a copywriter, a strategist, a closer, an analyst, an HR lead &mdash; and 64 more. Each one already knows the job, so you skip the blank page and go straight to the finished work.</p>
+      <p class="lead"><strong>One payment of <span class="amber">$1</span> today. Nothing monthly, ever. Put them to work this afternoon.</strong></p>
     </div>
 
     <div class="hero_cta">
@@ -1028,7 +1040,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
      </span>
      <div>
        <p class="inc-head"><span class="inc-title">INCLUDED TODAY:</span> <span class="inc-list">Master Claude Cowork · Claude Skills · Claude MCPs · Claude Code · and More</span></p>
-       <p class="inc-sub">Get step-by-step guides on the newest AI tools to install them in your business right away.</p>
+       <p class="inc-sub">Short, no-fluff walkthroughs that get each tool running in your business the same day.</p>
      </div>
    </div>
   </div>
@@ -1038,8 +1050,8 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section style="background:var(--bg-2);border-block:1px solid var(--line)">
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <h2>The Shocking Claude Gap</h2>
-      <p class="lead">That's the difference between a typical Claude user and someone running 70 pre-built Specialists. It's not about time. It's about quality.</p>
+      <h2>Same Claude. <span class="hl">Very Different Results.</span></h2>
+      <p class="lead">Two people, same tool, same monthly bill. One opens a blank box and hopes. The other opens a Specialist that already knows what good looks like.</p>
     </div>
     <div class="table-scroll" style="margin-top:34px">
       <table>
@@ -1054,27 +1066,27 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
         <tbody>
           <tr>
             <td>Managing social media</td>
-            <td data-label="Without Claude" class="col-lose">6–8 hrs a week, manually</td>
-            <td data-label="Casual Claude user" class="col-lose">2 hrs, inconsistent tone</td>
-            <td data-label="With 70 AI Specialists" class="col-win">30 mins, scheduled and done</td>
+            <td data-label="Without Claude" class="col-lose">6–8 hours a week, by hand</td>
+            <td data-label="Casual Claude user" class="col-lose">2 hours, and the tone wanders</td>
+            <td data-label="With 70 AI Specialists" class="col-win">20 minutes, on-brand, done for the week</td>
           </tr>
           <tr>
             <td>Writing and sending emails</td>
-            <td data-label="Without Claude" class="col-lose">5–10 hrs per campaign</td>
-            <td data-label="Casual Claude user" class="col-lose">3–5 hrs, sounds like AI</td>
-            <td data-label="With 70 AI Specialists" class="col-win">1 hr, voice-matched and live</td>
+            <td data-label="Without Claude" class="col-lose">Half a day per campaign</td>
+            <td data-label="Casual Claude user" class="col-lose">A few hours, and it reads like a robot</td>
+            <td data-label="With 70 AI Specialists" class="col-win">One hour, in your voice, ready to send</td>
           </tr>
           <tr>
             <td>Responding to customer messages</td>
-            <td data-label="Without Claude" class="col-lose">Hours of back and forth daily</td>
-            <td data-label="Casual Claude user" class="col-lose">Still you, just faster</td>
-            <td data-label="With 70 AI Specialists" class="col-win">Claude handles it while you sleep</td>
+            <td data-label="Without Claude" class="col-lose">Hours of back-and-forth, every day</td>
+            <td data-label="Casual Claude user" class="col-lose">Still you, only a little quicker</td>
+            <td data-label="With 70 AI Specialists" class="col-win">Replies drafted and waiting when you log in</td>
           </tr>
           <tr>
             <td>Researching competitors and markets</td>
-            <td data-label="Without Claude" class="col-lose">Half a day, still incomplete</td>
-            <td data-label="Casual Claude user" class="col-lose">1 hr, surface level</td>
-            <td data-label="With 70 AI Specialists" class="col-win">15 mins, gaps and opportunities ready</td>
+            <td data-label="Without Claude" class="col-lose">Half a day, and still patchy</td>
+            <td data-label="Casual Claude user" class="col-lose">An hour, and only skin-deep</td>
+            <td data-label="With 70 AI Specialists" class="col-win">15 minutes, with the openings already circled</td>
           </tr>
         </tbody>
       </table>
@@ -1087,8 +1099,8 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap">
     <div class="gpt_layout">
       <div class="heading_wrap_gpt">
-        <h2>Imagine What Your Business Looks Like When Claude Is Running the Work You Hate.</h2>
-        <p class="lead">Every Specialist already knows its role, your context and what to produce &mdash; so you stop being the one doing everything.</p>
+        <h2>Picture Next Week With <span class="hl">the Dreaded Work Already Handled.</span></h2>
+        <p class="lead">Each Specialist comes briefed on its role, your business and what a finished piece looks like &mdash; so the whole operation stops running through you.</p>
         <div class="cta-block" style="align-items:flex-start">
           <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
           <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
@@ -1097,24 +1109,24 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 
       <div class="benefit-acc">
         <div class="bacc open">
-          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bacc-t">Your Business Runs Without You</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
-          <div class="bacc-a"><p>Every business function has a pre-trained Specialist handling it. Marketing, sales, ops, finance, HR &mdash; all running in parallel without you.</p></div>
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bacc-t">The work gets done when you step away</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Marketing, sales, ops, finance, HR &mdash; each area has a Specialist that already knows the job, so the plates keep spinning on the days you are busy elsewhere.</p></div>
         </div>
         <div class="bacc">
-          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg></span><span class="bacc-t">Output That Sounds Like You</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
-          <div class="bacc-a"><p>Your Specialists are configured to match your voice and context. No more spending 40 minutes editing AI output to make it feel human.</p></div>
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg></span><span class="bacc-t">It writes the way you would</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Give it your voice and context once. After that, drafts come back sounding like you wrote them &mdash; not like something you now have to rewrite for 40 minutes.</p></div>
         </div>
         <div class="bacc">
-          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V10"/><path d="M12 20V4"/><path d="M18 20v-6"/></svg></span><span class="bacc-t">10x Your Output. Zero Extra Hours.</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
-          <div class="bacc-a"><p>Serve more clients, produce more content, close more deals &mdash; without adding headcount or working longer hours.</p></div>
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V10"/><path d="M12 20V4"/><path d="M18 20v-6"/></svg></span><span class="bacc-t">More output, same hours</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Take on more clients, publish more, follow up on more deals &mdash; without hiring anyone or pushing your day past dinner.</p></div>
         </div>
         <div class="bacc">
-          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg></span><span class="bacc-t">Connected to Your Entire Stack</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
-          <div class="bacc-a"><p>Connect Claude to Gmail, Slack, Google Drive, Notion, HubSpot and more. It reads, writes, updates and automates across every tool you already use &mdash; without you switching tabs.</p></div>
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg></span><span class="bacc-t">Works inside the tools you already use</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Hook Claude up to Gmail, Slack, Drive, Notion, HubSpot and the rest. It reads, writes and updates across all of them, so you stop living in twelve open tabs.</p></div>
         </div>
         <div class="bacc">
-          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span><span class="bacc-t">Scale Without the Headcount</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
-          <div class="bacc-a"><p>Run your business at the output level of a 10-person operation &mdash; as a solopreneur, on a laptop, anywhere in the world.</p></div>
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span><span class="bacc-t">A team&rsquo;s output, without the payroll</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Operate like a ten-person shop as a team of one &mdash; from a laptop, from anywhere, on your own schedule.</p></div>
         </div>
       </div>
     </div>
@@ -1125,8 +1137,8 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section style="background:var(--bg-2);border-block:1px solid var(--line)">
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <h2>Built for people who ship.</h2>
-      <p class="lead">Operators using the Specialists in real businesses, every day.</p>
+      <h2>From People <span class="hl">Putting Them to Work.</span></h2>
+      <p class="lead">Owners and operators using the Specialists in their businesses every week.</p>
     </div>
     <div class="tcarousel" style="margin-top:38px">
       <button class="tnav tprev" type="button" aria-label="Previous testimonial">‹</button>
@@ -1188,8 +1200,8 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section>
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <h2>This Is What Happens When Claude Stops Being a Tool and Starts Being Your Team.</h2>
-      <p class="lead">The gap isn't gradual. It opens from day one — and widens every week you run the system.</p>
+      <h2>When Claude Stops Being a Chatbot <span class="hl">and Starts Being Staff.</span></h2>
+      <p class="lead">The difference shows up in the first week &mdash; and grows every week the system keeps running.</p>
     </div>
 
     <div class="chartcard" style="margin-top:34px">
@@ -1273,41 +1285,41 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section class="capswrap-bg" style="background:var(--bg-2);border-block:1px solid var(--line)">
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <h2>Most Claude Users Are Operating at 20% of What It Can Actually Do.</h2>
-      <p class="lead">Here's what your 70 Specialists unlock from day one.</p>
+      <h2>Most People Use <span class="hl">About a Fifth</span> of What Claude Can Do.</h2>
+      <p class="lead">Here&rsquo;s what opens up the moment your Specialists are installed.</p>
     </div>
     <div class="caps-wrap" style="margin-top:38px">
       <div class="caps-card">
         <ul>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Write and schedule a month of social content in one session</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Build a full launch campaign start to finish</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Write, sequence and personalise an entire email funnel</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Create SOPs for every role in your business</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Write sales scripts tailored to your exact offer</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Build a content strategy with 90 days of ideas</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Draft proposals, contracts and NDAs ready to send</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Write YouTube scripts, hooks and descriptions in bulk</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Analyse your competitors and surface gaps in minutes</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Build your entire website copy in a single session</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Plan and write a full month of social posts in one sitting</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Map out a product launch from teaser to last-call email</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Draft and order a complete email funnel, personalised to your list</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Turn how you do things into written SOPs for every role</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Get sales scripts built around your offer, not a template</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Fill a 90-day content plan with ideas worth posting</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Produce proposals, agreements and NDAs you can send today</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Batch YouTube scripts, openings and descriptions</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Size up competitors and spot the gaps they have left open</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Write every page of your website in one session</span></li>
         </ul>
       </div>
       <div class="caps-card">
         <ul>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Reply to customer enquiries automatically via Gmail</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Update your CRM and calendar without touching them</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Summarise and report on your financials weekly</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Create and post to Notion, Drive and Slack simultaneously</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Build reusable workflows that run without you</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Research any market, audience or trend in 15 minutes</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Write and A/B test ad creatives at scale</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Translate and localise content for any market instantly</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Build AI assistants that handle sales calls and follow-ups</span></li>
-          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Run your entire business from a laptop, anywhere in the world</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Have customer replies drafted straight into Gmail</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Keep your CRM and calendar current without logging in</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Get a plain-English money summary every week</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Publish to Notion, Drive and Slack in one go</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Set up repeatable workflows that run on their own</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Get a solid read on any market or audience in 15 minutes</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Produce ad variations to test, dozens at a time</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Adapt your content for new languages and markets</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Build assistants that prep your calls and handle follow-ups</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Run the whole thing from a laptop, wherever you are</span></li>
         </ul>
       </div>
     </div>
     </div>
-    <p class="lead center narrow" style="margin-top:30px">None of this requires prompting from scratch. Every Specialist is pre-configured. Open it, ask your question, get expert output. <strong>That's the whole system.</strong></p>
+    <p class="lead center narrow" style="margin-top:30px">None of this requires prompting from scratch. Every Specialist arrives set up. Open it, say what you need, get work you can use. <strong>That&rsquo;s it.</strong></p>
   </div>
 </section>
 
@@ -1316,9 +1328,9 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap">
     <div class="cta-box">
       <div class="inner center stack">
-        <h2>But what's actually scarier? Being the last one in your market to figure this out.</h2>
-        <p class="lead">In February 2026 Claude hit #1 on the App Store. 2.5 million people left ChatGPT in weeks. The entrepreneurs who moved first have a head start that compounds every single week.</p>
-        <p class="lead">They didn't find a secret tool. They just did this before you did.</p>
+        <h2>The Real Risk Isn&rsquo;t Trying This. <span class="hl">It&rsquo;s Being Last.</span></h2>
+        <p class="lead">Claude climbed to #1 on the App Store in February 2026, and 2.5 million people switched from ChatGPT within weeks. The owners who set up properly early are pulling further ahead every week.</p>
+        <p class="lead">No secret tool. They just got organised sooner.</p>
         <div class="cta-block">
           <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
           <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
@@ -1331,14 +1343,14 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <!-- DAY ONE -->
 <section style="background:var(--bg-2);border-block:1px solid var(--line)">
   <div class="wrap stack">
-    <div class="narrow center"><h2>Here's What Changes From Day One:</h2></div>
+    <div class="narrow center"><h2>What Changes <span class="hl">From the First Day</span></h2></div>
     <div class="grid g3" style="margin-top:34px">
-      <div class="card"><div class="ico" style="margin-bottom:14px">⚡</div><h3>Builds Faster</h3><p class="muted" style="font-size:.93rem;margin-top:6px">From idea to execution in hours, not weeks. Every Specialist is pre-configured and ready to produce from message one.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:14px">💸</div><h3>Costs Less</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Cancel the freelancers, the contractors, the single-use tools. Your Specialists cost nothing per month and never invoice you.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:14px">✍️</div><h3>Sounds Like You</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Output that doesn't need 40 minutes of editing to feel human. Every Specialist is configured to your voice and context.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:14px">📦</div><h3>Delivers More</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Higher quality output across every business function — marketing, sales, ops, finance, HR — every single day.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:14px">🧩</div><h3>Runs On Systems</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Every function has a Specialist. Every Specialist has a workflow. Your business stops depending on you being the system.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:14px">⏳</div><h3>Gives You Time Back</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Stop doing work that AI does better. Start doing only what you can do. That's the whole point.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">⚡</div><h3>Faster</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Ideas turn into finished work in hours instead of weeks. Every Specialist is ready from the first message.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">💸</div><h3>Cheaper</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Fewer freelancers and one-trick subscriptions. Your Specialists have no monthly fee and never send an invoice.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">✍️</div><h3>In Your Voice</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Drafts that read like you on a good day, not like something you have to spend 40 minutes fixing.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">📦</div><h3>Better Work</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Sharper output in marketing, sales, ops, finance and HR &mdash; not just more of it.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">🧩</div><h3>Built on Systems</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Each area has a Specialist and each Specialist has a workflow, so the business no longer depends on your memory.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">⏳</div><h3>Time Back</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Hand over the work a Specialist does well and keep the work only you can do.</p></div>
     </div>
   </div>
 </section>
@@ -1348,9 +1360,9 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap">
     <div class="gpt_layout">
       <div class="heading_wrap_gpt">
-        <h2>Your AI working partner. Every single day.</h2>
-        <p class="lead">Most people use Claude when they remember to. These four hands-on sessions show you how to make it indispensable — so it runs alongside your business every day, not just when you have a spare hour.</p>
-        <p class="lead">Connected to Gmail, Slack, Drive, Notion, HubSpot and thousands more — Claude reads, writes and updates across the tools you already use.</p>
+        <h2>An AI Colleague <span class="hl">That Shows Up Every Day.</span></h2>
+        <p class="lead">Most people open Claude when they happen to remember. The four hands-on sessions show you how to make it part of the daily routine, working next to you instead of waiting for a spare hour.</p>
+        <p class="lead">Link it to Gmail, Slack, Drive, Notion, HubSpot and thousands more, and it works right inside the tools you already rely on.</p>
       </div>
       <div class="pad-scene">
         <img src="assets/ipad-mockup.avif" width="800" height="617" loading="lazy"
@@ -1366,33 +1378,33 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap stack">
     <div class="narrow center stack-sm">
       <span class="eyebrow">Included free today</span>
-      <h2 style="margin-top:14px">We've Included 4 Hands-On Sprints So Claude Doesn't Just Work For You — It Works Without You.</h2>
-      <p class="lead">Watch it, build it, run it the same day. Each Sprint ends with something working in your business, not a folder of notes.</p>
+      <h2 style="margin-top:14px">4 Hands-On Sprints So Claude Keeps <span class="hl">Working When You Don&rsquo;t.</span></h2>
+      <p class="lead">Watch, build, switch it on &mdash; all in one sitting. Every Sprint ends with something live in your business, not another folder of notes.</p>
     </div>
     <div class="grid g2" style="margin-top:34px">
       <div class="card stack-sm">
         <span class="eyebrow">Sprint 01</span>
         <h3 style="margin-top:12px">Claude Cowork</h3>
-        <p class="amber" style="font-size:.93rem;font-weight:600">Want Claude handling your emails, calendar and documents — so you never have to?</p>
-        <p class="muted" style="font-size:.93rem">Claude Cowork turns Claude into a real work assistant. It writes your docs, manages your files, summarises meetings and handles your inbox — all from one session.</p>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Tired of your inbox, calendar and documents eating your mornings?</p>
+        <p class="muted" style="font-size:.93rem">Cowork turns Claude into a hands-on assistant: it drafts documents, sorts files, sums up meetings and works through your inbox from one place.</p>
       </div>
       <div class="card stack-sm">
         <span class="eyebrow">Sprint 02</span>
         <h3 style="margin-top:12px">Claude Skills</h3>
-        <p class="amber" style="font-size:.93rem;font-weight:600">Want to teach Claude your voice once — and never explain yourself again?</p>
-        <p class="muted" style="font-size:.93rem">Claude Skills lets you build reusable workflows that remember your tone, your style and your structure. Set it up once. It runs the same way every single time.</p>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Explain your style once and never repeat yourself again.</p>
+        <p class="muted" style="font-size:.93rem">Skills let you package a way of working &mdash; tone, structure, checklist &mdash; so Claude does it the same way every time you ask.</p>
       </div>
       <div class="card stack-sm">
         <span class="eyebrow">Sprint 03</span>
         <h3 style="margin-top:12px">Claude MCP</h3>
-        <p class="amber" style="font-size:.93rem;font-weight:600">Want Claude connected to every tool you already use?</p>
-        <p class="muted" style="font-size:.93rem">Claude MCP connects Claude to Gmail, Google Drive, Notion, your calendar and thousands of other apps. It books meetings, sends emails, updates records and posts content — without you touching anything.</p>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Get Claude talking to the apps you already run on.</p>
+        <p class="muted" style="font-size:.93rem">MCP connects Claude to Gmail, Drive, Notion, your calendar and thousands of other apps, so it can book, send, update and post on your behalf.</p>
       </div>
       <div class="card stack-sm">
         <span class="eyebrow">Sprint 04</span>
         <h3 style="margin-top:12px">Build-to-Sell Bootcamp</h3>
-        <p class="amber" style="font-size:.93rem;font-weight:600">Want to build and sell AI assistants to other businesses?</p>
-        <p class="muted" style="font-size:.93rem">Design and sell AI assistants in 60 minutes. Sales copilots, content engines, real use cases — built, packaged and ready to charge for.</p>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Turn what you learn into something you can sell.</p>
+        <p class="muted" style="font-size:.93rem">Build an AI assistant for another business in about an hour &mdash; a sales helper, a content engine &mdash; packaged and priced, ready to offer.</p>
       </div>
     </div>
     <div class="cta-block" style="margin-top:34px">
@@ -1407,8 +1419,8 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap">
     <div class="donutrow">
       <div class="stack">
-        <h2>Switched to Claude but not getting the results you expected?</h2>
-        <p class="lead">You're not alone. Most people are operating at 20% of Claude's actual capability. The remaining 80% lives in knowing how to <em>deploy</em> it — not just how to prompt it. These 70 pre-built Specialists are the shortcut.</p>
+        <h2>Made the Switch to Claude <span class="hl">but Still Waiting for the Magic?</span></h2>
+        <p class="lead">Most people stall at the same place. Claude can do far more than answer questions &mdash; the big wins come from <em>setting it up</em> to do real jobs, not from writing cleverer prompts. The 70 Specialists are that setup, done for you.</p>
       </div>
 
       <div>
@@ -1450,25 +1462,25 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <!-- AUTOMATE -->
 <section>
   <div class="wrap stack">
-    <div class="narrow center"><h2>This is just some of the tedious work you'll be able to automate</h2></div>
+    <div class="narrow center"><h2>A Taste of the Work <span class="hl">You Can Hand Off</span></h2></div>
     <div class="laptopwrap">
       <div class="laptop">
-        <img src="assets/laptop-mockup.avif" width="1080" height="635" loading="lazy"
-             alt="A laptop showing a Claude prompt library: fill-in-the-blank and open-ended prompts for improving your existing copy."
+        <img src="assets/laptop-mockup-v2.webp" width="1400" height="876" loading="lazy"
+             alt="A laptop showing the Campaign Planner Specialist: prompt templates for launch emails, webinar funnels, ad rewrites and landing pages, next to a five-step campaign plan."
              class="mockup-img">
 
         <div class="pills" aria-hidden="true">
-          <div class="pill p1"><i>✍️</i><span>Your Copywriter writes ads, emails and sales pages that sound like you</span></div>
-          <div class="pill p2"><i>📊</i><span>Your Strategist builds growth plans, market analysis and launch roadmaps</span></div>
-          <div class="pill p3"><i>📧</i><span>Your Email Specialist runs sequences, follow-ups and nurture campaigns</span></div>
-          <div class="pill p4"><i>🔍</i><span>Your Researcher analyses competitors, markets and blind spots</span></div>
-          <div class="pill p5"><i>📋</i><span>Your Ops Specialist builds SOPs, workflows and systems documentation</span></div>
-          <div class="pill p6"><i>🤝</i><span>Your Sales Specialist writes scripts, handles objections and closes deals</span></div>
+          <div class="pill p1"><i>✍️</i><span>Copywriter: ads, emails and sales pages in your voice</span></div>
+          <div class="pill p2"><i>📊</i><span>Strategist: growth plans, market reads and launch roadmaps</span></div>
+          <div class="pill p3"><i>📧</i><span>Email Specialist: sequences, follow-ups and nurture campaigns</span></div>
+          <div class="pill p4"><i>🔍</i><span>Researcher: competitors, markets and the blind spots in between</span></div>
+          <div class="pill p5"><i>📋</i><span>Ops Specialist: SOPs, workflows and process docs</span></div>
+          <div class="pill p6"><i>🤝</i><span>Sales Specialist: scripts, objection handling and closing</span></div>
         </div>
       </div>
 
     </div>
-    <p class="lead center" style="margin-top:26px"><strong>And 64 more Specialists. Every function. Every day. One payment.</strong></p>
+    <p class="lead center" style="margin-top:26px"><strong>Plus 64 more &mdash; one for every corner of the business, all for one payment.</strong></p>
   </div>
 </section>
 
@@ -1476,24 +1488,24 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section style="background:var(--bg-2);border-block:1px solid var(--line)">
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <h2>Still typing into a blank Claude window? Here's what you're missing.</h2>
+      <h2>Blank Box vs. <span class="hl">Ready-Made Specialist</span></h2>
     </div>
     <div class="vs" style="margin-top:34px">
       <div class="vs-col bad">
-        <h3 class="dim" style="color:var(--txt-3)">HOW MOST PEOPLE USE CLAUDE</h3>
-        <div class="vs-item"><span class="x">✕</span><span>Open Claude. Blank box. Write a prompt that might work.</span></div>
-        <div class="vs-item"><span class="x">✕</span><span>Get output that sounds like AI — spend 40 minutes editing it.</span></div>
-        <div class="vs-item"><span class="x">✕</span><span>Explain your business from scratch every single session.</span></div>
-        <div class="vs-item"><span class="x">✕</span><span>Lose all context the moment you open a new chat.</span></div>
-        <div class="vs-item"><span class="x">✕</span><span>Use the best AI on the market at 20% of its power.</span></div>
+        <h3 class="dim" style="color:var(--txt-3)">THE USUAL WAY</h3>
+        <div class="vs-item"><span class="x">✕</span><span>Stare at an empty chat and guess at a prompt.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Get something generic back and spend 40 minutes fixing it.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Re-explain your business every time you start.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Lose the thread whenever you open a new chat.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Pay for a top-tier AI and use a sliver of it.</span></div>
       </div>
       <div class="vs-col good">
         <h3 class="amber">WITH 70 AI SPECIALISTS</h3>
-        <div class="vs-item"><span class="c">✓</span><span>Open the right Specialist — context set, role configured, ready.</span></div>
-        <div class="vs-item"><span class="c">✓</span><span>Expert output from message one — sounds like you, not like AI.</span></div>
-        <div class="vs-item"><span class="c">✓</span><span>Claude knows your business — no re-explaining, ever.</span></div>
-        <div class="vs-item"><span class="c">✓</span><span>Every session builds on the last — your team compounds over time.</span></div>
-        <div class="vs-item"><span class="c">✓</span><span>Operating at the level most Claude users never reach.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Pick the Specialist for the job &mdash; it already knows the brief.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Usable work from the first reply, in your voice.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Your business context is already loaded.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Each session builds on the last, so it keeps getting better.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>You get the results most Claude users never see.</span></div>
       </div>
     </div>
   </div>
@@ -1502,31 +1514,31 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <!-- WHAT'S INSIDE -->
 <section>
   <div class="wrap stack">
-    <div class="narrow center"><h2>Everything You Need to Run Your Business on Claude. One Payment. Forever.</h2></div>
+    <div class="narrow center"><h2>Everything in the Box. <span class="hl">One Payment, Yours to Keep.</span></h2></div>
     <div class="gpt_layout" style="margin-top:44px">
       <div class="inside-stack">
         <div class="card">
           <h3 class="inside-h">70 Pre-built AI Specialists</h3>
-          <p class="muted" style="font-size:.95rem;margin-top:10px">One expert for every part of your business, ready to run from day one.</p>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">A ready-to-work expert for each part of the business.</p>
         </div>
         <div class="card">
           <h3 class="inside-h">10,000+ Claude prompts</h3>
-          <p class="muted" style="font-size:.95rem;margin-top:10px">Powering every Specialist &ndash; so you never start from a blank page again.</p>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">The instructions behind every Specialist, so the blank page is gone for good.</p>
         </div>
         <div class="card">
           <h3 class="inside-h">4 Hands-on Claude Sprints</h3>
-          <p class="muted" style="font-size:.95rem;margin-top:10px">Cowork, Skills, MCP and Build-to-Sell. Watch it, build it, run it the same day.</p>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">Cowork, Skills, MCP and Build-to-Sell &mdash; each one live in your business the day you watch it.</p>
         </div>
         <div class="card">
           <h3 class="inside-h">$0/month</h3>
-          <p class="muted" style="font-size:.95rem;margin-top:10px">One payment. No subscriptions. No recurring fees. Yours forever.</p>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">Pay once. No subscription, no renewals, no surprise charges.</p>
         </div>
       </div>
 
       <div class="phone-scene">
-        <div class="float-pill">Your competitors are already running this. Get ahead of them today.</div>
-        <img src="assets/phone-mockup.avif" width="1000" height="1500" loading="lazy"
-             alt="A phone showing Claude with Specialist categories - Marketing, Project Management, Development, Usability Testing, Feedback, Brainstorming, Copywriting - and a drafted blog-post prompt."
+        <div class="float-pill">Your competitors are setting this up. Get there first.</div>
+        <img src="assets/phone-mockup-v2.webp" width="900" height="1125" loading="lazy"
+             alt="A phone showing the Content Strategy Specialist drafting a 30-day content plan, with shortcuts for SEO, Email, Research, Analytics, Brand Voice, Planning and Copywriting."
              class="mockup-img">
       </div>
     </div>
@@ -1537,18 +1549,18 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section style="background:var(--bg-2);border-block:1px solid var(--line)">
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <h2>70 Specialists. Every corner of your business covered.</h2>
-      <p class="lead">Each one pre-configured with expert-level instructions. Open it, ask your question, get output that sounds like you — not like AI.</p>
+      <h2>70 Specialists, <span class="hl">Eight Departments.</span></h2>
+      <p class="lead">Each one ships with expert-level instructions, so you ask in plain words and get work back that reads like yours.</p>
     </div>
     <div class="grid g4" style="margin-top:34px">
-      <div class="card"><div class="ico" style="margin-bottom:12px">📣</div><h3>Marketing &amp; Content</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Ad copy, content calendars, campaign strategy, SEO, email marketing, social media — all pre-configured and ready from message one.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:12px">💰</div><h3>Sales &amp; Revenue</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Scripts, objection handlers, proposals, follow-up sequences and closing frameworks — configured for your offer and your voice.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:12px">🛠️</div><h3>Operations &amp; Systems</h3><p class="muted" style="font-size:.9rem;margin-top:6px">SOPs, project workflows, team processes, reporting systems — everything documented, nothing left in your head.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:12px">📊</div><h3>Finance &amp; Strategy</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Budget analysis, forecasting, pricing strategy, gap identification — senior-level financial thinking, available 24/7.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:12px">👥</div><h3>HR &amp; Team</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Job descriptions, interview frameworks, onboarding flows, performance reviews — every people process systematised.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:12px">🎬</div><h3>Content &amp; Video</h3><p class="muted" style="font-size:.9rem;margin-top:6px">YouTube scripts, podcast structures, blog frameworks, course outlines and repurposing workflows — one brief, multiple formats.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:12px">🤝</div><h3>Customer Success</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Onboarding flows, feedback loops, retention campaigns, client communication templates — all built and ready.</p></div>
-      <div class="card"><div class="ico" style="margin-bottom:12px">🌐</div><h3>Websites &amp; Build</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Go from idea to live income-generating website in a single session. No developer. No agency. No waiting.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">📣</div><h3>Marketing &amp; Content</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Ads, content calendars, campaigns, SEO, email and social &mdash; ready from the first message.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">💰</div><h3>Sales &amp; Revenue</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Scripts, objection handling, proposals and follow-ups, shaped around your offer.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🛠️</div><h3>Operations &amp; Systems</h3><p class="muted" style="font-size:.9rem;margin-top:6px">SOPs, workflows, team processes and reporting &mdash; written down instead of stuck in your head.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">📊</div><h3>Finance &amp; Strategy</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Budgets, forecasts and pricing decisions, with a senior-level second opinion any hour of the day.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">👥</div><h3>HR &amp; Team</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Job posts, interviews, onboarding and reviews &mdash; every people process with a playbook.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🎬</div><h3>Content &amp; Video</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Video scripts, podcast outlines, blogs and courses &mdash; one idea, turned into every format.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🤝</div><h3>Customer Success</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Onboarding, feedback, retention and client messages, ready to use.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🌐</div><h3>Websites &amp; Build</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Go from idea to a live site that sells in one session &mdash; no developer, no agency.</p></div>
     </div>
     <div class="cta-block" style="margin-top:34px">
       <a href="#pricing" class="btn">Get Instant Access</a>
@@ -1561,14 +1573,14 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section>
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <h2>Claude is having its ChatGPT moment. Right now.</h2>
-      <p class="lead">In February 2026, while every other AI platform lost users, Claude grew 42.3%. It hit #1 on the App Store. 2.5 million people switched from ChatGPT in weeks.</p>
+      <h2>Claude&rsquo;s Big Moment <span class="hl">Is Happening Now.</span></h2>
+      <p class="lead">In February 2026 Claude grew 42.3% while other AI apps lost users, reached #1 on the App Store, and pulled 2.5 million people away from ChatGPT in a matter of weeks.</p>
     </div>
     <div class="grid g2" style="margin-top:34px">
-      <div class="card stat"><div class="num">42.3%</div><p>Claude's user growth in February 2026 — while ChatGPT declined 14.8%</p></div>
-      <div class="card stat"><div class="num">2.5M</div><p>People who switched to Claude in the #QuitGPT movement this year alone</p></div>
+      <div class="card stat"><div class="num">42.3%</div><p>Growth in Claude users in February 2026, as ChatGPT dropped 14.8%</p></div>
+      <div class="card stat"><div class="num">2.5M</div><p>People who moved to Claude during this year&rsquo;s #QuitGPT wave</p></div>
     </div>
-    <p class="lead center narrow" style="margin-top:30px">The entrepreneurs winning in 2026 have one thing in common. They stopped doing work that AI does better. The 70 Specialists handle everything else — while your competitors are still typing into a blank box hoping for a good answer.</p>
+    <p class="lead center narrow" style="margin-top:30px">The owners pulling ahead this year have one habit in common: they stopped doing the work AI does well. The Specialists take that work off your plate while others are still guessing at prompts.</p>
     <div class="cta-block" style="margin-top:28px">
       <a href="#pricing" class="btn">Get Instant Access</a>
       <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
@@ -1580,8 +1592,8 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <section style="background:var(--bg-2);border-block:1px solid var(--line)">
   <div class="wrap stack">
     <div class="narrow center stack-sm">
-      <h2>70,000+ entrepreneurs have trusted these AI products. Here's what they say:</h2>
-      <p class="lead">Don't just take our word for it — listen to thousands of others.</p>
+      <h2>What Buyers <span class="hl">Are Saying</span></h2>
+      <p class="lead">Straight from people who have the Specialists running.</p>
     </div>
     <div class="reviews" style="margin-top:34px">
       <div class="review"><div class="stars">★★★★★</div><p>"Been going through the Specialists all weekend — generating content, rewriting email templates, building strategies I'd been putting off for months. Mind blown. 🤯"</p><div class="rwho"><div class="ravatar">S<img src="https://i.pravatar.cc/120?img=5" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Stephanie</div></div></div>
@@ -1600,11 +1612,11 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 <!-- STEPS -->
 <section>
   <div class="wrap stack">
-    <div class="narrow center"><h2>This is all it takes.</h2></div>
+    <div class="narrow center"><h2>Three Steps. <span class="hl">That&rsquo;s the Setup.</span></h2></div>
     <div class="grid g3" style="margin-top:34px">
-      <div class="card step"><div class="num">1</div><p>Get your 70 AI Specialists — set up in under 10 minutes.</p></div>
-      <div class="card step"><div class="num">2</div><p>Open the right Specialist for every task, every single day.</p></div>
-      <div class="card step"><div class="num">3</div><p>Get output that sounds like you and a business that runs like a team.</p></div>
+      <div class="card step"><div class="num">1</div><p>Install the Specialists &mdash; about ten minutes, start to finish.</p></div>
+      <div class="card step"><div class="num">2</div><p>Pick the Specialist that fits the task in front of you.</p></div>
+      <div class="card step"><div class="num">3</div><p>Get work back in your voice, and a business that runs like a team.</p></div>
     </div>
   </div>
 </section>
@@ -1614,8 +1626,8 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap stack">
     <div class="narrow center stack-sm">
       <span class="eyebrow">$1 launch price — limited time</span>
-      <h2 style="margin-top:14px">Get Your Complete AI Specialist Team For $1.</h2>
-      <p class="lead" style="margin-top:14px">One package. Everything included. No tiers, no upsell maze.</p>
+      <h2 style="margin-top:14px">Your Whole AI Team <span class="hl">for $1.</span></h2>
+      <p class="lead" style="margin-top:14px">A single package with everything in it. No tiers to compare, no upsell maze.</p>
     </div>
     <div class="plans" style="margin-top:40px">
 
@@ -1623,7 +1635,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
         <div class="plan-badge">Launch offer — $1 today</div>
         <div>
           <h3>70 AI Specialists + Business Growth System</h3>
-          <p class="dim" style="margin-top:4px">The complete team, plus all 4 Sprints.</p>
+          <p class="dim" style="margin-top:4px">All 70 Specialists plus the four Sprints.</p>
         </div>
         <div>
           <div class="prices"><span class="now">$1</span><span class="was">$285</span></div>
@@ -1671,13 +1683,13 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
       <button class="faq-q" type="button">What exactly are the 70 AI Specialists?<span class="chev">+</span></button>
       <div class="faq-a">
         <p>They're 70 pre-built Claude Skills packaged and delivered as one single Claude Plugin that you install into your Claude app in a few clicks. Each Skill is configured with expert-level instructions for a specific business function or objective.</p>
-        <p>Instead of opening a blank chat and prompting from scratch every time, you open the right Specialist and it already knows its role, your context, and how to generate output that sounds like you. Think of it as hiring 70 trained team members — except they cost nothing per month and are available 24/7.</p>
+        <p>Rather than starting each chat from nothing, you open the Specialist for the job and it already knows its role, your context and the kind of output you want. Think of it as 70 trained hires with no salary and no days off.</p>
       </div>
     </div>
 
     <div class="faq-item">
       <button class="faq-q" type="button">How do I install and use the 70 AI Specialists?<span class="chev">+</span></button>
-      <div class="faq-a"><p>It's simple. Install the ZIP file you receive from us in your Claude desktop app, run a short pre-written prompt that you'll receive, and follow the guidance. You also get an easy-to-follow video guide that walks you through every step.</p></div>
+      <div class="faq-a"><p>Add the ZIP file we send you to the Claude desktop app, paste in the short setup prompt that comes with it, and follow along. A video guide walks you through each step.</p></div>
     </div>
 
     <div class="faq-item">
@@ -1687,7 +1699,7 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
 
     <div class="faq-item">
       <button class="faq-q" type="button">Do I get a video guide or instructions?<span class="chev">+</span></button>
-      <div class="faq-a"><p>Yes. You get an easy-to-follow video guide, text instructions, examples and screenshots that walk you through every step.</p></div>
+      <div class="faq-a"><p>Yes &mdash; a step-by-step video, written instructions, worked examples and screenshots.</p></div>
     </div>
 
     <div class="faq-item">
@@ -1734,8 +1746,8 @@ footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760p
   <div class="wrap">
     <div class="cta-box">
       <div class="inner center stack">
-        <h2>Your only regret will be not doing this sooner.</h2>
-        <p class="lead">70 AI Specialists. 4 Claude Sprints. One payment. Your entire AI team — deployed today, running forever.</p>
+        <h2>Set It Up Today. <span class="hl">Thank Yourself Next Week.</span></h2>
+        <p class="lead">70 Specialists, four Sprints, one payment. Your AI team is ready to start this afternoon.</p>
         <div class="cta-block">
           <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
           <div class="guarantee">🔒 Secure checkout · 14-day money-back guarantee · Instant delivery</div>
