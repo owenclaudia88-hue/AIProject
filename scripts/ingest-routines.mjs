@@ -83,9 +83,12 @@ for (const { dir, file } of files) {
   const category = categoryName(dir);
   const sort = Number((file.match(/^(\d+)/) || [])[1] || 99);
 
-  // The H1 is dropped: the reader renders the title from the item's own field
-  // and would otherwise show it twice.
-  const bodyHtml = marked.parse(md.replace(/^#\s+.+$/m, '').trim());
+  // The H1 and the summary line under it are both dropped: the reader already
+  // renders the title and the description above the body, and leaving them in
+  // showed each of them twice on the page.
+  let source = md.replace(/^#\s+.+$/m, '').trim();
+  if (meta.description) source = source.replace(meta.description, '').trim();
+  const bodyHtml = marked.parse(source);
 
   const tags = [category];
   if (meta.connectors) {

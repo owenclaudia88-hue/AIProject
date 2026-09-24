@@ -2192,7 +2192,11 @@ button{font-family:inherit}
     gpt:          { title: 'How to use it', mono: false, copy: null },
     automation:   { title: 'How to use it', mono: false, copy: null },
     guide:        { title: 'The Guide',    mono: false, copy: null },
-    video:        { title: 'Notes',        mono: false, copy: null }
+    video:        { title: 'Notes',        mono: false, copy: null },
+    // No copy button on the body: a routine's document is setup steps and
+    // troubleshooting, and copying all of it into Claude's Instructions box
+    // is exactly the mistake to design out. The prompt gets its own panel.
+    routine:      { title: 'Setup & notes', mono: false, copy: null }
   };
   // Only the item's own note is ever shown. There used to be invented fallbacks
   // here, which meant a panel could claim something the source never said.
@@ -2296,6 +2300,13 @@ button{font-family:inherit}
             '<span class="pt">' + esc(title) + '</span>' +
             (copyLabel ? copyBtn(textOf(html), copyLabel, 'pc') : '') + '</div>' +
             '<div class="panel-b' + (mono ? ' mono' : '') + '">' + html + '</div></div>';
+        }
+
+        // A routine's prompt goes first and alone. It is the only part of the
+        // page that belongs in Claude, and it is what someone opened this for.
+        if (it.kind === 'routine' && meta.prompt) {
+          panel('Instructions — paste this into Claude',
+                '<pre>' + esc(meta.prompt) + '</pre>', true, 'Copy instructions');
         }
 
         var parts = (meta.promptItems || []).filter(function (x) { return x && (x.content || x.text); });
