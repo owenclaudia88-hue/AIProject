@@ -1,5 +1,5 @@
 import { readSession } from '../../lib/session.js';
-import { isActive, listContent } from '../../lib/db.js';
+import { isActive, listContent, entitlementsFor } from '../../lib/db.js';
 
 /**
  * GET /api/content/list — the member library catalog.
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
 
-    const rows = await listContent();
+    const rows = await listContent(await entitlementsFor(email));
     const groups = {};
     for (const r of rows) {
       (groups[r.kind] ||= []).push({

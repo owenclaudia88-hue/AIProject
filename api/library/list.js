@@ -1,5 +1,5 @@
 import { readSession } from '../../lib/session.js';
-import { isActive, listLibrary } from '../../lib/db.js';
+import { isActive, listLibrary, entitlementsFor } from '../../lib/db.js';
 
 /**
  * GET /api/library/list[?kind=]  — the browsable catalog (titles/metadata only,
@@ -12,7 +12,9 @@ export default async function handler(req, res) {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
 
     const kind = new URL(req.url, 'http://localhost').searchParams.get('kind') || undefined;
-    const rows = await listLibrary(kind);
+    // Add-ons the member owns. Anything sold separately stays out of the
+    // catalogue until they have bought it.
+    const rows = await listLibrary(kind, await entitlementsFor(email));
     const groups = {};
     for (const r of rows) {
       (groups[r.kind] ||= []).push({

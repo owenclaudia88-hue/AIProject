@@ -1,6 +1,6 @@
 import { get } from '@vercel/blob';
 import { readSession } from '../../lib/session.js';
-import { isActive, getContentBlobUrl } from '../../lib/db.js';
+import { isActive, getContentBlobUrl, entitlementsFor } from '../../lib/db.js';
 
 /**
  * GET /api/content/download?key=…
@@ -21,7 +21,9 @@ export default async function handler(req, res) {
     const key = url.searchParams.get('key');
     if (!key) return res.status(400).json({ error: 'missing key' });
 
-    const item = await getContentBlobUrl(key);
+    // Refused rather than hidden: an add-on they have not bought returns the
+    // same 404 as a key that does not exist.
+    const item = await getContentBlobUrl(key, await entitlementsFor(email));
     if (!item) return res.status(404).json({ error: 'not found' });
 
     // Read the private blob back through the SDK (handles auth), then stream it.

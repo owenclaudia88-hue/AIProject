@@ -1,5 +1,5 @@
 import { readSession } from '../../lib/session.js';
-import { isActive, getLibraryItem, getGallery, relatedLibraryItems, getGuide } from '../../lib/db.js';
+import { isActive, getLibraryItem, getGallery, relatedLibraryItems, getGuide, entitlementsFor } from '../../lib/db.js';
 
 const assetUrl = (key) => (key ? `/api/library/asset?key=${encodeURIComponent(key)}` : null);
 
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     const id = new URL(req.url, 'http://localhost').searchParams.get('id');
     if (!id) return res.status(400).json({ error: 'missing id' });
 
-    const item = await getLibraryItem(id);
+    const item = await getLibraryItem(id, await entitlementsFor(email));
     if (!item) return res.status(404).json({ error: 'not found' });
 
     const meta = item.meta || {};
