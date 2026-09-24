@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Checkout — Claude Automation Engine</title>
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="description" content="Complete your order for the Claude Automation Engine — 59 ready-to-schedule Claude routines. One payment of $4.99, no subscription, 14-day money-back guarantee.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/checkout.css">
+<script src="https://js.stripe.com/v3/"></script>
+<script src="/assets/track.js"></script>
+</head>
+<body>
+
+<div class="co-countdown" id="countdown" hidden>
+  <div class="wrap co-countdown-inner">
+    <span class="cd-label">Launch pricing ends soon</span>
+    <span class="cd-clock" aria-live="off">
+      <span class="cd-unit"><b id="cd-h">00</b><i>hours</i></span>
+      <span class="cd-unit"><b id="cd-m">00</b><i>minutes</i></span>
+      <span class="cd-unit"><b id="cd-s">00</b><i>seconds</i></span>
+    </span>
+  </div>
+</div>
+
+<header class="co-top">
+  <div class="wrap co-top-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="assets/logo.webp" alt="AI Founder University" width="720" height="139">
+    </a>
+    <span class="secure-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+      </svg>
+      Secure checkout<span> &mdash; encrypted</span>
+    </span>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="co-grid">
+
+    <!-- ============ FORM ============ -->
+    <div>
+      <div class="hero">
+        <p class="hero-badge">
+          <span>70,000+ happy customers</span>
+          <span class="hero-stars" aria-label="rated 4.7 out of 5">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+        </p>
+        <h1>Claude Automation Engine</h1>
+        <p class="hero-sub">59 ready-to-schedule Claude routines &mdash; reporting, ads, content, sales,
+          support, hiring and ops, running on a timer.</p>
+        <p class="hero-forever">One payment. No monthly fees. <strong>Yours forever.</strong></p>
+
+        <div class="hero-art">
+          <img src="assets/automation-engine/hero.webp" width="900" height="900" alt="The Claude Automation Engine bundle" loading="eager" decoding="async"
+               onerror="this.parentNode.classList.add('no-img')">
+          <svg class="hero-fallback" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg"
+               role="img" aria-label="The Claude Automation Engine bundle">
+            <defs>
+              <linearGradient id="spine" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ffb020"/><stop offset="1" stop-color="#ff7a1a"/>
+              </linearGradient>
+              <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#1c1c20"/><stop offset="1" stop-color="#121214"/>
+              </linearGradient>
+              <radialGradient id="glow" cx="50%" cy="55%" r="50%">
+                <stop offset="0" stop-color="#ff7a1a" stop-opacity=".40"/>
+                <stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <ellipse cx="210" cy="152" rx="185" ry="120" fill="url(#glow)"/>
+            <rect x="142" y="58" width="136" height="176" rx="9" fill="url(#face)" stroke="#3f3f46"/>
+            <rect x="142" y="58" width="10" height="176" rx="4" fill="url(#spine)"/>
+            <text x="168" y="106" fill="#f4f4f5" font-family="Inter,sans-serif" font-size="19" font-weight="800">Claude</text>
+            <text x="168" y="128" fill="#f4f4f5" font-family="Inter,sans-serif" font-size="19" font-weight="800">Automation</text>
+            <text x="168" y="150" fill="#f4f4f5" font-family="Inter,sans-serif" font-size="19" font-weight="800">Engine</text>
+            <rect x="168" y="166" width="86" height="4" rx="2" fill="#2c2c31"/>
+            <rect x="168" y="176" width="64" height="4" rx="2" fill="#2c2c31"/>
+            <text x="168" y="208" fill="#ffb020" font-family="Inter,sans-serif" font-size="12" font-weight="700">59 ROUTINES ON A TIMER</text>
+          </svg>
+        </div>
+      </div>
+
+      <form id="checkout-form" novalidate>
+        <div class="co-box">
+
+          <div class="co-tabs" role="tablist">
+            <button type="button" class="co-tab active" id="tab-1" data-step="1"
+                    role="tab" aria-selected="true" aria-controls="panel-1">Login Info</button>
+            <button type="button" class="co-tab" id="tab-2" data-step="2"
+                    role="tab" aria-selected="false" aria-controls="panel-2">Billing Info</button>
+          </div>
+
+          <!-- ---------- step 1 ---------- -->
+          <div class="co-panel" id="panel-1" data-step="1" role="tabpanel" aria-labelledby="tab-1">
+            <div class="field">
+              <label class="sr-only" for="fullname">Full name</label>
+              <input type="text" id="fullname" name="fullname" autocomplete="name"
+                     placeholder="Full name" required>
+              <p class="err" id="err-fullname">Enter your first and last name.</p>
+            </div>
+
+            <div class="field">
+              <label class="sr-only" for="email">Email address</label>
+              <input type="email" id="email" name="email" autocomplete="email"
+                     placeholder="Email address" required>
+              <p class="err" id="err-email">Enter a valid email &mdash; this is where your access is sent.</p>
+            </div>
+
+            <button type="button" class="btn" id="to-step-2">Continue To Step #2</button>
+
+            <p class="mini-guar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+              14-Day Money-Back Guarantee
+            </p>
+          </div>
+
+          <!-- ---------- step 2 ---------- -->
+          <div class="co-panel" id="panel-2" data-step="2" role="tabpanel" aria-labelledby="tab-2" hidden>
+            <div class="field">
+              <label class="sr-only" for="country">Country</label>
+              <select id="country" name="country" autocomplete="country" required>
+                <option value="">Country</option>
+                <option value="GB">United Kingdom</option>
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="AU">Australia</option>
+                <option value="IE">Ireland</option>
+                <option value="NZ">New Zealand</option>
+                <option disabled>──────────</option>
+                <option value="AT">Austria</option>
+                <option value="BE">Belgium</option>
+                <option value="BG">Bulgaria</option>
+                <option value="HR">Croatia</option>
+                <option value="CY">Cyprus</option>
+                <option value="CZ">Czechia</option>
+                <option value="DK">Denmark</option>
+                <option value="EE">Estonia</option>
+                <option value="FI">Finland</option>
+                <option value="FR">France</option>
+                <option value="DE">Germany</option>
+                <option value="GR">Greece</option>
+                <option value="HK">Hong Kong</option>
+                <option value="HU">Hungary</option>
+                <option value="IN">India</option>
+                <option value="IL">Israel</option>
+                <option value="IT">Italy</option>
+                <option value="JP">Japan</option>
+                <option value="LV">Latvia</option>
+                <option value="LT">Lithuania</option>
+                <option value="LU">Luxembourg</option>
+                <option value="MY">Malaysia</option>
+                <option value="MT">Malta</option>
+                <option value="MX">Mexico</option>
+                <option value="NL">Netherlands</option>
+                <option value="NO">Norway</option>
+                <option value="PL">Poland</option>
+                <option value="PT">Portugal</option>
+                <option value="RO">Romania</option>
+                <option value="SG">Singapore</option>
+                <option value="SK">Slovakia</option>
+                <option value="SI">Slovenia</option>
+                <option value="ZA">South Africa</option>
+                <option value="ES">Spain</option>
+                <option value="SE">Sweden</option>
+                <option value="CH">Switzerland</option>
+                <option value="AE">United Arab Emirates</option>
+              </select>
+              <p class="err" id="err-country">Select your country.</p>
+            </div>
+
+            <div class="field">
+              <label class="sr-only" for="address">Billing address</label>
+              <input type="text" id="address" name="address" autocomplete="street-address"
+                     placeholder="Billing address" required>
+              <p class="err" id="err-address">Enter your billing address.</p>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label class="sr-only" for="city">City</label>
+                <input type="text" id="city" name="city" autocomplete="address-level2" placeholder="City" required>
+                <p class="err" id="err-city">Enter your city.</p>
+              </div>
+              <div class="field">
+                <label class="sr-only" for="postcode">Postcode / ZIP</label>
+                <input type="text" id="postcode" name="postcode" autocomplete="postal-code" placeholder="Postcode / ZIP" required>
+                <p class="err" id="err-postcode">Enter your postcode or ZIP.</p>
+              </div>
+            </div>
+
+            <div class="pay-label">Card details</div>
+            <!--
+              Stripe Payment Element mounts into #payment-element.
+              Card entry happens inside Stripe's iframe and never touches this page
+              or our server, which keeps the site out of PCI scope. Do not replace
+              this with plain <input> fields.
+            -->
+            <div id="payment-element" aria-live="polite">
+              <div class="pay-mount" id="payment-placeholder">
+                <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                </svg>
+                <p id="payment-status">Loading secure payment form&hellip;</p>
+              </div>
+            </div>
+
+            <button type="submit" class="btn" id="submit-btn">Complete Order &mdash; $4.99</button>
+
+            <p class="mini-guar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+              14-Day Money-Back Guarantee
+            </p>
+          </div>
+        </div>
+
+        <p class="form-note" id="form-note" hidden></p>
+
+        <div class="pay-badges">
+          <img src="assets/card-icons.webp" width="303" height="44" loading="lazy"
+               alt="Visa, Mastercard, American Express and Discover accepted">
+          <p>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+            100% Secure &amp; Safe Payments
+          </p>
+        </div>
+
+        <p class="under-btn">
+          By completing your order you agree to our <a href="terms.html">Terms</a> and
+          <a href="privacy.html">Privacy Policy</a>.
+        </p>
+      </form>
+    </div>
+
+    <!-- ============ ORDER SUMMARY ============ -->
+    <aside class="summary" aria-label="Order summary">
+      <div class="sum-card">
+        <div class="sum-head">
+          <h2>Get instant access to:</h2>
+          <span class="secure-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+          </span>
+        </div>
+
+        <div class="sum-body">
+          <ul class="incl">
+            <li><span class="tick">&check;</span>11 Reporting &amp; Finance routines</li>
+            <li><span class="tick">&check;</span>6 Ads Management routines</li>
+            <li><span class="tick">&check;</span>8 Content &amp; Social routines</li>
+            <li><span class="tick">&check;</span>9 Sales &amp; Leads routines</li>
+            <li><span class="tick">&check;</span>7 Customer Success routines</li>
+            <li><span class="tick">&check;</span>6 Research &amp; Intelligence routines</li>
+            <li><span class="tick">&check;</span>4 Hiring &amp; Team routines</li>
+            <li><span class="tick">&check;</span>8 Operations &amp; Admin routines</li>
+            <li><span class="tick">&check;</span>Step-by-step setup guide for every routine</li>
+          </ul>
+
+          <div class="bonus">
+            <div class="bonus-title">🎁 4 free Claude Sprints included today</div>
+            <ul>
+              <li><span class="tick">&check;</span><span><strong>Master Claude Cowork</strong> &mdash; docs, emails, files and research</span></li>
+              <li><span class="tick">&check;</span><span><strong>Claude Skills</strong> &mdash; build workflows once, run them forever</span></li>
+              <li><span class="tick">&check;</span><span><strong>Claude MCP</strong> &mdash; connect Gmail, Notion, HubSpot and more</span></li>
+              <li><span class="tick">&check;</span><span><strong>Build-to-Sell Bootcamp</strong> &mdash; sell AI assistants in 60 minutes</span></li>
+            </ul>
+          </div>
+
+          <div class="totals">
+            <div class="tot-row grand">
+              <span>Total due today</span>
+              <span><span class="v">$4.99</span></span>
+            </div>
+          </div>
+          <p class="once">One payment. No subscription.</p>
+
+          <div class="guarantee-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/><path d="m9 12 2 2 4-4"/>
+            </svg>
+            <p><strong>14-day money-back guarantee</strong>
+            Not for you? Email us within 14 days and we&rsquo;ll refund you in full &mdash; no forms, no
+            reason needed. <a href="terms.html#refunds">Read the policy</a>.</p>
+          </div>
+
+          <p class="urgency">⚡ Launch pricing &mdash; one payment, no subscription.</p>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="/">Home</a>
+      <a href="terms.html#refunds">Refunds</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="earnings.html">Earnings &amp; Products Disclaimer</a>
+    </div>
+    <p class="fine">Claude is a trademark of Anthropic. This product is independently created and is not affiliated with or endorsed by Anthropic.</p>
+    <p class="fine">&copy; 2026 AI Founder University. All rights reserved. This site is not a part of the Facebook website or Facebook Inc.</p>
+  </div>
+</footer>
+
+<script>
+/* Launch countdown — a presentation device, restarting each load. Nothing on
+   the page makes a price claim tied to it; the amount charged is whatever the
+   server's ENGINE_PRICE_AMOUNT is at pay time. */
+(function () {
+  var WINDOW_HOURS = 12;
+  var bar = document.getElementById('countdown');
+  if (!bar) return;
+  var h = document.getElementById('cd-h'),
+      m = document.getElementById('cd-m'),
+      sec = document.getElementById('cd-s');
+  if (!h || !m || !sec) return;
+  var ends = Date.now() + WINDOW_HOURS * 3600 * 1000;
+  var pad = function (n) { return n < 10 ? '0' + n : String(n); };
+  var timer;
+  function tick() {
+    var left = ends - Date.now();
+    if (left <= 0) { bar.hidden = true; clearInterval(timer); return; }
+    var t = Math.floor(left / 1000);
+    h.textContent = pad(Math.floor(t / 3600));
+    m.textContent = pad(Math.floor(t / 60) % 60);
+    sec.textContent = pad(t % 60);
+    bar.hidden = false;
+  }
+  tick();
+  timer = setInterval(tick, 1000);
+})();
+</script>
+
+<script>
+(function () {
+  var form   = document.getElementById('checkout-form');
+  var note   = document.getElementById('form-note');
+  var btn    = document.getElementById('submit-btn');
+  var mount  = document.getElementById('payment-element');
+  var status = document.getElementById('payment-status');
+  if (!form) return;
+
+  var stripe, elements, publishableKey, clientSecret, ready = false;
+  var paymentElement = null, mounted = false;
+  var btnLabel = btn.innerHTML;
+
+  /* Reaching this page is the lead — fired once per visit. */
+  if (window.aifuTrackOnce) window.aifuTrackOnce('Lead');
+
+  /* ---------------- validation ---------------- */
+  var STEP = {
+    1: [
+      { id: 'fullname', test: function (v) { return v.length > 1; } },
+      { id: 'email',    test: function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); } }
+    ],
+    2: [
+      { id: 'country',  test: function (v) { return v.length > 0; } },
+      { id: 'address',  test: function (v) { return v.length > 0; } },
+      { id: 'city',     test: function (v) { return v.length > 0; } },
+      { id: 'postcode', test: function (v) { return v.length > 0; } }
+    ]
+  };
+  var ALL = STEP[1].concat(STEP[2]);
+
+  function check(f, showError) {
+    var el = document.getElementById(f.id);
+    var ok = f.test(el.value.trim());
+    if (showError) {
+      el.closest('.field').classList.toggle('invalid', !ok);
+      el.setAttribute('aria-invalid', ok ? 'false' : 'true');
+    }
+    return ok;
+  }
+
+  function validateStep(n) {
+    var firstBad = null;
+    STEP[n].forEach(function (f) {
+      if (!check(f, true) && !firstBad) firstBad = document.getElementById(f.id);
+    });
+    if (firstBad) {
+      firstBad.focus();
+      firstBad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+    return true;
+  }
+
+  ALL.forEach(function (f) {
+    var el = document.getElementById(f.id);
+    function revalidate() {
+      if (el.closest('.field').classList.contains('invalid')) check(f, true);
+    }
+    el.addEventListener('input', revalidate);
+    el.addEventListener('change', revalidate);
+    el.addEventListener('blur', function () {
+      if (el.value.trim()) check(f, true);
+    });
+  });
+
+  function val(id) { return document.getElementById(id).value.trim(); }
+
+  /* ---------------- tabs ---------------- */
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll('.co-tab'));
+  var panels = Array.prototype.slice.call(document.querySelectorAll('.co-panel'));
+
+  function mountPayment() {
+    if (!paymentElement || mounted) return;
+    if (document.getElementById('panel-2').hidden) return;
+    paymentElement.mount('#payment-element');
+    mounted = true;
+  }
+
+  function goTo(step) {
+    tabs.forEach(function (t) {
+      var on = t.dataset.step === String(step);
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    panels.forEach(function (p) { p.hidden = p.dataset.step !== String(step); });
+    if (String(step) === '2') mountPayment();
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var target = Number(t.dataset.step);
+      if (target === 2 && !validateStep(1)) return;
+      goTo(target);
+    });
+  });
+
+  document.getElementById('to-step-2').addEventListener('click', function () {
+    if (!validateStep(1)) return;
+    goTo(2);
+    document.querySelector('.co-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (window.aifuTrack) {
+      var nm = val('fullname').trim().split(/\s+/);
+      var who = {
+        email: val('email'),
+        firstName: nm[0] || '',
+        lastName: nm.length > 1 ? nm[nm.length - 1] : '',
+        city: val('city'),
+        zip: val('postcode'),
+        country: val('country')
+      };
+      window.aifuTrackOnce('InitiateCheckout', who);
+    }
+  });
+
+  /* ---------------- Stripe ---------------- */
+  function showNote(msg, isError) {
+    note.hidden = false;
+    note.textContent = msg;
+    note.classList.toggle('is-error', !!isError);
+    note.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function setBusy(busy) {
+    btn.disabled = busy;
+    btn.innerHTML = busy ? 'Processing&hellip;' : btnLabel;
+  }
+
+  var appearance = {
+    theme: 'night',
+    variables: {
+      colorPrimary: '#ff7a1a',
+      colorBackground: '#ffffff',
+      colorText: '#16161c',
+      colorTextSecondary: '#6b6b78',
+      colorDanger: '#e0243c',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      borderRadius: '10px',
+      spacingUnit: '4px'
+    },
+    rules: {
+      '.Input': { border: '1px solid #ffffff', boxShadow: 'none', padding: '15px 16px', fontSize: '16px' },
+      '.Input:focus': { border: '1px solid #ff7a1a', boxShadow: '0 0 0 3px rgba(255,122,26,.3)' },
+      '.Label': { fontSize: '13px', fontWeight: '600', color: '#a1a1aa' },
+      '.Tab': { backgroundColor: '#ffffff', border: '1px solid #ffffff' },
+      '.Tab--selected': { borderColor: '#ff7a1a', color: '#16161c' }
+    }
+  };
+
+  function paymentUnavailable(msg) {
+    ready = false;
+    if (status) status.textContent = msg;
+    if (mount) mount.classList.add('pay-unavailable');
+  }
+
+  async function initStripe() {
+    if (typeof Stripe !== 'function') {
+      paymentUnavailable('Could not load Stripe. Check your connection and refresh.');
+      return;
+    }
+    try {
+      var res = await fetch('/api/create-payment-intent-engine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fbclid: window.aifuFbclid ? window.aifuFbclid() : '',
+          fbclidAt: window.aifuFbclidAt ? window.aifuFbclidAt() : 0,
+          fbp: window.aifuFbp ? window.aifuFbp() : ''
+        })
+      });
+      if (!res.ok) {
+        var detail = await res.json().catch(function () { return {}; });
+        throw new Error(detail.error || ('Server returned ' + res.status));
+      }
+      var data = await res.json();
+      if (!data.clientSecret || !data.publishableKey) throw new Error('Incomplete response from server.');
+
+      publishableKey = data.publishableKey;
+      clientSecret = data.clientSecret;
+      stripe = Stripe(publishableKey);
+      elements = stripe.elements({ clientSecret: clientSecret, appearance: appearance });
+      paymentElement = elements.create('payment', {
+        layout: 'tabs',
+        fields: { billingDetails: { name: 'never', email: 'never', address: 'never' } }
+      });
+      paymentElement.on('ready', function () { ready = true; });
+      mountPayment();
+    } catch (err) {
+      console.error('[checkout] Stripe init failed:', err);
+      paymentUnavailable(
+        'Payment form unavailable. ' +
+        'If you are the site owner, check STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY are set.'
+      );
+    }
+  }
+
+  initStripe();
+
+  /* ---------------- submit ---------------- */
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    if (!validateStep(1)) { goTo(1); return; }
+    if (!validateStep(2)) return;
+
+    if (!ready || !stripe || !elements) {
+      showNote('The payment form has not finished loading. Give it a moment and try again.', true);
+      return;
+    }
+
+    setBusy(true);
+    note.hidden = true;
+
+    var successUrl = window.location.origin + '/success-engine.html'
+      + '?pk=' + encodeURIComponent(publishableKey)
+      + '&payment_intent_client_secret=' + encodeURIComponent(clientSecret);
+
+    try {
+      var result = await stripe.confirmPayment({
+        elements: elements,
+        redirect: 'if_required',
+        confirmParams: {
+          return_url: successUrl,
+          payment_method_data: {
+            billing_details: {
+              name: val('fullname'),
+              email: val('email'),
+              address: {
+                line1: val('address'),
+                line2: '',
+                city: val('city'),
+                state: '',
+                postal_code: val('postcode'),
+                country: val('country')
+              }
+            }
+          }
+        }
+      });
+
+      if (result && result.error) {
+        setBusy(false);
+        showNote(result.error.message || 'Something went wrong. Your card has not been charged.', true);
+        console.warn('[checkout]', result.error);
+        return;
+      }
+
+      window.location.assign(successUrl);
+    } catch (err) {
+      setBusy(false);
+      showNote((err && err.message) ? err.message : 'The payment could not be processed. Please try again.', true);
+      console.error('[checkout] confirmPayment threw:', err);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

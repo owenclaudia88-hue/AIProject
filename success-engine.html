@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Order confirmed — Claude Automation Engine</title>
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/checkout.css">
+<script src="https://js.stripe.com/v3/"></script>
+<script src="/assets/track.js"></script>
+</head>
+<body>
+
+<header class="co-top">
+  <div class="wrap co-top-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="assets/logo.webp" alt="AI Founder University" width="720" height="139">
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="result">
+
+    <div class="result-ico" id="result-ico">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.5 2.5L16 9.5"/>
+      </svg>
+    </div>
+
+    <h1 id="result-title">Checking your payment&hellip;</h1>
+    <p id="result-msg">One moment while we confirm this with Stripe.</p>
+
+    <div class="next" id="next-steps" hidden>
+      <h2>What happens now</h2>
+      <ol>
+        <li>Your access email is on its way to the address you used at checkout. It usually arrives within a couple of minutes.</li>
+        <li>Nothing after 10 minutes? Check your spam folder first, then email <a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a> and we&rsquo;ll resend it.</li>
+        <li>Your 14-day money-back guarantee starts today. One email is all it takes &mdash; <a href="terms.html#refunds">read the policy</a>.</li>
+      </ol>
+    </div>
+
+    <a href="/" class="btn" id="result-cta">Back to the site</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="/">Home</a>
+      <a href="terms.html#refunds">Refunds</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+    </div>
+    <p class="fine">&copy; 2026 AI Founder University. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var ico   = document.getElementById('result-ico');
+  var title = document.getElementById('result-title');
+  var msg   = document.getElementById('result-msg');
+  var steps = document.getElementById('next-steps');
+
+  var ICONS = {
+    ok:      '<circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.5 2.5L16 9.5"/>',
+    pending: '<circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/>',
+    failed:  '<circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/>'
+  };
+
+  function render(state, heading, body, showSteps) {
+    ico.className = 'result-ico' + (state === 'ok' ? '' : ' ' + state);
+    ico.querySelector('svg').innerHTML = ICONS[state];
+    title.textContent = heading;
+    msg.innerHTML = body;
+    steps.hidden = !showSteps;
+  }
+
+  var params = new URLSearchParams(window.location.search);
+  var clientSecret = params.get('payment_intent_client_secret');
+
+  if (!clientSecret) {
+    render('pending', 'Nothing to show here',
+      'This page confirms an order after checkout. If you have just paid and are seeing this, ' +
+      'email <a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a> and we will check for you.',
+      false);
+    return;
+  }
+
+  var pk = params.get('pk') || window.STRIPE_PUBLISHABLE_KEY;
+
+  function finish(status) {
+    if (status === 'succeeded') {
+      render('ok', 'You’re in. Payment confirmed.',
+        'Thank you — your order is complete and your access email is on its way.', true);
+    } else if (status === 'processing') {
+      render('pending', 'Payment processing',
+        'Your payment is still going through. We will email you as soon as it clears — ' +
+        'there is no need to pay again.', true);
+    } else if (status === 'requires_payment_method') {
+      render('failed', 'Payment was not completed',
+        'Your payment did not go through and you have <strong>not</strong> been charged. ' +
+        '<a href="checkout-engine.html">Try again</a> or email ' +
+        '<a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a>.', false);
+    } else {
+      render('pending', 'Order received',
+        'We are confirming your payment. If you do not hear from us within 10 minutes, email ' +
+        '<a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a>.', true);
+    }
+  }
+
+  if (!pk || typeof Stripe !== 'function') {
+    finish('unknown');
+    return;
+  }
+
+  Stripe(pk).retrievePaymentIntent(clientSecret)
+    .then(function (res) {
+      finish(res.paymentIntent ? res.paymentIntent.status : 'unknown');
+    })
+    .catch(function (err) {
+      console.warn('[success] Could not retrieve PaymentIntent:', err);
+      finish('unknown');
+    });
+})();
+</script>
+
+</body>
+</html>

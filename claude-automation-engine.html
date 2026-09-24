@@ -833,7 +833,7 @@ details p{margin-top:10px;color:var(--muted);max-width:65ch}
 
 <script>
 /* ===== Settings you can edit ===== */
-const CHECKOUT_URL = "";   // paste your checkout link here, e.g. https://buy.stripe.com/...
+const CHECKOUT_URL = "/checkout-engine.html";  // the $4.99 checkout page
 
 /* ===== Data: the 59 routines ===== */
 const CATS = [
@@ -913,7 +913,7 @@ const cssVar = v => getComputedStyle(document.documentElement).getPropertyValue(
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* checkout */
-document.querySelectorAll(".checkout").forEach(a => { if (CHECKOUT_URL) { a.href = CHECKOUT_URL; a.target = "_blank"; a.rel = "noopener"; } });
+document.querySelectorAll(".checkout").forEach(a => { if (CHECKOUT_URL) a.href = CHECKOUT_URL; });
 
 /* hero word reveal */
 (() => {
