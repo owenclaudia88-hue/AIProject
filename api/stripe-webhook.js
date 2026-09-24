@@ -1,7 +1,51 @@
 import Stripe from 'stripe';
-import { grantAccess, revokeAccess, createLoginToken } from '../lib/db.js';
-import { sendPurchaseConfirmation, sendReceipt } from '../lib/email.js';
+import {
+  grantAccess, revokeAccess, createLoginToken,
+  grantEntitlement, revokeEntitlement
+} from '../lib/db.js';
+import { sendPurchaseConfirmation, sendEngineWelcome, sendReceipt } from '../lib/email.js';
 import { sendPurchase } from '../lib/meta-capi.js';
+
+/**
+ * Which product a payment was for, from the metadata the checkout set.
+ *
+ * Only the Engine grants the `routines` entitlement. Buying the 70 AI
+ * Specialists deliberately does NOT unlock it: the Engine is sold separately
+ * and promoted on its own, so it has to stay invisible to existing members
+ * until they pay for it.
+ */
+const ENGINE_SOURCE = 'claude-automation-engine';
+const ENGINE_ENTITLEMENT = 'routines';
+const isEngine = (pi) => pi?.metadata?.source === ENGINE_SOURCE;
+
+const LIVE_SUB = new Set(['active', 'trialing', 'past_due', 'unpaid']);
+
+/**
+ * Is this buyer already paying for the membership?
+ *
+ * Every checkout creates a brand new Stripe Customer — the email is not known
+ * until the form is confirmed — so an existing member buying the Engine arrives
+ * as a stranger, and enrolling them again would bill them $39 a month twice.
+ * The only thing tying the two together is the email address, so the lookup has
+ * to go across customers rather than within one.
+ *
+ * Fails open on purpose. If Stripe errors here the caller carries on and
+ * creates the subscription, because the previous behaviour was always to create
+ * one and a broken lookup must not quietly stop the membership from starting.
+ */
+async function liveSubscriptions(stripe, email, exceptCustomerId) {
+  const out = [];
+  const customers = await stripe.customers.list({ email, limit: 100 });
+  for (const c of customers.data) {
+    if (c.id === exceptCustomerId) continue;
+    const subs = await stripe.subscriptions.list({ customer: c.id, status: 'all', limit: 100 });
+    for (const s of subs.data) {
+      if (!LIVE_SUB.has(s.status)) continue;
+      out.push({ id: s.id, status: s.status, customer: c.id, source: s.metadata?.source || null });
+    }
+  }
+  return out;
+}
 
 /**
  * Stripe webhook receiver.
@@ -117,12 +161,27 @@ export default async function handler(req, res) {
         });
         console.log('[stripe-webhook] Access granted:', email);
 
+        // The Engine is a separate product, so paying for it is the only thing
+        // that unlocks the routines. Granted before the emails: the welcome
+        // links straight into the section, and a mail failure must not be what
+        // decides whether somebody got what they paid for.
+        const engine = isEngine(pi);
+        if (engine) {
+          await grantEntitlement(email, ENGINE_ENTITLEMENT);
+          console.log('[stripe-webhook] Engine entitlement granted:', email);
+        }
+
         // Fulfilment IS the member area: email a one-time link that signs them in.
         try {
           const token = await createLoginToken(email);
           const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
           const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
-          if (created) await sendPurchaseConfirmation(email, loginUrl, { name });
+          // An Engine buyer gets the Engine welcome even when they already had
+          // an account — `created` is false for an existing member buying the
+          // add-on, and sending them nothing would leave them with a charge and
+          // no idea where the thing they bought went.
+          if (engine) await sendEngineWelcome(email, loginUrl, { name, existingMember: !created });
+          else if (created) await sendPurchaseConfirmation(email, loginUrl, { name });
         } catch (mailErr) {
           // Don't fail the webhook over email — access is already granted and
           // they can request a fresh link from the login page.
@@ -162,7 +221,7 @@ export default async function handler(req, res) {
           const bd = charge?.billing_details || {};
           const parts = String(name || '').trim().split(/\s+/);
           await sendPurchase({
-            sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/checkout.html`,
+            sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/${engine ? 'checkout-engine.html' : 'checkout.html'}`,
             email,
             firstName: parts[0] || null,
             lastName: parts.length > 1 ? parts[parts.length - 1] : null,
@@ -199,19 +258,39 @@ export default async function handler(req, res) {
               invoice_settings: { default_payment_method: paymentMethod }
             });
 
-            const trialDays = Math.max(0, Number.parseInt(process.env.SUBSCRIPTION_TRIAL_DAYS ?? '7', 10) || 0);
-            await stripe.subscriptions.create({
-              customer: customerId,
-              items: [{ price: monthlyPrice }],
-              trial_period_days: trialDays,
-              default_payment_method: paymentMethod,
-              // If the card is declined when the trial ends, cancel rather than
-              // leave the subscription dangling past due.
-              trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
-              metadata: { source: '70-ai-specialists-for-claude', payment_intent: pi.id }
-            }, { idempotencyKey: `sub_${pi.id}` });
+            // Somebody who already pays the membership must not be enrolled a
+            // second time. This matters most for the Engine, which is promoted
+            // by email to people who are already members, but a repeat buyer of
+            // either product would hit it the same way.
+            let existing = null;
+            try {
+              existing = (await liveSubscriptions(stripe, email, customerId))[0] || null;
+            } catch (lookupErr) {
+              console.error('[stripe-webhook] Subscription lookup failed for', email,
+                '- enrolling anyway:', lookupErr.message);
+            }
 
-            console.log('[stripe-webhook] Membership subscription started for', email);
+            if (existing) {
+              console.log('[stripe-webhook] Already subscribed (', existing.status, existing.id,
+                ') - not enrolling', email, 'again');
+            } else {
+              const trialDays = Math.max(0, Number.parseInt(process.env.SUBSCRIPTION_TRIAL_DAYS ?? '7', 10) || 0);
+              await stripe.subscriptions.create({
+                customer: customerId,
+                items: [{ price: monthlyPrice }],
+                trial_period_days: trialDays,
+                default_payment_method: paymentMethod,
+                // If the card is declined when the trial ends, cancel rather than
+                // leave the subscription dangling past due.
+                trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
+                metadata: {
+                  source: engine ? ENGINE_SOURCE : '70-ai-specialists-for-claude',
+                  payment_intent: pi.id
+                }
+              }, { idempotencyKey: `sub_${pi.id}` });
+
+              console.log('[stripe-webhook] Membership subscription started for', email);
+            }
           } catch (subErr) {
             // Access and fulfilment already succeeded, so don't fail the whole
             // webhook — but make the miss loud, since a buyer who was meant to
@@ -230,18 +309,77 @@ export default async function handler(req, res) {
 
       case 'charge.refunded': {
         const charge = event.data.object;
-        const email = charge.billing_details?.email || charge.receipt_email;
         // A charge carrying an invoice came from the monthly membership;
         // one without is the original purchase. Refunding a month's
         // membership is a billing correction and must not take away access —
         // the dashboard's refund button says exactly that, and only the
         // purchase refund is the 14-day guarantee in terms.html#refunds.
         const isMembershipCharge = !!charge.invoice;
+
+        // Which product was refunded decides what to take back, and that only
+        // lives on the PaymentIntent's metadata.
+        let refundedPi = null;
+        if (!isMembershipCharge && typeof charge.payment_intent === 'string') {
+          try { refundedPi = await stripe.paymentIntents.retrieve(charge.payment_intent); }
+          catch (piErr) { console.error('[stripe-webhook] could not fetch intent for refund:', piErr.message); }
+        }
+        const email = charge.billing_details?.email
+          || charge.receipt_email
+          || refundedPi?.metadata?.buyer_email;
+
         console.log('[stripe-webhook] Refunded:', charge.id, email || '(no email)',
-          isMembershipCharge ? '(membership charge — access kept)' : '(purchase — revoking)');
+          isMembershipCharge ? '(membership charge — access kept)'
+            : isEngine(refundedPi) ? '(Engine — removing routines)' : '(purchase — revoking)');
+
         if (email && !isMembershipCharge) {
-          await revokeAccess(email);
-          console.log('[stripe-webhook] Access revoked:', email);
+          if (isEngine(refundedPi)) {
+            await revokeEntitlement(email, ENGINE_ENTITLEMENT);
+            console.log('[stripe-webhook] Engine entitlement revoked:', email);
+
+            // Refunding the $4.99 does not stop the membership the purchase
+            // opened — the trial keeps running and charges $39 in a few days.
+            // Somebody who has just been refunded and is then billed will file
+            // a chargeback, and they would be right to. So the subscription
+            // this product started is cancelled with the refund.
+            let subs = [];
+            let lookupFailed = false;
+            try {
+              subs = await liveSubscriptions(stripe, email, null);
+            } catch (lookupErr) {
+              lookupFailed = true;
+              console.error('[stripe-webhook] Refund lookup failed for', email,
+                '- keeping account access:', lookupErr.message);
+            }
+
+            for (const s of subs.filter((x) => x.source === ENGINE_SOURCE)) {
+              try {
+                await stripe.subscriptions.cancel(s.id);
+                console.log('[stripe-webhook] Cancelled Engine subscription', s.id, 'for', email);
+              } catch (cancelErr) {
+                console.error('[stripe-webhook] Could not cancel', s.id, 'for', email, '-', cancelErr.message);
+              }
+            }
+
+            // The Engine is sold to people who never bought the Specialists, so
+            // a refund normally means their only purchase is gone and the whole
+            // account should close — leaving it open would hand back the entire
+            // library for free. The exception is somebody who also came through
+            // the Specialists funnel, and the marker for that is a live
+            // subscription that did not start from this product. On any doubt,
+            // including a failed lookup, the account is kept: wrongly cutting
+            // off a paying member is far worse than a refunded one lingering.
+            const other = subs.find((s) => s.source !== ENGINE_SOURCE);
+            if (lookupFailed || other) {
+              console.log('[stripe-webhook] Keeping access for', email,
+                lookupFailed ? '- lookup failed' : `- has a non-Engine subscription (${other.source} ${other.id})`);
+            } else {
+              await revokeAccess(email);
+              console.log('[stripe-webhook] Access revoked:', email, '(Engine was their only purchase)');
+            }
+          } else {
+            await revokeAccess(email);
+            console.log('[stripe-webhook] Access revoked:', email);
+          }
         }
         break;
       }

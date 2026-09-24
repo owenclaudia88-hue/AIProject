@@ -1,12 +1,14 @@
 import Stripe from 'stripe';
 
 /**
- * PaymentIntent for the Claude Automation Engine ($4.99, one-off).
+ * PaymentIntent for the Claude Automation Engine ($4.99).
  *
- * A separate endpoint from create-payment-intent.js on purpose: this product
- * has its own price and, unlike the 70 AI Specialists purchase, is NOT tied to
- * the membership subscription — so it never creates a Customer or sets
- * setup_future_usage, and a card is not saved for later billing.
+ * A separate endpoint from create-payment-intent.js because the product has its
+ * own price and its own metadata source — the webhook branches on that source
+ * to decide which entitlement to grant. Everything else mirrors the 70 AI
+ * Specialists flow: the $4.99 also opens the membership on a trial, so the card
+ * has to be saved against a Customer here (setup_future_usage), or the
+ * subscription has nothing to charge when the trial ends.
  *
  * The amount is read from server-side env only. It is deliberately NOT accepted
  * from the request body — otherwise anyone could post their own price.
@@ -48,13 +50,24 @@ export default async function handler(req, res) {
       || req.headers['x-real-ip'] || '';
     const clientUa = req.headers['user-agent'] || '';
 
+    // Same as the Specialists checkout: the purchase also opens the membership
+    // on a trial, and Stripe will not retain a payment method without a
+    // Customer on the intent. The email is not known yet — the form posts it on
+    // confirm — so the customer starts empty and the webhook fills it in.
+    const wantsSubscription = !!process.env.STRIPE_MONTHLY_PRICE_ID;
+    let customerId;
+    if (wantsSubscription) {
+      const customer = await stripe.customers.create({ metadata: { source: SOURCE } });
+      customerId = customer.id;
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: PRICE_AMOUNT,
       currency: PRICE_CURRENCY,
       automatic_payment_methods: { enabled: true },
       description: PRODUCT_NAME,
-      // No customer / setup_future_usage: this is a one-off, not a membership.
       // No receipt_email: we send our own branded email from the webhook.
+      ...(customerId ? { customer: customerId, setup_future_usage: 'off_session' } : {}),
       metadata: {
         product: PRODUCT_NAME,
         // The webhook branches on this to fulfil the Engine (deliver the
