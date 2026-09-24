@@ -1,0 +1,90 @@
+# Subscription Spend Audit
+
+The software you are still paying for and stopped opening in March.
+
+| | |
+|---|---|
+| **Runs** | 1st of each month, 09:00 |
+| **Cron** | `0 9 1 * *` |
+| **Connectors** | Gmail |
+| **Takes** | One run a month |
+
+---
+
+## How it works without access to your bank
+
+It reads your inbox. Every subscription you pay for sends receipts, and those receipts are a more complete record of your recurring spend than most people's expense tracking.
+
+That also means it only sees what lands in the connected mailbox. Anything billed to a card whose receipts go elsewhere is invisible to it.
+
+## Set it up
+
+1. **New routine**, name it `Subscription Spend Audit`
+2. Paste the instructions
+3. **Schedule** → **Monthly** → 1st, 09:00 (or weekly, then `/schedule update` to `0 9 1 * *`)
+4. **Connectors**: Gmail
+5. **Create**
+
+## Instructions
+
+```
+Audit recurring software spend from receipts in the connected mailbox.
+
+Search the last 90 days for receipts, invoices and payment confirmations
+from software and service providers. Ignore anything that looks like a
+purchase from your own customers — you are looking at money going out, not
+coming in.
+
+For each provider, work out:
+- what they charge and how often
+- when the most recent charge was
+- the annual cost at the current rate
+
+Produce three lists.
+
+PAYING MONTHLY, COULD BE ANNUAL — where the receipt or the provider's
+pricing suggests an annual plan would be cheaper. Give the saving.
+
+CHARGED BUT QUIET — any provider charging you where nothing else in the
+mailbox from the last 90 days suggests you have used it. Product update
+emails do not count as use; a login alert, an export, a shared document or
+a reply from their support does.
+
+EVERYTHING ELSE — the rest, with monthly and annual cost.
+
+End with total monthly and total annual recurring spend.
+
+Email to the connected account, subject "Subscription audit — [month]".
+
+Be careful with "charged but quiet". Absence of email is weak evidence.
+Phrase these as "worth checking", never as "cancel this".
+```
+
+## Before your first run
+
+**The "charged but quiet" list is a prompt, not a verdict.** Plenty of tools you rely on daily never email you. The instruction tells it to hedge — leave that in.
+
+**It only sees one mailbox.** If receipts go to a separate billing address, connect that one instead, or you will audit a fraction of your spend and believe it was all of it.
+
+**Ninety days catches quarterly billing.** Drop it to 30 and you will miss anything not billed monthly.
+
+## What a good run looks like
+
+> Total recurring: $487/month, $5,844/year.
+>
+> **Could be annual**
+> - Figma, $15/mo → $144/year saves $36
+> - Notion, $10/mo → $96/year saves $24
+>
+> **Worth checking**
+> - Loom, $12.50/mo — charged three times, nothing else from them in 90 days
+> - Webflow, $23/mo — same
+>
+> **Everything else**
+> Anthropic $20, Vercel $20, Resend $20, Stripe (usage) …
+
+## When it goes wrong
+
+**It lists your own customers' payments.** The instruction to ignore incoming money is there but a busy mailbox can confuse it. Add the name of your own product so it knows what to exclude.
+
+**It misses things you know you pay for.** Those receipts are going to another address, or straight to a folder the search does not reach. This routine is only ever as good as the mailbox it can see.

@@ -22,6 +22,7 @@
     "bunny:verify": "node --env-file=.env.local scripts/verify-bunny-token.mjs"
   },
   "devDependencies": {
+    "marked": "^18.0.14",
     "node-html-parser": "^9.0.4",
     "sharp": "^0.35.4"
   }
