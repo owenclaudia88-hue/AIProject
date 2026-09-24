@@ -85,7 +85,7 @@ The same applies to Google Ads, TikTok Ads, LinkedIn and the rest. The routine i
 Most runs, nothing at all.
 
 > **Lookalike 3%** — $84 spent today, 0 results. 7-day average is 3 results by this hour.
-> **70 Specialists — broad** — cost per result $38.20, against a 7-day average of $14.60.
+> **Core offer — broad** — cost per result $38.20, against a 7-day average of $14.60.
 > **Retargeting — 30d** — still active, $0 spent today. It was averaging $22 a day.
 
 ## Prefer email instead of Slack?

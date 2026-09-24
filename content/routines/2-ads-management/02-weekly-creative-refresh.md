@@ -81,15 +81,15 @@ Use **Zapier** to expose the ad report, or — if that's more work than it's wor
 ## What a good run looks like
 
 > **Tiring**
-> 1. "Blank box" — CTR down from 1.9% to 1.1% over 14 days, frequency 3.4, running 26 days. $340 spent.
-> 2. "10x productivity" — cost per result up from $11 to $19, steadily. Frequency 2.1.
+> 1. "Founder story" — CTR down from 1.9% to 1.1% over 14 days, frequency 3.4, running 26 days. $340 spent.
+> 2. "Save 10 hours a week" — cost per result up from $11 to $19, steadily. Frequency 2.1.
 >
 > The three ads still performing all open on a specific frustration rather than a promise. Both new angles below do the same.
 >
-> **Replacement A for "Blank box"**
-> Primary: You open Claude and it asks what you want. That's the problem...
-> Headline: Stop briefing. Start working.
-> Image: split screen, empty chat box beside a list of named specialists.
+> **Replacement A for "Founder story"**
+> Primary: Every Monday you rebuild the same report from scratch. Four hours, every week, for something nobody reads twice...
+> Headline: The Monday report, already written.
+> Image: a desk at 8am, the report already on screen.
 
 ## Prefer Slack instead of email?
 

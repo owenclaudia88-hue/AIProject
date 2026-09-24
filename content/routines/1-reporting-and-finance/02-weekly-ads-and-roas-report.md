@@ -72,7 +72,7 @@ traffic. Report the size of it and leave the diagnosis to a person.
 >
 > 22 first-time customers, so $14.09 each. Meta claims 31 conversions, 9 more than Stripe shows new customers. Some of that is the 7-day click window catching people who were coming anyway.
 >
-> Best: "70 Specialists — broad" at $9.40 per new customer.
+> Best: "Core offer — broad" at $9.40 per new customer.
 > Worst: "Lookalike 3%" at $41 per new customer on $164 spent. Worth keeping only if those buyers renew at roughly three times the rate of the others, which nothing in this week's data supports.
 
 ## Prefer Slack instead of email?

@@ -70,11 +70,11 @@ numbers and mark it as too early to judge.
 
 > Ranked by net, last 90 days:
 >
-> 1. **70 Specialists** — gross $4,180, refunds 3.1%, fees $146, **net $3,904** from 214 buyers. 19 went on to buy something else.
+> 1. **Starter course** — gross $4,180, refunds 3.1%, fees $146, **net $3,904** from 214 buyers. 19 went on to buy something else.
 > 2. **Membership** — gross $2,340, refunds 1.2%, fees $81, **net $2,231** from 60 subscriptions. 41 still active; those that cancelled averaged 2.3 payments.
-> 3. **Carousel pack** — gross $890, refunds 14.6%, fees $31, **net $729** from 38 buyers.
+> 3. **Template pack** — gross $890, refunds 14.6%, fees $31, **net $729** from 38 buyers.
 >
-> Ranked by gross the carousel pack sits second. Its refund rate is nearly five times the others and that is the whole difference.
+> Ranked by gross the template pack sits second. Its refund rate is nearly five times the others and that is the whole difference.
 >
 > Keep all three. Nothing else has enough buyers to judge.
 
