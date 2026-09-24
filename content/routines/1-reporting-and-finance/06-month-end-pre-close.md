@@ -18,7 +18,7 @@ Late enough that the month is essentially known, early enough to fix something b
 ## Set it up
 
 1. **New routine**, name it `Month-End Pre-Close`
-2. Paste the instructions
+2. Paste the instructions and **fill in the settings at the bottom**
 3. **Schedule** → **Monthly** → 28th, 09:00. If the form has no monthly preset, pick weekly and set `0 9 28 * *` with `/schedule update` in the CLI
 4. **Connectors**: Stripe and Gmail
 5. **Create**
@@ -37,7 +37,7 @@ untidy:
 - invoices issued this month and still unpaid
 - subscriptions that failed payment and were never recovered
 - payouts to the bank that have not arrived yet
-- any payment in a currency other than your usual one
+- any payment in a currency other than the usual one set at the bottom
 
 Then report the month's shape: gross revenue, refunds, net, fees, and the
 number of transactions. Compare each to the previous month as a
@@ -50,9 +50,24 @@ NOTE FOR LATER — things that are untidy but not wrong.
 
 Email to the connected account, subject "Month-end check — [month]".
 
+Ignore anything smaller than the floor below — a 40-cent rounding
+difference is not a month-end problem.
+
 If both lists are empty, say "Nothing to fix" and still send the month's
 figures. This one reports every month even when clean, because its absence
 would be indistinguishable from a clean month.
+
+--- EDIT BELOW THIS LINE ---
+
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Our usual currency: [e.g. GBP]
+Ignore discrepancies smaller than: $1
+Also flag anything my accountant always asks about: [e.g. anything paid by
+  bank transfer rather than card]
 ```
 
 ## Before your first run

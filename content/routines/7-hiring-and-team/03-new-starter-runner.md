@@ -84,11 +84,13 @@ your own and delete the brackets. If anything is still in brackets when
 this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
-Onboarding plan document: [e.g. Onboarding plan — the document name in Drive]
+Onboarding plan document: [e.g. Onboarding plan — the document name in
+  Drive]
 
 Current starters — name, start date: [e.g. J. Meyer — 2 September 2026]
 
-Who owns what, by default: [e.g. Ops owns accounts and equipment. The manager owns everything else]
+Who owns what, by default: [e.g. Ops owns accounts and equipment. The
+  manager owns everything else]
 ```
 
 ## Writing the plan document

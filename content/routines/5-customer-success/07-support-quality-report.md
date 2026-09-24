@@ -89,7 +89,8 @@ your output rather than treating the example as an instruction.
 
 Target first response: 4 working hours
 Working hours: Mon-Fri 09:00-17:00
-Ignore these senders, domains and labels: [e.g. @yourcompany.com, noreply@, newsletters, label:Receipts]
+Ignore these senders, domains and labels: [e.g. @yourcompany.com,
+  noreply@, newsletters, label:Receipts]
 Our own email addresses: [e.g. you@yourcompany.com, hello@yourcompany.com]
 ```
 

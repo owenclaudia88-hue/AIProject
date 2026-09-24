@@ -101,11 +101,15 @@ your own and delete the brackets. If anything is still in brackets when
 this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
-Current people, with their company email addresses: [e.g. Priya Shah — priya@yourcompany.com]
+Current people, with their company email addresses: [e.g. Priya Shah —
+  priya@yourcompany.com]
 Leavers and finished contractors — name, every address they used, and
-when they left: [e.g. J. Hart — j.hart@yourcompany.com, jhart88@gmail.com — left 14 March 2026]
-Systems we use — name each one: [e.g. Stripe, Google Workspace, Xero, the ad platform, the website admin]
-Drive folders to check sharing on: [e.g. Finance, Customer exports, Contracts]
+when they left: [e.g. J. Hart — j.hart@yourcompany.com, jhart88@gmail.com
+  — left 14 March 2026]
+Systems we use — name each one: [e.g. Stripe, Google Workspace, Xero, the
+  ad platform, the website admin]
+Drive folders to check sharing on: [e.g. Finance, Customer exports,
+  Contracts]
 Dormancy threshold: 90 days
 ```
 

@@ -20,7 +20,7 @@ This ranks them by what is left.
 ## Set it up
 
 1. **New routine**, name it `Offer Profitability`
-2. Paste the instructions
+2. Paste the instructions and **fill in the settings at the bottom**
 3. **Schedule** → **Monthly** → 1st, 10:00 (or weekly, then `/schedule update` to `0 10 1 * *`)
 4. **Connectors**: Stripe and Gmail
 5. **Create**
@@ -30,8 +30,8 @@ This ranks them by what is left.
 ```
 Rank every product by what it actually keeps.
 
-From Stripe, for the last 90 days, group every payment by product or
-price. For each one work out:
+From Stripe, for the look-back window set at the bottom, group every
+payment by product or price. For each one work out:
 
 - gross revenue
 - refunds, as an amount and as a percentage of gross
@@ -47,15 +47,33 @@ Rank by net revenue, not gross. Where the two orders differ, say so
 explicitly — an offer that sells well and refunds hard is the thing this
 report exists to surface.
 
-Then answer one question: if you could only keep selling three of these,
-which three, and what does the data say about each? If fewer than three
-have enough buyers to say anything meaningful, say that instead of
-ranking noise.
+Then answer one question: if you could only keep selling the shortlist
+size below, which ones, and what does the data say about each? If fewer
+than that have enough buyers to say anything meaningful, say that instead
+of ranking noise.
 
 Email to the connected account, subject "Offer profitability — [month]".
 
-Never present a product with under 10 buyers as a trend. Report its
-numbers and mark it as too early to judge.
+Never present a product with fewer buyers than the confidence floor below
+as a trend. Report its numbers and mark it as too early to judge.
+
+Flag any product whose refund rate is above the threshold below, whatever
+its ranking. An offer that sells well and refunds hard is the thing this
+report exists to surface.
+
+--- EDIT BELOW THIS LINE ---
+
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Look back over: 90 days
+Confidence floor — too few buyers to judge: 10
+Shortlist size for the final question: 3
+Flag any product refunding more than: 10%
+Products to always report separately: [e.g. anything sold through a
+  partner, or a one-off launch]
 ```
 
 ## Before your first run

@@ -101,9 +101,11 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 Pages to check — the homepage, pricing, checkout, contact, and any page
-that matters: [e.g. https://yourcompany.com, /pricing, /checkout, /contact]
+that matters: [e.g. https://yourcompany.com, /pricing, /checkout,
+  /contact]
 Prices that should be consistent everywhere: [e.g. £49/mo, £490/year]
-Known issues to ignore: [e.g. /old-pricing redirects on purpose, the blog has no contact link and that is fine]
+Known issues to ignore: [e.g. /old-pricing redirects on purpose, the blog
+  has no contact link and that is fine]
 ```
 
 ## Before your first run

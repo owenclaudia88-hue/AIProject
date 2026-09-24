@@ -94,9 +94,12 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 Document to append to: Customer language
-Our own email addresses and domains: [e.g. @yourcompany.com, you@gmail.com if you use it for work]
-Ignore these senders, domains and labels: [e.g. @yourcompany.com, noreply@, newsletters, label:Receipts]
-The internal words we use that customers might not: [e.g. we say "reporting cycle", they say "month end"]
+Our own email addresses and domains: [e.g. @yourcompany.com, you@gmail.com
+  if you use it for work]
+Ignore these senders, domains and labels: [e.g. @yourcompany.com,
+  noreply@, newsletters, label:Receipts]
+The internal words we use that customers might not: [e.g. we say
+  "reporting cycle", they say "month end"]
 ```
 
 ## What to do with the document

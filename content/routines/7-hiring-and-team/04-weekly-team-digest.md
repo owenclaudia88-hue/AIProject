@@ -97,8 +97,10 @@ your output rather than treating the example as an instruction.
 
 Shared channels to read: [e.g. #general, #ops, #projects]
 Channel to post the digest to: [e.g. #general]
-Current projects or workstreams: [e.g. Stock migration, Help centre, Card machine replacement]
-Things that are not worth reporting: [e.g. routine admin, anything already in the weekly report]
+Current projects or workstreams: [e.g. Stock migration, Help centre, Card
+  machine replacement]
+Things that are not worth reporting: [e.g. routine admin, anything already
+  in the weekly report]
 ```
 
 ## Before your first run

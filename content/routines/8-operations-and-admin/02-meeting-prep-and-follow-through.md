@@ -98,7 +98,8 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 Drive folder for notes: Meeting notes
-Ignore meetings with these titles or attendees: [e.g. Standup, 1:1, Lunch, Dentist, anything with only me in it]
+Ignore meetings with these titles or attendees: [e.g. Standup, 1:1, Lunch,
+  Dentist, anything with only me in it]
 My own email address: [e.g. you@yourcompany.com]
 ```
 

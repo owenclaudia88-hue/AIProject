@@ -20,7 +20,7 @@ This routine puts them side by side every Monday so you stop making decisions on
 ## Set it up
 
 1. **New routine**, name it `Weekly Ads & ROAS Report`
-2. Paste the instructions
+2. Paste the instructions and **fill in the settings at the bottom**
 3. **Schedule** → **Weekly** → Monday, 08:30
 4. **Connectors**: your ad platform, Stripe, Gmail
 5. **Create**
@@ -48,14 +48,26 @@ Then put them together:
 3. The gap between platform-reported conversions and Stripe's first-time
    customers. Say which is higher and by how much.
 
+Ignore any campaign that spent less than the floor below — a campaign with
+$4 behind it has not earned a place in this report.
+
 Name the best campaign and the worst by spend-per-new-customer. For the
 worst, say what you would need to believe for it to be worth keeping.
+
+If the overall ratio of revenue to spend is below the floor set below, say
+so in the first line rather than at the end.
 
 Email to the connected account, subject "Ads week ending [date]".
 
 Do not describe the gap between platform and Stripe numbers as tracking
 being broken. Some of it always is attribution windows and organic
 traffic. Report the size of it and leave the diagnosis to a person.
+
+--- EDIT BELOW THIS LINE ---
+
+Ignore campaigns that spent under: $50 last week
+Flag the week if revenue divided by spend falls below: 1.5
+Currency: $
 ```
 
 ## Before your first run

@@ -82,11 +82,13 @@ your own and delete the brackets. If anything is still in brackets when
 this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
-What matters most to this business right now: [e.g. converting the 14 open trials before month end]
+What matters most to this business right now: [e.g. converting the 14 open
+  trials before month end]
 Urgent means: (who, and what kind of message)
 Never urgent: (senders, topics, newsletters)
 Revenue change worth flagging: 30%
-People whose messages always matter: [e.g. your accountant, your landlord, your three largest customers by name]
+People whose messages always matter: [e.g. your accountant, your landlord,
+  your three largest customers by name]
 ```
 
 ## Before your first run

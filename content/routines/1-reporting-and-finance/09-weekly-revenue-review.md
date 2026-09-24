@@ -14,7 +14,7 @@ The daily pulse tells you what happened. This tells you what's changing.
 ## Set it up
 
 1. **New routine**, name it `Weekly Revenue Review`
-2. Paste the instructions
+2. Paste the instructions and **fill in the settings at the bottom**
 3. **Schedule** → **Weekly** → Monday, 08:00
 4. **Connectors**: Stripe and Gmail
 5. **Create**
@@ -44,16 +44,33 @@ Then answer three questions in plain sentences, not bullet points:
 Email the result to the connected account with the subject "Revenue week
 ending [date]".
 
+Name any customer whose payment or refund is large enough to have moved
+the week on its own — above the significance floor below. Those are the
+ones worth knowing by name.
+
 Do not recommend anything you cannot support with a number from this
 week's data. If the honest answer to question 3 is "nothing, keep going",
 say that.
+
+--- EDIT BELOW THIS LINE ---
+
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Significance floor — a payment or refund big enough to name: $250
+Treat a change as worth explaining if it is over: 15%
+Customers to always mention by name: [e.g. your three largest]
+What we are watching this quarter: [e.g. whether annual plans are
+  displacing monthly ones]
 ```
 
 ## Before your first run
 
 **It needs two weeks of history** to say anything useful about direction. If you are in your first fortnight, expect a thin first report and don't read much into it.
 
-**The third question is where the value is.** If the answers come back generic, the fix is almost always to add context about your business to the prompt — what you sell, what a normal week looks like, what you are currently trying to move.
+**The third question is where the value is.** If the answers come back generic, the fix is almost always "what we are watching this quarter" at the bottom being empty. That one line is what turns a summary into a recommendation.
 
 ## What a good run looks like
 

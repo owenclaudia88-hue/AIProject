@@ -86,9 +86,11 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 Follow-up schedule — days after sending: 4, 11, 25
-Phrases that appear in our proposals: [e.g. "Scope of work", "Estimated total", "Valid for 30 days"]
+Phrases that appear in our proposals: [e.g. "Scope of work", "Estimated
+  total", "Valid for 30 days"]
 Our own email addresses: [e.g. you@yourcompany.com, hello@yourcompany.com]
-What we sell, and the typical price range: [e.g. workshop fit-outs, £800 to £6,000]
+What we sell, and the typical price range: [e.g. workshop fit-outs, £800
+  to £6,000]
 ```
 
 ## Why 4, 11 and 25

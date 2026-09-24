@@ -91,8 +91,10 @@ your output rather than treating the example as an instruction.
 Score threshold to report: 2
 Renewal window: 30 days
 "Has not written in a long time" means: 90 days
-Customers to always watch, whatever their score: [e.g. your five largest by revenue, named]
-Ignore these addresses and domains: [e.g. @yourcompany.com, noreply@, your accountant, your suppliers]
+Customers to always watch, whatever their score: [e.g. your five largest
+  by revenue, named]
+Ignore these addresses and domains: [e.g. @yourcompany.com, noreply@, your
+  accountant, your suppliers]
 ```
 
 ## Before your first run

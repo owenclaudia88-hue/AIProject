@@ -20,7 +20,7 @@ That also means it only sees what lands in the connected mailbox. Anything bille
 ## Set it up
 
 1. **New routine**, name it `Subscription Spend Audit`
-2. Paste the instructions
+2. Paste the instructions and **fill in the settings at the bottom**
 3. **Schedule** → **Monthly** → 1st, 09:00 (or weekly, then `/schedule update` to `0 9 1 * *`)
 4. **Connectors**: Gmail
 5. **Create**
@@ -30,10 +30,10 @@ That also means it only sees what lands in the connected mailbox. Anything bille
 ```
 Audit recurring software spend from receipts in the connected mailbox.
 
-Search the last 90 days for receipts, invoices and payment confirmations
-from software and service providers. Ignore anything that looks like a
-purchase from your own customers — you are looking at money going out, not
-coming in.
+Search the look-back window set at the bottom for receipts, invoices and
+payment confirmations from software and service providers. Ignore anything
+from the domains listed at the bottom as our own — you are looking at
+money going out, not coming in.
 
 For each provider, work out:
 - what they charge and how often
@@ -58,6 +58,23 @@ Email to the connected account, subject "Subscription audit — [month]".
 
 Be careful with "charged but quiet". Absence of email is weak evidence.
 Phrase these as "worth checking", never as "cancel this".
+
+Leave anything on the keep list below out of "charged but quiet"
+entirely. Some things are paid for precisely so that nobody has to think
+about them.
+
+--- EDIT BELOW THIS LINE ---
+
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Look back over: 90 days
+Our own domains — money coming in, ignore these: [e.g. @yourcompany.com]
+Ignore anything under: $5 a month
+Keep list — never flag these as quiet: [e.g. backups, domain renewals,
+  insurance, anything for compliance]
 ```
 
 ## Before your first run

@@ -86,10 +86,13 @@ your own and delete the brackets. If anything is still in brackets when
 this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
-Ignore meetings with these titles or attendees: [e.g. Standup, 1:1, Lunch, Dentist, anything with only me in it]
+Ignore meetings with these titles or attendees: [e.g. Standup, 1:1, Lunch,
+  Dentist, anything with only me in it]
 What we sell: [e.g. stock control software for small workshops, £49/mo]
-What usually goes wrong on these calls: [e.g. I talk too long before asking what they actually need]
-Things I always forget to ask: [everybody has two or three — e.g. who else has to approve this, what happens if they do nothing]
+What usually goes wrong on these calls: [e.g. I talk too long before
+  asking what they actually need]
+Things I always forget to ask: [everybody has two or three — e.g. who else
+  has to approve this, what happens if they do nothing]
 ```
 
 ## Before your first run

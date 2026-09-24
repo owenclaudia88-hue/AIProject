@@ -80,8 +80,10 @@ your output rather than treating the example as an instruction.
 
 Urgent threshold: 24 hours
 Normal threshold: 48 hours
-Ignore these senders, domains and labels: [e.g. @yourcompany.com, noreply@, newsletters, label:Receipts]
-Our own email addresses and domains: [e.g. @yourcompany.com, you@gmail.com if you use it for work]
+Ignore these senders, domains and labels: [e.g. @yourcompany.com,
+  noreply@, newsletters, label:Receipts]
+Our own email addresses and domains: [e.g. @yourcompany.com, you@gmail.com
+  if you use it for work]
 ```
 
 ## Before your first run

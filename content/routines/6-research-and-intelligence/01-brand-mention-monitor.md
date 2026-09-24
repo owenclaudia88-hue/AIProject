@@ -89,12 +89,16 @@ your own and delete the brackets. If anything is still in brackets when
 this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
-Our name, and any variants and misspellings: [e.g. Northfield Makes, Northfield, "north field", Northfeild]
+Our name, and any variants and misspellings: [e.g. Northfield Makes,
+  Northfield, "north field", Northfeild]
 Our product names: [e.g. the Workshop Plan, the Starter Kit]
-Our founders' names, if worth watching: [e.g. Priya Shah — leave blank if you would rather not]
+Our founders' names, if worth watching: [e.g. Priya Shah — leave blank if
+  you would rather not]
 Places to check specifically — forums, communities, review sites,
-subreddits, directories: [e.g. reddit.com/r/smallbusiness, your main trade forum, your Trustpilot page]
-Terms that produce false matches: [e.g. the band with the same name, the town in Yorkshire]
+subreddits, directories: [e.g. reddit.com/r/smallbusiness, your main trade
+  forum, your Trustpilot page]
+Terms that produce false matches: [e.g. the band with the same name, the
+  town in Yorkshire]
 ```
 
 ## Choosing the places

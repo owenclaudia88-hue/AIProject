@@ -66,8 +66,10 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 What we sell: [e.g. stock control software for small workshops, £49/mo]
-Who it is for: [be specific — "people who run a shop and do their own books on a Sunday", not "small businesses"]
-The one thing that makes it different: [e.g. it works out the costs by itself, so nobody has to keep a second sheet]
+Who it is for: [be specific — "people who run a shop and do their own
+  books on a Sunday", not "small businesses"]
+The one thing that makes it different: [e.g. it works out the costs by
+  itself, so nobody has to keep a second sheet]
 Tone to avoid: [e.g. hype, urgency, anything that sounds like a webinar]
 ```
 

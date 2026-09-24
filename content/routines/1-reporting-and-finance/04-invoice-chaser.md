@@ -14,7 +14,7 @@ The job nobody does until the money is properly late.
 ## Set it up
 
 1. **New routine**, name it `Invoice Chaser`
-2. Paste the instructions
+2. Paste the instructions and **fill in the settings at the bottom**
 3. **Schedule** → **Weekdays** → 10:00
 4. **Connectors**: Stripe and Gmail
 5. **Create**, then **Run now** and read the drafts
@@ -29,26 +29,42 @@ Chase unpaid invoices, escalating in tone as they age.
 From Stripe, list every invoice that is open, sent, and past its due date.
 For each one work out how many days late it is.
 
-Send at most one email per invoice per week. Before emailing, search the
-connected mailbox for a previous chase on the same invoice number, and skip
-it if one went out in the last 7 days.
+Before emailing, search the connected mailbox for a previous chase on the
+same invoice number, and skip it if one went out within the quiet period
+set at the bottom.
 
-Match the tone to the age:
+Match the tone to the age, using the stages at the bottom:
 
-1 to 7 days late — assume they missed it. One short paragraph, friendly,
-the amount, the due date, the payment link. No mention of lateness beyond
-the date.
+GENTLE — assume they missed it. One short paragraph, friendly, the amount,
+the due date, the payment link. No mention of lateness beyond the date.
 
-8 to 21 days late — direct. State the amount, how many days overdue, the
-payment link, and ask them to reply with a date if there is a problem.
+DIRECT — state the amount, how many days overdue, the payment link, and
+ask them to reply with a date if there is a problem.
 
-22 days or more — do not send anything. Add it to your summary under
-"needs a person" with the customer name, amount and age.
+HAND OVER — do not send anything. Add it to your summary under "needs a
+person" with the customer name, amount and age.
 
 Always include the Stripe hosted invoice URL. Never attach anything.
 
+Never email anybody on the do-not-contact list below.
+
 End with a summary: how many chased at each stage, total outstanding, and
-anything over 21 days.
+anything past the hand-over age.
+
+--- EDIT BELOW THIS LINE ---
+
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Gentle stage — from this many days late: 1
+Direct stage — from this many days late: 8
+Hand over to a person — from this many days late: 22
+Quiet period — do not chase the same invoice more often than every: 7 days
+Never email these customers, addresses or domains: [e.g. anyone you
+  invoice
+  on agreed terms, anyone you would rather phone]
 ```
 
 ## Before your first run

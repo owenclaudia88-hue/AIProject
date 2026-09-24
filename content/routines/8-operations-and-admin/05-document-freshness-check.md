@@ -100,13 +100,16 @@ Drive folders to check: [e.g. Processes, Handbook, Onboarding]
 
 Current facts — keep this updated, it is what everything is checked
 against:
-  People, and what they do: [e.g. Priya Shah — runs payroll and supplier payments]
+  People, and what they do: [e.g. Priya Shah — runs payroll and supplier
+    payments]
   People who have left, and when: [e.g. J. Hart — left 14 March 2026]
-  Tools we use now, and what they replaced: [e.g. Xero, replaced the old spreadsheet ledger in June]
+  Tools we use now, and what they replaced: [e.g. Xero, replaced the old
+    spreadsheet ledger in June]
   Current prices: [e.g. standard plan £49/mo, annual £490]
   Current suppliers: [e.g. Kestrel Supplies, Ardley Metals]
 
-Documents to ignore — archives, drafts, old versions: [e.g. anything in /Archive, anything with "old" or "draft" in the name]
+Documents to ignore — archives, drafts, old versions: [e.g. anything in
+  /Archive, anything with "old" or "draft" in the name]
 ```
 
 ## Before your first run

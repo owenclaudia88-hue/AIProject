@@ -82,8 +82,10 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 Drive folder to read: Call notes
-How I write to customers: [e.g. first names, short paragraphs, say the awkward thing plainly]
-Things I always promise and often forget: [e.g. sending case studies, introductions, the follow-up breakdown]
+How I write to customers: [e.g. first names, short paragraphs, say the
+  awkward thing plainly]
+Things I always promise and often forget: [e.g. sending case studies,
+  introductions, the follow-up breakdown]
 ```
 
 ## Typing notes that work

@@ -72,10 +72,13 @@ your own and delete the brackets. If anything is still in brackets when
 this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
-Sources — public URLs, 4 to 8 of them: [e.g. a competitor blog, a trade publication, one community your customers use]
+Sources — public URLs, 4 to 8 of them: [e.g. a competitor blog, a trade
+  publication, one community your customers use]
 
-What I do, in one sentence: [e.g. I help small workshops stop running on spreadsheets]
-Who I am trying to reach: [be specific — "workshop owners with 3 to 15 staff"]
+What I do, in one sentence: [e.g. I help small workshops stop running on
+  spreadsheets]
+Who I am trying to reach: [be specific — "workshop owners with 3 to 15
+  staff"]
 ```
 
 ## Choosing sources

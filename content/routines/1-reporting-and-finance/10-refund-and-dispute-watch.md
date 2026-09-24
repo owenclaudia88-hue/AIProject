@@ -16,7 +16,7 @@ Disputes have deadlines. This one exists so you never find out about one after t
 ## Set it up
 
 1. **New routine**, name it `Refund and Dispute Watch`
-2. Paste the instructions
+2. Paste the instructions and **fill in the settings at the bottom**
 3. **Schedule** → **Hourly**, then `/schedule update` in the CLI to set `0 */6 * * *`
 4. **Connectors**: Stripe and Slack
 5. **Create**
@@ -26,22 +26,35 @@ Disputes have deadlines. This one exists so you never find out about one after t
 ```
 Watch for refunds and disputes that need a decision.
 
-From Stripe, find anything in the last 6 hours that is:
+From Stripe, find anything within the look-back window below that is:
 - a new dispute or chargeback
-- a refund over $100
-- a refund on a payment made less than 48 hours ago
-- three or more refunds from the same customer, ever
+- a refund over the refund threshold below
+- a refund on a payment made within the fast-refund window below
+- a customer who has now had the repeat-refund count below, or more, ever
 
 For each dispute, report the amount, the reason Stripe gives, the evidence
 deadline as a date, and how many days away that is. Disputes have hard
 deadlines and missing one loses the money automatically.
 
-Post to the #alerts channel in Slack. One message per run, not one per
+Post to the Slack channel named below. One message per run, not one per
 event. Put disputes first, refunds second.
+
+If a dispute's evidence deadline is closer than the deadline warning
+below, say so on its own line at the very top. A missed deadline loses
+the money automatically and there is no appeal.
 
 If none of the above happened, post nothing at all. Do not post "all
 clear" — this channel should only ever contain things that need a
 decision, so that a message in it always means something.
+
+--- EDIT BELOW THIS LINE ---
+
+Slack channel to post to: #alerts
+Look back over: 6 hours
+Refund threshold — alert on any single refund over: $100
+Fast-refund window — a refund this soon after the payment: 48 hours
+Repeat-refund count — one customer having had this many, ever: 3
+Deadline warning — shout if an evidence deadline is within: 3 days
 ```
 
 ## Before your first run

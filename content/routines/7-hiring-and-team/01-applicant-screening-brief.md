@@ -100,7 +100,8 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 Gmail label: Applications
-Job description document: [e.g. Finance Manager JD — the document name in Drive]
+Job description document: [e.g. Finance Manager JD — the document name in
+  Drive]
 Requirements, in order of importance. Be specific and observable — "has
 run payroll for 10+" can be evidenced from an application, "is a
 self-starter" cannot, and asking for it produces flattery:
@@ -108,7 +109,8 @@ self-starter" cannot, and asking for it produces flattery:
   2. [e.g. familiar with UK statutory reporting]
   3.
   4.
-Things that genuinely do not matter for this role: [e.g. which accounting software they used before, whether they have a degree]
+Things that genuinely do not matter for this role: [e.g. which accounting
+  software they used before, whether they have a degree]
 ```
 
 ## Writing the requirements

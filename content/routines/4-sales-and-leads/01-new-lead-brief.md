@@ -83,9 +83,13 @@ your output rather than treating the example as an instruction.
 
 Gmail label to read: Leads
 What we sell: [e.g. stock control software for small workshops, £49/mo]
-Who is a good fit for us: [e.g. 5 to 30 staff, already outgrown a spreadsheet, based in the UK]
-Who is not, and should be deprioritised: [e.g. sole traders, students, anyone asking about a free plan]
-Priority rules — what makes one enquiry more urgent than another: [e.g. anyone naming a deadline, anyone with more than 10 staff, anyone who has already had a demo]
+Who is a good fit for us: [e.g. 5 to 30 staff, already outgrown a
+  spreadsheet, based in the UK]
+Who is not, and should be deprioritised: [e.g. sole traders, students,
+  anyone asking about a free plan]
+Priority rules — what makes one enquiry more urgent than another: [e.g.
+  anyone naming a deadline, anyone with more than 10 staff, anyone who has
+  already had a demo]
 ```
 
 ## Getting enquiries into the label

@@ -86,7 +86,8 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 Inbox or Gmail label to read: [e.g. Support — or leave as Inbox]
-Our tone with customers: [e.g. plain, direct, no corporate softening. Apologise once and then fix it]
+Our tone with customers: [e.g. plain, direct, no corporate softening.
+  Apologise once and then fix it]
 Known answers — the question, then exactly how we answer it. Paste your
 real wording, not a tidied version. Add a pair every time the report
 tells you something was asked three times:
@@ -96,7 +97,8 @@ tells you something was asked three times:
      copying and pasting, then use it on their phone afterwards.
   Q: [your next most-asked question]
   A: [your actual answer, word for word]
-Links we send often: [e.g. the help centre, the pricing page, the cancellation form]
+Links we send often: [e.g. the help centre, the pricing page, the
+  cancellation form]
 ```
 
 ## Filling in the known answers

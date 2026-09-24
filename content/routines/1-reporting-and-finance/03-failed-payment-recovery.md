@@ -16,7 +16,7 @@ Most failed subscription payments are expired cards, not decisions. This catches
 ## Set it up
 
 1. **New routine**, name it `Failed-Payment Recovery`
-2. Paste the instructions below
+2. Paste the instructions and **fill in the settings at the bottom**
 3. **Schedule** → **Hourly** → then edit the cron to `0 */4 * * *` (the form's presets don't offer four-hourly; see the note at the bottom)
 4. **Connectors**: Stripe and Gmail only
 5. **Create**, then **Run now** and read what it drafted before you trust it
@@ -27,7 +27,7 @@ Most failed subscription payments are expired cards, not decisions. This catches
 Recover failed subscription payments.
 
 From Stripe, find every invoice that moved to past_due, or whose payment
-failed, in the last 4 hours.
+failed, within the look-back window set at the bottom.
 
 Skip any customer you have already emailed about that same invoice. Keep
 track by searching the connected mailbox for a previous message to that
@@ -40,12 +40,28 @@ For each remaining one, send a short email from the connected account:
 - include the Stripe hosted invoice URL so they can update it in one click
 - no apology, and no threat to cut off access
 
-If the same customer has now failed three or more times on the same
-invoice, do not email them. Instead flag them in your summary as needing a
-person.
+If the same customer has now failed the escalation count below or more on
+the same invoice, do not email them. Instead flag them in your summary as
+needing a person.
+
+Never email anybody on the do-not-contact list below.
 
 End your run with one line: how many failed, how many you emailed, how many
 you escalated. If nothing failed, say "No failed payments." and stop.
+
+--- EDIT BELOW THIS LINE ---
+
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Look back over: 4 hours
+Escalation count — stop emailing after this many failures: 3
+Name the product as this in the subject line: [e.g. your plan name, not
+  "payment"]
+Never email these addresses or domains: [e.g. your own team, any account
+  you handle personally]
 ```
 
 ## Before your first run
@@ -54,7 +70,9 @@ you escalated. If nothing failed, say "No failed payments." and stop.
 
 **Check your from address.** It sends from whichever account the Gmail connector is attached to. If that is a personal address, fix it before the first run, not after.
 
-**Three strikes is a guess.** If your product is high-value, lower it to two. The point is that a human intervenes before an automated email does for the fourth time.
+**The escalation count of three is a guess.** If your product is high-value, set it to two at the bottom of the prompt. The point is that a human intervenes before an automated email does for the fourth time.
+
+**Fill in the do-not-contact list before the first run.** This one sends without asking, so anybody you would rather handle personally needs to be excluded before it goes live, not after.
 
 ## What a good run looks like
 
@@ -66,7 +84,7 @@ you escalated. If nothing failed, say "No failed payments." and stop.
 
 **It emails the same person twice.** The deduplication relies on searching your sent mail, which is fuzzy. If it happens more than once, add the invoice ID to the subject line so the search has something exact to match.
 
-**It emails someone who already paid.** Widen the window in the prompt from "last 4 hours" to "still past_due right now" — a customer who failed and then paid within the window is otherwise still in the list.
+**It emails someone who already paid.** A customer who failed and then paid within the look-back window is still in the list. Either shorten the window at the bottom, or change the first instruction to read "still past_due right now" rather than "failed in the window".
 
 **Nothing happens and the run is green.** Check the Stripe connector is present on the routine. A green run with no connector does nothing quietly.
 

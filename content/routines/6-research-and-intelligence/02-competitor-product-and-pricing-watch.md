@@ -96,7 +96,8 @@ your output rather than treating the example as an instruction.
 Competitors — name, then their pricing page, product page, and changelog
 if they have one: [e.g. Competitor A — /pricing — /features — /changelog]
 
-Things our own customers keep asking us for: [e.g. scheduled exports, a phone view, multi-currency]
+Things our own customers keep asking us for: [e.g. scheduled exports, a
+  phone view, multi-currency]
 ```
 
 ## Before your first run

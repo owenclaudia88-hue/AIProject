@@ -95,8 +95,10 @@ Stages, and what puts somebody in each:
   Verbal yes —
 
 Stale after: 14 days
-Typical deal value, if nothing has been discussed: [e.g. £1,500 — or leave blank so these stay uncounted]
-Ignore these senders, domains and labels: [e.g. @yourcompany.com, noreply@, newsletters, label:Receipts]
+Typical deal value, if nothing has been discussed: [e.g. £1,500 — or leave
+  blank so these stay uncounted]
+Ignore these senders, domains and labels: [e.g. @yourcompany.com,
+  noreply@, newsletters, label:Receipts]
 Our own email addresses: [e.g. you@yourcompany.com, hello@yourcompany.com]
 ```
 

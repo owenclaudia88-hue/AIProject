@@ -91,7 +91,8 @@ Checkpoints — what should have happened, and by which day:
   Day 14 —
   Day 30 —
 
-Ignore these addresses and domains: [e.g. @yourcompany.com, noreply@, your accountant, your suppliers]
+Ignore these addresses and domains: [e.g. @yourcompany.com, noreply@, your
+  accountant, your suppliers]
 ```
 
 ## Writing your checkpoints

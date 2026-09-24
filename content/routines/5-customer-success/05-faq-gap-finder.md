@@ -91,10 +91,13 @@ your own and delete the brackets. If anything is still in brackets when
 this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
-Where our documentation lives: [e.g. the Help folder in Drive, or https://help.yourcompany.com]
+Where our documentation lives: [e.g. the Help folder in Drive, or
+  https://help.yourcompany.com]
 Our public site: [e.g. https://yourcompany.com]
-Ignore these senders, domains and labels: [e.g. @yourcompany.com, noreply@, newsletters, label:Receipts]
-Questions we have already answered this quarter: [add each one here after you publish it, so it stops being suggested]
+Ignore these senders, domains and labels: [e.g. @yourcompany.com,
+  noreply@, newsletters, label:Receipts]
+Questions we have already answered this quarter: [add each one here after
+  you publish it, so it stops being suggested]
 ```
 
 ## Before your first run

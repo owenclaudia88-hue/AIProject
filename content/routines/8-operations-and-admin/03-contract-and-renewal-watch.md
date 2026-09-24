@@ -88,8 +88,10 @@ your output rather than treating the example as an instruction.
 
 Drive folder: Contracts
 Contracts not in the folder — who with, what for, cost, renewal date,
-notice period: [e.g. Fairbank Brokers — insurance — £1,840/yr — renews 14 Dec — 60 days]
-Ignore these: [e.g. anything already cancelled, or contracts under £20/month]
+notice period: [e.g. Fairbank Brokers — insurance — £1,840/yr — renews 14
+  Dec — 60 days]
+Ignore these: [e.g. anything already cancelled, or contracts under
+  £20/month]
 ```
 
 ## Before your first run

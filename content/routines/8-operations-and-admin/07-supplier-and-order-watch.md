@@ -86,9 +86,12 @@ this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
 Gmail label: Suppliers
-Suppliers — name, what we buy, usual lead time: [e.g. Kestrel Supplies — oak panels — 10 working days]
-Orders not placed by email — add them here: [e.g. anything ordered by phone or through a supplier portal]
-Ignore these senders: [e.g. noreply@, marketing@, anything with "newsletter" in the address]
+Suppliers — name, what we buy, usual lead time: [e.g. Kestrel Supplies —
+  oak panels — 10 working days]
+Orders not placed by email — add them here: [e.g. anything ordered by
+  phone or through a supplier portal]
+Ignore these senders: [e.g. noreply@, marketing@, anything with
+  "newsletter" in the address]
 ```
 
 ## Before your first run

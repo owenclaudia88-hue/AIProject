@@ -86,13 +86,18 @@ your own and delete the brackets. If anything is still in brackets when
 this runs, it is not a real setting — ignore it and say so at the top of
 your output rather than treating the example as an instruction.
 
-What this business does: [e.g. we sell and fit commercial kitchen equipment]
+What this business does: [e.g. we sell and fit commercial kitchen
+  equipment]
 What we depend on — platforms, suppliers, payment providers,
-marketplaces, regulators: [e.g. Stripe, Shopify, Royal Mail, HMRC, your main supplier by name]
-Who our customers are, and what changes their world: [e.g. independent retailers — affected by card fees, business rates, supplier terms]
+marketplaces, regulators: [e.g. Stripe, Shopify, Royal Mail, HMRC, your
+  main supplier by name]
+Who our customers are, and what changes their world: [e.g. independent
+  retailers — affected by card fees, business rates, supplier terms]
 Sources — news sites, industry publications, regulator pages, platform
-changelogs, competitor blogs: [e.g. your payment provider’s changelog, your regulator’s announcements page, two trade publications]
-Topics I never need to hear about: [e.g. funding rounds, predictions, "the future of" articles, AI news in general]
+changelogs, competitor blogs: [e.g. your payment provider’s changelog,
+  your regulator’s announcements page, two trade publications]
+Topics I never need to hear about: [e.g. funding rounds, predictions, "the
+  future of" articles, AI news in general]
 ```
 
 ## Choosing sources

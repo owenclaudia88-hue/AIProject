@@ -15,7 +15,7 @@ Yesterday's numbers, in Slack, before you open your laptop.
 
 1. Go to **claude.ai/code/routines** and click **New routine**
 2. Name it `Daily Business Pulse`
-3. Paste the instructions below
+3. Paste the instructions and **fill in the settings at the bottom**
 4. Under **Select a trigger**, choose **Schedule** → **Weekdays** → 07:00
 5. Under **Connectors**, keep **Stripe** and **Slack**. Remove everything else
 6. Click **Create**
@@ -37,21 +37,30 @@ From Stripe, for yesterday only:
 Compare revenue and charge count against the same weekday last week, and
 against the average of the last 7 days. Give both as a percentage change.
 
-Post one message to the #general channel in Slack. Open with revenue and
+Post one message to the Slack channel named below. Open with revenue and
 the change against last week. Then one short line each for charges,
 refunds, failures and subscriptions.
 
-Call out anything that deserves a human:
-- more than 10% of payment attempts failed
-- a single refund over $100
-- revenue more than 40% below the 7-day average
-- a subscription cancelled within 48 hours of starting
+Call out anything that deserves a human, using the thresholds below:
+- more than the failure threshold of payment attempts failed
+- a single refund over the refund threshold
+- revenue below the 7-day average by more than the revenue threshold
+- a subscription cancelled within the new-subscription window of starting
 
 If none of those apply, end with "Nothing needs you today." Do not pad the
 message to make it look busier.
 
-Keep the whole thing under 120 words. No greeting, no sign-off, no offer to
-help further.
+Keep the whole thing under the word limit below. No greeting, no sign-off,
+no offer to help further.
+
+--- EDIT BELOW THIS LINE ---
+
+Slack channel to post to: #general
+Failure threshold — share of payment attempts that failed: 10%
+Refund threshold — a single refund over: $100
+Revenue threshold — below the 7-day average by more than: 40%
+New-subscription window — cancelled within this long of starting: 48 hours
+Word limit: 120
 ```
 
 ## Before your first run

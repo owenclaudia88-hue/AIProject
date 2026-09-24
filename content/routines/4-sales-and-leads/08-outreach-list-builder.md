@@ -99,10 +99,15 @@ your output rather than treating the example as an instruction.
 
 What we sell: [e.g. stock control software for small workshops, £49/mo]
 The business that is a perfect fit — industry, size, location, and what
-must be true about them: [e.g. joinery or cabinetmaking, 8 to 25 staff, UK, has a website and at least one manager]
-What makes somebody a bad fit: [e.g. fewer than 3 staff, or they want us to do the work for them]
-What usually triggers a business like this to need us: [e.g. they hire a fourth person, they move premises, they lose the person who ran the spreadsheet]
-Never contact these companies or domains: [e.g. existing customers, anyone who has asked us not to, competitors]
+must be true about them: [e.g. joinery or cabinetmaking, 8 to 25 staff,
+  UK, has a website and at least one manager]
+What makes somebody a bad fit: [e.g. fewer than 3 staff, or they want us
+  to do the work for them]
+What usually triggers a business like this to need us: [e.g. they hire a
+  fourth person, they move premises, they lose the person who ran the
+  spreadsheet]
+Never contact these companies or domains: [e.g. existing customers, anyone
+  who has asked us not to, competitors]
 ```
 
 ## Before your first run
