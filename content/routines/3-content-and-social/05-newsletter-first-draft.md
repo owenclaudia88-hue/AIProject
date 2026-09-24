@@ -76,12 +76,17 @@ Email the draft to the connected account, subject "Newsletter draft —
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Notes document: Newsletter notes
-What the newsletter is about:
-Who reads it:
-What I want them to feel at the end:
-Words and phrases I would never use:
-Two real subject lines of mine that did well:
+What the newsletter is about: [e.g. running a small workshop without drowning in admin]
+Who reads it: [e.g. owners of 5-to-20-person workshops who signed up for the guide]
+What I want them to feel at the end: [e.g. like somebody told them something true, not like they were sold to]
+Words and phrases I would never use: [e.g. leverage, synergy, "excited to share", "in today’s fast-paced world"]
+Two real subject lines of mine that did well: [paste two of your own — this does more for the output than any instruction about tone]
 ```
 
 ## Feeding the notes document

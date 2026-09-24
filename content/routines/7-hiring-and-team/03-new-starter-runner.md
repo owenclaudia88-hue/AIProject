@@ -79,11 +79,16 @@ If nothing is due or overdue for anybody, say so in one line.
 
 --- EDIT BELOW THIS LINE ---
 
-Onboarding plan document:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
 
-Current starters — name, start date:
+Onboarding plan document: [e.g. Onboarding plan — the document name in Drive]
 
-Who owns what, by default:
+Current starters — name, start date: [e.g. J. Meyer — 2 September 2026]
+
+Who owns what, by default: [e.g. Ops owns accounts and equipment. The manager owns everything else]
 ```
 
 ## Writing the plan document

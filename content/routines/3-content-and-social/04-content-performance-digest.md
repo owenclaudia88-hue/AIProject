@@ -74,8 +74,13 @@ wrong thing for a month.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Performance sheet: Content performance
-Platforms I publish on:
+Platforms I publish on: [e.g. LinkedIn, Instagram, email]
 ```
 
 ## Getting the numbers into a sheet

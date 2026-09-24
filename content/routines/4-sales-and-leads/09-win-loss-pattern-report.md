@@ -85,10 +85,15 @@ themselves into the wrong change.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Consider a conversation dead after: 30 days of silence
-Ignore these senders, domains and labels:
-Our own email addresses:
-What we currently believe is the main reason people do not buy:
+Ignore these senders, domains and labels: [e.g. @yourcompany.com, noreply@, newsletters, label:Receipts]
+Our own email addresses: [e.g. you@yourcompany.com, hello@yourcompany.com]
+What we currently believe is the main reason people do not buy: [e.g. we think it is price — let the report tell you whether that is true]
 ```
 
 ## Before your first run

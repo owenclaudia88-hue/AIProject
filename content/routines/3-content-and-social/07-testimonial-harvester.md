@@ -74,9 +74,14 @@ bar to fill the report.
 
 --- EDIT BELOW THIS LINE ---
 
-Ignore emails from these addresses or domains:
-Ignore emails in these folders or with these labels:
-Slack channels to read, if connected:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Ignore emails from these addresses or domains: [e.g. @yourcompany.com, your suppliers, your accountant]
+Ignore emails in these folders or with these labels: [e.g. label:Receipts, label:Newsletters, Spam]
+Slack channels to read, if connected: [e.g. #support, #customers — leave blank if you do not use Slack]
 ```
 
 ## Where to put what it finds

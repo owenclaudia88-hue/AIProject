@@ -88,10 +88,15 @@ Email the result to the connected account, subject "Competitor watch —
 
 --- EDIT BELOW THIS LINE ---
 
-Competitors — name, then their pricing page, product page, and changelog
-if they have one:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
 
-Things our own customers keep asking us for:
+Competitors — name, then their pricing page, product page, and changelog
+if they have one: [e.g. Competitor A — /pricing — /features — /changelog]
+
+Things our own customers keep asking us for: [e.g. scheduled exports, a phone view, multi-currency]
 ```
 
 ## Before your first run

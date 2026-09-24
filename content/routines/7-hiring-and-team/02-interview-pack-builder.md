@@ -93,12 +93,22 @@ Email everything to the connected account, subject "Interviews today —
 
 --- EDIT BELOW THIS LINE ---
 
-Calendar events that are interviews — the titles or keywords:
-Job description document:
-Requirements, in order:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Calendar events that are interviews — the titles or keywords: [e.g. Interview, Screening call, "Stage 2"]
+Job description document: [e.g. Finance Manager JD — the document name in Drive]
+Requirements, in order. Use the same list as the job advert, and keep
+them observable — something an application can actually evidence:
+  1. [e.g. has run payroll for a team of 10 or more]
+  2. [e.g. familiar with UK statutory reporting]
+  3.
+  4.
 Things about this job that are genuinely hard, and should be said out
-loud:
-What we pay, and what is negotiable:
+loud: [e.g. month end is four heavy days, the systems are old, nobody else in the building does this job]
+What we pay, and what is negotiable: [e.g. £32,000 to £38,000. The top is for someone who can take the accountant relationship on from day one. Hours are not negotiable]
 ```
 
 ## Before your first run

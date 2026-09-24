@@ -94,9 +94,14 @@ If there were none, say so in one line.
 
 --- EDIT BELOW THIS LINE ---
 
-Do not contact these addresses or domains:
-Link to send people back to:
-How we refer to the product:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Do not contact these addresses or domains: [e.g. @yourcompany.com, anyone who has unsubscribed]
+Link to send people back to: [e.g. https://yourcompany.com/checkout]
+How we refer to the product: [e.g. "your plan", not "your subscription"]
 ```
 
 ## Before your first run

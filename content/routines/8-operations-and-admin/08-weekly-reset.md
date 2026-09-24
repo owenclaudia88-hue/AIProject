@@ -84,10 +84,15 @@ every week sound fine is a review that is not worth reading.
 
 --- EDIT BELOW THIS LINE ---
 
-What this quarter is for:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+What this quarter is for: [e.g. getting to 200 paying customers without hiring]
 Revenue change worth commenting on: 25%
-Drive folders with my plans or notes:
-Things that are always in the calendar and are not work:
+Drive folders with my plans or notes: [e.g. Planning, Weekly notes]
+Things that are always in the calendar and are not work: [e.g. school run, gym, lunch, recurring personal appointments]
 ```
 
 ## Before your first run

@@ -81,13 +81,18 @@ noting" section.
 
 --- EDIT BELOW THIS LINE ---
 
-What this business does:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+What this business does: [e.g. we sell and fit commercial kitchen equipment]
 What we depend on — platforms, suppliers, payment providers,
-marketplaces, regulators:
-Who our customers are, and what changes their world:
+marketplaces, regulators: [e.g. Stripe, Shopify, Royal Mail, HMRC, your main supplier by name]
+Who our customers are, and what changes their world: [e.g. independent retailers — affected by card fees, business rates, supplier terms]
 Sources — news sites, industry publications, regulator pages, platform
-changelogs, competitor blogs:
-Topics I never need to hear about:
+changelogs, competitor blogs: [e.g. your payment provider’s changelog, your regulator’s announcements page, two trade publications]
+Topics I never need to hear about: [e.g. funding rounds, predictions, "the future of" articles, AI news in general]
 ```
 
 ## Choosing sources

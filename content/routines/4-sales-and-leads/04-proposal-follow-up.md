@@ -80,10 +80,15 @@ If nothing is due today, say so in one line.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Follow-up schedule — days after sending: 4, 11, 25
-Phrases that appear in our proposals:
-Our own email addresses:
-What we sell, and the typical price range:
+Phrases that appear in our proposals: [e.g. "Scope of work", "Estimated total", "Valid for 30 days"]
+Our own email addresses: [e.g. you@yourcompany.com, hello@yourcompany.com]
+What we sell, and the typical price range: [e.g. workshop fit-outs, £800 to £6,000]
 ```
 
 ## Why 4, 11 and 25

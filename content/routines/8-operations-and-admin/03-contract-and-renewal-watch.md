@@ -81,10 +81,15 @@ renewal date, and do not infer a notice period from what is typical.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Drive folder: Contracts
 Contracts not in the folder — who with, what for, cost, renewal date,
-notice period:
-Ignore these:
+notice period: [e.g. Fairbank Brokers — insurance — £1,840/yr — renews 14 Dec — 60 days]
+Ignore these: [e.g. anything already cancelled, or contracts under £20/month]
 ```
 
 ## Before your first run

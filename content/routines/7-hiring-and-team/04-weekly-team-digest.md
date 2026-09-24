@@ -90,10 +90,15 @@ so the team sees what I see.
 
 --- EDIT BELOW THIS LINE ---
 
-Shared channels to read:
-Channel to post the digest to:
-Current projects or workstreams:
-Things that are not worth reporting:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Shared channels to read: [e.g. #general, #ops, #projects]
+Channel to post the digest to: [e.g. #general]
+Current projects or workstreams: [e.g. Stock migration, Help centre, Card machine replacement]
+Things that are not worth reporting: [e.g. routine admin, anything already in the weekly report]
 ```
 
 ## Before your first run

@@ -80,10 +80,15 @@ the count of open orders.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Gmail label: Suppliers
-Suppliers — name, what we buy, usual lead time:
-Orders not placed by email — add them here:
-Ignore these senders:
+Suppliers — name, what we buy, usual lead time: [e.g. Kestrel Supplies — oak panels — 10 working days]
+Orders not placed by email — add them here: [e.g. anything ordered by phone or through a supplier portal]
+Ignore these senders: [e.g. noreply@, marketing@, anything with "newsletter" in the address]
 ```
 
 ## Before your first run

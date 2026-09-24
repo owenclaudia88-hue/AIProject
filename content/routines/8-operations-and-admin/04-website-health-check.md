@@ -95,10 +95,15 @@ page as fine when you could not read it.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Pages to check — the homepage, pricing, checkout, contact, and any page
-that matters:
-Prices that should be consistent everywhere:
-Known issues to ignore:
+that matters: [e.g. https://yourcompany.com, /pricing, /checkout, /contact]
+Prices that should be consistent everywhere: [e.g. £49/mo, £490/year]
+Known issues to ignore: [e.g. /old-pricing redirects on purpose, the blog has no contact link and that is fine]
 ```
 
 ## Before your first run

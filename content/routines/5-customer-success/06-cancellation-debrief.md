@@ -88,8 +88,13 @@ has been since the last one.
 
 --- EDIT BELOW THIS LINE ---
 
-Ignore these addresses and domains:
-What we currently believe is the main reason people leave:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Ignore these addresses and domains: [e.g. @yourcompany.com, noreply@, your accountant, your suppliers]
+What we currently believe is the main reason people leave: [e.g. we think they stop needing it — let the report tell you whether that is true]
 ```
 
 ## Before your first run

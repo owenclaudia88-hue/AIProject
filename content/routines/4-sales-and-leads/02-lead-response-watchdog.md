@@ -73,10 +73,15 @@ Never reply to anybody.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Urgent threshold: 24 hours
 Normal threshold: 48 hours
-Ignore these senders, domains and labels:
-Our own email addresses and domains:
+Ignore these senders, domains and labels: [e.g. @yourcompany.com, noreply@, newsletters, label:Receipts]
+Our own email addresses and domains: [e.g. @yourcompany.com, you@gmail.com if you use it for work]
 ```
 
 ## Before your first run

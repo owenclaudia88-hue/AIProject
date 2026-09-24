@@ -91,17 +91,22 @@ If nothing needs attention, say so in one line.
 
 --- EDIT BELOW THIS LINE ---
 
-Drive folders to check:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Drive folders to check: [e.g. Processes, Handbook, Onboarding]
 
 Current facts — keep this updated, it is what everything is checked
 against:
-  People, and what they do:
-  People who have left, and when:
-  Tools we use now, and what they replaced:
-  Current prices:
-  Current suppliers:
+  People, and what they do: [e.g. Priya Shah — runs payroll and supplier payments]
+  People who have left, and when: [e.g. J. Hart — left 14 March 2026]
+  Tools we use now, and what they replaced: [e.g. Xero, replaced the old spreadsheet ledger in June]
+  Current prices: [e.g. standard plan £49/mo, annual £490]
+  Current suppliers: [e.g. Kestrel Supplies, Ardley Metals]
 
-Documents to ignore — archives, drafts, old versions:
+Documents to ignore — archives, drafts, old versions: [e.g. anything in /Archive, anything with "old" or "draft" in the name]
 ```
 
 ## Before your first run

@@ -83,9 +83,14 @@ If there are no good moments this week, say so. Do not lower the bar.
 
 --- EDIT BELOW THIS LINE ---
 
-Where we want reviews (the link):
-Already asked in the last 6 months — add names here as you go:
-Never ask these customers:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Where we want reviews (the link): [e.g. https://g.page/r/... or your Trustpilot link]
+Already asked in the last 6 months — add names here as you go: [add a name and a date each time you ask, or people get asked twice]
+Never ask these customers: [e.g. anyone who has ever disputed a charge, anyone on a free arrangement]
 ```
 
 ## Before your first run

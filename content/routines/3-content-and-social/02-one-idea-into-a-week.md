@@ -79,8 +79,13 @@ of the source file]".
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Google Drive folder to watch: Source content
-Voice notes — how I write, and what I would never say:
+Voice notes — how I write, and what I would never say: [e.g. plain and direct, short sentences, no exclamation marks, never "game-changer"]
 ```
 
 ## What to put in the folder

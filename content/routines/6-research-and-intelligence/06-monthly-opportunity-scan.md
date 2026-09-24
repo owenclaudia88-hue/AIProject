@@ -87,10 +87,15 @@ Email the result to the connected account, subject "Opportunity scan —
 
 --- EDIT BELOW THIS LINE ---
 
-What we sell now:
-What we have already decided against, and why:
-What we are already working on:
-Constraints — time, money, skills, anything that rules options out:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+What we sell now: [e.g. stock control software for small workshops, £49/mo]
+What we have already decided against, and why: [e.g. a free tier — tried it in 2025, it filled support with people who never bought]
+What we are already working on: [e.g. scheduled exports, the help centre]
+Constraints — time, money, skills, anything that rules options out: [e.g. two people, no developer, under £500 a month to try anything]
 ```
 
 ## Before your first run

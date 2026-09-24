@@ -76,11 +76,16 @@ If there were no new enquiries, send nothing at all.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Gmail label to read: Leads
-What we sell:
-Who is a good fit for us:
-Who is not, and should be deprioritised:
-Priority rules — what makes one enquiry more urgent than another:
+What we sell: [e.g. stock control software for small workshops, £49/mo]
+Who is a good fit for us: [e.g. 5 to 30 staff, already outgrown a spreadsheet, based in the UK]
+Who is not, and should be deprioritised: [e.g. sole traders, students, anyone asking about a free plan]
+Priority rules — what makes one enquiry more urgent than another: [e.g. anyone naming a deadline, anyone with more than 10 staff, anyone who has already had a demo]
 ```
 
 ## Getting enquiries into the label

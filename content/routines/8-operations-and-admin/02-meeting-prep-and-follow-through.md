@@ -92,9 +92,14 @@ Never send anything to anybody else.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Drive folder for notes: Meeting notes
-Ignore meetings with these titles or attendees:
-My own email address:
+Ignore meetings with these titles or attendees: [e.g. Standup, 1:1, Lunch, Dentist, anything with only me in it]
+My own email address: [e.g. you@yourcompany.com]
 ```
 
 ## How to take the notes

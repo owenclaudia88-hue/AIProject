@@ -81,11 +81,16 @@ that is a small sample.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Performance sheet: Content performance
-Platforms and formats I use:
-How much time a month I am willing to spend on content:
+Platforms and formats I use: [e.g. LinkedIn short and long posts, Instagram carousels, a weekly email]
+How much time a month I am willing to spend on content: [e.g. about 8 hours]
 What content is for, in one sentence — sales, trust, recruiting,
-reputation, or something else:
+reputation, or something else: [e.g. trust — people buy months later, so measuring it on this month’s sales is wrong]
 ```
 
 ## Before your first run

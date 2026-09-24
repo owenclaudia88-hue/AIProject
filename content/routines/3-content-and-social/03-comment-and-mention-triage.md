@@ -76,9 +76,14 @@ them myself.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Gmail label to read: Social
-Things that always need me, whatever they look like:
-Things I never want flagged:
+Things that always need me, whatever they look like: [e.g. anything from a journalist, anything mentioning a refund]
+Things I never want flagged: [e.g. emoji-only replies, the same three people who comment on everything]
 ```
 
 ## Setting up the Gmail label

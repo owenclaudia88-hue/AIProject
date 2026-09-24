@@ -93,10 +93,15 @@ you checked.
 
 --- EDIT BELOW THIS LINE ---
 
-Search terms — 8 to 15, in the words a customer would actually use:
-Country to check:
-Our domain:
-Competitor domains:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+Search terms — 8 to 15, in the words a customer would actually use: [e.g. "stock spreadsheet falling over", "inventory software small workshop"]
+Country to check: [e.g. United Kingdom]
+Our domain: [e.g. yourcompany.com]
+Competitor domains: [e.g. competitor-a.com, competitor-b.co.uk]
 ```
 
 ## Choosing terms

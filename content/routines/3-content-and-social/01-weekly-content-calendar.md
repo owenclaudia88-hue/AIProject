@@ -68,11 +68,16 @@ whether a line sounds like me, choose the plainer version.
 
 --- EDIT BELOW THIS LINE ---
 
-What I do:
-Who I am talking to:
-What I want them to eventually do:
-Three things I believe that most people in my field do not:
-Words and phrases I would never use:
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
+What I do: [e.g. I help small workshops stop running on spreadsheets]
+Who I am talking to: [be specific — "people who run a shop and do their own books on a Sunday"]
+What I want them to eventually do: [e.g. book a call, or start a trial]
+Three things I believe that most people in my field do not: [e.g. 1) most software is bought to avoid a conversation 2) onboarding fails in week three, not week one 3) price is almost never the real objection]
+Words and phrases I would never use: [e.g. leverage, synergy, "excited to share", "in today’s fast-paced world"]
 
 Weekly shape:
   Monday — short post
@@ -83,7 +88,7 @@ Weekly shape:
   Saturday — nothing
   Sunday — email
 
-Angles already used recently (add to this as you go):
+Angles already used recently (add to this as you go): [paste last week’s angles here, or connect the content log so it remembers for you]
 ```
 
 ## Set up the content doc (optional, but it gets much better)

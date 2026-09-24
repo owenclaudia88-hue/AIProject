@@ -94,14 +94,21 @@ Never reply to any applicant.
 
 --- EDIT BELOW THIS LINE ---
 
+Everything in [square brackets] below is an example. Replace it with
+your own and delete the brackets. If anything is still in brackets when
+this runs, it is not a real setting — ignore it and say so at the top of
+your output rather than treating the example as an instruction.
+
 Gmail label: Applications
-Job description document:
-Requirements, in order of importance — be specific and observable:
-  1.
-  2.
+Job description document: [e.g. Finance Manager JD — the document name in Drive]
+Requirements, in order of importance. Be specific and observable — "has
+run payroll for 10+" can be evidenced from an application, "is a
+self-starter" cannot, and asking for it produces flattery:
+  1. [e.g. has run payroll for a team of 10 or more]
+  2. [e.g. familiar with UK statutory reporting]
   3.
   4.
-Things that genuinely do not matter for this role:
+Things that genuinely do not matter for this role: [e.g. which accounting software they used before, whether they have a degree]
 ```
 
 ## Writing the requirements
