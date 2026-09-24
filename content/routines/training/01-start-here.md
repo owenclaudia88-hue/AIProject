@@ -95,7 +95,22 @@ If an app you need is not there, see *"The app I need isn't listed"* below.
 
 ![The connectors list](/assets/routines/05-connectors.png)
 
-### 7. Click Create
+### 7. If it reads the web, change the environment
+
+Some automations read public web pages — competitor sites, search results, your own site, news. Those ones say so at the top.
+
+**By default, Claude blocks that.** A routine runs in a sandbox with almost no internet access, so one that browses the web finishes with a green tick and finds absolutely nothing. It looks broken, and it is the single most common reason people give up on one of these.
+
+The fix takes ten seconds. On the routine, find **Environment**, and set it to either:
+
+- **Full** — it can reach any website, or
+- **Custom** — you list the sites it is allowed to reach
+
+Every automation that needs this says so in its setup steps, and tells you which sites to allow if you would rather use Custom.
+
+If an automation does not mention it, leave the environment alone.
+
+### 8. Click Create
 
 Then open it and press **Run now** once.
 
@@ -138,10 +153,49 @@ If a run looks green but nothing arrived in your inbox or Slack, it is almost al
 
 **Stopping one is easy.** Open the routine and use the on/off switch at the top. It keeps everything and simply stops running until you turn it back on.
 
+## What's in the collection
+
+There are **59 automations**, in eight sections:
+
+| Section | What it covers |
+|---|---|
+| **Reporting & Finance** | Daily numbers, cash flow, failed payments, invoices, month end |
+| **Ads Management** | Wasted spend, creative that is tiring, budgets, tracking that broke |
+| **Content & Social** | What to post, turning one thing into six, comments, what worked |
+| **Sales & Leads** | New enquiries, nobody left waiting, follow-ups, call prep, pipeline |
+| **Customer Success** | Support triage, who is about to leave, onboarding, reviews |
+| **Research & Intelligence** | Mentions of you, competitors, industry news, your customers' words |
+| **Hiring & Team** | Applications, interviews, new starters, what the team did |
+| **Operations & Admin** | Your morning brief, meetings, contracts, your website, the weekly reset |
+
+You are not meant to run all of them. Most people end up with **five or six** they would not give up.
+
+### Start with three
+
+Fifty-nine is a lot to look at on day one. These three need almost nothing set up, only read your own data, and send nothing to anybody:
+
+1. **Morning Brief** — one page before you start, every weekday. This is the one people keep.
+2. **Daily Business Pulse** — yesterday's numbers, without opening a dashboard.
+3. **Lead Response Watchdog** — everybody waiting on a reply from you. The first run is usually a surprise.
+
+Run those for a fortnight. Then add one a week from whichever section is currently costing you the most time.
+
+### Watch your daily allowance
+
+Those three use three of your five daily runs on Pro. Before adding a fourth, check the **Runs** line at the top of each automation — a few check more than once a day. If you run out, either switch one off or move the least urgent one to weekly.
+
+## Claude's own templates
+
+When you open the Routines page, Claude offers a handful of ready-made templates of its own. They are free and worth a look.
+
+They are general — written for anybody, mostly about code and documents. The ones in this collection are written for a business: they come with the decisions already made, thresholds you can edit, an example of what a good run looks like, and a list of what goes wrong and how to fix it.
+
+Use both. They do not conflict, and they share the same daily allowance.
+
 ---
 
 ## You're ready
 
-Pick one. **Daily Business Pulse** is the usual first choice — it only reads, it sends nothing to your customers, and you will see the result tomorrow morning.
+Pick one. **Morning Brief** or **Daily Business Pulse** is the usual first choice — they only read, they send nothing to your customers, and you will see the result tomorrow morning.
 
 Set it up, press **Run now**, and read what it gives you.
