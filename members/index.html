@@ -818,10 +818,16 @@ button{font-family:inherit}
     gpt:          { label: 'Custom GPTs',            one: 'Custom GPT',   glyph: '🧠' },
     automation:   { label: 'Automation Templates',   one: 'Automation',   glyph: '⚡' },
     guide:        { label: 'Prompting Fundamentals', one: 'Guide',        glyph: '📖' },
-    video:        { label: 'Tutorials',              one: 'Tutorial',     glyph: '🎬' }
+    video:        { label: 'Tutorials',              one: 'Tutorial',     glyph: '🎬' },
+    // Named for what Anthropic calls them, so a member searching the Claude
+    // docs finds the same word. Distinct from 'automation' above, which is the
+    // Make and n8n blueprint library.
+    routine:      { label: 'Claude Routines',        one: 'Routine',      glyph: '⏱️' }
   };
   // 'lesson' is intentionally excluded — courses have their own player.
-  var LIB_ORDER = ['prompt','image_prompt','gpt','automation','guide','video','skill'];
+  // Routines lead: they are the newest thing and the one members are most
+  // likely to have come looking for.
+  var LIB_ORDER = ['routine','prompt','image_prompt','gpt','automation','guide','video','skill'];
   var DL_META = {
     plugin:  { label: 'Specialists & Plugins', glyph: '🧩', blurb: 'Install these in Claude.' },
     powerup: { label: 'Power-Ups',             glyph: '⚡', blurb: 'Focused packs for every job.' },
@@ -942,7 +948,8 @@ button{font-family:inherit}
   // used to be a speech-balloon emoji at 2.5rem, which read as a placeholder.
   // The other libraries' glyphs are doing their job and are left alone.
   var KIND_COLORS = {
-    prompt: ['#f472b6', '#a78bfa', '#38bdf8']
+    prompt: ['#f472b6', '#a78bfa', '#38bdf8'],
+    routine: ['#ffb020', '#ff7a1a', '#f87171']
   };
 
   // A fan of dots, widest at the top, tapering to a two-dot tail — drawn rather
