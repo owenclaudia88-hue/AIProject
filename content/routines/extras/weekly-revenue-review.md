@@ -65,6 +65,19 @@ say that.
 >
 > This week: look at what those four saw between signing up and being charged.
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **It reports totals and nothing else.** The three questions are doing the work. If it skips them, they are probably buried — move them to the top of the prompt, above the data list.

@@ -68,6 +68,19 @@ Once you trust the drafts, change "do not send it, put the drafts in the same su
 > Draft for Dana:
 > Your trial ends on Thursday and your card will be charged $39...
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **It finds nothing and you know you have trials.** Check that your subscriptions actually use Stripe's trial period rather than a free plan you switch manually. Only the former has status "trialing".

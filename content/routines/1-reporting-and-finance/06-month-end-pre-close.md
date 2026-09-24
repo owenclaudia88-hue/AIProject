@@ -75,6 +75,19 @@ would be indistinguishable from a clean month.
 > - One payment in EUR (€45) alongside your usual USD.
 > - Payout of $2,100 initiated 26 September, not yet landed.
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **It runs on the 28th of February and you wanted the 28th of every month.** That is what it does — `0 9 28 * *` is the 28th of every month including February. If you would rather have the true last day, there is no cron expression for it; use the 28th and accept a short February.

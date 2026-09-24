@@ -91,6 +91,19 @@ Use **Zapier** to expose the ad report, or — if that's more work than it's wor
 > Headline: Stop briefing. Start working.
 > Image: split screen, empty chat box beside a list of named specialists.
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **Every ad is called tiring.** Your account is small enough that two weeks of data is noise. Lengthen the window to 28 days.

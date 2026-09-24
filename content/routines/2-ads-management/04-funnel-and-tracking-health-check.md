@@ -94,6 +94,19 @@ Silence, most days.
 >
 > Both point at the same thing: conversions stopped being reported some time after 18:00 on the 23rd.
 
+## Prefer email instead of Slack?
+
+Plenty of people do not live in Slack. This one sends there by default, but the
+swap takes one line.
+
+In the instructions, replace the Slack sentence with:
+
+> Email the result to the connected account with the subject "[name of this
+> automation] — [date]".
+
+Then swap the **Slack** connector for **Gmail** on the routine. Everything else
+stays exactly the same.
+
 ## When it goes wrong
 
 **It fires every day about the ratio.** Your tolerance is too tight, or you genuinely have very few conversions a day — in which case the ratio is noise and you should delete check 3 and keep the rest.

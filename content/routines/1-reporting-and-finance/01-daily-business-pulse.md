@@ -69,6 +69,19 @@ help further.
 > 6 new subscriptions, none cancelled.
 > Nothing needs you today.
 
+## Prefer email instead of Slack?
+
+Plenty of people do not live in Slack. This one sends there by default, but the
+swap takes one line.
+
+In the instructions, replace the Slack sentence with:
+
+> Email the result to the connected account with the subject "[name of this
+> automation] — [date]".
+
+Then swap the **Slack** connector for **Gmail** on the routine. Everything else
+stays exactly the same.
+
 ## When it goes wrong
 
 **A green run with no Slack message.** A green status only means the session started and exited without crashing — it does not mean the task worked. Open the run and read the transcript. Nine times out of ten the Slack connector was removed from the routine, or the channel name is wrong.

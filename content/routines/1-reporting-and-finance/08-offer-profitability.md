@@ -78,6 +78,19 @@ numbers and mark it as too early to judge.
 >
 > Keep all three. Nothing else has enough buyers to judge.
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **Everything is grouped as one product.** Stripe has no price objects set up, or all payments share one. Fix it upstream; the routine cannot invent a split that is not in the data.

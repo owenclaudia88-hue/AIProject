@@ -59,6 +59,19 @@ When it does fire:
 > **Dispute** — $39 from j.mills@example.com, reason "product not received". Evidence due 3 October, 9 days away.
 > **Refund** — $240 to Harrow Ltd, on a payment made yesterday.
 
+## Prefer email instead of Slack?
+
+Plenty of people do not live in Slack. This one sends there by default, but the
+swap takes one line.
+
+In the instructions, replace the Slack sentence with:
+
+> Email the result to the connected account with the subject "[name of this
+> automation] — [date]".
+
+Then swap the **Slack** connector for **Gmail** on the routine. Everything else
+stays exactly the same.
+
 ## When it goes wrong
 
 **It posts every run, including empty ones.** Move "If none of the above happened, post nothing at all" to the very top of the prompt. Instructions at the end get less weight than instructions at the start.

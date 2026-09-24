@@ -84,6 +84,19 @@ Go to `facebook.com/ads/library`, set the country, choose **All ads**, search th
 >
 > **Across both**, the common angle is time rather than capability. Quoted: "before your first coffee", "in about 90 seconds", "without learning anything new".
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **It reports nothing and the run is green.** Network access. This is the routine that hits it, every time.

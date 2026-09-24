@@ -75,6 +75,19 @@ traffic. Report the size of it and leave the diagnosis to a person.
 > Best: "70 Specialists — broad" at $9.40 per new customer.
 > Worst: "Lookalike 3%" at $41 per new customer on $164 spent. Worth keeping only if those buyers renew at roughly three times the rate of the others, which nothing in this week's data supports.
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **The platform connector isn't there.** Meta Ads is not a default Claude connector for every account. Check it appears at `claude.ai/customize/connectors` before you rely on this one, and if it isn't available, route it through Zapier instead.

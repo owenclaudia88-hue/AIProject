@@ -83,6 +83,19 @@ Phrase these as "worth checking", never as "cancel this".
 > **Everything else**
 > Anthropic $20, Vercel $20, Resend $20, Stripe (usage) …
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **It lists your own customers' payments.** The instruction to ignore incoming money is there but a busy mailbox can confuse it. Add the name of your own product so it knows what to exclude.

@@ -28,10 +28,19 @@ const PRODUCT = 'routines';
 
 // "1-reporting-and-finance" -> "Reporting & Finance"
 function categoryName(dir) {
+  if (dir === 'training') return 'Start Here';
   return dir.replace(/^\d+-/, '').split('-')
     .map((w) => (w === 'and' ? '&' : w[0].toUpperCase() + w.slice(1)))
     .join(' ');
 }
+
+// Prepended to every routine, never to the guide itself. Somebody who bought
+// this because they saw a Slack screenshot has never heard the word "routine",
+// and dropping them straight into a cron expression loses them.
+const FIRST_TIME =
+  '> **New to this?** Read **Start Here** first — it explains what a Routine is, '
+  + 'where to find them in Claude, and how to set one up, with screenshots. '
+  + 'Two minutes, and then this page makes sense.\n\n';
 
 /**
  * Pull the facts out of the document rather than keeping them in a sidecar
@@ -65,9 +74,8 @@ function parse(md) {
 
 const files = [];
 for (const dir of (await readdir(ROOT, { withFileTypes: true })).filter((d) => d.isDirectory())) {
-  // `training` holds the course, not routines; `extras` are ours, not part of
-  // the advertised 59.
-  if (dir.name === 'training') continue;
+  // `training` is included: the start-here guide belongs in the same gated
+  // section as the routines, or a first-time buyer never finds it.
   for (const f of (await readdir(join(ROOT, dir.name))).filter((f) => f.endsWith('.md'))) {
     files.push({ dir: dir.name, file: f });
   }
@@ -81,14 +89,21 @@ for (const { dir, file } of files) {
   const slug = basename(file, '.md').replace(/^\d+-/, '');
   const id = `routine:${slug}`;
   const category = categoryName(dir);
-  const sort = Number((file.match(/^(\d+)/) || [])[1] || 99);
+  const sort = dir === 'training' ? 0 : Number((file.match(/^(\d+)/) || [])[1] || 99);
 
   // The H1 and the summary line under it are both dropped: the reader already
   // renders the title and the description above the body, and leaving them in
   // showed each of them twice on the page.
   let source = md.replace(/^#\s+.+$/m, '').trim();
   if (meta.description) source = source.replace(meta.description, '').trim();
-  const bodyHtml = marked.parse(source);
+  // And the prompt itself, which now has its own panel with its own copy
+  // button. Leaving it in the body printed the whole thing twice and gave
+  // people two blocks to choose between when only one is the right one.
+  if (meta.prompt) {
+    source = source.replace(/```[\s\S]*?```/, '_The instructions are in the panel above, with a copy button._').trim();
+  }
+  const isGuide = dir === 'training';
+  const bodyHtml = marked.parse(isGuide ? source : FIRST_TIME + source);
 
   const tags = [category];
   if (meta.connectors) {

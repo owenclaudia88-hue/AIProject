@@ -80,6 +80,19 @@ Fixed costs per month:
 >
 > One-off revenue is estimated at $310 a week from the last eight weeks. Three of those eight were above $500, so the estimate is conservative.
 
+## Prefer Slack instead of email?
+
+This one emails you by default. If your team lives in Slack, send it there
+instead.
+
+In the instructions, replace the "Email to the connected account" sentence
+with:
+
+> Post the result as a single message to the #general channel in Slack.
+
+Change `#general` to the channel you actually read, then swap the **Gmail**
+connector for **Slack** on the routine. Nothing else changes.
+
 ## When it goes wrong
 
 **Everything looks fine forever.** You did not fill in the fixed costs.
