@@ -23,10 +23,11 @@ This routine holds the plan instead of you. It runs every morning, checks where 
 
 1. In Google Drive, write your onboarding plan as a document — see below
 2. **New routine**, name it `New Starter Runner`
-3. Paste the instructions and **name the plan and list your starters at the bottom**
-4. **Schedule** → **Daily** → 08:00
-5. **Connectors**: Google Drive, Gmail, Google Calendar
-6. **Create**
+3. Paste the instructions into the big **Instructions** box
+4. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** name the plan and list your starters.
+5. **Schedule** → **Daily** → 08:00
+6. **Connectors**: Google Drive, Gmail, Google Calendar
+7. **Create**
 
 ## Instructions
 

@@ -32,10 +32,11 @@ So this routine is deliberately built to inform a human decision rather than to 
 1. In Google Drive, put the job description in a document
 2. In Gmail, make a label called `Applications` and filter applications into it
 3. **New routine**, name it `Applicant Screening Brief`
-4. Paste the instructions and **fill in the criteria at the bottom**
-5. **Schedule** → **Daily** → 08:00
-6. **Connectors**: Gmail and Google Drive
-7. **Create**
+4. Paste the instructions into the big **Instructions** box
+5. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** fill in the criteria.
+6. **Schedule** → **Daily** → 08:00
+7. **Connectors**: Gmail and Google Drive
+8. **Create**
 
 ## Instructions
 

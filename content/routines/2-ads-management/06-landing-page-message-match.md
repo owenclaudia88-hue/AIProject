@@ -22,11 +22,12 @@ This routine reads both sides every Monday and tells you where they have drifted
 ## Set it up
 
 1. **New routine**, name it `Landing Page Message Match`
-2. Paste the instructions and **put your own URLs at the bottom**
-3. **Schedule** → **Weekly** → Monday, 12:00
-4. **Connectors**: none. Remove them all — this routine reads public web pages and should have access to nothing else
-5. **Environment**: the default cloud environment blocks most outbound traffic. Edit it to **Custom** and allow `facebook.com` plus your own domain, or set **Full**. Without this the routine reads nothing and looks broken
-6. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Check the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. The values there are starting points, not rules — the channel names, the thresholds and the time windows are all yours to change, and this is the only place you need to change them. **On this one especially:** put your own URLs.
+4. **Schedule** → **Weekly** → Monday, 12:00
+5. **Connectors**: none. Remove them all — this routine reads public web pages and should have access to nothing else
+6. **Environment**: the default cloud environment blocks most outbound traffic. Edit it to **Custom** and allow `facebook.com` plus your own domain, or set **Full**. Without this the routine reads nothing and looks broken
+7. **Create**
 
 ## Instructions
 

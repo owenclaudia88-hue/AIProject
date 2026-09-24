@@ -23,10 +23,11 @@ This routine reads whatever you typed during the call — however untidy — and
 
 1. In Google Drive, make a folder called `Call notes`. During or right after a call, type into a new document in there. No structure, no tidying — fragments are fine
 2. **New routine**, name it `Call Notes To Actions`
-3. Paste the instructions and **fill in the bottom section**
-4. **Schedule** → **Daily** → 17:00
-5. **Connectors**: Google Drive and Gmail
-6. **Create**
+3. Paste the instructions into the big **Instructions** box
+4. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it.
+5. **Schedule** → **Daily** → 17:00
+6. **Connectors**: Google Drive and Gmail
+7. **Create**
 
 ## Instructions
 

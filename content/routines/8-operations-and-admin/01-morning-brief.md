@@ -22,10 +22,11 @@ It is the routine most people end up keeping, and it is the one to set up first.
 ## Set it up
 
 1. **New routine**, name it `Morning Brief`
-2. Paste the instructions and **fill in the bottom section**
-3. **Schedule** → **Daily**, then `/schedule update` in the CLI to set `0 7 * * 1-5` if you want weekdays only
-4. **Connectors**: Gmail and Google Calendar. Add Stripe if you sell, Slack if your team lives there
-5. **Create**, then **Run now** so you can see the shape of it
+2. Paste the instructions into the big **Instructions** box
+3. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it.
+4. **Schedule** → **Daily**, then `/schedule update` in the CLI to set `0 7 * * 1-5` if you want weekdays only
+5. **Connectors**: Gmail and Google Calendar. Add Stripe if you sell, Slack if your team lives there
+6. **Create**, then **Run now** so you can see the shape of it
 
 ## Instructions
 

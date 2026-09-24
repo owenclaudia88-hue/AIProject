@@ -15,10 +15,11 @@ Yesterday's numbers, in Slack, before you open your laptop.
 
 1. Go to **claude.ai/code/routines** and click **New routine**
 2. Name it `Daily Business Pulse`
-3. Paste the instructions and **fill in the settings at the bottom**
-4. Under **Select a trigger**, choose **Schedule** → **Weekdays** → 07:00
-5. Under **Connectors**, keep **Stripe** and **Slack**. Remove everything else
-6. Click **Create**
+3. Paste the instructions into the big **Instructions** box
+4. **Check the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. The values there are starting points, not rules — the channel names, the thresholds and the time windows are all yours to change, and this is the only place you need to change them. **On this one especially:** fill in the settings.
+5. Under **Select a trigger**, choose **Schedule** → **Weekdays** → 07:00
+6. Under **Connectors**, keep **Stripe** and **Slack**. Remove everything else
+7. Click **Create**
 
 Then open it and press **Run now** once, so you see the output before tomorrow morning rather than after.
 

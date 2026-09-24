@@ -24,11 +24,12 @@ This is the product and pricing counterpart to the Competitor Ad Monitor. That o
 ## Set it up
 
 1. **New routine**, name it `Competitor Product & Pricing Watch`
-2. Paste the instructions and **list your competitors' pages at the bottom**
-3. **Schedule** → **Weekly** → Monday, 07:00
-4. **Connectors**: none. Remove them all
-5. **Environment**: **Full**, or **Custom** with your competitors' domains. The default blocks outbound traffic and this routine does nothing else
-6. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** list your competitors' pages.
+4. **Schedule** → **Weekly** → Monday, 07:00
+5. **Connectors**: none. Remove them all
+6. **Environment**: **Full**, or **Custom** with your competitors' domains. The default blocks outbound traffic and this routine does nothing else
+7. **Create**
 
 ## Instructions
 

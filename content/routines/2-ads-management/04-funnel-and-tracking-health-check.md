@@ -20,10 +20,11 @@ This compares what the ad platform thinks happened against what actually hit you
 ## Set it up
 
 1. **New routine**, name it `Funnel & Tracking Health Check`
-2. Paste the instructions and **set your normal gap at the bottom**
-3. **Schedule** → **Daily** → 08:00
-4. **Connectors**: Stripe, Slack, and your ad platform if you have one
-5. **Create**, then **Run now** to establish what normal looks like
+2. Paste the instructions into the big **Instructions** box
+3. **Check the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. The values there are starting points, not rules — the channel names, the thresholds and the time windows are all yours to change, and this is the only place you need to change them. **On this one especially:** set your normal gap.
+4. **Schedule** → **Daily** → 08:00
+5. **Connectors**: Stripe, Slack, and your ad platform if you have one
+6. **Create**, then **Run now** to establish what normal looks like
 
 ## Instructions
 

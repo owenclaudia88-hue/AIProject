@@ -22,11 +22,12 @@ This routine reads it instead, and sends you the four sentences. The filtering i
 ## Set it up
 
 1. **New routine**, name it `Daily Industry Briefing`
-2. Paste the instructions and **list your sources and your filters at the bottom**
-3. **Schedule** → **Daily** → 06:30
-4. **Connectors**: none. Remove them all
-5. **Environment**: **Full**, or **Custom** with your listed domains. Without it, nothing
-6. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** list your sources and your filters.
+4. **Schedule** → **Daily** → 06:30
+5. **Connectors**: none. Remove them all
+6. **Environment**: **Full**, or **Custom** with your listed domains. Without it, nothing
+7. **Create**
 
 ## Instructions
 

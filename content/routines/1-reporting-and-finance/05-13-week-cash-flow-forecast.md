@@ -18,10 +18,11 @@ A quarter is far enough ahead to do something about a gap and close enough that 
 ## Set it up
 
 1. **New routine**, name it `13-Week Cash-Flow Forecast`
-2. Paste the instructions, then **add your fixed costs at the bottom** — this one does not work without them
-3. **Schedule** → **Weekly** → Monday, 07:30
-4. **Connectors**: Stripe and Gmail
-5. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Check the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. The values there are starting points, not rules — the channel names, the thresholds and the time windows are all yours to change, and this is the only place you need to change them. **On this one especially:** add your fixed costs — this one does not work without them.
+4. **Schedule** → **Weekly** → Monday, 07:30
+5. **Connectors**: Stripe and Gmail
+6. **Create**
 
 ## Instructions
 

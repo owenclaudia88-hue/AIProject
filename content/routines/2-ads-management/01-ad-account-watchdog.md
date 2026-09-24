@@ -22,10 +22,11 @@ Three checks a day is what actually fits, and for ad spend it is enough — the 
 ## Set it up
 
 1. **New routine**, name it `Ad Account Watchdog`
-2. Paste the instructions and **fill in the thresholds at the bottom**
-3. **Schedule** → **Daily**, then `/schedule update` in the CLI to set `0 9,14,19 * * *`
-4. **Connectors**: your ad platform and Slack
-5. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Check the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. The values there are starting points, not rules — the channel names, the thresholds and the time windows are all yours to change, and this is the only place you need to change them. **On this one especially:** fill in the thresholds.
+4. **Schedule** → **Daily**, then `/schedule update` in the CLI to set `0 9,14,19 * * *`
+5. **Connectors**: your ad platform and Slack
+6. **Create**
 
 ## Instructions
 

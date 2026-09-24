@@ -73,11 +73,61 @@ Click that button, then paste into the big **Instructions** box.
 
 ![Pasting the instructions](/assets/routines/03-paste-instructions.png)
 
-### 4. Skip the repository
+### 4. Fill in the settings at the bottom
+
+**This is the step people skip, and it is the one that decides whether any of this works.**
+
+Scroll to the bottom of what you just pasted. You will find a line like this:
+
+```
+--- EDIT BELOW THIS LINE ---
+```
+
+Everything above that line is the job, written for you. Everything below it is **the part that is yours** — the channel to post in, how far back to look, what counts as a problem, what your business actually sells.
+
+It looks like this:
+
+```
+Slack channel to post to: #general
+Refund threshold — a single refund over: $100
+What we sell: [e.g. stock control software for small workshops, £49/mo]
+```
+
+There are two kinds of line, and they are treated differently.
+
+**Lines with a plain value** — `Slack channel to post to: #general` — are working defaults. They already do something sensible. Change them if they are wrong for you; leave them if they are not.
+
+**Lines with `[square brackets]`** — `What we sell: [e.g. stock control...]` — are **not** settings. They are examples, showing you the shape of a good answer. You have to replace them.
+
+So this:
+
+```
+What we sell: [e.g. stock control software for small workshops, £49/mo]
+Who is a good fit for us: [e.g. 5 to 30 staff, already outgrown a
+  spreadsheet, based in the UK]
+```
+
+becomes this:
+
+```
+What we sell: bespoke kitchen fitting, £4,000 to £12,000 a job
+Who is a good fit for us: homeowners renovating, within 40 miles of
+  Leeds, who have already had an architect in
+```
+
+Note that the brackets are gone, the words "e.g." are gone, and the example has been replaced — not added to.
+
+**What happens if you forget?** Nothing silently breaks, which is the important part. Every automation in this collection is written to notice an unreplaced example and say so at the top of its output instead of acting on it. So a forgotten bracket costs you one run and a confusing report, not a month of quietly wrong answers.
+
+**How much do you have to fill in?** Only the bracketed lines. Most automations have two or three. A few have none at all and work the moment you paste them.
+
+**It is worth doing properly once.** These fields are what separate a report about your business from a report that could be about anybody's. The difference is not subtle, and you only write them once.
+
+### 5. Skip the repository
 
 Under the Instructions box you will see **"Select a repository"**. Leave it alone. It is for programmers and you do not need it.
 
-### 5. Choose when it runs
+### 6. Choose when it runs
 
 Under **Select a trigger**, click **Schedule**, and pick the time from the automation's **Runs** line.
 
@@ -85,7 +135,7 @@ Times are in your own timezone. You do not need to convert anything.
 
 ![Choosing a schedule](/assets/routines/04-schedule.png)
 
-### 6. Choose what it can reach
+### 7. Choose what it can reach
 
 Under **Connectors** you will see the apps Claude is allowed to use during the run — Gmail, Slack, Stripe and so on.
 
@@ -95,7 +145,7 @@ If an app you need is not there, see *"The app I need isn't listed"* below.
 
 ![The connectors list](/assets/routines/05-connectors.png)
 
-### 7. If it reads the web, change the environment
+### 8. If it reads the web, change the environment
 
 Some automations read public web pages — competitor sites, search results, your own site, news. Those ones say so at the top.
 
@@ -110,7 +160,7 @@ Every automation that needs this says so in its setup steps, and tells you which
 
 If an automation does not mention it, leave the environment alone.
 
-### 8. Click Create
+### 9. Click Create
 
 Then open it and press **Run now** once.
 

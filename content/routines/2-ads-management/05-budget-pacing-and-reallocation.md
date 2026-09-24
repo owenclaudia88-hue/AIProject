@@ -22,10 +22,11 @@ This routine answers the question every Monday, with the arithmetic done, and th
 ## Set it up
 
 1. **New routine**, name it `Budget Pacing & Reallocation`
-2. Paste the instructions and **put your monthly budget at the bottom**
-3. **Schedule** → **Weekly** → Monday, 09:00
-4. **Connectors**: your ad platform, Stripe, and Gmail
-5. **Create**, then **Run now** so you get this week's answer immediately
+2. Paste the instructions into the big **Instructions** box
+3. **Check the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. The values there are starting points, not rules — the channel names, the thresholds and the time windows are all yours to change, and this is the only place you need to change them. **On this one especially:** put your monthly budget.
+4. **Schedule** → **Weekly** → Monday, 09:00
+5. **Connectors**: your ad platform, Stripe, and Gmail
+6. **Create**, then **Run now** so you get this week's answer immediately
 
 ## Instructions
 

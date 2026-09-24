@@ -520,8 +520,15 @@ button{font-family:inherit}
 .panel-b.mono{font-family:var(--mono);font-size:.85rem;white-space:pre-wrap;line-height:1.6}
 /* The panel sets pre-wrap, but a <pre> inside it resets to white-space:pre
    from the browser's own stylesheet, so one long line makes the whole
-   prompt scroll sideways — unreadable on a phone. */
-.panel-b pre{white-space:pre-wrap;overflow-wrap:break-word;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit}
+   prompt scroll sideways — unreadable on a phone.
+   In the prompt panel the frame and the mono font come from .panel-b.mono,
+   so the <pre> itself should add nothing. In an ordinary prose panel the
+   opposite is true: a code block has to look like one, or the guide's
+   worked examples read as just another paragraph. */
+.panel-b.mono pre{white-space:pre-wrap;overflow-wrap:break-word;margin:0;padding:0;border:0;background:none;font:inherit;color:inherit}
+.panel-b:not(.mono) pre{white-space:pre-wrap;overflow-wrap:break-word;background:#0e0e10;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:14px 0;font-family:var(--mono);font-size:.82rem;line-height:1.55;color:var(--txt)}
+.panel-b:not(.mono) pre code{background:none;border:0;padding:0;font:inherit;color:inherit}
+.panel-b:not(.mono) code{background:#0e0e10;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-family:var(--mono);font-size:.82em;color:var(--accent-2)}
 .panel.note{background:var(--bg-2)}
 .panel.note .panel-b{color:var(--txt-2);font-size:.88rem}
 

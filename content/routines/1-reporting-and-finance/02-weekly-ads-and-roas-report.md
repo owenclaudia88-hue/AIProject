@@ -20,10 +20,11 @@ This routine puts them side by side every Monday so you stop making decisions on
 ## Set it up
 
 1. **New routine**, name it `Weekly Ads & ROAS Report`
-2. Paste the instructions and **fill in the settings at the bottom**
-3. **Schedule** → **Weekly** → Monday, 08:30
-4. **Connectors**: your ad platform, Stripe, Gmail
-5. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Check the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. The values there are starting points, not rules — the channel names, the thresholds and the time windows are all yours to change, and this is the only place you need to change them. **On this one especially:** fill in the settings.
+4. **Schedule** → **Weekly** → Monday, 08:30
+5. **Connectors**: your ad platform, Stripe, Gmail
+6. **Create**
 
 ## Instructions
 

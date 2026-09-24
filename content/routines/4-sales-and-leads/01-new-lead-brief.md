@@ -23,11 +23,12 @@ This routine does the looking up. Three times a day it takes whatever came in, f
 
 1. In Gmail, make a label called `Leads` and filter your enquiry notifications into it
 2. **New routine**, name it `New Lead Brief`
-3. Paste the instructions and **fill in the bottom section**
-4. **Schedule** → **Daily**, then `/schedule update` in the CLI to set `0 8,13,17 * * *`
-5. **Connectors**: Gmail
-6. **Environment**: set to **Full** or **Custom** with the sites you want it to check, otherwise it cannot look anybody up
-7. **Create**
+3. Paste the instructions into the big **Instructions** box
+4. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it.
+5. **Schedule** → **Daily**, then `/schedule update` in the CLI to set `0 8,13,17 * * *`
+6. **Connectors**: Gmail
+7. **Environment**: set to **Full** or **Custom** with the sites you want it to check, otherwise it cannot look anybody up
+8. **Create**
 
 ## Instructions
 

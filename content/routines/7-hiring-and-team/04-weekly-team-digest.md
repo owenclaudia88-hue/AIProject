@@ -30,10 +30,11 @@ Tell the team it exists, and what it reads. A weekly digest everybody knows abou
 ## Set it up
 
 1. **New routine**, name it `Weekly Team Digest`
-2. Paste the instructions and **list your channels and projects at the bottom**
-3. **Schedule** → **Weekly** → Friday, 16:00
-4. **Connectors**: Slack (or Gmail if you work by email), Google Calendar. Add Google Drive if project documents live there
-5. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** list your channels and projects.
+4. **Schedule** → **Weekly** → Friday, 16:00
+5. **Connectors**: Slack (or Gmail if you work by email), Google Calendar. Add Google Drive if project documents live there
+6. **Create**
 
 ## Instructions
 

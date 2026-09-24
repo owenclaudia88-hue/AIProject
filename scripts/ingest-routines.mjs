@@ -94,7 +94,14 @@ for (const { dir, file } of files) {
   // because a regex that does not match simply returns null.
   const md = (await readFile(join(ROOT, dir, file), 'utf8'))
     .replaceAll(String.fromCharCode(13), '');
-  const meta = parse(md);
+  // The guide is prose, not a routine. It has code blocks of its own — it
+  // shows people what a settings block looks like — and without this the
+  // first of them would be lifted out as "the prompt", handed a Copy
+  // instructions button, and cut out of the body it was explaining.
+  const isGuide = dir === 'training';
+  const meta = isGuide
+    ? { ...parse(md), prompt: null }
+    : parse(md);
   const slug = basename(file, '.md').replace(/^\d+-/, '');
   const id = `routine:${slug}`;
   const category = categoryName(dir);
@@ -109,13 +116,19 @@ for (const { dir, file } of files) {
   // button. Leaving it in the body printed the whole thing twice and gave
   // people two blocks to choose between when only one is the right one.
   if (meta.prompt) {
-    // A pointer that only describes where to go is no use to somebody reading
-    // on a phone with the panel off-screen. This jumps them to it.
+    // The prompt itself has moved to its own panel with its own copy button.
+    // What is left here has to explain what happened, or the section reads as
+    // though the content was cut off — a heading with a lone button under it
+    // looks like a mistake, not a signpost.
     source = source.replace(/```[\s\S]*?```/,
-      '<a class="xref" data-scroll="routine-instructions">'
-      + '↓ Open the instructions, with a copy button</a>').trim();
+      'The full instructions are in their own panel, just below this one, '
+      + 'with a button that copies them.\n\n'
+      + 'Copy them, paste them into the big **Instructions** box in Claude, '
+      + 'and then **fill in the settings at the bottom of what you pasted** '
+      + 'before you save. That part is the only bit that is yours to write.\n\n'
+      + '<a class="xref" data-scroll="routine-instructions">'
+      + '↓ Take me to the instructions</a>').trim();
   }
-  const isGuide = dir === 'training';
   // Loud, not silent. A routine whose prompt failed to parse would otherwise
   // ingest cleanly and present an empty copy button to a paying customer.
   if (!isGuide && !meta.prompt) {

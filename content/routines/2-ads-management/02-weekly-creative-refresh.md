@@ -18,10 +18,11 @@ New creative needs to be approved, uploaded and live before the weekend, when mo
 ## Set it up
 
 1. **New routine**, name it `Weekly Creative Refresh`
-2. Paste the instructions and **describe your offer at the bottom** — the copy it writes is only as good as what it knows you sell
-3. **Schedule** → **Weekly** → Thursday, 10:00
-4. **Connectors**: your ad platform and Gmail
-5. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** describe your offer — the copy it writes is only as good as what it knows you sell.
+4. **Schedule** → **Weekly** → Thursday, 10:00
+5. **Connectors**: your ad platform and Gmail
+6. **Create**
 
 ## Instructions
 

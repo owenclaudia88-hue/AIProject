@@ -22,10 +22,11 @@ The reason this does not happen is that following up requires remembering who yo
 ## Set it up
 
 1. **New routine**, name it `Proposal Follow-Up`
-2. Paste the instructions and **set your follow-up schedule at the bottom**
-3. **Schedule** → **Daily** → 09:00
-4. **Connectors**: Gmail. Add Google Drive if your proposals live there as documents
-5. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** set your follow-up schedule.
+4. **Schedule** → **Daily** → 09:00
+5. **Connectors**: Gmail. Add Google Drive if your proposals live there as documents
+6. **Create**
 
 ## Instructions
 

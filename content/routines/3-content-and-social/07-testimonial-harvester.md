@@ -22,10 +22,11 @@ This routine goes through the week's messages and pulls out every genuinely posi
 ## Set it up
 
 1. **New routine**, name it `Testimonial Harvester`
-2. Paste the instructions and **set your rules at the bottom**
-3. **Schedule** → **Weekly** → Friday, 15:00
-4. **Connectors**: Gmail. Add Slack if customers reach you there, and Stripe if you want each quote matched to what they actually bought
-5. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** set your rules.
+4. **Schedule** → **Weekly** → Friday, 15:00
+5. **Connectors**: Gmail. Add Slack if customers reach you there, and Stripe if you want each quote matched to what they actually bought
+6. **Create**
 
 ## Instructions
 

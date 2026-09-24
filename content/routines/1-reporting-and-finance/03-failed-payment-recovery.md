@@ -16,10 +16,11 @@ Most failed subscription payments are expired cards, not decisions. This catches
 ## Set it up
 
 1. **New routine**, name it `Failed-Payment Recovery`
-2. Paste the instructions and **fill in the settings at the bottom**
-3. **Schedule** → **Hourly** → then edit the cron to `0 */4 * * *` (the form's presets don't offer four-hourly; see the note at the bottom)
-4. **Connectors**: Stripe and Gmail only
-5. **Create**, then **Run now** and read what it drafted before you trust it
+2. Paste the instructions into the big **Instructions** box
+3. **Fill in the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. Where the value is in `[square brackets]` it is **an example, not an answer** — it is showing you the kind of thing to write. Delete the brackets and the example, and put your own in. Lines that already have a plain value, like `Look back over: 90 days`, are starting points you can leave alone. **Do not paste this into Claude with the brackets still in it** — the routine will tell you it found an example instead of a setting, and do nothing with it. **On this one especially:** fill in the settings.
+4. **Schedule** → **Hourly** → then edit the cron to `0 */4 * * *` (the form's presets don't offer four-hourly; see the note at the bottom)
+5. **Connectors**: Stripe and Gmail only
+6. **Create**, then **Run now** and read what it drafted before you trust it
 
 ## Instructions
 

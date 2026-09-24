@@ -16,10 +16,11 @@ Disputes have deadlines. This one exists so you never find out about one after t
 ## Set it up
 
 1. **New routine**, name it `Refund and Dispute Watch`
-2. Paste the instructions and **fill in the settings at the bottom**
-3. **Schedule** → **Hourly**, then `/schedule update` in the CLI to set `0 */6 * * *`
-4. **Connectors**: Stripe and Slack
-5. **Create**
+2. Paste the instructions into the big **Instructions** box
+3. **Check the settings** at the bottom of the instructions, under the `--- EDIT BELOW THIS LINE ---` marker. Every line is `name: value`. The values there are starting points, not rules — the channel names, the thresholds and the time windows are all yours to change, and this is the only place you need to change them. **On this one especially:** fill in the settings.
+4. **Schedule** → **Hourly**, then `/schedule update` in the CLI to set `0 */6 * * *`
+5. **Connectors**: Stripe and Slack
+6. **Create**
 
 ## Instructions
 
