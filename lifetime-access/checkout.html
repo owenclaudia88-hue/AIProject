@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Secure Checkout — 70 AI Specialists for Claude</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#14110f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://js.stripe.com">
+<script src="/lifetime-access/config.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+:root{
+  --paper:#fbf7f1;--paper-2:#f4ede3;--card:#fff;
+  --ink:#14110f;--ink-2:#4a433c;--ink-3:#8a8177;
+  --line:#e7ded2;--line-2:#d8ccbc;
+  --hot:#ff5a1f;--hot-soft:#ffe9dc;--ok:#10a36c;--ok-soft:#e1f5ec;--bad:#e5484d;
+  --night:#14110f;--r:18px;
+  --shadow:0 1px 0 rgba(20,17,15,.04),0 12px 40px -12px rgba(20,17,15,.18);
+  --display:'Bricolage Grotesque',Inter,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;line-height:1.1}
+p{margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:18px}
+
+.head{background:var(--night);color:#fff}
+.head .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+.head img{height:24px;width:auto;display:block}
+.head .sec{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:#cfe9dd}
+.head .sec svg{width:15px;height:15px}
+
+/* progress */
+.prog{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 0 4px;font-size:.8rem;font-weight:600;color:var(--ink-3)}
+.prog .s{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.prog .d{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.74rem;border:1.5px solid var(--line-2);background:var(--card)}
+.prog .done .d{background:var(--ok);border-color:var(--ok);color:#fff}
+.prog .done{color:var(--ok)}
+.prog .now .d{background:var(--hot);border-color:var(--hot);color:#fff}
+.prog .now{color:var(--ink)}
+.prog .bar{width:28px;height:2px;background:var(--line-2);border-radius:2px}
+.prog .bar.ok{background:var(--ok)}
+
+.grid{display:grid;grid-template-columns:1.12fr .88fr;gap:26px;align-items:start;padding:20px 0 60px}
+.hello h1{font-size:clamp(1.6rem,3.6vw,2.2rem);font-weight:800}
+.hello h1 .hot{color:var(--hot)}
+.hello p{color:var(--ink-2);margin-top:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.pay{margin-top:18px}
+.lab{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.lab .n{color:var(--hot)}
+.row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.field input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line-2);border-radius:12px;padding:13px 14px;outline:none}
+.field input:focus{border-color:var(--ink);background:#fff}
+.field input.bad{border-color:var(--bad);background:#fff5f5}
+.field .err{display:none;color:var(--bad);font-size:.8rem;margin-top:4px}
+.field input.bad + .err{display:block}
+.sep{height:1px;background:var(--line);margin:20px 0}
+
+#express{min-height:0}
+.or{display:flex;align-items:center;gap:12px;color:var(--ink-3);font-size:.8rem;margin:16px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.skel{height:180px;border-radius:12px;background:linear-gradient(90deg,#f3ece2 25%,#faf5ee 50%,#f3ece2 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.note{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:.9rem;background:#fff1f1;color:#b4232a;border:1px solid #f7caca}
+.note.show{display:block}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:18px;border:0;cursor:pointer;font:700 1.12rem/1.2 Inter,sans-serif;color:#fff;background:var(--hot);border-radius:14px;padding:19px 20px;box-shadow:0 6px 0 #c53d0c,0 14px 30px -8px rgba(255,90,31,.6);transition:transform .1s,box-shadow .1s,filter .15s}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c53d0c}
+.btn[disabled]{opacity:.7;cursor:progress}
+.btn svg{width:19px;height:19px}
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rt .7s linear infinite}
+@keyframes rt{to{transform:rotate(360deg)}}
+.under{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-top:14px;font-size:.8rem;color:var(--ink-2)}
+.under span{display:inline-flex;align-items:center;gap:5px}
+.under svg{width:14px;height:14px;color:var(--ok)}
+.methods{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
+.methods span{font-size:.7rem;font-weight:700;border:1px solid var(--line-2);border-radius:6px;padding:3px 7px;color:var(--ink-2);background:#fff}
+.terms{font-size:.74rem;color:var(--ink-3);text-align:center;margin-top:12px}
+.terms a{color:var(--ink-2)}
+
+/* summary */
+.side{display:grid;gap:14px;position:sticky;top:16px}
+.sum h3{font-size:1.1rem}
+.prod{display:flex;gap:14px;align-items:center;margin-top:14px}
+.box{flex:none;width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#ff5a1f,#ff9a3c);display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:800;line-height:.95;text-align:center;font-size:1.3rem;box-shadow:0 8px 20px -8px rgba(255,90,31,.7)}
+.box small{display:block;font-size:.5rem;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.06em}
+.prod b{display:block;font-size:.98rem;line-height:1.25}
+.prod span{font-size:.82rem;color:var(--ink-3)}
+.prod .pr{margin-left:auto;font-weight:700}
+.items{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:7px;font-size:.88rem}
+.items li{display:flex;gap:8px;align-items:flex-start}
+.items li::before{content:"✓";color:var(--ok);font-weight:800}
+.items .bn{color:var(--ink-2)}
+.items .free{margin-left:auto;font-size:.72rem;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:2px 7px;border-radius:999px;white-space:nowrap}
+.tot{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line-2);margin-top:14px;padding-top:14px}
+.tot span{font-weight:600}
+.tot b{font-family:var(--display);font-size:1.8rem}
+.tot small{display:block;text-align:right;font-size:.74rem;color:var(--ink-3)}
+
+.guar{display:flex;gap:14px;align-items:center}
+.seal{flex:none;width:58px;height:58px;border-radius:50%;background:var(--ok-soft);border:2px dashed var(--ok);display:grid;place-items:center;color:var(--ok);font-family:var(--display);font-weight:800;font-size:1.3rem;line-height:1;text-align:center}
+.seal small{display:block;font:700 .46rem Inter,sans-serif;letter-spacing:.05em}
+.guar b{font-size:.95rem}
+.guar p{font-size:.84rem;color:var(--ink-2);margin-top:3px}
+
+.quote .stars{color:#f5a300;letter-spacing:2px}
+.quote p{font-size:.9rem;margin-top:8px;color:var(--ink)}
+.quote .who{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:.84rem}
+.quote .who i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-style:normal;font-weight:700;font-size:.78rem}
+.quote .who span{color:var(--ink-3);display:block;font-size:.76rem}
+
+.next h3{font-size:1rem}
+.next ol{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:n}
+.next li{display:flex;gap:10px;font-size:.88rem;color:var(--ink-2)}
+.next li::before{counter-increment:n;content:counter(n);flex:none;width:22px;height:22px;border-radius:50%;background:var(--hot-soft);color:var(--hot);font-weight:800;font-size:.74rem;display:grid;place-items:center}
+.next b{color:var(--ink)}
+
+.mobile-sum{display:none}
+footer{text-align:center;color:var(--ink-3);font-size:.74rem;padding:0 18px 40px}
+footer a{color:var(--ink-2)}
+
+@media (max-width:880px){
+  .grid{grid-template-columns:1fr;gap:16px;padding-top:10px}
+  .side{position:static}
+  .side .sum{display:none}
+  .mobile-sum{display:block;margin-top:16px}
+  .prog .t{display:none}
+  .prog .now .t{display:inline}
+}
+@media (max-width:420px){
+  .wrap{padding-inline:14px}
+  .card{padding:18px}
+  .row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="wrap">
+    <a href="/70-ai-specialists-for-claude-lifetime-access"><img src="/assets/logo.webp" alt="AI Founder University" width="720" height="139"></a>
+    <div class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Secure checkout</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="prog" aria-label="Checkout progress">
+    <div class="s done"><span class="d">✓</span><span class="t">Your details</span></div>
+    <div class="bar ok"></div>
+    <div class="s now"><span class="d">2</span><span class="t">Payment</span></div>
+    <div class="bar"></div>
+    <div class="s"><span class="d">3</span><span class="t">Access</span></div>
+  </div>
+
+  <div class="grid">
+    <!-- ============ LEFT: payment ============ -->
+    <main>
+      <div class="hello">
+        <h1 id="hello">You're one step away from <span class="hot">your AI team.</span></h1>
+        <p>Complete your <b>$1</b> order below. Access is sent to your inbox right away.</p>
+      </div>
+
+      <!-- compact summary for phones -->
+      <div class="card mobile-sum">
+        <div class="prod">
+          <div class="box">70<small>AI SPECIALISTS</small></div>
+          <div><b>70 AI Specialists for Claude</b><span>+ 4 bonus Claude Sprints</span></div>
+          <div class="pr">$1.00</div>
+        </div>
+      </div>
+
+      <form class="card pay" id="payform" novalidate>
+        <div class="lab">Your details <span class="n" id="edit" hidden>✓ saved</span></div>
+        <div class="row">
+          <div class="field"><input id="name" type="text" autocomplete="given-name" placeholder="First name" aria-label="First name"><p class="err">Enter your first name.</p></div>
+          <div class="field"><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="Email for your access" aria-label="Email"><p class="err">Enter a valid email — your access goes here.</p></div>
+        </div>
+
+        <div class="sep"></div>
+        <div class="lab">Payment</div>
+        <div id="express"></div>
+        <div class="or" id="or" hidden>or pay with card</div>
+        <div id="payment"><div class="skel"></div></div>
+        <div class="note" id="note" role="alert"></div>
+
+        <button class="btn" id="paybtn" type="submit" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span id="paylabel">Complete My Order — $1</span>
+        </button>
+        <div class="under">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>14-day money-back guarantee</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Instant access</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>One-time, no subscription</span>
+        </div>
+        <div class="methods"><span>VISA</span><span>Mastercard</span><span>AMEX</span><span>Apple Pay</span><span>Google Pay</span><span>Link</span></div>
+        <p class="terms">Payments are encrypted and processed by Stripe. We never see or store your card details. By ordering you agree to our <a href="https://aifounderuniversity.com/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="https://aifounderuniversity.com/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+      </form>
+    </main>
+
+    <!-- ============ RIGHT: reassurance ============ -->
+    <aside class="side">
+      <div class="card sum">
+        <h3>Order summary</h3>
+        <div class="prod">
+          <div class="box">70<small>AI SPECIALISTS</small></div>
+          <div><b>70 AI Specialists for Claude</b><span>Lifetime access</span></div>
+          <div class="pr">$1.00</div>
+        </div>
+        <ul class="items">
+          <li>All 70 specialists, 8 departments</li>
+          <li>10,000+ tested prompts</li>
+          <li>Video + written setup guides</li>
+          <li class="bn">Master Claude Cowork <span class="free">BONUS</span></li>
+          <li class="bn">Claude Skills <span class="free">BONUS</span></li>
+          <li class="bn">Claude MCP <span class="free">BONUS</span></li>
+          <li class="bn">Build-to-Sell Bootcamp <span class="free">BONUS</span></li>
+        </ul>
+        <div class="tot"><span>Total today</span><div><b>$1.00</b><small>one-time · USD</small></div></div>
+      </div>
+
+      <div class="card guar">
+        <div class="seal"><div>14<small>DAYS</small></div></div>
+        <div><b>100% money-back guarantee</b><p>Not for you? Email us within 14 days for a full refund. No questions asked.</p></div>
+      </div>
+
+      <div class="card quote">
+        <div class="stars">★★★★★</div>
+        <p>"They help me get to strong angles, better hooks, and clearer copy much faster. It honestly feels less like using software and more like having an extra operator on the team."</p>
+        <div class="who"><i style="background:#7c5cff">SP</i><div><b>Santiago Phoenix</b><span>Copywriter for 7-figure brands</span></div></div>
+      </div>
+
+      <div class="card next">
+        <h3>What happens next</h3>
+        <ol>
+          <li><span><b>Instant access</b> — your link lands in your inbox within minutes.</span></li>
+          <li><span><b>10-minute setup</b> — upload one file, paste one prompt.</span></li>
+          <li><span><b>Hand off your first task</b> — pick a specialist and ask.</span></li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  © 2026 AI Founder University · <a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a><br>
+  Claude is a trademark of Anthropic. This product is independent and not affiliated with or endorsed by Anthropic.
+</footer>
+
+<script>
+(function () {
+  var cfg = window.LP || {};
+  var $ = function (id) { return document.getElementById(id); };
+  var nameEl = $('name'), emailEl = $('email'), btn = $('paybtn'), label = $('paylabel'), note = $('note');
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var SUCCESS = '/lifetime-access/success.html';
+
+  /* ---------- step 1 carried over from the landing page ---------- */
+  var buyer = {};
+  try { buyer = JSON.parse(sessionStorage.getItem('lp_buyer') || '{}') || {}; } catch (e) {}
+  if (buyer.name) nameEl.value = buyer.name;
+  if (buyer.email) emailEl.value = buyer.email;
+  if (buyer.name) {
+    var first = buyer.name.split(/\s+/)[0];
+    first = first.charAt(0).toUpperCase() + first.slice(1);
+    $('hello').innerHTML = first + ', you’re one step away from <span class="hot">your AI team.</span>';
+  }
+  if (buyer.name && buyer.email) $('edit').hidden = false;
+  [nameEl, emailEl].forEach(function (el) { el.addEventListener('input', function () { el.classList.remove('bad'); }); });
+
+  function details(focus) {
+    var ok = true;
+    if (nameEl.value.trim().length < 2) { nameEl.classList.add('bad'); ok = false; }
+    if (!EMAIL_RE.test(emailEl.value.trim())) { emailEl.classList.add('bad'); ok = false; }
+    if (!ok && focus) (nameEl.classList.contains('bad') ? nameEl : emailEl).focus();
+    return ok;
+  }
+  function who() {
+    return { name: nameEl.value.trim(), email: emailEl.value.trim().toLowerCase() };
+  }
+  function showNote(msg) { note.textContent = msg; note.classList.add('show'); }
+  function hideNote() { note.classList.remove('show'); }
+  function busy(on) {
+    btn.disabled = on;
+    label.textContent = on ? 'Processing…' : 'Complete My Order — $1';
+    var s = btn.querySelector('.spin');
+    if (on && !s) { s = document.createElement('span'); s.className = 'spin'; btn.insertBefore(s, label); btn.querySelector('svg').style.display = 'none'; }
+    if (!on && s) { s.remove(); btn.querySelector('svg').style.display = ''; }
+  }
+
+  // No InitiateCheckout here. The Lead already fired on the landing page at
+  // the only moment that matters — name and email in, button pressed — and
+  // arriving on this page adds nothing to it: it is the same person, the same
+  // second, the same intent. Firing both would report one visitor twice and
+  // make the funnel look like it has a step that it does not.
+
+  /* ---------- Stripe ---------- */
+  if (!window.Stripe) {
+    $('payment').innerHTML = '';
+    showNote('Could not load Stripe. Check your connection and refresh.');
+    return;
+  }
+  var stripe, elements, clientSecret;
+
+  // The publishable key comes back with the client secret rather than living
+  // in config.js, so there is only ever one place holding Stripe settings and
+  // no key to keep in sync across pages.
+  fetch('/api/create-payment-intent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: buyer.email || '',
+      // Carried so the webhook can attribute the sale to the ad click that
+      // started it — by then the browser is long gone.
+      fbclid: window.aifuFbclid ? window.aifuFbclid() : '',
+      fbclidAt: window.aifuFbclidAt ? window.aifuFbclidAt() : 0,
+      fbp: window.aifuFbp ? window.aifuFbp() : ''
+    })
+  })
+  .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'error'); return j; }); })
+  .then(function (j) {
+    if (!j.clientSecret || !j.publishableKey) throw new Error('Incomplete response from server.');
+    stripe = Stripe(j.publishableKey);
+    clientSecret = j.clientSecret;
+    elements = stripe.elements({
+      clientSecret: clientSecret,
+      fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' }],
+      appearance: {
+        theme: 'stripe',
+        variables: {
+          colorPrimary: '#ff5a1f', colorText: '#14110f', colorTextSecondary: '#4a433c',
+          colorBackground: '#fbf7f1', colorDanger: '#e5484d', borderRadius: '12px',
+          fontFamily: 'Inter, system-ui, sans-serif', fontSizeBase: '16px', spacingUnit: '4px'
+        },
+        rules: {
+          '.Input': { border: '1.5px solid #d8ccbc', boxShadow: 'none', padding: '13px 14px' },
+          '.Input:focus': { borderColor: '#14110f', boxShadow: 'none', backgroundColor: '#ffffff' },
+          '.Tab': { border: '1.5px solid #d8ccbc', boxShadow: 'none' },
+          '.Tab--selected': { borderColor: '#14110f', boxShadow: 'none' },
+          '.Label': { fontWeight: '600', fontSize: '13px' }
+        }
+      }
+    });
+
+    // One-tap wallets (Apple Pay / Google Pay / Link) on top — the fastest way to pay on a phone.
+    var express = elements.create('expressCheckout', {
+      buttonHeight: 52,
+      buttonType: { applePay: 'buy', googlePay: 'buy' },
+      emailRequired: true
+    });
+    express.on('ready', function (ev) {
+      var any = ev.availablePaymentMethods && Object.keys(ev.availablePaymentMethods).some(function (k) { return ev.availablePaymentMethods[k]; });
+      $('or').hidden = !any;
+    });
+    express.on('confirm', function (ev) {
+      hideNote();
+      var d = who();
+      var email = (ev.billingDetails && ev.billingDetails.email) || d.email;
+      var name = (ev.billingDetails && ev.billingDetails.name) || d.name;
+      // No receipt_email: setting it makes Stripe send its own receipt, and
+      // Stripe's receipts are switched off for this account because the
+      // webhook sends our branded one instead.
+      stripe.confirmPayment({
+        elements: elements, clientSecret: clientSecret, redirect: 'if_required',
+        confirmParams: { return_url: new URL(SUCCESS, location.href).href }
+      }).then(function (res) { done(res, name, email); });
+    });
+    express.mount('#express');
+
+    var payment = elements.create('payment', {
+      layout: { type: 'tabs', defaultCollapsed: false },
+      wallets: { applePay: 'never', googlePay: 'never' },
+      fields: { billingDetails: { name: 'never', email: 'never' } },
+      terms: { card: 'never' }
+    });
+    $('payment').innerHTML = '';
+    payment.mount('#payment');
+    payment.on('ready', function () { btn.disabled = false; });
+  })
+  .catch(function () {
+    $('payment').innerHTML = '';
+    showNote('We couldn’t load the payment form. Please refresh the page, or email ' + (cfg.supportEmail || 'support') + '.');
+  });
+
+  function done(res, name, email) {
+    if (res.error) {
+      busy(false);
+      showNote(res.error.message || 'Your payment didn’t go through. Please try again or use another card.');
+      return;
+    }
+    var pi = res.paymentIntent;
+    try { sessionStorage.setItem('lp_paid', JSON.stringify({ id: pi.id, name: name, email: email })); } catch (e) {}
+    location.href = SUCCESS + '?payment_intent=' + encodeURIComponent(pi.id) + '&redirect_status=' + encodeURIComponent(pi.status);
+  }
+
+  $('payform').addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideNote();
+    if (!elements || !details(true)) return;
+    var d = who();
+    try { sessionStorage.setItem('lp_buyer', JSON.stringify(Object.assign({}, buyer, d))); } catch (err) {}
+    busy(true);
+    stripe.confirmPayment({
+      elements: elements,
+      redirect: 'if_required',
+      confirmParams: {
+        return_url: new URL(SUCCESS, location.href).href,
+        receipt_email: d.email,
+        payment_method_data: { billing_details: { name: d.name, email: d.email } }
+      }
+    }).then(function (res) { done(res, d.name, d.email); });
+  });
+})();
+</script>
+</body>
+</html>

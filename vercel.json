@@ -2,6 +2,14 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/70-ai-specialists-for-claude-lifetime-access",
+      "destination": "/lifetime-access/index.html"
+    },
+    {
+      "source": "/70-ai-specialists-for-claude-lifetime-access/",
+      "destination": "/lifetime-access/index.html"
+    },
+    {
       "source": "/claude-automation-engine",
       "destination": "/claude-automation-engine.html"
     },

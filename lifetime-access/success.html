@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>You're in! — 70 AI Specialists for Claude</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="/lifetime-access/config.js"></script>
+<style>
+:root{--paper:#fbf7f1;--card:#fff;--ink:#14110f;--ink-2:#4a433c;--ink-3:#8a8177;--line:#e7ded2;--hot:#ff5a1f;--hot-soft:#ffe9dc;--ok:#10a36c;--ok-soft:#e1f5ec;--night:#14110f;--display:'Bricolage Grotesque',Inter,system-ui,sans-serif}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.head{background:var(--night)}.head div{max-width:720px;margin:0 auto;padding:0 18px;height:56px;display:flex;align-items:center}
+.head img{height:24px;width:auto}
+main{max-width:640px;margin:0 auto;padding:36px 18px 60px;text-align:center}
+.tick{width:74px;height:74px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;margin:0 auto;box-shadow:0 0 0 10px var(--ok-soft);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+.tick svg{width:38px;height:38px}
+@keyframes pop{from{transform:scale(.3);opacity:0}}
+h1{font-family:var(--display);font-size:clamp(1.9rem,5vw,2.6rem);letter-spacing:-.02em;line-height:1.1;margin:22px 0 0}
+.lead{color:var(--ink-2);margin-top:12px;font-size:1.06rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-top:24px;text-align:left;box-shadow:0 12px 40px -12px rgba(20,17,15,.18)}
+.card h2{font-family:var(--display);font-size:1.15rem;margin:0}
+ol{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:12px;counter-reset:n}
+li{display:flex;gap:12px;color:var(--ink-2);font-size:.95rem}
+li::before{counter-increment:n;content:counter(n);flex:none;width:26px;height:26px;border-radius:50%;background:var(--hot-soft);color:var(--hot);font-weight:800;font-size:.8rem;display:grid;place-items:center}
+li b{color:var(--ink)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:22px;text-decoration:none;font:700 1.1rem Inter,sans-serif;color:#fff;background:var(--hot);border-radius:14px;padding:18px;box-shadow:0 6px 0 #c53d0c}
+.small{font-size:.84rem;color:var(--ink-3);margin-top:16px}
+.small a{color:var(--ink-2)}
+.warn{display:none;background:#fff8e6;border:1px solid #f3dc9b;color:#7a5b00;border-radius:14px;padding:14px;margin-top:20px;font-size:.92rem}
+</style>
+</head>
+<body>
+<header class="head"><div><img src="/assets/logo.webp" alt="AI Founder University" width="720" height="139"></div></header>
+<main>
+  <div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+  <h1 id="h">You're in! Your AI team is ready.</h1>
+  <p class="lead" id="lead">Thank you for your order. Your access details are on their way to your inbox.</p>
+  <div class="warn" id="warn">Your payment is still processing. You'll get an email as soon as it's confirmed — usually within a few minutes.</div>
+
+  <a class="btn" id="access" href="#">Access My 70 Specialists →</a>
+
+  <div class="card">
+    <h2>Get set up in 10 minutes</h2>
+    <ol>
+      <li><span><b>Check your inbox</b> for your access email and Stripe receipt (check Promotions/Spam too).</span></li>
+      <li><span><b>Download the ZIP</b> and follow the short setup video.</span></li>
+      <li><span><b>Hand off your first task</b> — try Adam for ads or Juno for emails.</span></li>
+    </ol>
+  </div>
+  <p class="small">Questions? Email <a id="sup" href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a> — you're covered by our 14-day money-back guarantee.</p>
+</main>
+<script>
+(function () {
+  var cfg = window.LP || {};
+  var q = new URLSearchParams(location.search);
+  var id = q.get('payment_intent') || '';
+  var status = q.get('redirect_status') || '';
+  var paid = {};
+  try { paid = JSON.parse(sessionStorage.getItem('lp_paid') || '{}') || {}; } catch (e) {}
+  var buyer = {};
+  try { buyer = JSON.parse(sessionStorage.getItem('lp_buyer') || '{}') || {}; } catch (e) {}
+
+  if (cfg.accessUrl) document.getElementById('access').href = cfg.accessUrl;
+  if (cfg.supportEmail) { var s = document.getElementById('sup'); s.href = 'mailto:' + cfg.supportEmail; s.textContent = cfg.supportEmail; }
+
+  var name = (paid.name || buyer.name || '').split(/\s+/)[0];
+  if (name) document.getElementById('h').textContent = "You're in, " + name.charAt(0).toUpperCase() + name.slice(1) + '! Your AI team is ready.';
+  var email = paid.email || buyer.email;
+  if (email) document.getElementById('lead').textContent = 'Thank you for your order. Your access details are on their way to ' + email + '.';
+
+  if (status === 'processing') document.getElementById('warn').style.display = 'block';
+
+  // No Purchase fired from here, deliberately.
+  //
+  // The Stripe webhook sends it, server to server, keyed on the PaymentIntent
+  // id. That is the only place that knows the money actually arrived — this
+  // page is just a redirect, and a redirect can be closed, blocked, reloaded
+  // or never reached at all. Reporting a sale from here would count payments
+  // that failed after the redirect and miss the ones where the tab was shut,
+  // and a buyer who refreshes would be counted twice.
+  //
+  // Fulfilment works the same way: access, the welcome email and the receipt
+  // all come from the webhook. Nothing on this page grants anything.
+})();
+</script>
+</body>
+</html>
