@@ -40,6 +40,7 @@ export default async function handler(req, res) {
       city: l.city || null,
       zip: l.zip || null,
       country: l.country || null,
+      source: l.source || null,
       purchased: l.purchased === true,
       memberStatus: l.member_status || null,
       firstSeen: l.first_seen,

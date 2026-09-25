@@ -377,12 +377,23 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         '</div>';
     });
 
+    // Short names for the landing pages. Anything not listed shows its raw
+    // key rather than nothing, so a new product is visible before it is named.
+    var SOURCE_LABEL = {
+      '70-ai-specialists-for-claude': 'main page',
+      'lifetime-access': 'lifetime lander',
+      'claude-automation-engine': 'automation engine'
+    };
+
     var unconverted = leads.leads.filter(function (l) { return !l.purchased; });
     h += '<h3 class="sech">Gave details, never bought <span class="meta">' + unconverted.length + '</span></h3>';
     if (!unconverted.length) h += '<p class="empty">Nobody in this state.</p>';
     unconverted.forEach(function (l) {
       h += '<div class="card"><div class="hd"><b>' + esc(l.name || l.email.split('@')[0]) + '</b>' +
         '<span class="st new">no purchase</span>' +
+        // Which page they came through. Worth showing now there is more than
+        // one, because it decides which offer the reminders chase them with.
+        (l.source ? '<span class="st">' + esc(SOURCE_LABEL[l.source] || l.source) + '</span>' : '') +
         '<span class="meta" style="margin-left:auto">' + esc(l.email) + ' &middot; ' + esc(day(l.firstSeen)) + '</span></div>' +
         (addr(l) ? '<p style="font-family:var(--mono);font-size:.78rem">' + esc(addr(l)) + '</p>' : '') +
         '</div>';

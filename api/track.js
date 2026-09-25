@@ -1,6 +1,7 @@
 import { CLIENT_EVENTS } from '../lib/meta-capi.js';
 import { recordPageEvent, recordLead } from '../lib/db.js';
 import { resolveGeo } from '../lib/geo.js';
+import { sourceFromUrl } from '../lib/products.js';
 
 // Crawlers, previewers and uptime checks. Not exhaustive and never will be,
 // but it keeps the obvious ones out of the numbers — without it the busiest
@@ -100,7 +101,11 @@ export default async function handler(req, res) {
         name: parts.join(' ') || undefined,
         city: str(body.city, 80),
         zip: str(body.zip, 32),
-        country: str(body.country, 8) || geo.country || undefined
+        country: str(body.country, 8) || geo.country || undefined,
+        // From the URL, which was already checked to be one of ours — not from
+        // the body. This decides which offer and which price they get chased
+        // with, so it must not be settable by whoever is posting.
+        source: sourceFromUrl(sourceUrl)
       });
     }
 
