@@ -220,6 +220,11 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
 .fq blockquote{margin:0;font-size:.97rem;color:var(--ink);line-height:1.6;flex:1}
 .fq figcaption{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding-top:14px}
 .fq figcaption i,.sq .who i,.mini i{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff;font-style:normal;font-weight:700;font-size:.9rem}
+/* Photo avatars sit over the initials, which stay underneath as the fallback.
+   Each image removes itself if it fails to load, so a blocked or missing file
+   degrades back to the coloured initial rather than to an empty circle. */
+.fq figcaption i,.sq .who i,.mini i,.who i{position:relative;overflow:hidden}
+.fq figcaption i>img,.who i>img,.mini i>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .fq figcaption b{display:block;font-size:.95rem}
 .fq figcaption span{font-size:.82rem;color:var(--ink-3)}
 .wall{columns:3;column-gap:14px;margin-top:16px}
@@ -313,7 +318,7 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>14-day money-back</span>
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Instant access</span>
         </div>
-        <div class="mini"><i style="background:#ff5a1f">RJ</i><div><div class="stars">★★★★★</div><p>"The outputs actually feel usable right away — not rough AI drafts." <b>— Richard Jones, agency owner</b></p></div></div>
+        <div class="mini"><i style="background:#ff5a1f">RJ<img src="/assets/avatars/richard-jones.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><div><div class="stars">★★★★★</div><p>"The outputs actually feel usable right away — not rough AI drafts." <b>— Richard Jones, agency owner</b></p></div></div>
       </form>
     </div>
 
@@ -422,29 +427,29 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
       <figure class="fq">
         <div class="stars">★★★★★</div>
         <blockquote>"I had already tried using AI for content and customer messaging, but the results were always inconsistent. These Specialists completely changed that. In one afternoon I tightened my offer, improved my onboarding emails, and mapped out a month of content. The biggest difference is that the outputs actually feel usable right away — not like rough AI drafts that still need hours of fixing."</blockquote>
-        <figcaption><i style="background:#ff5a1f">RJ</i><div><b>Richard Jones</b><span>Agency owner with $100M+ in sales</span></div></figcaption>
+        <figcaption><i style="background:#ff5a1f">RJ<img src="/assets/avatars/richard-jones.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><div><b>Richard Jones</b><span>Agency owner with $100M+ in sales</span></div></figcaption>
       </figure>
       <figure class="fq">
         <div class="stars">★★★★★</div>
         <blockquote>"We move fast and produce a huge amount of campaign work every week, so I needed AI to actually reduce workload — not create more review time. These AI Specialists do exactly that. They help me get to strong angles, better hooks, and clearer copy much faster. It honestly feels less like using software and more like having an extra operator on the team who already understands direct response."</blockquote>
-        <figcaption><i style="background:#7c5cff">SP</i><div><b>Santiago Phoenix</b><span>Copywriter for 7-figure brands</span></div></figcaption>
+        <figcaption><i style="background:#7c5cff">SP<img src="/assets/avatars/santiago-phoenix.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><div><b>Santiago Phoenix</b><span>Copywriter for 7-figure brands</span></div></figcaption>
       </figure>
       <figure class="fq">
         <div class="stars">★★★★★</div>
         <blockquote>"Most AI tools promise productivity, but usually the output is generic and forgettable. This was different. The Specialists gave us structure, speed, and much better first drafts across strategy, copy, and client work. We've cut down a lot of wasted time and the quality is noticeably better. It's one of the few AI products we started using immediately across the business."</blockquote>
-        <figcaption><i style="background:#0e9f6e">CW</i><div><b>Catherine Williams</b><span>SaaS entrepreneur</span></div></figcaption>
+        <figcaption><i style="background:#0e9f6e">CW<img src="/assets/avatars/catherine-williams.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><div><b>Catherine Williams</b><span>SaaS entrepreneur</span></div></figcaption>
       </figure>
     </div>
     <div class="wall">
-      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"Been going through the Specialists all weekend — generating content, rewriting email templates, building strategies I'd been putting off for months. Mind blown. 🤯"</p><div class="who"><i style="background:#ff5a1f">S</i><b>Stephanie</b></div></div>
-      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"Really solid Specialists in here — a lot of inspiration and some I never would have set up myself. Worth it."</p><div class="who"><i style="background:#7c5cff">S</i><b>Sebastien</b></div></div>
-      <div class="sq"><div class="stars">★★★★<span class="s-off">★</span></div><p>"Very helpful and very comprehensive. Every business function covered. 😃"</p><div class="who"><i style="background:#0e9f6e">L</i><b>Leon</b></div></div>
-      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"This takes away the struggle of knowing what to ask and how to ask it. Recorded a voice note on the way home, ran it through the content Specialist — polished script in minutes. It's still my content, just better."</p><div class="who"><i style="background:#2563eb">S</i><b>Sally</b></div></div>
-      <div class="sq"><div class="stars">★★★★<span class="s-off">★</span></div><p>"Bought it today. Genuinely impressed — there are Specialists in here I never would have thought to use. Worth every penny."</p><div class="who"><i style="background:#db2777">F</i><b>Flaco</b></div></div>
-      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"What a complete resource. Takes away the struggle of knowing the right questions to ask. I keep finding new Specialists I hadn't tried yet."</p><div class="who"><i style="background:#e0a100">K</i><b>Kellie</b></div></div>
-      <div class="sq"><div class="stars">★★★★<span class="s-off">★</span></div><p>"Bought this. Worth every penny."</p><div class="who"><i style="background:#0f766e">J</i><b>Josh</b></div></div>
-      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"Just got access — looks amazing. Worth ten times the cost."</p><div class="who"><i style="background:#57534e">T</i><b>Thomas</b></div></div>
-      <div class="sq"><div class="stars">★★★★<span class="s-off">★</span></div><p>"The prompts and ideas are valuable. 💪 Great product."</p><div class="who"><i style="background:#ff8a3d">D</i><b>DB</b></div></div>
+      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"Been going through the Specialists all weekend — generating content, rewriting email templates, building strategies I'd been putting off for months. Mind blown. 🤯"</p><div class="who"><i style="background:#ff5a1f">S<img src="/assets/avatars/stephanie.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>Stephanie</b></div></div>
+      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"Really solid Specialists in here — a lot of inspiration and some I never would have set up myself. Worth it."</p><div class="who"><i style="background:#7c5cff">S<img src="/assets/avatars/sebastien.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>Sebastien</b></div></div>
+      <div class="sq"><div class="stars">★★★★<span class="s-off">★</span></div><p>"Very helpful and very comprehensive. Every business function covered. 😃"</p><div class="who"><i style="background:#0e9f6e">L<img src="/assets/avatars/leon.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>Leon</b></div></div>
+      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"This takes away the struggle of knowing what to ask and how to ask it. Recorded a voice note on the way home, ran it through the content Specialist — polished script in minutes. It's still my content, just better."</p><div class="who"><i style="background:#2563eb">S<img src="/assets/avatars/sally.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>Sally</b></div></div>
+      <div class="sq"><div class="stars">★★★★<span class="s-off">★</span></div><p>"Bought it today. Genuinely impressed — there are Specialists in here I never would have thought to use. Worth every penny."</p><div class="who"><i style="background:#db2777">F<img src="/assets/avatars/flaco.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>Flaco</b></div></div>
+      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"What a complete resource. Takes away the struggle of knowing the right questions to ask. I keep finding new Specialists I hadn't tried yet."</p><div class="who"><i style="background:#e0a100">K<img src="/assets/avatars/kellie.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>Kellie</b></div></div>
+      <div class="sq"><div class="stars">★★★★<span class="s-off">★</span></div><p>"Bought this. Worth every penny."</p><div class="who"><i style="background:#0f766e">J<img src="/assets/avatars/josh.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>Josh</b></div></div>
+      <div class="sq"><div class="stars">★★★★★<span class="s-off"></span></div><p>"Just got access — looks amazing. Worth ten times the cost."</p><div class="who"><i style="background:#57534e">T<img src="/assets/avatars/thomas.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>Thomas</b></div></div>
+      <div class="sq"><div class="stars">★★★★<span class="s-off">★</span></div><p>"The prompts and ideas are valuable. 💪 Great product."</p><div class="who"><i style="background:#ff8a3d">D<img src="/assets/avatars/db.webp" alt="" width="96" height="96" loading="lazy" decoding="async" onerror="this.remove()"></i><b>DB</b></div></div>
     </div>
   </div>
 </section>
