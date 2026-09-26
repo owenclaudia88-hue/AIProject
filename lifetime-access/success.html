@@ -46,8 +46,13 @@ li b{color:var(--ink)}
 <header class="head"><div><img src="/assets/logo.webp" alt="AI Founder University" width="720" height="139"></div></header>
 <main>
   <div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
-  <h1 id="h">You're in! Your AI team is ready.</h1>
-  <p class="lead" id="lead">Thank you for your order. Your access details are on their way to your inbox.</p>
+  <!-- These two are the only place on the public site where a buyer's name and
+       email are printed as page text rather than typed into an input, so they
+       are pinned masked for Clarity here in the page. Clarity's dashboard mode
+       only masks numbers and emails on Balanced, and not at all on Relaxed —
+       an attribute cannot be switched off by accident from a settings screen. -->
+  <h1 id="h" data-clarity-mask="True">You're in! Your AI team is ready.</h1>
+  <p class="lead" id="lead" data-clarity-mask="True">Thank you for your order. Your access details are on their way to your inbox.</p>
   <div class="warn" id="warn">Your payment is still processing. You'll get an email as soon as it's confirmed — usually within a few minutes.</div>
 
   <a class="btn" id="access" href="#">Access My 70 Specialists →</a>
