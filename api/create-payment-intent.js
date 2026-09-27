@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { sourceFromUrl, DEFAULT_SOURCE, ENGINE_SOURCE } from '../lib/products.js';
 
 /**
  * Creates the PaymentIntent the checkout page confirms against, and hands the
@@ -43,6 +44,18 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const email = typeof body.email === 'string' ? body.email.slice(0, 320) : undefined;
 
+    // The page the visit started on, sent by the checkout from the tracker.
+    // The source is derived from it here rather than trusted from the body:
+    // it decides which funnel a sale is credited to.
+    const landingUrl = typeof body.landingUrl === 'string' ? body.landingUrl.slice(0, 500) : '';
+    let landingSource = sourceFromUrl(landingUrl || req.headers.referer || '');
+    // This endpoint sells the $1 Specialists, never the Engine — the Engine
+    // has its own endpoint at its own price. The webhook grants the routines
+    // entitlement purely on this tag, so somebody who wandered through the
+    // Engine page and then bought here would otherwise be handed a $4.99
+    // product for $1. The URL decides the funnel, not the product.
+    if (landingSource === ENGINE_SOURCE) landingSource = DEFAULT_SOURCE;
+
     const clientIp = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
       || req.headers['x-real-ip'] || '';
     const clientUa = req.headers['user-agent'] || '';
@@ -73,7 +86,14 @@ export default async function handler(req, res) {
       ...(customerId ? { customer: customerId, setup_future_usage: 'off_session' } : {}),
       metadata: {
         product: PRODUCT_NAME,
-        source: '70-ai-specialists-for-claude',
+        // Which funnel this sale came from, worked out from the page the visit
+        // started on rather than hardcoded. This endpoint is shared: the
+        // lifetime-access lander posts here too, and tagging every one of its
+        // sales as the main page would make the two impossible to tell apart.
+        // Derived server-side from the URL, never taken from the body — it is
+        // what the dashboard reports and what the reminders act on.
+        source: landingSource,
+        ...(landingUrl ? { landing_url: landingUrl } : {}),
         // The address used to reach the webhook via receipt_email. With that
         // gone it travels here instead, so granting access never depends on a
         // second API call to fetch the charge succeeding.

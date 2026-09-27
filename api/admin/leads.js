@@ -31,6 +31,8 @@ export default async function handler(req, res) {
       zip: c.zip || null,
       country: c.country || null,
       address: c.address || null,
+      source: c.source || null,
+      landingUrl: c.landing_url || null,
       joinedAt: c.created_at
     }));
 
@@ -41,6 +43,7 @@ export default async function handler(req, res) {
       zip: l.zip || null,
       country: l.country || null,
       source: l.source || null,
+      landingUrl: l.landing_url || null,
       purchased: l.purchased === true,
       memberStatus: l.member_status || null,
       firstSeen: l.first_seen,

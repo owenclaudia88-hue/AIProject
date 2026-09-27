@@ -592,7 +592,10 @@
           // When the ad was clicked, not when it was paid for. The webhook
           // reports the sale later and would otherwise date the click to then.
           fbclidAt: window.aifuFbclidAt ? window.aifuFbclidAt() : 0,
-          fbp: window.aifuFbp ? window.aifuFbp() : ''
+          fbp: window.aifuFbp ? window.aifuFbp() : '',
+          // Where this visit started, so the sale can be attributed to the
+          // lander rather than to the checkout every funnel shares.
+          landingUrl: window.aifuLandingUrl ? window.aifuLandingUrl() : ''
         })
       });
       if (!res.ok) {

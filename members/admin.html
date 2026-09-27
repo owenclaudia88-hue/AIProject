@@ -287,6 +287,20 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     catch (e) { return ((cents || 0) / 100).toFixed(2) + ' ' + String(cur || '').toUpperCase(); }
   }
   function day(iso) { var t = new Date(iso).getTime(); return t ? new Date(t).toLocaleDateString() : ''; }
+  // Date and time. "Somebody bought today" is a different fact from "somebody
+  // bought at 02:14", and only the second one tells you which ad was running.
+  function stamp(iso) {
+    var t = new Date(iso).getTime();
+    if (!t) return '';
+    var d = new Date(t);
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  // The exact page somebody arrived on, shown short enough to scan and with
+  // the query string kept — that is where the utm and fbclid live.
+  function landing(url) {
+    if (!url) return '';
+    try { var u = new URL(url); return u.pathname + u.search; } catch (e) { return String(url); }
+  }
 
   // What a step's clock actually runs from, read off the step it chains to.
   // This used to be hardcoded as "from checkout" or "from the first", which a
@@ -367,23 +381,37 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       return bits.length ? bits.join(', ') : '';
     };
 
-    h += '<h3 class="sech">Purchased <span class="meta">' + leads.buyers.length + '</span></h3>';
-    if (!leads.buyers.length) h += '<p class="empty">Nobody yet.</p>';
-    leads.buyers.forEach(function (b) {
-      h += '<div class="card"><div class="hd"><b>' + esc(b.name) + '</b>' +
-        '<span class="st ' + (b.status === 'active' ? 'done' : 'declined') + '">' + esc(b.status) + '</span>' +
-        '<span class="meta" style="margin-left:auto">' + esc(b.email) + ' &middot; ' + esc(day(b.joinedAt)) + '</span></div>' +
-        (addr(b) ? '<p style="font-family:var(--mono);font-size:.78rem">' + esc(addr(b)) + '</p>' : '') +
-        '</div>';
-    });
-
     // Short names for the landing pages. Anything not listed shows its raw
     // key rather than nothing, so a new product is visible before it is named.
+    // Declared before the buyers list, which now uses it too.
     var SOURCE_LABEL = {
       '70-ai-specialists-for-claude': 'main page',
       'lifetime-access': 'lifetime lander',
       'claude-automation-engine': 'automation engine'
     };
+    var badge = function (x) {
+      return x.source ? '<span class="st">' + esc(SOURCE_LABEL[x.source] || x.source) + '</span>' : '';
+    };
+    // The entry page, under the card. Kept monospace and unlinked: it is a
+    // record of where they came from, not somewhere to go.
+    var entry = function (x) {
+      return x.landingUrl
+        ? '<p style="font-family:var(--mono);font-size:.74rem;color:var(--txt-2);margin-top:4px">'
+          + esc(landing(x.landingUrl)) + '</p>'
+        : '';
+    };
+
+    h += '<h3 class="sech">Purchased <span class="meta">' + leads.buyers.length + '</span></h3>';
+    if (!leads.buyers.length) h += '<p class="empty">Nobody yet.</p>';
+    leads.buyers.forEach(function (b) {
+      h += '<div class="card"><div class="hd"><b>' + esc(b.name) + '</b>' +
+        '<span class="st ' + (b.status === 'active' ? 'done' : 'declined') + '">' + esc(b.status) + '</span>' +
+        badge(b) +
+        '<span class="meta" style="margin-left:auto">' + esc(b.email) + ' &middot; ' + esc(stamp(b.joinedAt)) + '</span></div>' +
+        (addr(b) ? '<p style="font-family:var(--mono);font-size:.78rem">' + esc(addr(b)) + '</p>' : '') +
+        entry(b) +
+        '</div>';
+    });
 
     var unconverted = leads.leads.filter(function (l) { return !l.purchased; });
     h += '<h3 class="sech">Gave details, never bought <span class="meta">' + unconverted.length + '</span></h3>';
@@ -393,9 +421,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         '<span class="st new">no purchase</span>' +
         // Which page they came through. Worth showing now there is more than
         // one, because it decides which offer the reminders chase them with.
-        (l.source ? '<span class="st">' + esc(SOURCE_LABEL[l.source] || l.source) + '</span>' : '') +
-        '<span class="meta" style="margin-left:auto">' + esc(l.email) + ' &middot; ' + esc(day(l.firstSeen)) + '</span></div>' +
+        badge(l) +
+        '<span class="meta" style="margin-left:auto">' + esc(l.email) + ' &middot; ' + esc(stamp(l.firstSeen)) + '</span></div>' +
         (addr(l) ? '<p style="font-family:var(--mono);font-size:.78rem">' + esc(addr(l)) + '</p>' : '') +
+        entry(l) +
         '</div>';
     });
 
@@ -584,7 +613,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       var active = m.status === 'active';
       h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' +
         '<span class="st ' + (active ? 'done' : 'declined') + '">' + esc(m.status) + '</span>' +
-        '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(day(m.joinedAt)) + '</span></div>' +
+        '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(stamp(m.joinedAt)) + '</span></div>' +
         '<div class="acts">' +
           (active
             ? '<button class="danger" data-act="revoke" data-email="' + esc(m.email) + '">Cancel access</button>'

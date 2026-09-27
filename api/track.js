@@ -105,7 +105,10 @@ export default async function handler(req, res) {
         // From the URL, which was already checked to be one of ours — not from
         // the body. This decides which offer and which price they get chased
         // with, so it must not be settable by whoever is posting.
-        source: sourceFromUrl(sourceUrl)
+        source: sourceFromUrl(sourceUrl),
+        // The page the visit started on, as the tracker recorded it — the
+        // event's own sourceUrl is whichever page happened to fire it.
+        landingUrl: str(body.landingUrl, 500)
       });
     }
 

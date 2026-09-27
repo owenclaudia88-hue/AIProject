@@ -20,6 +20,9 @@ import { isAdmin } from '../../lib/admin.js';
 /** RFC-4180: quote everything, double the quotes inside. */
 const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 const row = (cells) => cells.map(cell).join(',');
+// Date and time for the export — the hour is what tells you which ad was
+// running when somebody bought.
+const stampOf = (iso) => { const t = new Date(iso).getTime(); return t ? new Date(t).toISOString().replace("T", " ").slice(0, 16) : ""; };
 
 export default async function handler(req, res) {
   const email = readSession(req);
@@ -29,13 +32,13 @@ export default async function handler(req, res) {
   try {
     const set = (new URL(req.url, 'http://localhost').searchParams.get('set') || 'all').toLowerCase();
     const day = (d) => (d ? new Date(d).toISOString().slice(0, 10) : '');
-    const lines = [row(['Name', 'Email', 'Type', 'Status', 'Address', 'City', 'Postcode', 'Country', 'Date', 'Source'])];
+    const lines = [row(['Name', 'Email', 'Type', 'Status', 'Address', 'City', 'Postcode', 'Country', 'Date', 'Source', 'Landing URL'])];
 
     if (set === 'members' || set === 'all') {
       for (const c of await listCustomers()) {
         lines.push(row([
           displayNameFor(c.email, c.name), c.email, 'member', c.status,
-          c.address || '', c.city || '', c.zip || '', c.country || '', day(c.created_at), ''
+          c.address || '', c.city || '', c.zip || '', c.country || '', stampOf(c.created_at), c.source || '', c.landing_url || ''
         ]));
       }
     }
@@ -46,7 +49,7 @@ export default async function handler(req, res) {
       for (const l of (await listLeads(5000)).filter((l) => !l.purchased)) {
         lines.push(row([
           l.name || '', l.email, 'lead', 'no purchase',
-          '', l.city || '', l.zip || '', l.country || '', day(l.first_seen), l.source || ''
+          '', l.city || '', l.zip || '', l.country || '', stampOf(l.first_seen), l.source || '', l.landing_url || ''
         ]));
       }
     }

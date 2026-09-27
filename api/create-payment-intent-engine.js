@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { sourceFromUrl } from '../lib/products.js';
 
 /**
  * PaymentIntent for the Claude Automation Engine ($4.99).
@@ -46,6 +47,12 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const email = typeof body.email === 'string' ? body.email.slice(0, 320) : undefined;
 
+    // The page the visit started on, sent by the checkout from the tracker.
+    // The source is derived from it here rather than trusted from the body:
+    // it decides which funnel a sale is credited to.
+    const landingUrl = typeof body.landingUrl === 'string' ? body.landingUrl.slice(0, 500) : '';
+    const landingSource = sourceFromUrl(landingUrl || req.headers.referer || '');
+
     const clientIp = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
       || req.headers['x-real-ip'] || '';
     const clientUa = req.headers['user-agent'] || '';
@@ -73,6 +80,9 @@ export default async function handler(req, res) {
         // The webhook branches on this to fulfil the Engine (deliver the
         // routines) instead of the 70 AI Specialists membership.
         source: SOURCE,
+        // The page the visit started on, so a sale can be traced back to the
+        // lander rather than to the checkout.
+        ...(landingUrl ? { landing_url: landingUrl } : {}),
         ...(email ? { buyer_email: email } : {}),
         ...(typeof body.fbclid === 'string' && body.fbclid ? { fbclid: body.fbclid.slice(0, 300) } : {}),
         ...(Number(body.fbclidAt) > 0 ? { fbclid_at: String(Math.round(Number(body.fbclidAt))) } : {}),

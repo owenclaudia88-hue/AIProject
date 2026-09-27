@@ -328,7 +328,10 @@ footer a{color:var(--ink-2)}
       // started it — by then the browser is long gone.
       fbclid: window.aifuFbclid ? window.aifuFbclid() : '',
       fbclidAt: window.aifuFbclidAt ? window.aifuFbclidAt() : 0,
-      fbp: window.aifuFbp ? window.aifuFbp() : ''
+      fbp: window.aifuFbp ? window.aifuFbp() : '',
+          // Where this visit started, so the sale can be attributed to the
+          // lander rather than to the checkout every funnel shares.
+          landingUrl: window.aifuLandingUrl ? window.aifuLandingUrl() : ''
     })
   })
   .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'error'); return j; }); })

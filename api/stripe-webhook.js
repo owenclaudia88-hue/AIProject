@@ -5,6 +5,7 @@ import {
 } from '../lib/db.js';
 import { sendPurchaseConfirmation, sendEngineWelcome, sendReceipt } from '../lib/email.js';
 import { sendPurchase } from '../lib/meta-capi.js';
+import { ENGINE_SOURCE, DEFAULT_SOURCE } from '../lib/products.js';
 
 /**
  * Which product a payment was for, from the metadata the checkout set.
@@ -14,7 +15,6 @@ import { sendPurchase } from '../lib/meta-capi.js';
  * and promoted on its own, so it has to stay invisible to existing members
  * until they pay for it.
  */
-const ENGINE_SOURCE = 'claude-automation-engine';
 const ENGINE_ENTITLEMENT = 'routines';
 const isEngine = (pi) => pi?.metadata?.source === ENGINE_SOURCE;
 
@@ -157,7 +157,12 @@ export default async function handler(req, res) {
           city: addr.city || undefined,
           zip: addr.postal_code || undefined,
           country: addr.country || undefined,
-          address: [addr.line1, addr.line2].filter(Boolean).join(', ') || undefined
+          address: [addr.line1, addr.line2].filter(Boolean).join(', ') || undefined,
+          // Which funnel won this sale, and the page the visit started on.
+          // Set by the checkout endpoint from the URL, so an old intent that
+          // predates it simply has none rather than a wrong one.
+          source: pi.metadata?.source || DEFAULT_SOURCE,
+          landingUrl: pi.metadata?.landing_url || undefined
         });
         console.log('[stripe-webhook] Access granted:', email);
 

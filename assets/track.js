@@ -127,6 +127,23 @@
   var visitor = durable('localStorage', 'aifu_vid');
   var session = durable('sessionStorage', 'aifu_sid');
 
+  /*
+   * The page they actually arrived on, kept for the whole visit.
+   *
+   * Every event already reports the URL of the page firing it, but by the time
+   * somebody pays that is the checkout — which says nothing about where they
+   * came in, and the checkout is shared between funnels. This is written once
+   * per session and never overwritten, so the ad, the UTMs and the lander that
+   * started the visit survive all the way to the purchase.
+   */
+  var landing = (function () {
+    try {
+      var v = window.sessionStorage.getItem('aifu_landing');
+      if (!v) { v = window.location.href.slice(0, 500); window.sessionStorage.setItem('aifu_landing', v); }
+      return v;
+    } catch (e) { return window.location.href.slice(0, 500); }
+  })();
+
   // Anything the page already knows about the visitor improves the match.
   window.aifuTrack = function (event, extra) {
     var payload = extra || {};
@@ -138,6 +155,7 @@
     payload.visitor = visitor;
     payload.session = session;
     payload.referrer = document.referrer || undefined;
+    payload.landingUrl = landing;
     try {
       fetch('/api/track', {
         method: 'POST',
@@ -173,6 +191,9 @@
   window.aifuFbclid = function () { return fbclid; };
   window.aifuFbclidAt = function () { return fbclid ? click.at : 0; };
   window.aifuFbp = function () { return fbp; };
+  // The page this visit started on — the checkout posts it with the payment
+  // so a buyer can be traced back to the lander, not just to the pay page.
+  window.aifuLandingUrl = function () { return landing; };
 
   window.aifuTrack('PageView');
 })();
