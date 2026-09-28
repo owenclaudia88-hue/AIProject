@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { ADDONS, ADDON_SOURCES, parseAddons } from '../lib/products.js';
+import { BONUS_ADDONS } from '../lib/bonus.js';
 
 /**
  * POST /api/update-payment-intent  { clientSecret, addons: ['engine','carousel'], email? }
@@ -48,16 +49,22 @@ export default async function handler(req, res) {
     // Same answer for "not yours" and "does not exist", so the endpoint cannot
     // be used to probe for intents.
     if (pi.client_secret !== clientSecret) return res.status(404).json({ error: 'Not found.' });
-    if (!ADDON_SOURCES.has(pi.metadata?.source)) return res.status(409).json({ error: 'Add-ons are not available for this order.' });
+    // A bonus order (24-hour offer from the first reminder) already has both
+    // add-ons free and stays at the base price: the page can only refresh
+    // the email on it, never change what is included or what it costs.
+    const isBonus = pi.metadata?.bonus === '1';
+    if (!isBonus && !ADDON_SOURCES.has(pi.metadata?.source)) return res.status(409).json({ error: 'Add-ons are not available for this order.' });
     if (!EDITABLE.has(pi.status)) return res.status(409).json({ error: 'This order can no longer be changed.' });
 
-    const addons = parseAddons(body.addons);
-    const amount = BASE_AMOUNT + addons.reduce((sum, k) => sum + ADDONS[k].priceAmount(), 0);
+    const addons = isBonus ? BONUS_ADDONS.slice() : parseAddons(body.addons);
+    const amount = isBonus
+      ? BASE_AMOUNT
+      : BASE_AMOUNT + addons.reduce((sum, k) => sum + ADDONS[k].priceAmount(), 0);
     const email = typeof body.email === 'string' ? body.email.trim().toLowerCase().slice(0, 320) : '';
 
     const updated = await stripe.paymentIntents.update(id, {
       amount,
-      description: [BASE_NAME, ...addons.map((k) => ADDONS[k].short)].join(' + '),
+      description: [BASE_NAME, ...addons.map((k) => ADDONS[k].short + (isBonus ? ' (free bonus)' : ''))].join(' + '),
       metadata: {
         // Empty string deletes the key in Stripe, so unticking everything
         // leaves no stale add-on behind for the webhook to grant.

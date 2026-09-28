@@ -156,6 +156,15 @@ p{margin:0}
 .addon-line b{font-weight:600}
 .addon-line span{flex:none;font-weight:700}
 .tot.updating b{opacity:.45}
+/* ---------- 24-hour bonus (from the first reminder email) ---------- */
+.bonus-banner{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(135deg,#e1f5ec,#f2fbf6);border:2px solid var(--ok);border-radius:16px;padding:14px 16px;margin:0 0 18px}
+.bonus-banner .gift{flex:none;font-size:1.6rem;line-height:1}
+.bonus-banner b{display:block;font-size:1rem;color:var(--ink)}
+.bonus-banner p{font-size:.88rem;color:var(--ink-2);margin-top:3px}
+.bonus-banner .clock{display:inline-block;margin-top:8px;font-weight:700;font-size:.82rem;color:#b4232a;background:#fff1f1;border:1px solid #f7caca;border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
+.addon-line s{color:var(--ink-3);font-weight:500;margin-right:6px}
+.addon-line .fr{color:var(--ok);font-weight:800}
+.bonus-gone{background:#fff8e6;border:1px solid #f3dc9b;color:#7a5b00;border-radius:12px;padding:10px 14px;font-size:.88rem;margin:0 0 16px}
 footer{text-align:center;color:var(--ink-3);font-size:.74rem;padding:0 18px 40px}
 footer a{color:var(--ink-2)}
 
@@ -222,6 +231,15 @@ footer a{color:var(--ink-2)}
       </div>
 
       <form class="card pay" id="payform" novalidate>
+        <div class="bonus-banner" id="bonusBanner" hidden>
+          <span class="gift">🎁</span>
+          <div>
+            <b>Your 24-hour bonus is applied</b>
+            <p>The Claude Automation Engine (59 Routines) and Claude Carousel Studio are included <strong>free</strong> with your $1 order.</p>
+            <span class="clock" id="bonusClock">Ends soon</span>
+          </div>
+        </div>
+        <div class="bonus-gone" id="bonusGone" hidden>The 24-hour bonus has ended — but the $1 offer for all 70 Specialists is still here.</div>
         <div class="lab">Your details <span class="n" id="edit" hidden>✓ saved</span></div>
         <div class="row">
           <div class="field"><input id="name" type="text" autocomplete="given-name" placeholder="First name" aria-label="First name"><p class="err">Enter your first name.</p></div>
@@ -385,6 +403,50 @@ footer a{color:var(--ink-2)}
   }
 
 
+  /* ---------- 24-hour bonus from the first reminder email ----------
+   * The link carries a signed token. The server decides whether it is valid;
+   * the page only reads the (unsigned) payload to prefill the email and show
+   * the countdown. */
+  var bonusToken = '';
+  try {
+    bonusToken = new URLSearchParams(location.search).get('bonus') || sessionStorage.getItem('lp_bonus') || '';
+    if (bonusToken) sessionStorage.setItem('lp_bonus', bonusToken);
+  } catch (e) {}
+  var bonusPreview = null;
+  if (bonusToken) {
+    try {
+      var raw = atob(bonusToken.split('.')[0].replace(/-/g, '+').replace(/_/g, '/'));
+      var parts = raw.split('|');
+      bonusPreview = { email: parts[0], expiresAt: Number(parts[1]) };
+      if (bonusPreview.email && !emailEl.value) emailEl.value = bonusPreview.email;
+      if (!(bonusPreview.expiresAt > Date.now())) $('bonusGone').hidden = false;
+    } catch (e) { bonusPreview = null; }
+  }
+  var BONUS = null;   // set once the server confirms the bonus is on this order
+
+  function startClock(expiresAt) {
+    var el = $('bonusClock');
+    function tick() {
+      var ms = expiresAt - Date.now();
+      if (ms <= 0) { el.textContent = 'Ends any moment — complete your order now'; return; }
+      var h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000);
+      el.textContent = '⏰ Ends in ' + h + 'h ' + (m < 10 ? '0' : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+      setTimeout(tick, 1000);
+    }
+    tick();
+  }
+
+  function applyBonus(b) {
+    BONUS = b;
+    $('bonusBanner').hidden = false;
+    $('bonusGone').hidden = true;
+    $('bumps').hidden = true;
+    var h = document.querySelector('.hello p');
+    if (h) h.innerHTML = 'Your <b>24-hour bonus</b> is applied: 3 products for <b>$1</b>. Access is sent to your inbox right away.';
+    startClock(b.expiresAt);
+    paint();
+  }
+
   /* ---------- add-ons (order bumps) ----------
    * Prices here are for display only. The server re-prices the order from its
    * own table every time a box changes (/api/update-payment-intent), and the
@@ -403,14 +465,18 @@ footer a{color:var(--ink-2)}
   function money(c) { return '$' + (c / 100).toFixed(2); }
 
   function paint() {
-    total = BASE + chosen.reduce(function (s, k) { return s + ADDONS[k].cents; }, 0);
+    total = BONUS ? BASE : BASE + chosen.reduce(function (s, k) { return s + ADDONS[k].cents; }, 0);
+    var lines = BONUS ? BONUS.addons : chosen;
     document.querySelectorAll('.addon-lines').forEach(function (box) {
-      box.innerHTML = chosen.map(function (k) {
-        return '<div class="addon-line"><b>+ ' + ADDONS[k].name + '</b><span>' + money(ADDONS[k].cents) + '</span></div>';
+      box.innerHTML = lines.map(function (k) {
+        if (!ADDONS[k]) return '';
+        return BONUS
+          ? '<div class="addon-line"><b>🎁 ' + ADDONS[k].name + '</b><span><s>' + money(ADDONS[k].cents) + '</s><span class="fr">FREE</span></span></div>'
+          : '<div class="addon-line"><b>+ ' + ADDONS[k].name + '</b><span>' + money(ADDONS[k].cents) + '</span></div>';
       }).join('');
     });
     document.querySelectorAll('.tot-val').forEach(function (el) { el.textContent = money(total); });
-    document.querySelectorAll('.tot-m').forEach(function (el) { el.hidden = !chosen.length; });
+    document.querySelectorAll('.tot-m').forEach(function (el) { el.hidden = !lines.length; });
     $('hello-price').textContent = fmt(total);
     if (!btn.disabled || label.textContent.indexOf('Processing') === -1) label.textContent = 'Complete My Order — ' + fmt(total);
   }
@@ -481,7 +547,8 @@ footer a{color:var(--ink-2)}
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      email: buyer.email || '',
+      email: buyer.email || (bonusPreview && bonusPreview.email) || '',
+      bonus: bonusToken || '',
       // Carried so the webhook can attribute the sale to the ad click that
       // started it — by then the browser is long gone.
       fbclid: window.aifuFbclid ? window.aifuFbclid() : '',
@@ -497,6 +564,8 @@ footer a{color:var(--ink-2)}
     if (!j.clientSecret || !j.publishableKey) throw new Error('Incomplete response from server.');
     stripe = Stripe(j.publishableKey);
     clientSecret = j.clientSecret;
+    if (j.bonus && j.bonus.expiresAt) applyBonus(j.bonus);
+    else if (bonusToken) $('bonusGone').hidden = false;
     elements = stripe.elements({
       clientSecret: clientSecret,
       fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' }],
@@ -582,7 +651,7 @@ footer a{color:var(--ink-2)}
       return;
     }
     var pi = res.paymentIntent;
-    try { sessionStorage.setItem('lp_paid', JSON.stringify({ id: pi.id, name: name, email: email, addons: chosen.slice(), total: total })); } catch (e) {}
+    try { sessionStorage.setItem('lp_paid', JSON.stringify({ id: pi.id, name: name, email: email, addons: BONUS ? BONUS.addons.slice() : chosen.slice(), total: total, bonus: !!BONUS })); } catch (e) {}
     location.href = SUCCESS + '?payment_intent=' + encodeURIComponent(pi.id) + '&redirect_status=' + encodeURIComponent(pi.status);
   }
 

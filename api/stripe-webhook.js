@@ -226,7 +226,12 @@ export default async function handler(req, res) {
             // One line per thing bought. The add-on prices are the ones the
             // intent was priced with; the Specialists line is what is left, so
             // the lines always add up to what was actually charged.
-            const addonLines = addons.map((k) => ({ label: ADDONS[k].short, cents: ADDONS[k].priceAmount() }));
+            // A bonus order (24-hour offer) includes the add-ons at no charge.
+            const free = pi.metadata?.bonus === '1';
+            const addonLines = addons.map((k) => ({
+              label: ADDONS[k].short + (free ? ' — free bonus' : ''),
+              cents: free ? 0 : ADDONS[k].priceAmount()
+            }));
             const addonTotal = addonLines.reduce((s, l) => s + l.cents, 0);
             const lines = addonLines.length
               ? [{ label: '70 AI Specialists for Claude', cents: charge.amount - addonTotal }, ...addonLines]

@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { sourceFromUrl, DEFAULT_SOURCE, ENGINE_SOURCE } from '../lib/products.js';
+import { readBonusToken, BONUS_ADDONS } from '../lib/bonus.js';
 
 /**
  * Creates the PaymentIntent the checkout page confirms against, and hands the
@@ -56,6 +57,12 @@ export default async function handler(req, res) {
     // product for $1. The URL decides the funnel, not the product.
     if (landingSource === ENGINE_SOURCE) landingSource = DEFAULT_SOURCE;
 
+    // The 24-hour bonus from the first reminder email: a signed, unexpired
+    // token puts the Engine and Carousel Studio on this order at no extra
+    // cost. Anything else — forged, edited, expired — is simply ignored and
+    // the order is the plain $1.
+    const bonus = readBonusToken(body.bonus);
+
     const clientIp = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
       || req.headers['x-real-ip'] || '';
     const clientUa = req.headers['user-agent'] || '';
@@ -98,6 +105,12 @@ export default async function handler(req, res) {
         // gone it travels here instead, so granting access never depends on a
         // second API call to fetch the charge succeeding.
         ...(email ? { buyer_email: email } : {}),
+        ...(bonus ? {
+          addons: BONUS_ADDONS.join(','),
+          bonus: '1',
+          bonus_expires: new Date(bonus.expiresAt).toISOString(),
+          ...(email ? {} : { buyer_email: bonus.email })
+        } : {}),
         // Carried so the webhook can attribute the Purchase to the ad click
         // that started it. The webhook is the only place that knows the
         // payment succeeded, and by then the browser is long gone.
@@ -116,7 +129,8 @@ export default async function handler(req, res) {
       clientSecret: paymentIntent.client_secret,
       publishableKey,
       amount: PRICE_AMOUNT,
-      currency: PRICE_CURRENCY
+      currency: PRICE_CURRENCY,
+      bonus: bonus ? { addons: BONUS_ADDONS, expiresAt: bonus.expiresAt } : null
     });
   } catch (err) {
     console.error('[create-payment-intent]', err);
