@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     // This endpoint sells the $1 Specialists, never the Engine — the Engine
     // has its own endpoint at its own price. The webhook grants the routines
     // entitlement purely on this tag, so somebody who wandered through the
-    // Engine page and then bought here would otherwise be handed a $4.99
+    // Engine page and then bought here would otherwise be handed an Engine-priced
     // product for $1. The URL decides the funnel, not the product.
     if (landingSource === ENGINE_SOURCE) landingSource = DEFAULT_SOURCE;
 

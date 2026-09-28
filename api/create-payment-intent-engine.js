@@ -2,12 +2,12 @@ import Stripe from 'stripe';
 import { sourceFromUrl } from '../lib/products.js';
 
 /**
- * PaymentIntent for the Claude Automation Engine ($4.99).
+ * PaymentIntent for the Claude Automation Engine ($27).
  *
  * A separate endpoint from create-payment-intent.js because the product has its
  * own price and its own metadata source — the webhook branches on that source
  * to decide which entitlement to grant. Everything else mirrors the 70 AI
- * Specialists flow: the $4.99 also opens the membership on a trial, so the card
+ * Specialists flow: the payment also opens the membership on a trial, so the card
  * has to be saved against a Customer here (setup_future_usage), or the
  * subscription has nothing to charge when the trial ends.
  *
@@ -15,7 +15,7 @@ import { sourceFromUrl } from '../lib/products.js';
  * from the request body — otherwise anyone could post their own price.
  */
 
-const PRICE_AMOUNT = Number.parseInt(process.env.ENGINE_PRICE_AMOUNT ?? '499', 10); // 499 = $4.99
+const PRICE_AMOUNT = Number.parseInt(process.env.ENGINE_PRICE_AMOUNT ?? '2700', 10); // 2700 = $27
 const PRICE_CURRENCY = (process.env.ENGINE_PRICE_CURRENCY ?? process.env.PRICE_CURRENCY ?? 'usd').toLowerCase();
 const PRODUCT_NAME = 'Claude Automation Engine — 59 Routines';
 const SOURCE = 'claude-automation-engine';

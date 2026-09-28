@@ -373,7 +373,7 @@ export default async function handler(req, res) {
             await revokeEntitlement(email, ENGINE_ENTITLEMENT);
             console.log('[stripe-webhook] Engine entitlement revoked:', email);
 
-            // Refunding the $4.99 does not stop the membership the purchase
+            // Refunding the Engine does not stop the membership the purchase
             // opened — the trial keeps running and charges $39 in a few days.
             // Somebody who has just been refunded and is then billed will file
             // a chargeback, and they would be right to. So the subscription
