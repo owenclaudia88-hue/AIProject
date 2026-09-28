@@ -1,18 +1,19 @@
-import { readSession } from '../../lib/session.js';
+import { readSessionInfo } from '../../lib/session.js';
 import { isActive, setPasswordHash, clearPasswordHash, passwordHashFor } from '../../lib/db.js';
 import { hashPassword, verifyPassword, passwordProblem } from '../../lib/passwords.js';
 
 /**
  * POST /api/auth/set-password  { password }  |  { remove: true }
  *
- * Only from inside a signed-in session, which means the member already proved
- * they hold the inbox — by clicking a magic link, or by knowing the password
- * they are now changing. That is why there is no emailed reset flow: the magic
- * link already is one.
+ * Only from inside a signed-in session. How that session was established is
+ * what decides whether the current password is needed:
  *
- * Changing an existing password requires the current one. A session left open
- * on a borrowed laptop should not be enough to lock the owner out of their own
- * account.
+ *   - signed in by emailed link — they hold the inbox, which is a stronger
+ *     claim than knowing the password. This is the reset path, and it is why
+ *     there is no separate emailed reset flow to get wrong.
+ *   - signed in by password — proves only that this browser knew the password.
+ *     Replacing it has to prove the old one, or a session left open on a
+ *     borrowed laptop is enough to take the account over.
  */
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -20,8 +21,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const email = readSession(req);
-  if (!email) return res.status(401).json({ error: 'Sign in first.' });
+  const session = readSessionInfo(req);
+  if (!session) return res.status(401).json({ error: 'Sign in first.' });
+  const { email, method } = session;
 
   try {
     if (!(await isActive(email))) {
@@ -31,11 +33,15 @@ export default async function handler(req, res) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const existing = await passwordHashFor(email);
 
-    // Replacing or removing a password needs the current one.
-    if (existing) {
+    // Replacing or removing a password needs the current one — unless this
+    // session came from an emailed link, in which case the inbox already
+    // answered for them and this is a reset.
+    if (existing && method === 'pw') {
       const current = String(body.currentPassword ?? '');
       if (!current || !(await verifyPassword(current, existing))) {
-        return res.status(401).json({ error: 'That is not your current password.' });
+        return res.status(401).json({
+          error: 'That is not your current password. Forgot it? Sign out and use the emailed sign-in link instead.'
+        });
       }
     }
 

@@ -79,7 +79,9 @@ export default async function handler(req, res) {
     }
 
     await clearAuthFailures(email);
-    res.setHeader('Set-Cookie', createSessionCookie(email));
+    // A password session. Enough to use the site, not enough to replace the
+    // password without proving the current one.
+    res.setHeader('Set-Cookie', createSessionCookie(email, 'pw'));
     return res.status(200).json({
       ok: true,
       redirect: (staff && !active) ? '/members/admin.html' : '/members/'

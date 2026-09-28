@@ -82,6 +82,7 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   var $ = function (id) { return document.getElementById(id); };
   var note = $('note');
   var hasPassword = false;
+  var signedInWith = 'link';
 
   function say(kind, text) {
     note.className = 'note ' + kind + ' show';
@@ -92,12 +93,20 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
      change and remove the one there is. Either way the emailed link keeps
      working — it is what a member falls back on, and it is the reset flow. */
   function render() {
+    // Signing in by emailed link already proved they hold the inbox, so the old
+    // password is not asked for — that is the reset, and without it somebody who
+    // forgot their password would have nowhere to go.
+    var byLink = signedInWith === 'link';
+    var needsCurrent = hasPassword && !byLink;
+
     $('title').textContent = hasPassword ? 'Change your password' : 'Set a password';
     $('hint').textContent = hasPassword
-      ? 'You can sign in with your email and password. The emailed sign-in link still works, and is how you get back in if you forget this.'
+      ? (byLink
+          ? 'You signed in with an emailed link, so you can set a new password here without the old one.'
+          : 'You can sign in with your email and password. Forgotten it? Sign out and use the emailed sign-in link — then you can set a new one here without the old.')
       : 'Optional. Set one and you can sign in without waiting for an email. The emailed link keeps working either way.';
-    $('currentRow').hidden = !hasPassword;
-    $('current').required = hasPassword;
+    $('currentRow').hidden = !needsCurrent;
+    $('current').required = needsCurrent;
     $('save').textContent = hasPassword ? 'Change password' : 'Set password';
     $('remove').hidden = !hasPassword;
     $('loading').hidden = true;
@@ -114,6 +123,7 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
       if (!me.active) { location.replace('login.html'); return; }
       $('who').textContent = me.email;
       hasPassword = !!me.hasPassword;
+      signedInWith = me.signedInWith === 'pw' ? 'pw' : 'link';
       render();
     })
     .catch(function () { $('loading').textContent = 'Could not load your account. Please refresh.'; });
@@ -151,7 +161,9 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   });
 
   $('remove').addEventListener('click', function () {
-    if (!$('current').value) { say('err', 'Enter your current password to remove it.'); return; }
+    if (!$('currentRow').hidden && !$('current').value) {
+      say('err', 'Enter your current password to remove it.'); return;
+    }
     post({ remove: true, currentPassword: $('current').value }, 'Removing…', $('remove'));
   });
 })();

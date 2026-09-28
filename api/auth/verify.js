@@ -30,7 +30,9 @@ export default async function handler(req, res) {
     const staff = isAdmin(email);
     if (!staff && !(await isActive(email))) return redirect(`${login}?error=inactive`);
 
-    res.setHeader('Set-Cookie', createSessionCookie(email));
+    // Marked as a link session: this person just proved they hold the inbox,
+    // so they may set a new password without knowing the old one.
+    res.setHeader('Set-Cookie', createSessionCookie(email, 'link'));
     // Send staff where they were going. An admin who also bought the product
     // still lands in the member area, since they have a member area to land in.
     if (staff && !(await isActive(email))) return redirect(`${site}/members/admin.html`);

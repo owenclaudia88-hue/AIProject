@@ -1,4 +1,4 @@
-import { readSession } from '../lib/session.js';
+import { readSessionInfo } from '../lib/session.js';
 import { getCustomer, displayNameFor } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
 
@@ -9,8 +9,9 @@ import { isAdmin } from '../lib/admin.js';
  * one themselves (if not, the comment box asks for one on their first post).
  */
 export default async function handler(req, res) {
-  const email = readSession(req);
-  if (!email) return res.status(401).json({ authenticated: false });
+  const session = readSessionInfo(req);
+  if (!session) return res.status(401).json({ authenticated: false });
+  const { email, method } = session;
 
   try {
     const customer = await getCustomer(email);
@@ -24,6 +25,9 @@ export default async function handler(req, res) {
       // Whether they have set a password, so the account screen offers the
       // right thing: set one, or change/remove the one they have.
       hasPassword: !!customer.password_hash,
+      // How they signed in. A link session can set a new password without the
+      // old one, so the account page knows not to ask for it.
+      signedInWith: method,
       name: displayNameFor(email, customer.name),
       hasName: !!(customer.name && customer.name.trim()),
       isAdmin: isAdmin(email)

@@ -45,6 +45,10 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
 .alt button{background:none;border:0;color:var(--accent,#ff7a1a);font:inherit;font-size:.92rem;
             cursor:pointer;padding:6px;text-decoration:underline;text-underline-offset:3px}
 .alt button:hover{opacity:.82}
+.forgot{text-align:right;margin-top:8px}
+.forgot button{background:none;border:0;color:var(--txt-3,#7c7c88);font:inherit;font-size:.84rem;
+               cursor:pointer;padding:2px;text-decoration:underline;text-underline-offset:3px}
+.forgot button:hover{color:var(--accent,#ff7a1a)}
 @media(max-width:600px){.brand-logo{width:150px}}
 </style>
 </head>
@@ -61,6 +65,7 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
       <div class="pw-row" id="pwRow">
         <label for="password">Password</label>
         <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Your password">
+        <div class="forgot"><button type="button" id="forgot">Forgot your password?</button></div>
       </div>
 
       <button type="submit" class="btn" id="btn">Email me a sign-in link</button>
@@ -126,6 +131,16 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
     if (toPassword) pwInput.focus();
   }
   toggle.addEventListener('click', function () { setMode(!usingPassword); });
+
+  /* Forgetting the password is not a dead end and never was: the emailed link
+     signs you in, and from the account page you can set a new one without the
+     old. Nothing on screen said so, which is the same as it not existing. */
+  document.getElementById('forgot').addEventListener('click', function () {
+    setMode(false);
+    note.className = 'note ok show';
+    note.textContent = 'No problem — enter your email and we will send a sign-in link. '
+      + 'Once you are in, set a new password under Your account.';
+  });
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
