@@ -270,8 +270,7 @@ const sections = [
           ]),
           H2('Get an account'),
           P('<a href="' + AFF + '" target="_blank" rel="noopener"><strong>Sign up for Blotato here →</strong></a>'),
-          P('You will need your <strong>API key</strong> from your Blotato account settings for the next lesson, so grab it while you are in there.'),
-          NOTE('That link is an affiliate link — if you sign up through it I earn a commission, at no extra cost to you. I recommend it because it is what I actually use to post these carousels.')
+          P('You will need your <strong>API key</strong> from your Blotato account settings for the next lesson, so grab it while you are in there.')
         ]
       },
       {
