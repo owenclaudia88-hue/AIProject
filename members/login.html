@@ -41,13 +41,17 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
 .brand-logo{width:176px;max-width:44vw;height:auto;display:block;flex:none}
 .pw-row{display:none;margin-top:14px}
 .pw-row.show{display:block}
-.alt{margin-top:16px;text-align:center}
+/* Both of these are the whole way forward for somebody who cannot get in, and
+   they get tapped with a thumb. 44px tall, which is the size a finger needs. */
+.alt{margin-top:10px;text-align:center}
 .alt button{background:none;border:0;color:var(--accent,#ff7a1a);font:inherit;font-size:.92rem;
-            cursor:pointer;padding:6px;text-decoration:underline;text-underline-offset:3px}
+            cursor:pointer;padding:12px 10px;min-height:44px;text-decoration:underline;
+            text-underline-offset:3px}
 .alt button:hover{opacity:.82}
-.forgot{text-align:right;margin-top:8px}
-.forgot button{background:none;border:0;color:var(--txt-3,#7c7c88);font:inherit;font-size:.84rem;
-               cursor:pointer;padding:2px;text-decoration:underline;text-underline-offset:3px}
+.forgot{text-align:right;margin-top:2px}
+.forgot button{background:none;border:0;color:var(--txt-3,#7c7c88);font:inherit;font-size:.86rem;
+               cursor:pointer;padding:12px 4px;min-height:44px;text-decoration:underline;
+               text-underline-offset:3px}
 .forgot button:hover{color:var(--accent,#ff7a1a)}
 @media(max-width:600px){.brand-logo{width:150px}}
 </style>
