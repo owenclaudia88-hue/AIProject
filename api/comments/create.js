@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isActive, createComment, setCustomerName, getCustomer, displayNameFor } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 
@@ -15,7 +15,7 @@ const MAX_BODY = 4000;
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });

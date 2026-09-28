@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isActive, listContent, entitlementsFor } from '../../lib/db.js';
 
 /**
@@ -7,7 +7,7 @@ import { isActive, listContent, entitlementsFor } from '../../lib/db.js';
  * private Blob URLs (those are used only by the download stream).
  */
 export default async function handler(req, res) {
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
 
   try {

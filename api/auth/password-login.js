@@ -1,4 +1,4 @@
-import { isActive, normalizeEmail, passwordHashFor, recordAuthFailure, clearAuthFailures, recentAuthFailures } from '../../lib/db.js';
+import { isActive, normalizeEmail, passwordHashFor, recordAuthFailure, clearAuthFailures, recentAuthFailures, sessionEpochFor } from '../../lib/db.js';
 import { verifyPassword, dummyVerify } from '../../lib/passwords.js';
 import { createSessionCookie } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
@@ -81,7 +81,7 @@ export default async function handler(req, res) {
     await clearAuthFailures(email);
     // A password session. Enough to use the site, not enough to replace the
     // password without proving the current one.
-    res.setHeader('Set-Cookie', createSessionCookie(email, 'pw'));
+    res.setHeader('Set-Cookie', createSessionCookie(email, 'pw', await sessionEpochFor(email)));
     return res.status(200).json({
       ok: true,
       redirect: (staff && !active) ? '/members/admin.html' : '/members/'

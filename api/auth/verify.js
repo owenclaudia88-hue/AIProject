@@ -1,4 +1,4 @@
-import { consumeLoginToken, isActive } from '../../lib/db.js';
+import { consumeLoginToken, isActive, sessionEpochFor } from '../../lib/db.js';
 import { createSessionCookie } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
 import { destinationFor } from '../../lib/destinations.js';
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     // Marked as a link session: this person just proved they hold the inbox,
     // so they may set a new password without knowing the old one.
-    res.setHeader('Set-Cookie', createSessionCookie(email, 'link'));
+    res.setHeader('Set-Cookie', createSessionCookie(email, 'link', await sessionEpochFor(email)));
     // Send staff where they were going. An admin who also bought the product
     // still lands in the member area, since they have a member area to land in.
     if (staff && !(await isActive(email))) return redirect(`${site}/members/admin.html`);

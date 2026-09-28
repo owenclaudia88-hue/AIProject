@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { listCustomers, listLeads, displayNameFor } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 
@@ -25,7 +25,7 @@ const row = (cells) => cells.map(cell).join(',');
 const stampOf = (iso) => { const t = new Date(iso).getTime(); return t ? new Date(t).toISOString().replace("T", " ").slice(0, 16) : ""; };
 
 export default async function handler(req, res) {
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 

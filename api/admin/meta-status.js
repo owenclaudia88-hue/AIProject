@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
 import { sendPageView } from '../../lib/meta-capi.js';
 
@@ -19,7 +19,7 @@ import { sendPageView } from '../../lib/meta-capi.js';
  * credential in a browser tab.
  */
 export default async function handler(req, res) {
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 

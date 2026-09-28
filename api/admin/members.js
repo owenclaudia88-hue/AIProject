@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { listCustomers, displayNameFor, outreachLog, optOuts, bouncedEmails } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
@@ -13,7 +13,7 @@ import { reminderSettings, abandonedCheckouts, STEPS } from '../../lib/reminders
  * to see and manage their members.
  */
 export default async function handler(req, res) {
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 

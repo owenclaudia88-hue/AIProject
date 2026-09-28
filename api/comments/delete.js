@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isActive, deleteComment } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 
@@ -11,7 +11,7 @@ import { isAdmin } from '../../lib/admin.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
     // A member must have access to delete their own comment; an admin is

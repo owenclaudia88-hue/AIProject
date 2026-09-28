@@ -1,5 +1,5 @@
 import { get } from '@vercel/blob';
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isActive, getContentBlobUrl, entitlementsFor } from '../../lib/db.js';
 
 /**
@@ -11,7 +11,7 @@ import { isActive, getContentBlobUrl, entitlementsFor } from '../../lib/db.js';
  * the client, so downloads can't be hotlinked or shared.
  */
 export default async function handler(req, res) {
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
 
   try {

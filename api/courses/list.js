@@ -1,9 +1,9 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isActive, listCourses, entitlementsFor } from '../../lib/db.js';
 
 /** GET /api/courses/list — the Courses tab: one card per course, with stats. */
 export default async function handler(req, res) {
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });

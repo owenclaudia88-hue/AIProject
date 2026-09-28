@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { normalizeEmail } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { eligibleFor, sendStepTo, STEPS } from '../../lib/reminders.js';
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method not allowed' });
   }
 
-  const actor = readSession(req);
+  const actor = await sessionEmail(req);
   if (!actor) return res.status(401).json({ error: 'not signed in' });
   if (!isAdmin(actor)) return res.status(403).json({ error: 'not an admin' });
 

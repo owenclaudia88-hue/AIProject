@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { setSetting } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { reminderSettings, STEPS } from '../../lib/reminders.js';
@@ -12,7 +12,7 @@ import { reminderSettings, STEPS } from '../../lib/reminders.js';
  * run rather than whenever the site next ships.
  */
 export default async function handler(req, res) {
-  const actor = readSession(req);
+  const actor = await sessionEmail(req);
   if (!actor) return res.status(401).json({ error: 'not signed in' });
   if (!isAdmin(actor)) return res.status(403).json({ error: 'not an admin' });
 

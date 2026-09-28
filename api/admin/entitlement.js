@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
 import { grantEntitlement, revokeEntitlement, listEntitled, normalizeEmail } from '../../lib/db.js';
 
@@ -17,7 +17,7 @@ import { grantEntitlement, revokeEntitlement, listEntitled, normalizeEmail } fro
 const PRODUCTS = new Set(['routines', 'carousel-studio']);
 
 export default async function handler(req, res) {
-  const actor = readSession(req);
+  const actor = await sessionEmail(req);
   if (!actor) return res.status(401).json({ error: 'not signed in' });
   if (!isAdmin(actor)) return res.status(403).json({ error: 'not an admin' });
 

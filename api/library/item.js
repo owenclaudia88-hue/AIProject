@@ -1,4 +1,4 @@
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isActive, getLibraryItem, getGallery, relatedLibraryItems, getGuide, entitlementsFor } from '../../lib/db.js';
 
 const assetUrl = (key) => (key ? `/api/library/asset?key=${encodeURIComponent(key)}` : null);
@@ -10,7 +10,7 @@ const assetUrl = (key) => (key ? `/api/library/asset?key=${encodeURIComponent(ke
  * few related items.
  */
 export default async function handler(req, res) {
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });

@@ -1,5 +1,5 @@
 import { get } from '@vercel/blob';
-import { readSession } from '../../lib/session.js';
+import { sessionEmail } from '../../lib/session.js';
 import { isActive, getAsset } from '../../lib/db.js';
 
 /**
@@ -7,7 +7,7 @@ import { isActive, getAsset } from '../../lib/db.js';
  * thumbnail) inline to active members. The private Blob URL is never exposed.
  */
 export default async function handler(req, res) {
-  const email = readSession(req);
+  const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });

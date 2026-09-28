@@ -1,5 +1,5 @@
-import { readSessionInfo } from '../../lib/session.js';
-import { isActive, setPasswordHash, clearPasswordHash, passwordHashFor } from '../../lib/db.js';
+import { currentSession, createSessionCookie } from '../../lib/session.js';
+import { isActive, setPasswordHash, clearPasswordHash, passwordHashFor, bumpSessionEpoch } from '../../lib/db.js';
 import { hashPassword, verifyPassword, passwordProblem } from '../../lib/passwords.js';
 
 /**
@@ -21,9 +21,18 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const session = readSessionInfo(req);
+  const session = await currentSession(req);
   if (!session) return res.status(401).json({ error: 'Sign in first.' });
   const { email, method } = session;
+
+  /* Changing the password signs out everywhere else. The epoch on the customer
+     row moves on, which stops every cookie already issued — including the one
+     on this device, so it is replaced before the response goes back. Otherwise
+     the person changing their password would sign themselves out too. */
+  const rotate = async () => {
+    const epoch = await bumpSessionEpoch(email);
+    res.setHeader('Set-Cookie', createSessionCookie(email, method, epoch));
+  };
 
   try {
     if (!(await isActive(email))) {
@@ -47,9 +56,10 @@ export default async function handler(req, res) {
 
     if (body.remove === true) {
       await clearPasswordHash(email);
+      await rotate();
       return res.status(200).json({
-        ok: true, hasPassword: false,
-        message: 'Password removed. Sign in with the emailed link from now on.'
+        ok: true, hasPassword: false, signedOutElsewhere: true,
+        message: 'Password removed, and any other device is signed out. Sign in with the emailed link from now on.'
       });
     }
 
@@ -65,9 +75,12 @@ export default async function handler(req, res) {
     }
 
     await setPasswordHash(email, await hashPassword(password));
+    await rotate();
     return res.status(200).json({
-      ok: true, hasPassword: true,
-      message: existing ? 'Password changed.' : 'Password set. You can sign in with it from now on.'
+      ok: true, hasPassword: true, signedOutElsewhere: true,
+      message: existing
+        ? 'Password changed. Any other device you were signed in on has been signed out.'
+        : 'Password set. You can sign in with it from now on, and any other device has been signed out.'
     });
   } catch (err) {
     console.error('[set-password]', err);

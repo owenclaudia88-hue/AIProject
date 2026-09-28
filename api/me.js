@@ -1,4 +1,4 @@
-import { readSessionInfo } from '../lib/session.js';
+import { currentSession } from '../lib/session.js';
 import { getCustomer, displayNameFor } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
 
@@ -9,7 +9,7 @@ import { isAdmin } from '../lib/admin.js';
  * one themselves (if not, the comment box asks for one on their first post).
  */
 export default async function handler(req, res) {
-  const session = readSessionInfo(req);
+  const session = await currentSession(req);
   if (!session) return res.status(401).json({ authenticated: false });
   const { email, method } = session;
 
