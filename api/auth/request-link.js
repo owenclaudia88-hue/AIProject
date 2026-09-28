@@ -1,6 +1,7 @@
 import { isActive, createLoginToken, normalizeEmail } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { sendMagicLink } from '../../lib/email.js';
+import { destinationFor } from '../../lib/destinations.js';
 
 /**
  * POST /api/auth/request-link  { email }
@@ -29,7 +30,10 @@ export default async function handler(req, res) {
     if (isAdmin(email) || await isActive(email)) {
       const token = await createLoginToken(email);
       const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
-      const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
+      // Someone resetting a password should land on the page that resets it,
+      // not in the library wondering where to go. Only a known key travels.
+      const next = destinationFor(body.next) ? `&next=${encodeURIComponent(String(body.next))}` : '';
+      const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}${next}`;
       await sendMagicLink(email, loginUrl);
     }
 

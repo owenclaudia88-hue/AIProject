@@ -111,6 +111,7 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   var toggle = document.getElementById('toggle');
   var sub = document.getElementById('sub');
   var usingPassword = false;
+  var resetting = false;   // came via "Forgot your password?", so land on the account page
 
   var TEXT = {
     link: { sub: "Enter the email you bought with. We'll send you a one-time sign-in link — no password needed.",
@@ -130,13 +131,14 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
     note.className = 'note';
     if (toPassword) pwInput.focus();
   }
-  toggle.addEventListener('click', function () { setMode(!usingPassword); });
+  toggle.addEventListener('click', function () { resetting = false; setMode(!usingPassword); });
 
   /* Forgetting the password is not a dead end and never was: the emailed link
      signs you in, and from the account page you can set a new one without the
      old. Nothing on screen said so, which is the same as it not existing. */
   document.getElementById('forgot').addEventListener('click', function () {
     setMode(false);
+    resetting = true;
     note.className = 'note ok show';
     note.textContent = 'No problem — enter your email and we will send a sign-in link. '
       + 'Once you are in, set a new password under Your account.';
@@ -166,12 +168,14 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
       } else {
         res = await fetch('/api/auth/request-link', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
+          body: JSON.stringify(resetting ? { email: email, next: 'account' } : { email: email })
         });
         data = await res.json();
         if (res.ok) {
           note.className = 'note ok show';
-          note.textContent = 'Check your inbox — if that email has access, a sign-in link is on its way. It can take a minute.';
+          note.textContent = resetting
+            ? 'Check your inbox — if that email has access, a sign-in link is on its way. It opens straight on the page where you set a new password.'
+            : 'Check your inbox — if that email has access, a sign-in link is on its way. It can take a minute.';
           form.reset();
         } else {
           note.className = 'note err show';

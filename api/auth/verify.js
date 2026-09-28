@@ -1,6 +1,7 @@
 import { consumeLoginToken, isActive } from '../../lib/db.js';
 import { createSessionCookie } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
+import { destinationFor } from '../../lib/destinations.js';
 
 /**
  * GET /api/auth/verify?token=…
@@ -36,7 +37,10 @@ export default async function handler(req, res) {
     // Send staff where they were going. An admin who also bought the product
     // still lands in the member area, since they have a member area to land in.
     if (staff && !(await isActive(email))) return redirect(`${site}/members/admin.html`);
-    return redirect(`${site}/members/`);
+    // A link built for a particular page — a password reset — goes there. The
+    // path comes from our own list, never from the query string.
+    const wanted = destinationFor(url.searchParams.get('next'));
+    return redirect(`${site}${wanted || '/members/'}`);
   } catch (err) {
     console.error('[verify]', err);
     return redirect(`${login}?error=server`);
