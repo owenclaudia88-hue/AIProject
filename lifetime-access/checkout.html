@@ -124,6 +124,38 @@ p{margin:0}
 .next b{color:var(--ink)}
 
 .mobile-sum{display:none}
+/* ---------- order bumps ---------- */
+.bumps{display:grid;gap:12px;margin-top:20px}
+.bumps-h{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--hot);display:flex;align-items:center;gap:8px}
+.bumps-h::before{content:"";width:18px;height:2px;background:var(--hot);border-radius:2px}
+.bump{position:relative;display:block;border:2px dashed #f2b48f;background:#fff8ef;border-radius:16px;padding:0;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
+.bump:hover{border-color:var(--hot)}
+.bump.on{border-style:solid;border-color:var(--ok);background:#f2fbf6;box-shadow:0 0 0 4px rgba(16,163,108,.1)}
+.bump input{position:absolute;opacity:0;pointer-events:none}
+.bump-top{display:flex;align-items:center;gap:12px;padding:13px 14px;background:#ffe9dc;border-radius:14px 14px 0 0;font-weight:700;font-size:.97rem;line-height:1.3}
+.bump.on .bump-top{background:#dff4e9}
+.bump-box{flex:none;width:26px;height:26px;border-radius:7px;border:2px solid var(--hot);background:#fff;display:grid;place-items:center;transition:all .15s}
+.bump-box svg{width:16px;height:16px;color:#fff;opacity:0;transform:scale(.4);transition:all .15s}
+.bump.on .bump-box{background:var(--ok);border-color:var(--ok)}
+.bump.on .bump-box svg{opacity:1;transform:none}
+.bump input:focus-visible + .bump-top .bump-box{outline:3px solid rgba(255,90,31,.35);outline-offset:2px}
+.arrow-nudge{color:var(--hot);animation:nudge 1.1s ease-in-out infinite}
+.bump.on .arrow-nudge{display:none}
+@keyframes nudge{50%{transform:translateX(4px)}}
+.bump-top .yes{flex:1}
+.bump-top .pr{flex:none;font-family:var(--display);font-size:1.15rem;color:var(--hot)}
+.bump.on .bump-top .pr{color:var(--ok)}
+.bump-body{padding:12px 14px 14px;font-size:.88rem;color:var(--ink-2);line-height:1.5}
+.bump-body b{color:var(--ink)}
+.bump-body ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px}
+.bump-body li{display:flex;gap:7px}
+.bump-body li::before{content:"✓";color:var(--ok);font-weight:800}
+.bump-more{display:block;margin-top:8px;font-weight:600;color:var(--ink)}
+.bump-tag{display:block;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin-top:8px}
+.addon-line{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-2)}
+.addon-line b{font-weight:600}
+.addon-line span{flex:none;font-weight:700}
+.tot.updating b{opacity:.45}
 footer{text-align:center;color:var(--ink-3);font-size:.74rem;padding:0 18px 40px}
 footer a{color:var(--ink-2)}
 
@@ -136,6 +168,8 @@ footer a{color:var(--ink-2)}
   .prog .now .t{display:inline}
 }
 @media (max-width:420px){
+  .bump-top{font-size:.92rem;gap:10px;padding:12px}
+  .bump-body{font-size:.85rem}
   .wrap{padding-inline:14px}
   .card{padding:18px}
   .row{grid-template-columns:1fr}
@@ -173,7 +207,7 @@ footer a{color:var(--ink-2)}
     <main>
       <div class="hello">
         <h1 id="hello">You're one step away from <span class="hot">your AI team.</span></h1>
-        <p>Complete your <b>$1</b> order below. Access is sent to your inbox right away.</p>
+        <p>Complete your <b id="hello-price">$1</b> order below. Access is sent to your inbox right away.</p>
       </div>
 
       <!-- compact summary for phones -->
@@ -183,6 +217,8 @@ footer a{color:var(--ink-2)}
           <div><b>70 AI Specialists for Claude</b><span>+ 4 bonus Claude Sprints</span></div>
           <div class="pr">$1.00</div>
         </div>
+        <div class="addon-lines"></div>
+        <div class="tot tot-m" hidden><span>Total today</span><div><b class="tot-val">$1.00</b></div></div>
       </div>
 
       <form class="card pay" id="payform" novalidate>
@@ -198,6 +234,50 @@ footer a{color:var(--ink-2)}
         <div class="or" id="or" hidden>or pay with card</div>
         <div id="payment"><div class="skel"></div></div>
         <div class="note" id="note" role="alert"></div>
+
+        <div class="bumps" id="bumps">
+          <div class="bumps-h">Add to your order — one-time price</div>
+
+          <label class="bump" data-addon="engine">
+            <input type="checkbox" value="engine" aria-describedby="bump-engine-d">
+            <div class="bump-top">
+              <span class="arrow-nudge" aria-hidden="true">➜</span>
+              <span class="bump-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              <span class="yes">Yes! Put my business on autopilot with 59 Claude Routines</span>
+              <span class="pr">+$4.99</span>
+            </div>
+            <div class="bump-body" id="bump-engine-d">
+              <b>Wake up to work that's already done.</b> Set each routine once and Claude runs it for you every morning or every week — even while your laptop is shut:
+              <ul>
+                <li><span><b>Morning brief</b> — yesterday's numbers and today's top 3 priorities, ready before you open your laptop</span></li>
+                <li><span><b>Ad watchdog</b> — catches a campaign burning money within hours, not days</span></li>
+                <li><span><b>Money follow-ups</b> — unpaid invoices and abandoned checkouts, chasers drafted for you</span></li>
+                <li><span><b>Lead briefs</b> — every new lead researched before you reply</span></li>
+              </ul>
+              <span class="bump-more">+ 55 more across finance, content, sales, support, hiring and admin.</span>
+              <span class="bump-tag">The Claude Automation Engine · one-time $4.99 · appears in your member area</span>
+            </div>
+          </label>
+
+          <label class="bump" data-addon="carousel">
+            <input type="checkbox" value="carousel" aria-describedby="bump-carousel-d">
+            <div class="bump-top">
+              <span class="arrow-nudge" aria-hidden="true">➜</span>
+              <span class="bump-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              <span class="yes">Yes! Add Claude Carousel Studio</span>
+              <span class="pr">+$4.99</span>
+            </div>
+            <div class="bump-body" id="bump-carousel-d">
+              <b>Scroll-stopping Instagram &amp; LinkedIn carousels in minutes.</b> Turn any idea, article, link or rough notes into finished, on-brand slides.
+              <ul>
+                <li>Hooks that stop the scroll + slide-by-slide copy</li>
+                <li>Your colours, fonts and voice on every post</li>
+                <li>Ready-to-post image files — or plan a whole month at once</li>
+              </ul>
+              <span class="bump-tag">Installs in Claude in 2 minutes</span>
+            </div>
+          </label>
+        </div>
 
         <button class="btn" id="paybtn" type="submit" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
@@ -231,7 +311,8 @@ footer a{color:var(--ink-2)}
           <li class="bn">Claude MCP <span class="free">BONUS</span></li>
           <li class="bn">Build-to-Sell Bootcamp <span class="free">BONUS</span></li>
         </ul>
-        <div class="tot"><span>Total today</span><div><b>$1.00</b><small>one-time · USD</small></div></div>
+        <div class="addon-lines"></div>
+        <div class="tot"><span>Total today</span><div><b class="tot-val">$1.00</b><small>one-time · USD</small></div></div>
       </div>
 
       <div class="card guar">
@@ -297,11 +378,87 @@ footer a{color:var(--ink-2)}
   function hideNote() { note.classList.remove('show'); }
   function busy(on) {
     btn.disabled = on;
-    label.textContent = on ? 'Processing…' : 'Complete My Order — $1';
+    label.textContent = on ? 'Processing…' : 'Complete My Order — ' + fmt(total);
     var s = btn.querySelector('.spin');
     if (on && !s) { s = document.createElement('span'); s.className = 'spin'; btn.insertBefore(s, label); btn.querySelector('svg').style.display = 'none'; }
     if (!on && s) { s.remove(); btn.querySelector('svg').style.display = ''; }
   }
+
+
+  /* ---------- add-ons (order bumps) ----------
+   * Prices here are for display only. The server re-prices the order from its
+   * own table every time a box changes (/api/update-payment-intent), and the
+   * page asks Stripe for the new total before it allows payment. */
+  var BASE = 100;
+  var ADDONS = {
+    engine:   { name: 'Claude Automation Engine', cents: 499 },
+    carousel: { name: 'Claude Carousel Studio',   cents: 499 }
+  };
+  var total = BASE;
+  var chosen = [];
+  var syncing = Promise.resolve();
+  var syncOk = true;
+  var pending = 0;   // updates in flight — wallets must not open on a stale total
+  function fmt(c) { return '$' + (c % 100 ? (c / 100).toFixed(2) : String(c / 100)); }
+  function money(c) { return '$' + (c / 100).toFixed(2); }
+
+  function paint() {
+    total = BASE + chosen.reduce(function (s, k) { return s + ADDONS[k].cents; }, 0);
+    document.querySelectorAll('.addon-lines').forEach(function (box) {
+      box.innerHTML = chosen.map(function (k) {
+        return '<div class="addon-line"><b>+ ' + ADDONS[k].name + '</b><span>' + money(ADDONS[k].cents) + '</span></div>';
+      }).join('');
+    });
+    document.querySelectorAll('.tot-val').forEach(function (el) { el.textContent = money(total); });
+    document.querySelectorAll('.tot-m').forEach(function (el) { el.hidden = !chosen.length; });
+    $('hello-price').textContent = fmt(total);
+    if (!btn.disabled || label.textContent.indexOf('Processing') === -1) label.textContent = 'Complete My Order — ' + fmt(total);
+  }
+
+  // Push the current choice (and the current email) to the PaymentIntent, then
+  // have Stripe refresh the amount the wallets and card form will charge.
+  // Chained, so rapid ticking settles in order and the last choice wins.
+  function sync(opts) {
+    var refresh = !(opts && opts.refresh === false);
+    var body = { clientSecret: clientSecret, addons: chosen.slice(), email: emailEl.value.trim() };
+    pending += 1;
+    syncing = syncing.then(function () {
+      if (!clientSecret) return;
+      document.querySelectorAll('.tot').forEach(function (el) { el.classList.add('updating'); });
+      return fetch('/api/update-payment-intent', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'error'); return j; }); })
+      .then(function (j) {
+        if (typeof j.amount === 'number') { total = j.amount; }
+        return refresh && elements && elements.fetchUpdates ? elements.fetchUpdates() : null;
+      })
+      .then(function () { syncOk = true; })
+      .catch(function (err) {
+        syncOk = false;
+        showNote((err && err.message) || 'We could not update your order. Please try again.');
+      })
+      .then(function () {
+        document.querySelectorAll('.tot').forEach(function (el) { el.classList.remove('updating'); });
+      });
+    }).then(function () { pending -= 1; });
+    return syncing;
+  }
+
+  document.querySelectorAll('.bump input').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      hideNote();
+      var key = cb.value;
+      cb.closest('.bump').classList.toggle('on', cb.checked);
+      chosen = Object.keys(ADDONS).filter(function (k) {
+        var el = document.querySelector('.bump input[value="' + k + '"]');
+        return el && el.checked;
+      });
+      paint();
+      sync();
+      try { if (window.aifuTrack && cb.checked) window.aifuTrack('AddToCart', { content_name: ADDONS[key].name }); } catch (e) {}
+    });
+  });
 
   // No InitiateCheckout here. The Lead already fired on the landing page at
   // the only moment that matters — name and email in, button pressed — and
@@ -370,6 +527,14 @@ footer a{color:var(--ink-2)}
       var any = ev.availablePaymentMethods && Object.keys(ev.availablePaymentMethods).some(function (k) { return ev.availablePaymentMethods[k]; });
       $('or').hidden = !any;
     });
+    // Tapping Apple Pay / Google Pay while a ticked box is still being priced
+    // would open the sheet on the old total. Not resolving the click cancels
+    // it; they tap again a moment later on the right amount.
+    express.on('click', function (ev) {
+      if (pending > 0) { showNote('Updating your total — tap again in a second.'); return; }
+      hideNote();
+      ev.resolve();
+    });
     express.on('confirm', function (ev) {
       hideNote();
       var d = who();
@@ -378,10 +543,18 @@ footer a{color:var(--ink-2)}
       // No receipt_email: setting it makes Stripe send its own receipt, and
       // Stripe's receipts are switched off for this account because the
       // webhook sends our branded one instead.
-      stripe.confirmPayment({
-        elements: elements, clientSecret: clientSecret, redirect: 'if_required',
-        confirmParams: { return_url: new URL(SUCCESS, location.href).href }
-      }).then(function (res) { done(res, name, email); });
+      // The wallet may carry a different address from the form; that is the
+      // one the access goes to, so it is written to the order first.
+      if (email && EMAIL_RE.test(email)) emailEl.value = email;
+      // No refresh here: the wallet sheet is already open on the right total
+      // (it cannot open while an update is pending), this only records the email.
+      sync({ refresh: false }).then(function () {
+        if (!syncOk) { ev.paymentFailed && ev.paymentFailed({ reason: 'fail' }); return; }
+        stripe.confirmPayment({
+          elements: elements, clientSecret: clientSecret, redirect: 'if_required',
+          confirmParams: { return_url: new URL(SUCCESS, location.href).href }
+        }).then(function (res) { done(res, name, email); });
+      });
     });
     express.mount('#express');
 
@@ -394,6 +567,8 @@ footer a{color:var(--ink-2)}
     $('payment').innerHTML = '';
     payment.mount('#payment');
     payment.on('ready', function () { btn.disabled = false; });
+    // A box ticked while the payment form was still loading.
+    if (chosen.length) sync();
   })
   .catch(function () {
     $('payment').innerHTML = '';
@@ -407,7 +582,7 @@ footer a{color:var(--ink-2)}
       return;
     }
     var pi = res.paymentIntent;
-    try { sessionStorage.setItem('lp_paid', JSON.stringify({ id: pi.id, name: name, email: email })); } catch (e) {}
+    try { sessionStorage.setItem('lp_paid', JSON.stringify({ id: pi.id, name: name, email: email, addons: chosen.slice(), total: total })); } catch (e) {}
     location.href = SUCCESS + '?payment_intent=' + encodeURIComponent(pi.id) + '&redirect_status=' + encodeURIComponent(pi.status);
   }
 
@@ -418,7 +593,9 @@ footer a{color:var(--ink-2)}
     var d = who();
     try { sessionStorage.setItem('lp_buyer', JSON.stringify(Object.assign({}, buyer, d))); } catch (err) {}
     busy(true);
-    stripe.confirmPayment({
+    sync().then(function () {
+      if (!syncOk) { busy(false); return; }
+      return stripe.confirmPayment({
       elements: elements,
       redirect: 'if_required',
       confirmParams: {
@@ -427,6 +604,7 @@ footer a{color:var(--ink-2)}
         payment_method_data: { billing_details: { name: d.name, email: d.email } }
       }
     }).then(function (res) { done(res, d.name, d.email); });
+    });
   });
 })();
 </script>

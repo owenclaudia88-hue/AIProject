@@ -57,6 +57,12 @@ li b{color:var(--ink)}
 
   <a class="btn" id="access" href="#">Access My 70 Specialists →</a>
 
+  <div class="card" id="addons" hidden>
+    <h2>Also in your order</h2>
+    <ol id="addon-list"></ol>
+    <p class="small" style="margin-top:12px;text-align:left">Each add-on arrives in its own email and is waiting in your member area.</p>
+  </div>
+
   <div class="card">
     <h2>Get set up in 10 minutes</h2>
     <ol>
@@ -75,6 +81,15 @@ li b{color:var(--ink)}
   var status = q.get('redirect_status') || '';
   var paid = {};
   try { paid = JSON.parse(sessionStorage.getItem('lp_paid') || '{}') || {}; } catch (e) {}
+  var ADDON_TEXT = {
+    engine: '<b>Claude Automation Engine</b> — 59 routines, in Claude Routines in your member area. Read "Start Here" first.',
+    carousel: '<b>Claude Carousel Studio</b> — download it from your member area and upload it in Claude → Settings → Plugins.'
+  };
+  var bought = (paid.addons || []).filter(function (k) { return ADDON_TEXT[k]; });
+  if (bought.length) {
+    document.getElementById('addon-list').innerHTML = bought.map(function (k) { return '<li><span>' + ADDON_TEXT[k] + '</span></li>'; }).join('');
+    document.getElementById('addons').hidden = false;
+  }
   var buyer = {};
   try { buyer = JSON.parse(sessionStorage.getItem('lp_buyer') || '{}') || {}; } catch (e) {}
 

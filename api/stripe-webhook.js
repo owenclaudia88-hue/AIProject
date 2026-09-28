@@ -3,9 +3,9 @@ import {
   grantAccess, revokeAccess, createLoginToken,
   grantEntitlement, revokeEntitlement
 } from '../lib/db.js';
-import { sendPurchaseConfirmation, sendEngineWelcome, sendReceipt } from '../lib/email.js';
+import { sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt } from '../lib/email.js';
 import { sendPurchase } from '../lib/meta-capi.js';
-import { ENGINE_SOURCE, DEFAULT_SOURCE } from '../lib/products.js';
+import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons } from '../lib/products.js';
 
 /**
  * Which product a payment was for, from the metadata the checkout set.
@@ -176,6 +176,15 @@ export default async function handler(req, res) {
           console.log('[stripe-webhook] Engine entitlement granted:', email);
         }
 
+        // Add-ons ticked on the lifetime-access checkout, paid in this same
+        // charge. The keys were written by /api/update-payment-intent, which
+        // also set the amount, so what is listed here is what was paid for.
+        const addons = engine ? [] : parseAddons(pi.metadata?.addons);
+        for (const key of addons) {
+          await grantEntitlement(email, ADDONS[key].entitlement);
+          console.log('[stripe-webhook] Add-on granted:', key, email);
+        }
+
         // Fulfilment IS the member area: email a one-time link that signs them in.
         try {
           const token = await createLoginToken(email);
@@ -187,6 +196,20 @@ export default async function handler(req, res) {
           // no idea where the thing they bought went.
           if (engine) await sendEngineWelcome(email, loginUrl, { name, existingMember: !created });
           else if (created) await sendPurchaseConfirmation(email, loginUrl, { name });
+
+          // One welcome per add-on, each with its own sign-in link — the links
+          // are single-use, so two emails cannot share one. Separate try blocks
+          // so one failed send does not swallow the other.
+          for (const key of addons) {
+            try {
+              const t = await createLoginToken(email);
+              const url = `${site}/api/auth/verify?token=${encodeURIComponent(t)}`;
+              if (key === 'engine') await sendEngineWelcome(email, url, { name, existingMember: true });
+              if (key === 'carousel') await sendCarouselWelcome(email, url, { name });
+            } catch (addonMailErr) {
+              console.error('[stripe-webhook] Add-on welcome failed:', key, addonMailErr.message);
+            }
+          }
         } catch (mailErr) {
           // Don't fail the webhook over email — access is already granted and
           // they can request a fresh link from the login page.
@@ -200,8 +223,17 @@ export default async function handler(req, res) {
         // same reason: a receipt that won't send must not cost anyone access.
         if (charge) {
           try {
+            // One line per thing bought. The add-on prices are the ones the
+            // intent was priced with; the Specialists line is what is left, so
+            // the lines always add up to what was actually charged.
+            const addonLines = addons.map((k) => ({ label: ADDONS[k].short, cents: ADDONS[k].priceAmount() }));
+            const addonTotal = addonLines.reduce((s, l) => s + l.cents, 0);
+            const lines = addonLines.length
+              ? [{ label: '70 AI Specialists for Claude', cents: charge.amount - addonTotal }, ...addonLines]
+              : undefined;
             await sendReceipt(email, {
               name,
+              lines,
               amount: charge.amount,
               currency: charge.currency,
               chargeId: charge.id,
@@ -382,8 +414,34 @@ export default async function handler(req, res) {
               console.log('[stripe-webhook] Access revoked:', email, '(Engine was their only purchase)');
             }
           } else {
-            await revokeAccess(email);
-            console.log('[stripe-webhook] Access revoked:', email);
+            const addons = parseAddons(refundedPi?.metadata?.addons);
+            const partial = charge.amount_refunded < charge.amount;
+
+            if (addons.length && partial) {
+              // Only part of a combined order was refunded — the usual reason is
+              // somebody keeping the Specialists but not wanting an add-on. Work
+              // out which add-ons the refunded amount covers and take back only
+              // those. If it matches no combination, change nothing and say so:
+              // guessing wrong would cut off something they still paid for.
+              const refunded = charge.amount_refunded;
+              const combos = [[]];
+              for (const k of addons) for (const c of [...combos]) combos.push([...c, k]);
+              const match = combos.find((c) => c.length
+                && c.reduce((s, k) => s + ADDONS[k].priceAmount(), 0) === refunded);
+              if (match) {
+                for (const k of match) {
+                  await revokeEntitlement(email, ADDONS[k].entitlement);
+                  console.log('[stripe-webhook] Add-on refunded and revoked:', k, email);
+                }
+              } else {
+                console.warn('[stripe-webhook] Partial refund of', refunded, 'on', charge.id,
+                  "matches no add-on price - access left unchanged, adjust by hand if needed");
+              }
+            } else {
+              for (const k of addons) await revokeEntitlement(email, ADDONS[k].entitlement);
+              await revokeAccess(email);
+              console.log('[stripe-webhook] Access revoked:', email, addons.length ? `(with add-ons: ${addons.join(', ')})` : '');
+            }
           }
         }
         break;
