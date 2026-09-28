@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "aifu-dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--env-file=.env.local", "scripts/dev-server.mjs"],
+      "port": 3000
+    }
+  ]
+}

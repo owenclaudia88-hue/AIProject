@@ -1,0 +1,65 @@
+export async function trafficStats(days = 30) {
+  const sql = db();
+  await ensureSchema();
+  const n = Math.min(365, Math.max(1, Math.round(Number(days) || 30)));
+  const since = new Date(Date.now() - n * 86400000);
+
+  const [daily, totals, paths, referrers, countries, devices, purchases] = await Promise.all([
+    sql`select date_trunc('day', created_at)::date as day,
+               count(*) filter (where event = 'PageView')                     as views,
+               count(distinct visitor)                                        as visitors,
+               count(distinct visitor) filter (where event = 'InitiateCheckout') as checkouts
+        from page_events where created_at >= ${since}
+        group by 1 order by 1`,
+    sql`select count(*) filter (where event = 'PageView')                      as views,
+               count(distinct visitor)                                         as visitors,
+               count(distinct visitor) filter (where event = 'InitiateCheckout') as checkouts
+        from page_events where created_at >= ${since}`,
+    sql`select path, count(*) as views, count(distinct visitor) as visitors
+        from page_events where created_at >= ${since} and event = 'PageView'
+        group by 1 order by views desc limit 12`,
+    // 'direct' rather than null, so the biggest bucket on most sites is not a
+    // blank row nobody can interpret.
+    sql`select coalesce(nullif(referrer, ''), 'direct') as referrer,
+               count(distinct visitor) as visitors
+        from page_events where created_at >= ${since}
+        group by 1 order by visitors desc limit 12`,
+    sql`select coalesce(nullif(country, ''), '??') as country,
+               count(distinct visitor) as visitors
+        from page_events where created_at >= ${since}
+        group by 1 order by visitors desc limit 12`,
+    sql`select coalesce(nullif(device, ''), 'unknown') as device,
+               count(distinct visitor) as visitors
+        from page_events where created_at >= ${since}
+        group by 1 order by visitors desc`,
+    sql`select date_trunc('day', created_at)::date as day, count(*) as purchases
+        from customers where created_at >= ${since}
+        group by 1 order by 1`
+  ]);
+
+  const byDay = new Map(purchases.map((p) => [String(p.day), Number(p.purchases)]));
+  const t = totals[0] || { views: 0, visitors: 0, checkouts: 0 };
+  const bought = [...byDay.values()].reduce((a, b) => a + b, 0);
+  const pct = (part, whole) => (whole ? Math.round((part / whole) * 1000) / 10 : 0);
+
+  return {
+    days: n,
+    totals: {
+      views: Number(t.views), visitors: Number(t.visitors),
+      checkouts: Number(t.checkouts), purchases: bought,
+      // Two rates, because they answer different questions: the first is what
+      // the page does, the second is what the checkout does.
+      visitorToCheckout: pct(Number(t.checkouts), Number(t.visitors)),
+      checkoutToPurchase: pct(bought, Number(t.checkouts)),
+      visitorToPurchase: pct(bought, Number(t.visitors))
+    },
+    daily: daily.map((d) => ({
+      day: String(d.day), views: Number(d.views), visitors: Number(d.visitors),
+      checkouts: Number(d.checkouts), purchases: byDay.get(String(d.day)) || 0
+    })),
+    paths: paths.map((p) => ({ path: p.path, views: Number(p.views), visitors: Number(p.visitors) })),
+    referrers: referrers.map((r) => ({ referrer: r.referrer, visitors: Number(r.visitors) })),
+    countries: countries.map((c) => ({ country: c.country, visitors: Number(c.visitors) })),
+    devices: devices.map((d) => ({ device: d.device, visitors: Number(d.visitors) }))
+  };
+}
