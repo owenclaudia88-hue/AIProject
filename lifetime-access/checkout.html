@@ -493,7 +493,10 @@ footer a{color:var(--ink-2)}
     });
     document.querySelectorAll('.tot-val').forEach(function (el) { el.textContent = money(total); });
     document.querySelectorAll('.tot-m').forEach(function (el) { el.hidden = !lines.length; });
-    $('hello-price').textContent = fmt(total);
+    // The bonus intro replaces this paragraph wholesale, so the element is
+    // not always there. It used to throw here, which killed the caller.
+    var price = $('hello-price');
+    if (price) price.textContent = fmt(total);
     if (!btn.disabled || label.textContent.indexOf('Processing') === -1) label.textContent = 'Complete My Order — ' + fmt(total);
   }
 
@@ -581,8 +584,16 @@ footer a{color:var(--ink-2)}
     if (!j.clientSecret || !j.publishableKey) throw new Error('Incomplete response from server.');
     stripe = Stripe(j.publishableKey);
     clientSecret = j.clientSecret;
-    if (j.bonus && j.bonus.expiresAt) applyBonus(j.bonus);
-    else if (bonusToken) $('bonusGone').hidden = false;
+    // The bonus is decoration on top of an order that is already correct —
+    // the server priced it and put the add-ons on it before this page loaded.
+    // Never let a problem drawing the banner stop the card field from
+    // mounting: a checkout with no payment form sells nothing at all.
+    try {
+      if (j.bonus && j.bonus.expiresAt) applyBonus(j.bonus);
+      else if (bonusToken) $('bonusGone').hidden = false;
+    } catch (bonusErr) {
+      console.error('bonus banner failed, continuing to payment:', bonusErr);
+    }
     elements = stripe.elements({
       clientSecret: clientSecret,
       fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' }],
