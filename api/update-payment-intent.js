@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { ADDONS, ADDON_SOURCES, parseAddons } from '../lib/products.js';
-import { BONUS_ADDONS } from '../lib/bonus.js';
+import { BONUS_ADDONS, bonusActive } from '../lib/bonus.js';
 
 /**
  * POST /api/update-payment-intent  { clientSecret, addons: ['engine','carousel'], email? }
@@ -52,7 +52,13 @@ export default async function handler(req, res) {
     // A bonus order (24-hour offer from the first reminder) already has both
     // add-ons free and stays at the base price: the page can only refresh
     // the email on it, never change what is included or what it costs.
-    const isBonus = pi.metadata?.bonus === '1';
+    //
+    // Unless the deadline has passed. The token was checked when the intent was
+    // created; this re-checks the clock, so an order left sitting open goes back
+    // to the ordinary prices rather than staying free for as long as the tab is.
+    const hadBonus = pi.metadata?.bonus === '1';
+    const isBonus = hadBonus && bonusActive(pi.metadata?.bonus_expires);
+    const bonusEnded = hadBonus && !isBonus;
     if (!isBonus && !ADDON_SOURCES.has(pi.metadata?.source)) return res.status(409).json({ error: 'Add-ons are not available for this order.' });
     if (!EDITABLE.has(pi.status)) return res.status(409).json({ error: 'This order can no longer be changed.' });
 
@@ -69,11 +75,19 @@ export default async function handler(req, res) {
         // Empty string deletes the key in Stripe, so unticking everything
         // leaves no stale add-on behind for the webhook to grant.
         addons: addons.join(','),
+        // Same trick for an expired bonus: clear the marks so the webhook
+        // cannot grant a free upsell against an order that is no longer one.
+        ...(bonusEnded ? { bonus: '', bonus_expires: '' } : {}),
         ...(EMAIL_RE.test(email) ? { buyer_email: email } : {})
       }
     });
 
-    return res.status(200).json({ amount: updated.amount, currency: updated.currency, addons });
+    return res.status(200).json({
+      amount: updated.amount, currency: updated.currency, addons,
+      // The page reverts on its own clock; this is the server saying the same
+      // thing, for a tab that was asleep when the deadline passed.
+      bonusEnded
+    });
   } catch (err) {
     console.error('[update-payment-intent]', err.message);
     return res.status(500).json({ error: 'Could not update your order. Please try again.' });

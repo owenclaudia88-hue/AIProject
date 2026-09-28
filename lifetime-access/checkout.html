@@ -423,12 +423,14 @@ footer a{color:var(--ink-2)}
     } catch (e) { bonusPreview = null; }
   }
   var BONUS = null;   // set once the server confirms the bonus is on this order
+  var helloEl = document.querySelector('.hello p');
+  var helloHtml = helloEl ? helloEl.innerHTML : '';   // kept so the bonus can be undone
 
   function startClock(expiresAt) {
     var el = $('bonusClock');
     function tick() {
       var ms = expiresAt - Date.now();
-      if (ms <= 0) { el.textContent = 'Ends any moment — complete your order now'; return; }
+      if (ms <= 0) { endBonus(); return; }
       var h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000);
       el.textContent = '⏰ Ends in ' + h + 'h ' + (m < 10 ? '0' : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
       setTimeout(tick, 1000);
@@ -441,10 +443,24 @@ footer a{color:var(--ink-2)}
     $('bonusBanner').hidden = false;
     $('bonusGone').hidden = true;
     $('bumps').hidden = true;
-    var h = document.querySelector('.hello p');
-    if (h) h.innerHTML = 'Your <b>24-hour bonus</b> is applied: 3 products for <b>$1</b>. Access is sent to your inbox right away.';
+    if (helloEl) helloEl.innerHTML = 'Your <b>24-hour bonus</b> is applied: 3 products for <b>$1</b>. Access is sent to your inbox right away.';
     startClock(b.expiresAt);
     paint();
+  }
+
+  /* The deadline passing while the page is open. Put the checkout back the way
+     it would have looked without the email: normal prices, tick-boxes for the
+     extras, and a line saying the bonus has gone. The order is repriced too, so
+     what is shown and what will be charged never disagree. */
+  function endBonus() {
+    if (!BONUS) return;
+    BONUS = null;
+    $('bonusBanner').hidden = true;
+    $('bonusGone').hidden = false;
+    $('bumps').hidden = false;
+    if (helloEl) helloEl.innerHTML = helloHtml;
+    paint();
+    sync();
   }
 
   /* ---------- add-ons (order bumps) ----------
@@ -496,6 +512,7 @@ footer a{color:var(--ink-2)}
       })
       .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'error'); return j; }); })
       .then(function (j) {
+        if (j.bonusEnded) endBonus();
         if (typeof j.amount === 'number') { total = j.amount; }
         return refresh && elements && elements.fetchUpdates ? elements.fetchUpdates() : null;
       })
