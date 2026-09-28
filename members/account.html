@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Your account — AI Founder University</title>
+<link rel="icon" href="../assets/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0d;--panel:#121216;--line:#26262d;--txt:#f2f2f4;--txt-2:#b9b9c2;--txt-3:#7c7c88;
+      --accent:#ff7a1a;--ok:#34d399;--err:#fca5a5}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+     font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+     line-height:1.6;padding:40px 20px}
+.wrap{max-width:560px;margin:0 auto}
+.back{display:inline-block;color:var(--txt-3);text-decoration:none;font-size:.9rem;margin-bottom:26px}
+.back:hover{color:var(--txt-2)}
+h1{font-size:1.6rem;font-weight:800;margin:0 0 6px;letter-spacing:-.02em}
+.sub{color:var(--txt-3);font-size:.95rem;margin:0 0 30px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:18px}
+h2{font-size:1.05rem;font-weight:700;margin:0 0 6px}
+.hint{color:var(--txt-3);font-size:.88rem;margin:0 0 18px}
+label{display:block;font-size:.82rem;font-weight:600;color:var(--txt-2);margin:14px 0 6px}
+input{width:100%;background:#fff;color:#16161c;border:1px solid #fff;border-radius:10px;
+      padding:13px 14px;font-size:1rem;font-family:inherit}
+input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.25)}
+.btn{width:100%;margin-top:18px;background:var(--accent);color:#16161c;border:0;border-radius:10px;
+     padding:13px 16px;font-size:.98rem;font-weight:700;font-family:inherit;cursor:pointer}
+.btn:hover{filter:brightness(1.06)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.quiet{background:none;border:1px solid var(--line);color:var(--txt-2);font-weight:600}
+.note{display:none;margin-top:16px;font-size:.9rem;border-radius:10px;padding:11px 13px}
+.note.show{display:block}
+.note.ok{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.35);color:var(--ok)}
+.note.err{background:rgba(252,165,165,.08);border:1px solid rgba(252,165,165,.3);color:var(--err)}
+.who{color:var(--txt-3);font-size:.85rem;margin-top:4px}
+.who b{color:var(--txt-2);font-weight:600}
+.loading{color:var(--txt-3);font-size:.92rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./">&larr; Back to your library</a>
+  <h1>Your account</h1>
+  <p class="sub">Signed in as <span class="who"><b id="who">…</b></span></p>
+
+  <div class="panel" id="panel">
+    <p class="loading" id="loading">Loading…</p>
+
+    <div id="body" hidden>
+      <h2 id="title">Set a password</h2>
+      <p class="hint" id="hint"></p>
+
+      <form id="form">
+        <div id="currentRow" hidden>
+          <label for="current">Current password</label>
+          <input type="password" id="current" autocomplete="current-password">
+        </div>
+
+        <label for="pw">New password</label>
+        <input type="password" id="pw" autocomplete="new-password" minlength="10"
+               placeholder="At least 10 characters">
+
+        <label for="pw2">Confirm new password</label>
+        <input type="password" id="pw2" autocomplete="new-password">
+
+        <button type="submit" class="btn" id="save">Set password</button>
+      </form>
+
+      <button type="button" class="btn quiet" id="remove" hidden>Remove my password</button>
+      <div class="note" id="note"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var note = $('note');
+  var hasPassword = false;
+
+  function say(kind, text) {
+    note.className = 'note ' + kind + ' show';
+    note.textContent = text;
+  }
+
+  /* The page reflects one fact: whether a password is already set. Set one, or
+     change and remove the one there is. Either way the emailed link keeps
+     working — it is what a member falls back on, and it is the reset flow. */
+  function render() {
+    $('title').textContent = hasPassword ? 'Change your password' : 'Set a password';
+    $('hint').textContent = hasPassword
+      ? 'You can sign in with your email and password. The emailed sign-in link still works, and is how you get back in if you forget this.'
+      : 'Optional. Set one and you can sign in without waiting for an email. The emailed link keeps working either way.';
+    $('currentRow').hidden = !hasPassword;
+    $('current').required = hasPassword;
+    $('save').textContent = hasPassword ? 'Change password' : 'Set password';
+    $('remove').hidden = !hasPassword;
+    $('loading').hidden = true;
+    $('body').hidden = false;
+  }
+
+  fetch('/api/me', { credentials: 'same-origin' })
+    .then(function (r) {
+      if (r.status === 401) { location.replace('login.html'); return null; }
+      return r.json();
+    })
+    .then(function (me) {
+      if (!me) return;
+      if (!me.active) { location.replace('login.html'); return; }
+      $('who').textContent = me.email;
+      hasPassword = !!me.hasPassword;
+      render();
+    })
+    .catch(function () { $('loading').textContent = 'Could not load your account. Please refresh.'; });
+
+  async function post(payload, busyText, button) {
+    var restore = button.textContent;
+    button.disabled = true; button.textContent = busyText;
+    note.className = 'note';
+    try {
+      var res = await fetch('/api/auth/set-password', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin', body: JSON.stringify(payload)
+      });
+      var data = await res.json();
+      if (res.ok) {
+        hasPassword = !!data.hasPassword;
+        $('form').reset();
+        render();
+        say('ok', data.message || 'Saved.');
+      } else {
+        say('err', data.error || 'Could not save that.');
+      }
+    } catch (err) {
+      say('err', 'Network error. Please try again.');
+    }
+    button.disabled = false; button.textContent = restore;
+  }
+
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var pw = $('pw').value, pw2 = $('pw2').value;
+    if (pw !== pw2) { say('err', 'Those two passwords are not the same.'); return; }
+    if (pw.length < 10) { say('err', 'Use at least 10 characters.'); return; }
+    post({ password: pw, currentPassword: $('current').value }, 'Saving…', $('save'));
+  });
+
+  $('remove').addEventListener('click', function () {
+    if (!$('current').value) { say('err', 'Enter your current password to remove it.'); return; }
+    post({ remove: true, currentPassword: $('current').value }, 'Removing…', $('remove'));
+  });
+})();
+</script>
+</body>
+</html>

@@ -21,6 +21,9 @@ export default async function handler(req, res) {
       authenticated: true,
       active: true,
       email,
+      // Whether they have set a password, so the account screen offers the
+      // right thing: set one, or change/remove the one they have.
+      hasPassword: !!customer.password_hash,
       name: displayNameFor(email, customer.name),
       hasName: !!(customer.name && customer.name.trim()),
       isAdmin: isAdmin(email)

@@ -39,6 +39,12 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
    let a narrow header clamp the width while the height stayed put, which
    stretched the lockup out of shape at 320px. */
 .brand-logo{width:176px;max-width:44vw;height:auto;display:block;flex:none}
+.pw-row{display:none;margin-top:14px}
+.pw-row.show{display:block}
+.alt{margin-top:16px;text-align:center}
+.alt button{background:none;border:0;color:var(--accent,#ff7a1a);font:inherit;font-size:.92rem;
+            cursor:pointer;padding:6px;text-decoration:underline;text-underline-offset:3px}
+.alt button:hover{opacity:.82}
 @media(max-width:600px){.brand-logo{width:150px}}
 </style>
 </head>
@@ -46,13 +52,23 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   <div class="card">
     <div class="brand"><img class="brand-logo" src="../assets/logo.webp" alt="AI Founder University" width="720" height="139"></div>
     <h1>Sign in</h1>
-    <p class="sub">Enter the email you bought with. We'll send you a one-time sign-in link — no password needed.</p>
+    <p class="sub" id="sub">Enter the email you bought with. We'll send you a one-time sign-in link — no password needed.</p>
 
     <form id="form">
       <label for="email">Email address</label>
       <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+
+      <div class="pw-row" id="pwRow">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Your password">
+      </div>
+
       <button type="submit" class="btn" id="btn">Email me a sign-in link</button>
     </form>
+
+    <div class="alt">
+      <button type="button" id="toggle">I have a password</button>
+    </div>
 
     <div class="note" id="note"></div>
 
@@ -80,30 +96,78 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
     note.className = 'note err show'; note.textContent = msg;
   }
 
+  /* Two ways in, one form. The link is the default because it is what the
+     welcome emails contain and what works for somebody who has set nothing up;
+     the password is for members who added one and would rather not wait on an
+     inbox. A member who forgets the password uses the link — that is the reset
+     flow, which is why there is not a second one. */
+  var pwRow = document.getElementById('pwRow');
+  var pwInput = document.getElementById('password');
+  var toggle = document.getElementById('toggle');
+  var sub = document.getElementById('sub');
+  var usingPassword = false;
+
+  var TEXT = {
+    link: { sub: "Enter the email you bought with. We'll send you a one-time sign-in link — no password needed.",
+            btn: 'Email me a sign-in link', alt: 'I have a password' },
+    pw:   { sub: 'Sign in with the password you set in your account.',
+            btn: 'Sign in', alt: 'Email me a sign-in link instead' }
+  };
+
+  function setMode(toPassword) {
+    usingPassword = toPassword;
+    var t = toPassword ? TEXT.pw : TEXT.link;
+    pwRow.classList.toggle('show', toPassword);
+    pwInput.required = toPassword;
+    sub.textContent = t.sub;
+    btn.textContent = t.btn;
+    toggle.textContent = t.alt;
+    note.className = 'note';
+    if (toPassword) pwInput.focus();
+  }
+  toggle.addEventListener('click', function () { setMode(!usingPassword); });
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     var email = document.getElementById('email').value.trim();
-    btn.disabled = true; btn.textContent = 'Sending…';
+    var busy = usingPassword ? 'Signing in…' : 'Sending…';
+    var restore = usingPassword ? TEXT.pw.btn : TEXT.link.btn;
+    btn.disabled = true; btn.textContent = busy;
     note.className = 'note';
     try {
-      var res = await fetch('/api/auth/request-link', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
-      });
-      var data = await res.json();
-      if (res.ok) {
-        note.className = 'note ok show';
-        note.textContent = 'Check your inbox — if that email has access, a sign-in link is on its way. It can take a minute.';
-        form.reset();
-      } else {
+      var res, data;
+      if (usingPassword) {
+        res = await fetch('/api/auth/password-login', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: pwInput.value })
+        });
+        data = await res.json();
+        if (res.ok && data.redirect) { location.replace(data.redirect); return; }
         note.className = 'note err show';
-        note.textContent = data.error || 'Could not send the link. Try again.';
+        note.textContent = data.error || 'Could not sign you in.';
+        // Throttled, or no password on this account: the link always works.
+        if (data.useLink) setMode(false);
+        pwInput.value = '';
+      } else {
+        res = await fetch('/api/auth/request-link', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email })
+        });
+        data = await res.json();
+        if (res.ok) {
+          note.className = 'note ok show';
+          note.textContent = 'Check your inbox — if that email has access, a sign-in link is on its way. It can take a minute.';
+          form.reset();
+        } else {
+          note.className = 'note err show';
+          note.textContent = data.error || 'Could not send the link. Try again.';
+        }
       }
     } catch (err) {
       note.className = 'note err show';
       note.textContent = 'Network error. Please try again.';
     }
-    btn.disabled = false; btn.textContent = 'Email me a sign-in link';
+    btn.disabled = false; btn.textContent = restore;
   });
 })();
 </script>
