@@ -852,6 +852,10 @@ button{font-family:inherit}
   var LIB_ORDER = ['routine','prompt','image_prompt','gpt','automation','guide','video','skill'];
   var DL_META = {
     plugin:  { label: 'Specialists & Plugins', glyph: '🧩', blurb: 'Install these in Claude.' },
+    // Sold as an add-on, so it gets its own section rather than sitting among
+    // the plugins that come with membership — a buyer should be able to see
+    // the thing they paid for without reading six titles.
+    carousel: { label: 'Carousel Studio',      glyph: '🎠', blurb: 'Instagram and LinkedIn carousels.' },
     powerup: { label: 'Power-Ups',             glyph: '⚡', blurb: 'Focused packs for every job.' },
     course:  { label: 'Course files',          glyph: '🎓', blurb: 'Downloadable course material.' }
   };
@@ -1318,7 +1322,7 @@ button{font-family:inherit}
   function renderDownloads(c) {
     var html = '<h1 class="page-h">Specialists &amp; Plugins</h1>' +
       '<p class="page-sub">Download your products, then install them in Claude.</p>';
-    var order = ['plugin', 'powerup', 'course'];
+    var order = ['carousel', 'plugin', 'powerup', 'course'];
     var kinds = Object.keys(downloads).sort(function (a, b) {
       var ia = order.indexOf(a), ib = order.indexOf(b);
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);

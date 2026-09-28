@@ -10,7 +10,11 @@ import { grantEntitlement, revokeEntitlement, listEntitled, normalizeEmail } fro
  * anything with a `requires` set is invisible until the member is listed here,
  * so a finished product can sit in the database while only buyers can see it.
  */
-const PRODUCTS = new Set(['routines']);
+// Every entitlement sold as an add-on, so support can grant one by hand after a
+// refund reversal or an off-Stripe sale. Keep this in step with ADDONS in
+// lib/products.js: an entitlement missing here cannot be granted from admin,
+// and the failure looks like the member simply not having bought it.
+const PRODUCTS = new Set(['routines', 'carousel-studio']);
 
 export default async function handler(req, res) {
   const actor = readSession(req);

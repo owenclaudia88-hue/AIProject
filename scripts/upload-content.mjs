@@ -50,7 +50,12 @@ function titleFromFilename(name) {
 
 const groups = [
   { kind: 'plugin',  dir: join(EXPORT, 'product'),  exts: ['.zip'] },
-  { kind: 'powerup', dir: join(EXPORT, 'powerups'), exts: ['.zip'] }
+  { kind: 'powerup', dir: join(EXPORT, 'powerups'), exts: ['.zip'] },
+  // Paid add-on: only members holding the `carousel-studio` entitlement see it.
+  // Drop the Carousel Studio plugin zip into export/carousel-studio/. Its own
+  // kind rather than 'plugin', so it gets its own section on the downloads page
+  // instead of being the seventh title in a list of things everyone already has.
+  { kind: 'carousel', dir: join(EXPORT, 'carousel-studio'), exts: ['.zip'], requires: 'carousel-studio' }
 ];
 
 let uploaded = 0, sortBase = 0;
@@ -77,7 +82,8 @@ for (const g of groups) {
 
     await upsertContent({
       key, title: titleFromFilename(filename), kind: g.kind,
-      filename, blobUrl: url, sizeBytes: size, sort: sortBase + sort
+      filename, blobUrl: url, sizeBytes: size, sort: sortBase + sort,
+      requires: g.requires ?? null
     });
     uploaded += 1; sort += 1;
     console.log(`  + ${prettyKB(size).padStart(8)}  ${key}`);
