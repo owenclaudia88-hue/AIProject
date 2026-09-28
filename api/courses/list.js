@@ -1,5 +1,5 @@
 import { readSession } from '../../lib/session.js';
-import { isActive, listCourses } from '../../lib/db.js';
+import { isActive, listCourses, entitlementsFor } from '../../lib/db.js';
 
 /** GET /api/courses/list — the Courses tab: one card per course, with stats. */
 export default async function handler(req, res) {
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
-    const rows = await listCourses();
+    const rows = await listCourses(await entitlementsFor(email));
     const courses = rows.map(r => ({
       slug: r.slug, title: r.title,
       lessonCount: r.lesson_count,
