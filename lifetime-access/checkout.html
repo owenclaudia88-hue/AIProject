@@ -697,7 +697,12 @@ footer a{color:var(--ink-2)}
       redirect: 'if_required',
       confirmParams: {
         return_url: new URL(SUCCESS, location.href).href,
-        receipt_email: d.email,
+        // No receipt_email. Setting it makes Stripe email its own receipt
+        // "regardless of your email settings" — so the Customer emails toggle
+        // being off does not stop it, and the buyer gets two receipts: ours
+        // from the webhook and Stripe's. The other two checkouts already leave
+        // it out; this one did not. The address still reaches the webhook as
+        // billing_details.email and as buyer_email in the intent's metadata.
         payment_method_data: { billing_details: { name: d.name, email: d.email } }
       }
     }).then(function (res) { done(res, d.name, d.email); });
