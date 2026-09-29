@@ -45,10 +45,10 @@ mark{background:linear-gradient(transparent 58%,#ffd3b8 58%);color:inherit;paddi
 
 /* ---------- header ---------- */
 .head{background:var(--night);color:#fff}
-.head .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:58px}
-.head img{height:26px;width:auto;display:block}
-.head .tag{font-size:.8rem;font-weight:600;color:#ffcfb2;white-space:nowrap}
-.head .tag b{color:#fff}
+.head .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:68px}
+.head img{height:36px;width:auto;display:block}
+.head .tag{background:var(--hot);color:#fff;font-size:.82rem;font-weight:700;padding:7px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 3px 0 #c53d0c}
+.head .tag b{color:#fff;font-weight:800}
 
 /* ---------- hero ---------- */
 .hero{padding-top:44px;padding-bottom:56px;position:relative}
@@ -248,6 +248,12 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
 .sticky .p small{display:block;font-size:.72rem;color:var(--ink-3)}
 .sticky .btn{padding:14px 16px;font-size:1rem;box-shadow:0 4px 0 #c53d0c}
 
+/* hero reassurance (answers the most-clicked FAQ questions up top) */
+.reassure{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:6px;font-size:.95rem;color:var(--ink-2)}
+.reassure li{display:flex;gap:8px;align-items:baseline}
+.reassure b{color:var(--ok)}
+.reassure em{font-style:normal;color:var(--ink-3);font-size:.86rem}
+
 @media (max-width:960px){
   .hero-grid{grid-template-columns:1fr;gap:34px}
   .float{display:none}
@@ -256,10 +262,12 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
 }
 @media (max-width:760px){
   section{padding-block:58px}
-  .hero{padding-top:22px;padding-bottom:40px}
-  .hero h1{margin-top:14px}
-  .hero .lead{font-size:1.03rem;margin-top:12px}
-  .optin{margin-top:20px;padding:18px}
+  .hero{padding-top:16px;padding-bottom:40px}
+  .hero h1{font-size:2rem;margin-top:10px}
+  .callout{font-size:.8rem;padding:6px 12px}
+  .hero .lead{font-size:1rem;margin-top:10px}
+  .reassure{font-size:.9rem;margin-top:10px}
+  .optin{margin-top:16px;padding:18px}
   .strip .wrap{grid-template-columns:repeat(2,1fr);gap:18px 10px}
   .pains,.steps{grid-template-columns:1fr}
   .ba-row{grid-template-columns:1fr}
@@ -273,9 +281,10 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
   .guar{grid-template-columns:1fr;text-align:center;justify-items:center;padding:24px}
   .chat{min-height:330px}
   .sticky{display:flex}
-  .head .tag span{display:none}
 }
 @media (max-width:380px){
+  .head .tag span{display:none}
+  .head img{height:30px}
   .wrap{padding-inline:16px}
   .roster{grid-template-columns:1fr}
 }
@@ -295,7 +304,7 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
 <header class="head">
   <div class="wrap">
     <img src="/assets/logo.webp" alt="AI Founder University" width="720" height="139">
-    <div class="tag"><span>Launch price · </span><b>$1</b> today</div>
+    <div class="tag">🔥 <span>Launch price </span><b>$1</b></div>
   </div>
 </header>
 
@@ -305,7 +314,12 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
     <div>
       <div class="callout">👋 <span>Claude users:</span> stop writing prompts from scratch</div>
       <h1>Give Claude <span class="hot">70 Job Titles.</span> Get Finished Work Back.</h1>
-      <p class="lead">Your copywriter, ad buyer, SEO pro, sales closer and 66 more specialists — ready inside Claude in 10 minutes. <strong>All 70 for $1.</strong></p>
+      <p class="lead">Your copywriter, ad buyer, SEO pro, sales closer and 66 more — set up inside Claude in 10 minutes. <strong>All 70 for $1.</strong></p>
+      <ul class="reassure">
+        <li><b>✓</b> Works in the Claude app <em>(Pro recommended)</em></li>
+        <li><b>✓</b> No tech skills — one upload, one paste</li>
+        <li><b>✓</b> For any business that sells something</li>
+      </ul>
 
       <form class="optin" id="optin-top" novalidate>
         <div class="optin-top">
