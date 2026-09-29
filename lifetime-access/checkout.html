@@ -31,8 +31,8 @@ p{margin:0}
 .wrap{max-width:1040px;margin:0 auto;padding-inline:18px}
 
 .head{background:var(--night);color:#fff}
-.head .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
-.head img{height:24px;width:auto;display:block}
+.head .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:68px}
+.head img{height:36px;width:auto;display:block}
 .head .sec{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:#cfe9dd}
 .head .sec svg{width:15px;height:15px}
 
@@ -64,6 +64,9 @@ p{margin:0}
 .sep{height:1px;background:var(--line);margin:20px 0}
 
 #express{min-height:0}
+/* fallback tip: only inside the Facebook/Instagram app when no Apple Pay / Google Pay button loaded */
+.iab-hint{font-size:.84rem;line-height:1.4;color:var(--ink-2);background:var(--paper);border:1px dashed var(--line-2);border-radius:12px;padding:10px 12px;margin:0 0 12px}
+.methods span{pointer-events:none}
 .or{display:flex;align-items:center;gap:12px;color:var(--ink-3);font-size:.8rem;margin:16px 0}
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .skel{height:180px;border-radius:12px;background:linear-gradient(90deg,#f3ece2 25%,#faf5ee 50%,#f3ece2 75%);background-size:200% 100%;animation:sh 1.2s infinite}
@@ -249,6 +252,7 @@ footer a{color:var(--ink-2)}
         <div class="sep"></div>
         <div class="lab">Payment</div>
         <div id="express"></div>
+        <div class="iab-hint" id="iabHint" hidden>📱 Prefer Apple Pay or Google Pay? Tap <b>⋯</b> (top right) → <b>Open in browser</b>.</div>
         <div class="or" id="or" hidden>or pay with card</div>
         <div id="payment"><div class="skel"></div></div>
         <div class="note" id="note" role="alert"></div>
@@ -306,7 +310,7 @@ footer a{color:var(--ink-2)}
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Instant access</span>
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>One-time, no subscription</span>
         </div>
-        <div class="methods"><span>VISA</span><span>Mastercard</span><span>AMEX</span><span>Apple Pay</span><span>Google Pay</span><span>Link</span></div>
+        <div class="methods" aria-hidden="true"><span>VISA</span><span>Mastercard</span><span>AMEX</span></div>
         <p class="terms">Payments are encrypted and processed by Stripe. We never see or store your card details. By ordering you agree to our <a href="https://aifounderuniversity.com/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="https://aifounderuniversity.com/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
       </form>
     </main>
@@ -623,6 +627,12 @@ footer a{color:var(--ink-2)}
     express.on('ready', function (ev) {
       var any = ev.availablePaymentMethods && Object.keys(ev.availablePaymentMethods).some(function (k) { return ev.availablePaymentMethods[k]; });
       $('or').hidden = !any;
+      // Inside the Facebook / Instagram app the wallet sheet often can't open.
+      // Only then, and only when neither Apple Pay nor Google Pay loaded,
+      // point people to their real browser. Everyone else never sees it.
+      var inApp = /FBAN|FBAV|FB_IAB|Instagram/i.test(navigator.userAgent || '');
+      var pm = ev.availablePaymentMethods || {};
+      $('iabHint').hidden = !(inApp && !pm.applePay && !pm.googlePay);
     });
     // Tapping Apple Pay / Google Pay while a ticked box is still being priced
     // would open the sheet on the old total. Not resolving the click cancels
