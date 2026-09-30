@@ -118,6 +118,7 @@ export default async function handler(req, res) {
         ...(Number(body.fbclidAt) > 0 ? { fbclid_at: String(Math.round(Number(body.fbclidAt))) } : {}),
         ...(typeof body.fbp === 'string' && body.fbp ? { fbp: body.fbp.slice(0, 100) } : {}),
         ...(typeof body.msclkid === 'string' && body.msclkid ? { msclkid: body.msclkid.slice(0, 100) } : {}),
+        ...(typeof body.vid === 'string' && /^[0-9a-f]{32}$/i.test(body.vid) ? { vid: body.vid } : {}),
         // The buyer's IP and browser, kept for the same reason: Meta matches a
         // conversion far better with them, and the webhook only ever sees
         // Stripe's own IP, never the buyer's.

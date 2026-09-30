@@ -143,6 +143,7 @@ export default async function handler(req, res) {
         sourceUrl,
         email: str(body.email, 320),
         msclkid: str(body.msclkid, 100),
+        vid: str(body.vid, 32),
         ip: ip || null,
         ua: ua || null
       });

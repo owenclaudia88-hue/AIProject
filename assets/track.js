@@ -170,12 +170,67 @@
   })();
 
   // Anything the page already knows about the visitor improves the match.
+  /*
+   * The visitor id Microsoft matches a person on across contexts. It has to be
+   * the same value in two places: `anonymousId` on every server event, and
+   * `VID` on the ID Sync pixel below. Microsoft reads the browser context when
+   * the pixel fires, which is the part a server-to-server event cannot carry —
+   * so without the pixel the id is just a string nobody recognises.
+   *
+   * Their preferred shape is a v1 UUID with the dashes removed.
+   */
+  var vid = (function () {
+    var KEY = 'aifu_vid';
+    try {
+      var existing = window.localStorage.getItem(KEY);
+      if (existing && /^[0-9a-f]{32}$/.test(existing)) return existing;
+    } catch (e) {}
+    var made = '';
+    try {
+      made = (window.crypto && window.crypto.randomUUID)
+        ? window.crypto.randomUUID().replace(/-/g, '')
+        : '';
+    } catch (e) {}
+    if (!made) {
+      // No randomUUID (older Safari, insecure context): still 128 bits.
+      for (var i = 0; i < 32; i++) made += Math.floor(Math.random() * 16).toString(16);
+    }
+    try { window.localStorage.setItem(KEY, made); } catch (e) {}
+    return made;
+  })();
+
+  /*
+   * ID Sync. Microsoft requires this client-side so it can tie our visitor id
+   * to its own, which is what makes remarketing audiences and view-through
+   * attribution possible. Red3 is the Microsoft customer id (not the UET tag
+   * id); the page sets window.AIFU_MS_CID, and with no id set this does
+   * nothing rather than firing a request that cannot be matched.
+   *
+   * Once per session is enough, so a sessionStorage flag keeps a multi-page
+   * visit to a single pixel.
+   */
+  (function idSync() {
+    var cid = String(window.AIFU_MS_CID || '');
+    if (!cid || !vid) return;
+    try {
+      if (window.sessionStorage.getItem('aifu_idsync')) return;
+      window.sessionStorage.setItem('aifu_idsync', '1');
+    } catch (e) {}
+    try {
+      var img = new Image(1, 1);
+      img.referrerPolicy = 'no-referrer-when-downgrade';
+      img.src = 'https://c.bing.com/c.gif?Red3=BACID_' + encodeURIComponent(cid) +
+                '&VID=' + encodeURIComponent(vid);
+    } catch (e) {}
+  })();
+
   window.aifuTrack = function (event, extra) {
     var payload = extra || {};
     payload.event = event;
     payload.fbclid = fbclid || undefined;
     payload.fbclidAt = fbclid ? click.at : undefined;
     payload.fbp = fbp || undefined;
+    payload.vid = vid || undefined;
     payload.msclkid = msclkid || undefined;
     payload.sourceUrl = window.location.href;
     payload.visitor = visitor;
@@ -218,6 +273,7 @@
   window.aifuFbclidAt = function () { return fbclid ? click.at : 0; };
   window.aifuFbp = function () { return fbp; };
   window.aifuMsclkid = function () { return msclkid; };
+  window.aifuVid = function () { return vid; };
   // The page this visit started on — the checkout posts it with the payment
   // so a buyer can be traced back to the lander, not just to the pay page.
   window.aifuLandingUrl = function () { return landing; };

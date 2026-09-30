@@ -289,6 +289,7 @@ export default async function handler(req, res) {
             sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/${engine ? 'checkout-engine.html' : 'checkout.html'}`,
             email,
             msclkid: pi.metadata?.msclkid || null,
+            vid: pi.metadata?.vid || null,
             ip: pi.metadata?.client_ip || null,
             ua: pi.metadata?.client_ua || null
           }, { amount: pi.amount, currency: pi.currency, eventId: pi.id });

@@ -195,6 +195,10 @@ footer a{color:var(--ink-2)}
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "ynteh1taus");
 </script>
+<!-- Microsoft ID Sync: ties our visitor id to Microsoft'''s own, which is what makes
+     remarketing audiences and view-through attribution work. Red3 needs the Microsoft
+     CUSTOMER id (Accounts > your account, not the UET tag id). Blank = pixel never fires. -->
+<script>window.AIFU_MS_CID = '';</script>
 <!-- Microsoft UET: page views + retargeting audiences only. Conversions are sent server-side (lib/ms-capi.js). -->
 <script>(function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"97272467",enableAutoSpaTracking:true};o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;s&&s!=="loaded"&&s!=="complete"||(f(),n.onload=n.onreadystatechange=null)},i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,"script","//bat.bing.com/bat.js","uetq");</script>
 </head>
@@ -581,6 +585,7 @@ footer a{color:var(--ink-2)}
       fbclidAt: window.aifuFbclidAt ? window.aifuFbclidAt() : 0,
       fbp: window.aifuFbp ? window.aifuFbp() : '',
       msclkid: window.aifuMsclkid ? window.aifuMsclkid() : '',
+      vid: window.aifuVid ? window.aifuVid() : '',
           // Where this visit started, so the sale can be attributed to the
           // lander rather than to the checkout every funnel shares.
           landingUrl: window.aifuLandingUrl ? window.aifuLandingUrl() : ''
