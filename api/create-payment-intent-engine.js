@@ -87,6 +87,7 @@ export default async function handler(req, res) {
         ...(typeof body.fbclid === 'string' && body.fbclid ? { fbclid: body.fbclid.slice(0, 300) } : {}),
         ...(Number(body.fbclidAt) > 0 ? { fbclid_at: String(Math.round(Number(body.fbclidAt))) } : {}),
         ...(typeof body.fbp === 'string' && body.fbp ? { fbp: body.fbp.slice(0, 100) } : {}),
+        ...(typeof body.msclkid === 'string' && body.msclkid ? { msclkid: body.msclkid.slice(0, 100) } : {}),
         ...(clientIp ? { client_ip: clientIp } : {}),
         ...(clientUa ? { client_ua: clientUa.slice(0, 480) } : {})
       }

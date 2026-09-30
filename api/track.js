@@ -1,4 +1,5 @@
 import { CLIENT_EVENTS } from '../lib/meta-capi.js';
+import { sendMsLead } from '../lib/ms-capi.js';
 import { recordPageEvent, recordLead } from '../lib/db.js';
 import { resolveGeo } from '../lib/geo.js';
 import { sourceFromUrl } from '../lib/products.js';
@@ -133,6 +134,19 @@ export default async function handler(req, res) {
       // nothing it could not work out and lifts the match rate for free.
       country: str(body.country, 8) || geo.country || undefined
     });
+
+    // Microsoft Ads: a lead is a name + email, whichever event carries them.
+    // Its event id comes from the address, so a second form or a second event
+    // for the same person is de-duplicated rather than counted again.
+    if (str(body.email, 320)) {
+      await sendMsLead({
+        sourceUrl,
+        email: str(body.email, 320),
+        msclkid: str(body.msclkid, 100),
+        ip: ip || null,
+        ua: ua || null
+      });
+    }
 
     return res.status(200).json({ ok: true });
   } catch (err) {

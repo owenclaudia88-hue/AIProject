@@ -5,6 +5,7 @@ import {
 } from '../lib/db.js';
 import { sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt } from '../lib/email.js';
 import { sendPurchase } from '../lib/meta-capi.js';
+import { sendMsPurchase } from '../lib/ms-capi.js';
 import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons } from '../lib/products.js';
 
 /**
@@ -279,6 +280,20 @@ export default async function handler(req, res) {
         } catch (capiErr) {
           // Never let tracking fail a sale that has already been fulfilled.
           console.error('[stripe-webhook] Meta Purchase event failed:', capiErr.message);
+        }
+
+        // And Microsoft Ads, the same way: the real amount, keyed on the
+        // PaymentIntent so a webhook retry is not a second sale.
+        try {
+          await sendMsPurchase({
+            sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/${engine ? 'checkout-engine.html' : 'checkout.html'}`,
+            email,
+            msclkid: pi.metadata?.msclkid || null,
+            ip: pi.metadata?.client_ip || null,
+            ua: pi.metadata?.client_ua || null
+          }, { amount: pi.amount, currency: pi.currency, eventId: pi.id });
+        } catch (msErr) {
+          console.error('[stripe-webhook] Microsoft purchase event failed:', msErr.message);
         }
 
         // The same $1 purchase also enrols the buyer in the monthly membership

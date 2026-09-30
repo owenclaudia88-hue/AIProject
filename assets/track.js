@@ -97,6 +97,31 @@
   var fbp = browserId();
 
   /*
+   * The Microsoft Ads click, remembered the same way — Bing appends msclkid to
+   * the landing URL, and the purchase is reported by the webhook much later.
+   * Microsoft suggests keeping it for 90 days.
+   */
+  var msclkid = (function () {
+    var fromUrl = urlParam('msclkid');
+    var now = Date.now(), MS_WINDOW = 90 * 24 * 60 * 60 * 1000;
+    try {
+      if (fromUrl) {
+        window.localStorage.setItem('aifu_msclkid', fromUrl);
+        window.localStorage.setItem('aifu_msclkid_at', String(now));
+        return fromUrl;
+      }
+      var id = window.localStorage.getItem('aifu_msclkid') || '';
+      var at = Number(window.localStorage.getItem('aifu_msclkid_at') || 0);
+      if (id && at && now - at > MS_WINDOW) {
+        window.localStorage.removeItem('aifu_msclkid');
+        window.localStorage.removeItem('aifu_msclkid_at');
+        return '';
+      }
+      return id;
+    } catch (e) { return fromUrl; }
+  })();
+
+  /*
    * Who is visiting, without knowing who is visiting.
    *
    * `visitor` is a random id kept in localStorage so a returning reader counts
@@ -151,6 +176,7 @@
     payload.fbclid = fbclid || undefined;
     payload.fbclidAt = fbclid ? click.at : undefined;
     payload.fbp = fbp || undefined;
+    payload.msclkid = msclkid || undefined;
     payload.sourceUrl = window.location.href;
     payload.visitor = visitor;
     payload.session = session;
@@ -191,6 +217,7 @@
   window.aifuFbclid = function () { return fbclid; };
   window.aifuFbclidAt = function () { return fbclid ? click.at : 0; };
   window.aifuFbp = function () { return fbp; };
+  window.aifuMsclkid = function () { return msclkid; };
   // The page this visit started on — the checkout posts it with the payment
   // so a buyer can be traced back to the lander, not just to the pay page.
   window.aifuLandingUrl = function () { return landing; };
