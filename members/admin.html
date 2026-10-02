@@ -57,10 +57,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .st.planned{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.12)}
 .st.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12)}
 .st.declined{color:var(--txt-3)}
-/* somebody who bought: still listed, so the sequence can be seen working,
-   but dimmed because there is nothing left to do about them */
-.card.won{opacity:.62}
-.card.won b{color:var(--txt-2)}
+
 /* the line under a section heading that says what the list below means */
 .sub-note{margin:-6px 0 14px;font-size:.84rem;color:var(--txt-2);line-height:1.55;max-width:70ch}
 .badge{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(255,122,26,.16);color:var(--accent-2);border:1px solid rgba(255,122,26,.3)}
@@ -596,6 +593,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       (f && f.people != null ? stat(f.people, 'Reached checkout') : '') +
       (f && f.conversionRate != null
         ? stat(f.conversionRate + '%', 'Converted to paid', f.converted + ' of ' + f.people) : '') +
+      // What the reminder sequence is worth: of everyone who handed over their
+      // details and did not buy there and then, how many an email won back.
+      (f && f.reminderStats && f.reminderStats.rate != null
+        ? stat(f.reminderStats.rate + '%', 'Won back by reminders',
+            f.reminderStats.bought + ' of ' + f.reminderStats.pool + ' who gave details but did not buy')
+        : '') +
       '</div>';
     if (members.funnelError) h += '<p class="warn">' + esc(members.funnelError) + '</p>';
 
@@ -622,7 +625,13 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     if (!members.members.length) h += '<p class="empty">No members yet.</p>';
     members.members.forEach(function (m) {
       var active = m.status === 'active';
-      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' +
+      // Won back by the sequence. "after 3 reminders" is how many had reached
+      // them, which is the useful number - not which one gets the credit.
+      var via = m.viaReminder
+        ? '<span class="st done">bought after ' + m.viaReminder.count +
+          ' reminder' + (m.viaReminder.count === 1 ? '' : 's') + '</span>'
+        : '';
+      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + via +
         '<span class="st ' + (active ? 'done' : 'declined') + '">' + esc(m.status) + '</span>' +
         '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(stamp(m.joinedAt)) + '</span></div>' +
         '<div class="acts">' +
@@ -666,18 +675,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     /* everyone who started and did not finish */
     if (f && f.didNotConvert && f.didNotConvert.length) {
       // who could still be written to: not unsubscribed, not already reminded
-      var stillOpen = f.didNotConvert.filter(function (x) { return !x.purchased; });
-      var wonBack = f.didNotConvert.length - stillOpen.length;
-      h += '<h3 class="sech">Started checkout, did not buy <span class="meta">' + stillOpen.length + '</span></h3>';
-
-      var rs2 = f.reminderStats;
-      if (rs2 && rs2.rate !== null) {
-        h += '<p class="sub-note"><b>' + rs2.rate + '%</b> of the people who were reminded went on to buy' +
-          ' \u2014 ' + rs2.bought + ' of ' + rs2.reminded + '.' +
-          (wonBack ? ' They are listed below, marked as bought.' : '') + '</p>';
-      } else if (rs2) {
-        h += '<p class="sub-note">Nobody has been reminded yet, so there is no conversion rate to show.</p>';
-      }
+      h += '<h3 class="sech">Leads to win back <span class="meta">' + f.didNotConvert.length + '</span></h3>';
+      h += '<p class="sub-note">Gave their details and did not buy. They leave this list the moment '
+        + 'they do \u2014 look for them under Members, flagged with how many reminders it took.</p>';
 
       // the automatic sequence, its waits, and the switch for the lot
       var rs = members.reminders || { enabled: true, steps: [], regularPriceLabel: '' };
@@ -706,7 +706,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
       // one "send now" per step, for whoever is currently due it
       var bulk = steps.map(function (s) {
-        var list = stillOpen.filter(function (x) { return canSend(x, s, steps); });
+        var list = f.didNotConvert.filter(function (x) { return canSend(x, s, steps); });
         return list.length
           ? '<button class="bulk" data-sendall="' + esc(s.kind) + '">Send ' + esc(s.label.toLowerCase()) + ' to ' + list.length + ' now</button>'
           : '';
@@ -715,24 +715,18 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       f.didNotConvert.forEach(function (x) {
         var sent = x.sent || {};
         // where they are in the sequence, in order
-        var notes = x.purchased ? '<span class="st done">bought</span>'
-          : x.bounced ? '<span class="st declined">email does not exist</span>'
+        var notes = x.bounced ? '<span class="st declined">email does not exist</span>'
           : x.unsubscribed ? '<span class="st declined">unsubscribed</span>'
           : steps.filter(function (s) { return sent[s.kind]; })
                  .map(function (s) { return '<span class="st planned">' + esc(s.label.toLowerCase()) + ' ' + esc(day(sent[s.kind])) + '</span>'; })
                  .join('');
 
-        var acts = (x.purchased || x.unsubscribed || x.bounced) ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
+        var acts = (x.unsubscribed || x.bounced) ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
           .map(function (s) {
             return '<button data-remind="' + esc(x.email) + '" data-kind="' + esc(s.kind) + '">Send ' + esc(s.label.toLowerCase()) + '</button>';
           }).join('');
 
-        var reached = x.purchased
-          ? steps.filter(function (s) { return sent[s.kind]; }).length
-          : 0;
-        h += '<div class="card' + (x.purchased ? ' won' : '') + '"><div class="hd"><b>' +
-          esc(x.name || x.email) + '</b>' + notes +
-          (reached ? '<span class="st">after ' + reached + ' reminder' + (reached === 1 ? '' : 's') + '</span>' : '') +
+        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + notes +
           '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + esc(day(x.createdAt)) + '</span></div>' +
           (acts ? '<div class="acts">' + acts + '</div>' : '') +
           '</div>';

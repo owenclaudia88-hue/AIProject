@@ -72,32 +72,47 @@ export default async function handler(req, res) {
     }
     const convertedFromReminder = [...byBuyer.values()];
 
-    const members = customers.map((c) => ({
-      email: c.email,
-      name: displayNameFor(c.email, c.name),
-      hasName: !!(c.name && c.name.trim()),
-      status: c.status,
-      paymentIntent: c.last_payment_intent,
-      joinedAt: c.created_at,
-      updatedAt: c.updated_at
-    }));
+    const members = customers.map((c) => {
+      // A member the sequence won back, and how many reminders had reached them
+      // by the time they bought. Shown on the member rather than in the chase
+      // list, because once somebody buys they stop being work to do and start
+      // being a member who happens to have arrived that way.
+      const won = byBuyer.get(c.email) || null;
+      return {
+        email: c.email,
+        name: displayNameFor(c.email, c.name),
+        hasName: !!(c.name && c.name.trim()),
+        status: c.status,
+        paymentIntent: c.last_payment_intent,
+        joinedAt: c.created_at,
+        updatedAt: c.updated_at,
+        viaReminder: won
+          ? {
+            count: won.reminderCount,
+            // The email they actually clicked, when it is known, rather than
+            // the last one that happened to go out before they bought.
+            through: won.arrivedThrough || null,
+            hoursAfter: won.hoursAfter
+          }
+          : null
+      };
+    });
 
     // Anyone who gave their details at checkout and never ended up with an
     // account. This is the list worth doing something about — and it comes
     // from the same function the reminder sequence uses, so what the dashboard
     // shows and what actually gets emailed cannot drift apart.
     const accounts = new Map(members.map((m) => [m.email, m.status]));
+    // Open leads only. Somebody who has bought is a member now, and listing
+    // them here would turn a to-do list into a mixed history of one.
     const didNotConvert = abandoned
+      .filter((p) => !p.purchased)
       .map((p) => ({
         email: p.email, name: p.name, status: p.status, createdAt: p.createdAt,
         // when each step of the sequence went out, so staff can see exactly
         // where someone is in it rather than just "reminded" or not
         sent: Object.fromEntries(STEPS.map((s) => [s.kind, sentByKind.get(s.kind).get(p.email) || null])),
         unsubscribed: optedOut.has(p.email),
-        // They started a checkout and have since bought. Shown rather than
-        // dropped, so the sequence can be seen working instead of people
-        // quietly leaving the list.
-        purchased: !!p.purchased,
         // An address that does not exist. Shown rather than hidden, so a dead
         // lead reads as dead instead of as one the sequence forgot.
         bounced: bounced.has(p.email)
@@ -105,23 +120,23 @@ export default async function handler(req, res) {
 
     // How often chasing somebody actually works.
     //
-    // Counted over the people who were reminded and nobody else: someone who
-    // bought before a reminder went out says nothing about whether reminders
-    // work, and leaving them in the denominator would drag the figure down for
-    // no reason. A reminder is counted as sent only once it has gone out, so
-    // the rate does not improve just because the sequence has not reached
-    // somebody yet.
+    // The denominator is everyone who handed over their details and did not buy
+    // there and then - the whole pool the sequence exists to win back, open
+    // leads and recovered ones together. The numerator is the ones a reminder
+    // actually brought back, which is why it counts convertedFromReminder
+    // rather than every lead who later bought: somebody who returned on their
+    // own was not won by an email.
     const wasReminded = (p) => STEPS.some((s2) => sentByKind.get(s2.kind).has(p.email));
-    const remindedAll = didNotConvert.filter(wasReminded);
-    const remindedWhoBought = remindedAll.filter((p) => p.purchased).length;
+    const pool = abandoned.length;
+    const wonBack = convertedFromReminder.length;
     const reminderStats = {
-      reminded: remindedAll.length,
-      bought: remindedWhoBought,
-      // Null rather than zero when nobody has been reminded: no data is not
-      // the same as a nought per cent conversion rate.
-      rate: remindedAll.length
-        ? Math.round((remindedWhoBought / remindedAll.length) * 1000) / 10
-        : null
+      pool,
+      bought: wonBack,
+      stillOpen: didNotConvert.length,
+      reminded: abandoned.filter(wasReminded).length,
+      // Null rather than zero on an empty pool: no data is not the same as a
+      // nought per cent conversion rate.
+      rate: pool ? Math.round((wonBack / pool) * 1000) / 10 : null
     };
 
     // Paid, not refunded, and yet has no access — a webhook that never
