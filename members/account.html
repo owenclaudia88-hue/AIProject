@@ -24,6 +24,18 @@ body{margin:0;background:var(--bg);color:var(--txt);
 h1{font-size:1.6rem;font-weight:800;margin:0 0 6px;letter-spacing:-.02em}
 .sub{color:var(--txt-3);font-size:.95rem;margin:0 0 30px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:18px}
+.panel[hidden]{display:none}
+/* the profile picture and the buttons beside it */
+.pf-row{display:flex;gap:18px;align-items:center;margin:18px 0 4px;flex-wrap:wrap}
+.pf-pic{width:84px;height:84px;border-radius:50%;overflow:hidden;flex:none;position:relative;
+  background:linear-gradient(140deg,var(--accent),#ffb020);display:grid;place-items:center}
+.pf-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.pf-initial{font-size:2rem;font-weight:800;color:#16161c}
+.pf-pic-acts{flex:1;min-width:190px;display:flex;flex-direction:column;gap:8px}
+/* a label styled as a button, so the file input can stay hidden */
+.pf-upload{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-top:0}
+.pf-pic-acts .btn{margin-top:0}
+.pf-hint{margin:2px 0 0}
 h2{font-size:1.05rem;font-weight:700;margin:0 0 6px}
 .hint{color:var(--txt-3);font-size:.88rem;margin:0 0 18px}
 label{display:block;font-size:.82rem;font-weight:600;color:var(--txt-2);margin:14px 0 6px}
@@ -56,6 +68,35 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   <a class="back" href="./">&larr; Back to your library</a>
   <h1>Your account</h1>
   <p class="sub">Signed in as <span class="who"><b id="who">…</b></span></p>
+
+  <div class="panel" id="profile" hidden>
+    <h2>Your profile</h2>
+    <p class="hint">This is the name and picture other members see beside anything you post.</p>
+
+    <div class="pf-row">
+      <div class="pf-pic">
+        <img id="pf-img" alt="" hidden>
+        <span id="pf-initial" class="pf-initial"></span>
+      </div>
+      <div class="pf-pic-acts">
+        <label class="btn quiet pf-upload" for="pf-file">Choose a photo</label>
+        <input type="file" id="pf-file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+        <button type="button" class="btn quiet" id="pf-remove" hidden>Remove photo</button>
+        <p class="hint pf-hint">JPEG, PNG, WebP or GIF, up to 4MB.</p>
+      </div>
+    </div>
+
+    <form id="pf-form">
+      <label for="pf-first">First name</label>
+      <input type="text" id="pf-first" maxlength="60" autocomplete="given-name">
+
+      <label for="pf-last">Last name</label>
+      <input type="text" id="pf-last" maxlength="60" autocomplete="family-name">
+
+      <button type="submit" class="btn" id="pf-save">Save name</button>
+    </form>
+    <div class="note" id="pf-note"></div>
+  </div>
 
   <div class="panel" id="panel">
     <p class="loading" id="loading">Loading…</p>
@@ -97,6 +138,111 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
     note.className = 'note ' + kind + ' show';
     note.textContent = text;
   }
+
+  /* ---------------- profile ---------------- */
+
+  var pfNote = $('pf-note');
+  function pfSay(kind, text) {
+    pfNote.className = 'note ' + kind + ' show';
+    pfNote.textContent = text;
+  }
+
+  function paintPhoto(url, firstName) {
+    var img = $('pf-img');
+    var initial = $('pf-initial');
+    if (url) {
+      // Cache-busted: the URL changes on every upload, but a browser that has
+      // already drawn a removed photo should not keep showing it.
+      img.src = url;
+      img.hidden = false;
+      initial.hidden = true;
+      $('pf-remove').hidden = false;
+    } else {
+      img.hidden = true;
+      img.removeAttribute('src');
+      initial.hidden = false;
+      initial.textContent = (firstName || '?').trim().charAt(0).toUpperCase() || '?';
+      $('pf-remove').hidden = true;
+    }
+  }
+
+  function loadProfile() {
+    fetch('/api/account/profile', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (p) {
+        if (!p) return;
+        $('pf-first').value = p.firstName || '';
+        $('pf-last').value = p.lastName || '';
+        paintPhoto(p.photoUrl, p.firstName || p.displayName);
+        $('profile').hidden = false;
+      })
+      .catch(function () { /* the password panel still works without this */ });
+  }
+
+  $('pf-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var btn = $('pf-save');
+    var first = $('pf-first').value.trim();
+    if (!first) { pfSay('bad', 'Please give at least a first name.'); return; }
+
+    btn.disabled = true;
+    pfSay('', 'Saving\u2026');
+    fetch('/api/account/profile', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firstName: first, lastName: $('pf-last').value.trim() })
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        if (!res.ok) { pfSay('bad', res.d.error || 'Could not save that.'); return; }
+        pfSay('good', 'Saved.');
+        // The name at the top of the page is the one that just changed.
+        var who = $('who');
+        if (who) who.textContent = res.d.displayName;
+        paintPhoto($('pf-img').hidden ? null : $('pf-img').src, first);
+      })
+      .catch(function () { btn.disabled = false; pfSay('bad', 'Could not save that.'); });
+  });
+
+  $('pf-file').addEventListener('change', function () {
+    var file = this.files && this.files[0];
+    if (!file) return;
+    // Checked here as well as on the server, so somebody picking a 20MB photo
+    // is told immediately rather than after waiting for the upload to fail.
+    if (file.size > 4 * 1024 * 1024) { pfSay('bad', 'That image is larger than 4MB.'); this.value = ''; return; }
+
+    pfSay('', 'Uploading\u2026');
+    fetch('/api/account/profile', {
+      method: 'PUT', credentials: 'same-origin',
+      headers: { 'Content-Type': file.type },
+      body: file
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) { pfSay('bad', res.d.error || 'Could not upload that.'); return; }
+        paintPhoto(res.d.photoUrl, $('pf-first').value);
+        pfSay('good', 'Photo updated.');
+      })
+      .catch(function () { pfSay('bad', 'Could not upload that.'); })
+      .then(function () { $('pf-file').value = ''; });
+  });
+
+  $('pf-remove').addEventListener('click', function () {
+    if (!window.confirm('Remove your profile photo?')) return;
+    pfSay('', 'Removing\u2026');
+    fetch('/api/account/profile', { method: 'DELETE', credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { pfSay('bad', 'Could not remove it.'); return; }
+        paintPhoto(null, $('pf-first').value);
+        pfSay('good', 'Photo removed.');
+      })
+      .catch(function () { pfSay('bad', 'Could not remove it.'); });
+  });
+
+  loadProfile();
+
 
   /* The page reflects one fact: whether a password is already set. Set one, or
      change and remove the one there is. Either way the emailed link keeps

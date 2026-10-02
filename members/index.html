@@ -52,6 +52,22 @@ button{font-family:inherit}
 .nav.active .n-count{color:var(--accent-2)}
 .sb-spacer{flex:1}
 .sb-foot{padding:14px 20px 4px;border-top:1px solid var(--line);margin-top:8px}
+/* The account card. It used to look like the headings above it, so nothing
+   said it could be pressed. */
+.acct{display:flex;align-items:center;gap:11px;width:100%;
+  /* 56px tall, a real target rather than a line of text */
+  padding:9px 11px;margin:0 0 10px;border-radius:12px;text-decoration:none;
+  background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt);cursor:pointer}
+.acct:hover{background:var(--bg-4);border-color:var(--accent)}
+.acct:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.acct-pic{width:34px;height:34px;border-radius:50%;flex:none;overflow:hidden;
+  display:grid;place-items:center;background:linear-gradient(140deg,var(--accent),var(--accent-2));
+  color:#140c03;font-weight:800;font-size:.95rem}
+.acct-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.acct-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.acct-who b{font-size:.88rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct-go{color:var(--txt-3);font-size:1.2rem;line-height:1;flex:none}
+.acct:hover .acct-go{color:var(--accent-2)}
 .sb-user{font-size:.78rem;color:var(--txt-3);word-break:break-all;margin-bottom:8px}
 .sb-user b{color:var(--txt-2);font-weight:600;display:block}
 /* the name identifies the person, the address identifies which account —
@@ -767,8 +783,14 @@ button{font-family:inherit}
         <div class="sb-spacer"></div>
         <div class="sb-foot">
           <a class="nav" id="admin-link" href="admin.html" hidden style="margin:0 0 10px;width:100%"><span class="nic">🛠</span>Admin</a>
-          <a class="nav" href="account.html" style="margin:0 0 10px;width:100%"><span class="nic">⚙️</span>Your account</a>
-          <div class="sb-user">Signed in as <b id="who-name"></b><span class="sb-email" id="who-email"></span></div>
+          <a class="acct" href="account.html">
+            <span class="acct-pic" id="acct-pic"><span id="acct-initial">·</span></span>
+            <span class="acct-who">
+              <b id="who-name"></b>
+              <span class="sb-email" id="who-email"></span>
+            </span>
+            <span class="acct-go" aria-hidden="true">›</span>
+          </a>
           <button class="signout" id="signout">Sign out</button>
         </div>
       </aside>
@@ -910,6 +932,18 @@ button{font-family:inherit}
         // object is assembled field by field, so anything left out here is
         // undefined no matter what the server sent.
         me.isTester = !!res.d.isTester;
+        me.photoUrl = res.d.photoUrl || null;
+
+        // The account card carries their own picture, or their initial.
+        var pic = document.getElementById('acct-pic');
+        if (pic) {
+          if (me.photoUrl) {
+            pic.innerHTML = '<img alt="" src="' + esc(me.photoUrl) + '">';
+          } else {
+            document.getElementById('acct-initial').textContent =
+              String(me.name || res.d.email || '?').trim().charAt(0).toUpperCase() || '?';
+          }
+        }
         // the admin view is staff-only server-side; this just stops showing a
         // link to a page that would refuse them anyway
         if (me.isAdmin) document.getElementById('admin-link').hidden = false;

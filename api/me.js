@@ -34,7 +34,10 @@ export default async function handler(req, res) {
       isAdmin: isAdmin(email),
       // Course features still being built show only for this account. Every
       // other member sees the member area exactly as it was.
-      isTester: isTester(email)
+      isTester: isTester(email),
+      // Their own picture, for the account card in the sidebar. The path rather
+      // than the storage address: the photo is private and served through us.
+      photoUrl: customer.photo_url ? '/api/account/photo' : null
     });
   } catch (err) {
     console.error('[me]', err);
