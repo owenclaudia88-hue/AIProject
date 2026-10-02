@@ -1,6 +1,5 @@
 import { sessionEmail } from '../lib/session.js';
 import { isActive, entitlementsFor, getCourse, addProject, projectsFor } from '../lib/db.js';
-import { isTester } from '../lib/testers.js';
 
 /**
  * The Projects & Resources tab.
@@ -16,7 +15,6 @@ import { isTester } from '../lib/testers.js';
 export default async function handler(req, res) {
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
-  if (!isTester(email)) return res.status(404).json({ error: 'not available' });
 
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });

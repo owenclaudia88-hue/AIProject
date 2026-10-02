@@ -6,7 +6,8 @@ import {
 import { sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt } from '../lib/email.js';
 import { sendPurchase } from '../lib/meta-capi.js';
 import { sendMsPurchase } from '../lib/ms-capi.js';
-import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons } from '../lib/products.js';
+import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS }
+  from '../lib/products.js';
 
 /**
  * Which product a payment was for, from the metadata the checkout set.
@@ -469,6 +470,75 @@ export default async function handler(req, res) {
             }
           }
         }
+        break;
+      }
+
+      // The membership opens every course the moment it is really paid for, and
+      // closes them again when it ends. Both are keyed on the Stripe customer's
+      // email, which is the only thing entitlements are stored against.
+      case 'invoice.paid': {
+        const invoice = event.data.object;
+
+        // A free trial starting is not a payment, and access that costs nothing
+        // to obtain is exactly what the trial was meant to withhold. An invoice
+        // settled out of account credit also charges the card nothing, so the
+        // test is whether value changed hands at all: money taken, or credit
+        // drawn down. Both balances are negative when credit is owed, so the
+        // drawdown is ending minus starting.
+        const creditUsed = (invoice.ending_balance ?? 0) - (invoice.starting_balance ?? 0);
+        if (!(invoice.amount_paid > 0 || creditUsed > 0)) break;
+
+        // Stripe moved this field in a later API version, and the version a
+        // webhook event arrives on is set on the endpoint rather than by the
+        // constructor here. Both shapes are read, so an endpoint upgrade cannot
+        // quietly stop opening courses.
+        const subId = invoice.subscription
+          || invoice.parent?.subscription_details?.subscription
+          || null;
+        if (!subId) break;
+
+        const payerEmail = invoice.customer_email
+          || (await stripe.customers.retrieve(invoice.customer).catch(() => null))?.email
+          || null;
+        if (!payerEmail) {
+          console.error('[stripe-webhook] invoice.paid with no email:', invoice.id);
+          break;
+        }
+
+        await grantEntitlement(payerEmail, ALL_ACCESS);
+        console.log('[stripe-webhook] All-access granted to', payerEmail,
+          '(invoice', invoice.id, invoice.billing_reason + ')');
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const sub = event.data.object;
+        const subEmail = (await stripe.customers.retrieve(sub.customer).catch(() => null))?.email || null;
+        if (!subEmail) {
+          console.error('[stripe-webhook] subscription deleted with no email:', sub.id);
+          break;
+        }
+
+        // Only the last live subscription closes the courses. Somebody who
+        // cancels one of two is still paying, and taking their courses away
+        // would be wrong.
+        let others = [];
+        try {
+          others = await liveSubscriptions(stripe, subEmail, null);
+        } catch (lookupErr) {
+          // Leaving access on is the safe failure: a member wrongly kept in is
+          // a support ticket, a member wrongly locked out is a refund.
+          console.error('[stripe-webhook] Sub lookup failed for', subEmail,
+            '- leaving all-access in place:', lookupErr.message);
+          break;
+        }
+        if (others.some((o) => o.id !== sub.id)) {
+          console.log('[stripe-webhook]', subEmail, 'still has a live subscription - keeping all-access');
+          break;
+        }
+
+        await revokeEntitlement(subEmail, ALL_ACCESS);
+        console.log('[stripe-webhook] All-access revoked from', subEmail, '(subscription', sub.id + ')');
         break;
       }
 

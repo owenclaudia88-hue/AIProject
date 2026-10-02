@@ -1846,10 +1846,6 @@ button{font-family:inherit}
 
   function buildTabs(tree, lesson) {
     var bar = document.getElementById('pl-tabs');
-    // Unfinished, so only the test account sees any of it. Everyone else gets
-    // the lesson exactly as before.
-    if (!me.isTester) { bar.hidden = true; document.getElementById('pl-content').hidden = false; return; }
-
     var hasText = !!(lesson && lesson.bodyHtml && String(lesson.bodyHtml).trim());
     var hasAbout = !!(tree && tree.about);
 
