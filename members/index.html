@@ -212,8 +212,11 @@ button{font-family:inherit}
 .card.locked .head,.card.locked .body h3,.card.locked .body p{opacity:.72}
 .dl.locked{background:var(--bg-3);color:var(--accent-2);border:1px solid var(--line-2)}
 .dl.locked:hover{border-color:var(--accent)}
-.card.locked{position:relative;opacity:.62;text-decoration:none;display:block}
-.card.locked:hover{opacity:.9;border-color:var(--accent)}
+.card.locked{position:relative;text-decoration:none;display:block;color:inherit}
+.card.locked .head{filter:saturate(.35) brightness(.6)}
+.card.locked .body h3,.card.locked .body p,.card.locked .body .cat{opacity:.7}
+.card.locked:hover{border-color:var(--accent)}
+.card.locked:hover .head{filter:saturate(.7) brightness(.8)}
 .lock-badge{position:absolute;top:10px;right:10px;z-index:2;font-size:.9rem;
   background:rgba(10,10,11,.82);border:1px solid var(--line-2);border-radius:999px;
   width:28px;height:28px;display:grid;place-items:center}
@@ -1182,6 +1185,20 @@ button{font-family:inherit}
       head = '<div class="head" style="background:linear-gradient(135deg,hsl(' + h + ',55%,22%),hsl(' + ((h + 40) % 360) + ',50%,12%))">' +
         dots + '<span class="glyph">' + k.glyph + '</span>' + favBtn(it) + '</div>';
     }
+    // Locked items keep the card they always had - thumbnail, category,
+    // description - and gain a lock. Replacing it with a smaller panel made the
+    // library look like a different product rather than the same one shut.
+    if (it.locked) {
+      return '<a class="card locked" href="join.html" title="Unlock with the membership">' +
+        '<span class="lock-badge">\ud83d\udd12</span>' + head.replace(/<button[\s\S]*?<\/button>/, '') +
+        '<div class="body">' +
+          '<div class="cat">' + esc(it.category || k.label) + '</div>' +
+          '<h3>' + esc(it.title) + '</h3>' +
+          (it.description ? '<p>' + esc(it.description) + '</p>' : '') +
+          '<span class="c-lock">\ud83d\udd12 Unlock with the membership</span>' +
+        '</div></a>';
+    }
+
     return '<div class="card" data-id="' + esc(it.id) + '">' + head +
       '<div class="body">' +
         '<div class="cat">' + esc(it.category || k.label) + '</div>' +
@@ -1210,20 +1227,9 @@ button{font-family:inherit}
     });
   }
 
-  /* A locked card: the item is still there, this member just cannot open it.
-     Clicking it goes to the page that explains why and offers the way back. */
-  function lockedCardHTML(it) {
-    return '<a class="card locked" href="join.html" title="Unlock with the membership">' +
-      '<span class="lock-badge">\ud83d\udd12</span>' +
-      '<div class="c-body"><h3>' + esc(it.title) + '</h3>' +
-      '<p class="c-lock">Unlock with the membership</p></div></a>';
-  }
-
   function gridOf(items) {
     if (!items.length) return '<p class="empty">Nothing here yet.</p>';
-    return '<div class="grid">' + items.map(function (it) {
-      return it.locked ? lockedCardHTML(it) : cardHTML(it);
-    }).join('') + '</div>';
+    return '<div class="grid">' + items.map(cardHTML).join('') + '</div>';
   }
 
   /* ---------------- views ---------------- */
