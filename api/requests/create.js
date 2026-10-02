@@ -1,5 +1,6 @@
 import { sessionEmail } from '../../lib/session.js';
-import { isActive, createRequest } from '../../lib/db.js';
+import { isActive, createRequest, entitlementsFor } from '../../lib/db.js';
+import { MEMBERSHIP_ONLY } from '../../lib/products.js';
 
 /** POST /api/requests/create  { title, body } — a member asks for content. */
 export default async function handler(req, res) {
@@ -8,6 +9,13 @@ export default async function handler(req, res) {
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
+
+    // Asking us to make something is part of what the membership buys. Checked
+    // here and not only in the page, because a form can be posted without one.
+    const held = await entitlementsFor(email);
+    if (!held.has(MEMBERSHIP_ONLY)) {
+      return res.status(403).json({ error: 'Content requests are part of the membership.' });
+    }
 
     const b = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const title = typeof b.title === 'string' ? b.title.trim().slice(0, 100) : '';

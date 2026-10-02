@@ -1,7 +1,8 @@
 import { currentSession } from '../lib/session.js';
-import { getCustomer, displayNameFor } from '../lib/db.js';
+import { getCustomer, displayNameFor, entitlementsFor } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
 import { isTester } from '../lib/testers.js';
+import { MEMBERSHIP_ONLY } from '../lib/products.js';
 
 /**
  * GET /api/me — who is signed in, and are they still active.
@@ -37,7 +38,10 @@ export default async function handler(req, res) {
       isTester: isTester(email),
       // Their own picture, for the account card in the sidebar. The path rather
       // than the storage address: the photo is private and served through us.
-      photoUrl: customer.photo_url ? '/api/account/photo' : null
+      photoUrl: customer.photo_url ? '/api/account/photo' : null,
+      // Whether they are subscribed, which is what the member area reads to
+      // decide between a perk and a lock.
+      hasMembership: (await entitlementsFor(email)).has(MEMBERSHIP_ONLY)
     });
   } catch (err) {
     console.error('[me]', err);

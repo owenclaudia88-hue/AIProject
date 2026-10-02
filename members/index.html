@@ -207,6 +207,9 @@ button{font-family:inherit}
 .course-card.locked:hover{opacity:.95;border-color:var(--accent)}
 .course-card.locked .cc-top{filter:saturate(.3) brightness(.7)}
 .cc-unlock{display:block;color:var(--accent-2);font-size:.82rem;font-weight:700;margin-top:10px}
+/* a nav entry for something the membership buys */
+.nav.is-locked::after{content:'\1F512';margin-left:auto;font-size:.8rem;opacity:.75}
+.req-card.locked-perk{position:relative}
 /* a locked download: dimmed, and the button offers the way in rather than a
    refusal */
 .card.locked .head,.card.locked .body h3,.card.locked .body p{opacity:.72}
@@ -952,6 +955,11 @@ button{font-family:inherit}
         // object is assembled field by field, so anything left out here is
         // undefined no matter what the server sent.
         me.isTester = !!res.d.isTester;
+        me.hasMembership = !!res.d.hasMembership;
+        // A perk they are not currently paying for reads as one, rather than
+        // as a menu item that turns out to be a dead end.
+        var reqNav = document.querySelector('.nav[data-view="request"]');
+        if (reqNav && !me.hasMembership) reqNav.classList.add('is-locked');
         me.photoUrl = res.d.photoUrl || null;
 
         // The account card carries their own picture, or their initial.
@@ -1023,7 +1031,8 @@ button{font-family:inherit}
     'claude-carousel-studio': 'Claude Carousel Studio'
   };
 
-  var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false };
+  var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false,
+             hasMembership: true };
   var all = [];        // library items (with .kind)
   var downloads = {};  // grouped downloadables
   var courses = [];    // course list (cards)
@@ -1590,6 +1599,22 @@ button{font-family:inherit}
   }
 
   function renderRequest(c) {
+    // Part of the membership. Said here rather than letting them write a
+    // request and meet a refusal when they press send.
+    if (!me.hasMembership) {
+      c.innerHTML = '<h1 class="page-h">Request Content</h1>' +
+        '<p class="page-sub">Tell us what prompts, tutorials or resources you would like to see.</p>' +
+        '<div class="req-card locked-perk">' +
+          '<span class="lock-badge">\ud83d\udd12</span>' +
+          '<h2>A membership perk</h2>' +
+          '<p class="sub">Members can ask for the prompts, tutorials and resources they want next, ' +
+            'and we prioritise by how many people ask for the same thing.</p>' +
+          '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">' +
+            '\ud83d\udd12 Unlock with the membership</a>' +
+        '</div>';
+      return;
+    }
+
     c.innerHTML = '<h1 class="page-h">Request Content</h1>' +
       '<p class="page-sub">Tell us what prompts, tutorials or resources you would like to see.</p>' +
       '<div class="req-card">' +
