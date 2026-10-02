@@ -92,9 +92,11 @@ for (const [key, course] of Object.entries(COURSES)) {
         category: course.short,
         title,
         description: null,
-        // The video is the lesson. A body is only here so the player has
-        // something to show beside it rather than an apology.
-        bodyHtml: `<p>${title}</p>`,
+        // The video is the lesson. No body: the lesson panel is one tab among
+        // several now, and a placeholder repeating the heading above it would
+        // make the Lesson tab appear and open first, hiding the course
+        // overview behind a line that says nothing.
+        bodyHtml: null,
         sort: i,
         requires: course.entitlement
       });
