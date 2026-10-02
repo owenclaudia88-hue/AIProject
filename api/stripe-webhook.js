@@ -163,7 +163,11 @@ export default async function handler(req, res) {
           // Set by the checkout endpoint from the URL, so an old intent that
           // predates it simply has none rather than a wrong one.
           source: pi.metadata?.source || DEFAULT_SOURCE,
-          landingUrl: pi.metadata?.landing_url || undefined
+          landingUrl: pi.metadata?.landing_url || undefined,
+          // Which reminder email brought them, when one did. Set by the
+          // checkout from the ?r= on the link, so this is the email they
+          // actually came through rather than one that merely went out first.
+          reminder: pi.metadata?.reminder || undefined
         });
         console.log('[stripe-webhook] Access granted:', email);
 

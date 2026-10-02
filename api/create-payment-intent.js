@@ -119,6 +119,11 @@ export default async function handler(req, res) {
         ...(typeof body.fbp === 'string' && body.fbp ? { fbp: body.fbp.slice(0, 100) } : {}),
         ...(typeof body.msclkid === 'string' && body.msclkid ? { msclkid: body.msclkid.slice(0, 100) } : {}),
         ...(typeof body.vid === 'string' && /^[0-9a-f]{32}$/i.test(body.vid) ? { vid: body.vid } : {}),
+        // Which reminder email the sale came from, when one did. A short label
+        // from a fixed set, truncated rather than trusted — it only ever
+        // decides a number on a dashboard.
+        ...(typeof body.reminder === 'string' && body.reminder
+          ? { reminder: body.reminder.slice(0, 60) } : {}),
         // The buyer's IP and browser, kept for the same reason: Meta matches a
         // conversion far better with them, and the webhook only ever sees
         // Stripe's own IP, never the buyer's.

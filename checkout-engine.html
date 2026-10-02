@@ -525,7 +525,10 @@
           vid: window.aifuVid ? window.aifuVid() : '',
           // Where this visit started, so the sale can be attributed to the
           // lander rather than to the checkout every funnel shares.
-          landingUrl: window.aifuLandingUrl ? window.aifuLandingUrl() : ''
+          landingUrl: window.aifuLandingUrl ? window.aifuLandingUrl() : '',
+          // Which reminder email brought them, when one did. Blank for
+          // everybody who arrived any other way.
+          reminder: window.aifuReminder ? window.aifuReminder() : ''
         })
       });
       if (!res.ok) {

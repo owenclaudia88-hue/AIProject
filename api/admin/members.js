@@ -1,5 +1,6 @@
 import { sessionEmail } from '../../lib/session.js';
-import { listCustomers, displayNameFor, outreachLog, optOuts, bouncedEmails } from '../../lib/db.js';
+import { listCustomers, displayNameFor, outreachLog, optOuts, bouncedEmails,
+         convertedAfterReminder } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
 import { reminderSettings, abandonedCheckouts, STEPS } from '../../lib/reminders.js';
@@ -37,6 +38,39 @@ export default async function handler(req, res) {
     // down — so the people to chase still appear even when the funnel numbers
     // above could not be worked out.
     const abandoned = await abandonedCheckouts();
+
+    // The mirror of the list above: the people who were chased and did buy.
+    // The query returns a row per reminder they had been sent, collapsed here
+    // to a row per buyer, so somebody who got four emails is one sale and not
+    // four.
+    const wins = await convertedAfterReminder();
+    const byBuyer = new Map();
+    for (const w of wins) {
+      const cur = byBuyer.get(w.email);
+      if (!cur) {
+        byBuyer.set(w.email, {
+          email: w.email, name: w.name, source: w.source,
+          boughtAt: w.bought_at,
+          // The email they actually clicked through, when it is known. This is
+          // the half that is proof rather than inference.
+          arrivedThrough: w.arrived_through || null,
+          // The last reminder to go out before they bought: the one most likely
+          // to have moved them, and the only honest guess available when
+          // arrivedThrough is null.
+          lastReminder: w.reminder_kind, lastSentAt: w.sent_at,
+          hoursAfter: Number(w.hours_after),
+          reminderCount: 1
+        });
+      } else {
+        cur.reminderCount++;
+        if (new Date(w.sent_at) > new Date(cur.lastSentAt)) {
+          cur.lastReminder = w.reminder_kind;
+          cur.lastSentAt = w.sent_at;
+          cur.hoursAfter = Number(w.hours_after);
+        }
+      }
+    }
+    const convertedFromReminder = [...byBuyer.values()];
 
     const members = customers.map((c) => ({
       email: c.email,
@@ -89,6 +123,7 @@ export default async function handler(req, res) {
       funnel: {
         ...(funnel ? funnel.stats : {}),
         didNotConvert,
+        convertedFromReminder,
         paidWithoutAccess
       },
       funnelError,

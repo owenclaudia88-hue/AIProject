@@ -122,6 +122,26 @@
   })();
 
   /*
+   * Which reminder email this visit came from.
+   *
+   * Reminder links carry ?r=<kind>. Kept for the session rather than for
+   * months, because a reminder click leads straight to the checkout: the value
+   * only has to survive a reload or a trip back to the lander, and anything
+   * longer would credit a sale weeks later to an email nobody remembers
+   * opening.
+   */
+  var reminder = (function () {
+    var fromUrl = urlParam('r');
+    try {
+      if (fromUrl) {
+        window.sessionStorage.setItem('aifu_r', fromUrl);
+        return fromUrl;
+      }
+      return window.sessionStorage.getItem('aifu_r') || '';
+    } catch (e) { return fromUrl; }
+  })();
+
+  /*
    * Who is visiting, without knowing who is visiting.
    *
    * `visitor` is a random id kept in localStorage so a returning reader counts
@@ -274,6 +294,7 @@
   window.aifuFbp = function () { return fbp; };
   window.aifuMsclkid = function () { return msclkid; };
   window.aifuVid = function () { return vid; };
+  window.aifuReminder = function () { return reminder; };
   // The page this visit started on — the checkout posts it with the payment
   // so a buyer can be traced back to the lander, not just to the pay page.
   window.aifuLandingUrl = function () { return landing; };

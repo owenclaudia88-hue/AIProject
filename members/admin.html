@@ -57,6 +57,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .st.planned{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.12)}
 .st.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12)}
 .st.declined{color:var(--txt-3)}
+/* the line under a section heading that says what the list below means */
+.sub-note{margin:-6px 0 14px;font-size:.84rem;color:var(--txt-2);line-height:1.55;max-width:70ch}
 .badge{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(255,122,26,.16);color:var(--accent-2);border:1px solid rgba(255,122,26,.3)}
 .reply{margin-left:16px;border-left:2px solid var(--line-2);padding-left:14px}
 .removed{opacity:.55;font-style:italic}
@@ -623,6 +625,36 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         '</div></div>';
     });
 
+    /* the sales the reminder sequence brought in */
+    if (f && f.convertedFromReminder && f.convertedFromReminder.length) {
+      var won = f.convertedFromReminder;
+      var proven = won.filter(function (x) { return x.arrivedThrough; }).length;
+
+      h += '<h3 class="sech">Bought after a reminder <span class="meta">' + won.length + '</span></h3>';
+      h += '<p class="sub-note">' + proven + ' of ' + won.length +
+        ' clicked through the reminder itself. The rest bought after one went out, which is ' +
+        'the order things happened rather than proof the email did it.</p>';
+
+      won.forEach(function (x) {
+        // Two different claims, so they are labelled differently rather than
+        // shown as one number that overstates what is known.
+        var badge = x.arrivedThrough
+          ? '<span class="st done">came through ' + esc(label(x.arrivedThrough)) + '</span>'
+          : '<span class="st planned">followed ' + esc(label(x.lastReminder)) + '</span>';
+
+        var gap = x.hoursAfter < 1
+          ? Math.round(x.hoursAfter * 60) + ' min later'
+          : (x.hoursAfter < 48 ? x.hoursAfter.toFixed(1) + 'h later'
+                               : Math.round(x.hoursAfter / 24) + ' days later');
+
+        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + badge +
+          '<span class="st">' + esc(gap) + '</span>' +
+          (x.reminderCount > 1 ? '<span class="st">' + x.reminderCount + ' reminders sent</span>' : '') +
+          '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' \u00b7 bought ' +
+          esc(day(x.boughtAt)) + '</span></div></div>';
+      });
+    }
+
     /* everyone who started and did not finish */
     if (f && f.didNotConvert && f.didNotConvert.length) {
       // who could still be written to: not unsubscribed, not already reminded
@@ -684,6 +716,16 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
     p.innerHTML = h;
     wireMemberActions(p);
+  }
+
+  /* "checkout-reminder-3" -> the label the sequence uses for it, or a readable
+     version of the slug when it is one the sequence no longer lists. */
+  function label(kind) {
+    var steps = ((members.reminders || {}).steps) || [];
+    for (var i = 0; i < steps.length; i++) {
+      if (steps[i].kind === kind) return steps[i].label.toLowerCase();
+    }
+    return String(kind || '').replace(/-/g, ' ');
   }
 
   function stat(value, label, sub) {
