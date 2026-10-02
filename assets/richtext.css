@@ -1,0 +1,46 @@
+/* The message editor, shared by the member area and the admin.
+   Kept in one file because two copies of a stylesheet drift the moment
+   either page is touched, and the admin reply box is meant to be the same
+   editor a member writes in rather than a lookalike. */
+
+/* the message editor */
+.rt{position:relative}
+.rt-bar{display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin:0 0 7px}
+.rt-bar button{background:none;border:1px solid transparent;border-radius:7px;color:var(--txt-2);
+  font:inherit;font-size:.86rem;font-weight:700;line-height:1;
+  /* 34px so it stays a tap target on a phone without crowding the row */
+  min-width:34px;height:34px;cursor:pointer;display:grid;place-items:center}
+.rt-bar button:hover{background:var(--bg-4);color:var(--txt);border-color:var(--line-2)}
+.rt-bar button.on{background:var(--bg-4);color:var(--accent-2);border-color:var(--line-2)}
+.rt-sep{width:1px;height:16px;background:var(--line-2);margin:0 5px}
+.rt-box{min-height:76px;max-height:260px;overflow-y:auto;background:var(--bg-3);
+  border:1px solid var(--line-2);border-radius:10px;color:var(--txt);font-size:.92rem;
+  line-height:1.55;padding:11px 12px;outline:none}
+.rt-box:focus{border-color:var(--accent)}
+.rt-box:empty::before{content:attr(data-placeholder);color:var(--txt-3)}
+.rt-box ul,.rt-box ol{margin:6px 0;padding-left:22px}
+.rt-box code{background:var(--bg-4);border:1px solid var(--line);border-radius:5px;
+  padding:1px 5px;font-family:var(--mono);font-size:.86em}
+.rt-box a{color:var(--accent-2)}
+/* the emoji tray */
+.rt-emoji{background:var(--bg-2);border:1px solid var(--line-2);border-radius:11px;
+  margin:0 0 8px;overflow:hidden}
+.rt-emoji[hidden]{display:none}
+.rt-emoji-head{padding:9px 10px 0}
+.rt-emoji-head input{width:100%;background:var(--bg-3);border:1px solid var(--line-2);
+  border-radius:8px;color:var(--txt);font:inherit;font-size:.86rem;padding:8px 11px;outline:none}
+.rt-emoji-head input:focus{border-color:var(--accent)}
+.rt-emoji-tabs{display:flex;gap:2px;padding:8px 10px;border-bottom:1px solid var(--line);
+  overflow-x:auto;scrollbar-width:none}
+.rt-emoji-tabs::-webkit-scrollbar{display:none}
+.rt-emoji-tabs button{background:none;border:0;font-size:1.05rem;line-height:1;padding:6px 8px;
+  border-radius:7px;cursor:pointer;flex:none}
+.rt-emoji-tabs button:hover{background:var(--bg-4)}
+.rt-emoji-grid{max-height:210px;overflow-y:auto;padding:4px 10px 10px}
+.rt-emoji-group h5{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--txt-3);margin:10px 0 5px;font-weight:700}
+.rt-emoji-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:1px}
+.rt-emoji-row button{background:none;border:0;font-size:1.25rem;line-height:1;
+  height:34px;border-radius:7px;cursor:pointer}
+.rt-emoji-row button:hover{background:var(--bg-4)}
+.rt-emoji-none{color:var(--txt-3);font-size:.85rem;padding:14px 2px}
