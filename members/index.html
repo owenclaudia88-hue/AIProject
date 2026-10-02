@@ -150,6 +150,41 @@ button{font-family:inherit}
 /* course detail */
 .cd-back{display:inline-flex;align-items:center;gap:8px;color:var(--txt-2);font-size:.86rem;font-family:var(--mono);margin-bottom:16px;cursor:pointer;background:none;border:0}
 .cd-back:hover{color:var(--txt)}
+/* ---------- about this course ---------- */
+.cd-about{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;
+          padding:20px 22px;margin:18px 0 26px}
+.ab-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.cd-about h2{font-size:1.05rem;font-weight:700;letter-spacing:-.01em;margin:0}
+.ab-toggle{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);
+           font:inherit;font-size:.82rem;font-weight:600;border-radius:8px;
+           /* 38px tall so it is still a tap target on a phone */
+           padding:9px 15px;cursor:pointer;flex:none}
+.ab-toggle:hover{background:var(--bg-4);color:var(--txt)}
+.ab-sum{color:var(--txt-2);font-size:.95rem;line-height:1.6;margin:13px 0 0;max-width:72ch}
+.ab-body{margin:4px 0 0}
+.ab-body[hidden]{display:none}
+.ab-body h3{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent-2);
+            font-weight:800;margin:26px 0 0}
+.ab-body p{color:var(--txt-2);font-size:.93rem;line-height:1.65;margin:11px 0 0;max-width:72ch}
+.ab-note{color:var(--txt-3) !important;font-size:.86rem !important}
+.ab-list{list-style:none;margin:13px 0 0;padding:0;display:grid;gap:9px}
+.ab-list li{display:flex;gap:10px;color:var(--txt-2);font-size:.92rem;line-height:1.5}
+.ab-list li::before{content:'\2713';color:var(--green);font-weight:800;flex:none}
+.ab-stages{display:grid;gap:9px;margin:14px 0 0}
+.ab-stage{background:var(--bg-3);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+.ab-stage b{display:block;font-size:.9rem;font-weight:700;letter-spacing:-.01em}
+.ab-stage span{display:block;color:var(--txt-2);font-size:.87rem;line-height:1.5;margin-top:5px}
+.ab-tutor{display:flex;gap:15px;margin:14px 0 0;align-items:flex-start}
+.ab-face{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+         font-weight:800;font-size:1.2rem;color:#140c03;
+         background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+.ab-tutor b{font-size:.95rem;font-weight:700}
+.ab-tutor p{margin-top:8px}
+@media(max-width:600px){
+  .cd-about{padding:17px 16px}
+  .ab-head{flex-direction:column;align-items:flex-start;gap:12px}
+  .ab-toggle{width:100%}
+}
 .cd-prog{display:flex;align-items:center;gap:14px;margin:6px 0 26px}
 .cd-prog .bar{flex:1;max-width:420px;height:8px;border-radius:999px;background:var(--bg-4);overflow:hidden}
 .cd-prog .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent))}
@@ -1551,6 +1586,68 @@ button{font-family:inherit}
     return flat;
   }
 
+
+  /* ---------------- about this course ---------------- */
+
+  /* Every block is optional. A course whose overview only has an intro renders
+     an intro and nothing else, rather than a run of empty headings. */
+  function aboutHTML(a) {
+    if (!a) return '';
+    var h = '';
+
+    var paras = function (title, arr) {
+      if (!arr || !arr.length) return '';
+      return (title ? '<h3>' + esc(title) + '</h3>' : '') +
+        arr.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
+    };
+    var bullets = function (title, block, cls) {
+      if (!block || !block.items || !block.items.length) return '';
+      return '<h3>' + esc(title) + '</h3>' +
+        (block.lead ? '<p>' + esc(block.lead) + '</p>' : '') +
+        '<ul class="ab-list' + (cls ? ' ' + cls : '') + '">' +
+        block.items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') +
+        '</ul>' + (block.note ? '<p class="ab-note">' + esc(block.note) + '</p>' : '');
+    };
+
+    h += paras('', a.intro);
+    h += bullets('Who this course is for', a.forWho);
+
+    if (a.learn && a.learn.items && a.learn.items.length) {
+      h += '<h3>What you will learn</h3>' +
+        (a.learn.lead ? '<p>' + esc(a.learn.lead) + '</p>' : '') +
+        '<div class="ab-stages">' + a.learn.items.map(function (it) {
+          // Stage names carry an ampersand entity from the source copy, so they
+          // are placed as markup rather than escaped into a visible "&amp;".
+          return '<div class="ab-stage"><b>' + it[0] + '</b><span>' + esc(it[1]) + '</span></div>';
+        }).join('') + '</div>';
+    }
+
+    h += paras('Why take this course', a.why);
+    h += bullets('Your project', a.project);
+    h += bullets('What you need', a.needs);
+
+    if (a.instructor && a.instructor.name) {
+      h += '<h3>About your instructor</h3><div class="ab-tutor">' +
+        '<div class="ab-face">' + esc(a.instructor.name.slice(0, 1).toUpperCase()) + '</div>' +
+        '<div><b>' + esc(a.instructor.name) + '</b>' +
+        (a.instructor.bio || []).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') +
+        '</div></div>';
+    }
+    return h;
+  }
+
+  function aboutPanel(a) {
+    if (!a) return '';
+    var body = aboutHTML(a);
+    if (!body) return '';
+    return '<div class="cd-about" id="cd-about">' +
+      '<div class="ab-head"><h2>About this course</h2>' +
+      '<button class="ab-toggle" id="ab-toggle" type="button" aria-expanded="false">Read more</button></div>' +
+      (a.summary ? '<p class="ab-sum">' + esc(a.summary) + '</p>' : '') +
+      '<div class="ab-body" id="ab-body" hidden>' + body + '</div>' +
+      '</div>';
+  }
+
   function renderCourseDetail(c, slug) {
     c.innerHTML = '<p class="empty">Loading course…</p>';
     loadCourse(slug).then(function (tree) {
@@ -1566,7 +1663,8 @@ button{font-family:inherit}
         '<p class="page-sub">' + (st.sections || (tree.sections || []).length) + ' sections · ' + total + ' lessons' +
         (st.minutes ? ' · ' + fmtTime(st.minutes) : '') + '</p>' +
         '<div class="cd-prog"><div class="bar"><i style="width:' + pct + '%"></i></div>' +
-        '<span class="lbl">Completed ' + done + ' of ' + total + ' lessons · ' + pct + '%</span></div>';
+        '<span class="lbl">Completed ' + done + ' of ' + total + ' lessons · ' + pct + '%</span></div>' +
+        aboutPanel(tree.about);
 
       var gi = 0;
       (tree.sections || []).forEach(function (s, si) {
@@ -1590,6 +1688,17 @@ button{font-family:inherit}
       c.innerHTML = html;
 
       document.getElementById('cd-back').addEventListener('click', function () { location.hash = 'courses'; });
+
+      var abT = document.getElementById('ab-toggle');
+      if (abT) {
+        abT.addEventListener('click', function () {
+          var body = document.getElementById('ab-body');
+          var open = body.hidden;
+          body.hidden = !open;
+          abT.textContent = open ? 'Show less' : 'Read more';
+          abT.setAttribute('aria-expanded', String(open));
+        });
+      }
       [].forEach.call(c.querySelectorAll('.section-h'), function (h) {
         h.addEventListener('click', function () { h.parentElement.classList.toggle('collapsed'); });
       });

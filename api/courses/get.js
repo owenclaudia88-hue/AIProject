@@ -37,7 +37,10 @@ export default async function handler(req, res) {
       slug: row.slug, title: row.title,
       lessonCount: row.lesson_count,
       sections,
-      stats: data.stats || null
+      stats: data.stats || null,
+      // The course overview, shown above the lesson list. Null on a course that
+      // has not had one written yet, and the page simply leaves it out.
+      about: data.about || null
     });
   } catch (err) {
     console.error('[courses/get]', err);
