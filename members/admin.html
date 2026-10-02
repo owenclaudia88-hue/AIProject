@@ -686,6 +686,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           (active
             ? '<button class="danger" data-act="revoke" data-email="' + esc(m.email) + '">Cancel access</button>'
             : '<button data-act="restore" data-email="' + esc(m.email) + '">Restore access</button>') +
+          (m.viaSubscription
+            ? '<button data-act="unsub" data-email="' + esc(m.email) + '">End subscription&hellip;</button>'
+            : '') +
           (m.paymentIntent ? '<button class="danger" data-act="refund" data-email="' + esc(m.email) + '">Refund&hellip;</button>' : '') +
         '</div></div>';
     });
@@ -854,6 +857,48 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         });
       })
       .catch(function () { box.innerHTML = '<p class="meta">Could not check subscriptions.</p>'; });
+  }
+
+
+  /* ---------------- end a subscription ---------------- */
+
+  function endSubscription(email, btn) {
+    // Said in full, because the whole point is that it does not take away what
+    // they bought, and somebody pressing this needs to know that before they do.
+    var now = window.confirm(
+      'End the membership for ' + email + '?\n\n' +
+      'They keep everything they bought: the plugin packs, the specialist courses, ' +
+      'and any upsell they paid for. Only the membership content closes.\n\n' +
+      'OK  = let it run to the end of the period they have paid for\n' +
+      'Cancel = choose to end it immediately instead');
+
+    var immediate = false;
+    if (!now) {
+      if (!window.confirm('End it immediately instead?\n\nThey lose the rest of a month they have already paid for. ' +
+        'Press Cancel to leave everything as it is.')) return;
+      immediate = true;
+    }
+
+    var was = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Working\u2026';
+    fetch('/api/admin/cancel-subscription', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, immediate: immediate })
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false; btn.textContent = was;
+        if (!res.ok) { window.alert(res.d.error || 'Could not cancel that.'); return; }
+        window.alert(
+          (res.d.immediate
+            ? 'Ended. ' + res.d.cancelled.length + ' subscription(s) cancelled now.'
+            : 'Set to end at the end of the period. ' + res.d.cancelled.length + ' subscription(s).') +
+          '\n\n' + res.d.kept);
+        members = null;
+        paintMembers(document.getElementById('panel'));
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = was; window.alert('Could not cancel that.'); });
   }
 
   function stat(value, label, sub) {
@@ -1027,6 +1072,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           // Refund now opens a picker of this member's payments rather than
           // firing straight away — one click no longer moves money.
           openRefundPanel(b);
+          return;
+        } else if (act === 'unsub') {
+          // Ends the billing and leaves the account alone. Separate from
+          // "Cancel access", which closes the account entirely.
+          endSubscription(email, b);
           return;
         } else if (act === 'revoke') {
           if (!window.confirm('Cancel access for ' + email + '?\n\nThis also cancels their membership subscription in Stripe, so they are not charged again. They keep their account and you can restore access here (the subscription is not restored).')) return;

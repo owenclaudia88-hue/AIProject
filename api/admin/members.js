@@ -38,6 +38,27 @@ export default async function handler(req, res) {
     // Reads our own leads table as well as Stripe, and tolerates Stripe being
     // down — so the people to chase still appear even when the funnel numbers
     // above could not be worked out.
+    // Who has a subscription that could be ended, in one pass. Best-effort:
+    // if Stripe cannot be reached the member list still renders, just without
+    // the button - losing the page would be the worse failure.
+    const subscribed = new Set();
+    try {
+      const Stripe = (await import('stripe')).default;
+      const sk = process.env.STRIPE_SECRET_KEY;
+      if (sk) {
+        const stripe = new Stripe(sk, { apiVersion: '2024-12-18.acacia' });
+        for await (const sub of stripe.subscriptions.list({
+          status: 'all', limit: 100, expand: ['data.customer']
+        })) {
+          if (!['active', 'trialing', 'past_due', 'unpaid'].includes(sub.status)) continue;
+          const addr = typeof sub.customer === 'object' ? sub.customer?.email : null;
+          if (addr) subscribed.add(String(addr).trim().toLowerCase());
+        }
+      }
+    } catch (err) {
+      console.error('[admin/members] subscription pass failed:', err.message);
+    }
+
     const abandoned = await abandonedCheckouts();
 
     // Everyone who handed over a name and an email, which is the only honest
@@ -96,6 +117,9 @@ export default async function handler(req, res) {
         paymentIntent: c.last_payment_intent,
         joinedAt: c.created_at,
         updatedAt: c.updated_at,
+        // Whether there is a subscription to end. Absent means no button, which
+        // is right: there is nothing to cancel.
+        viaSubscription: subscribed.has(String(c.email).toLowerCase()),
         viaReminder: won
           ? {
             count: won.reminderCount,

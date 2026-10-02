@@ -18,7 +18,8 @@ export default async function handler(req, res) {
     for (const r of rows) {
       (groups[r.kind] ||= []).push({
         key: r.key, title: r.title, filename: r.filename,
-        sizeBytes: r.size_bytes != null ? Number(r.size_bytes) : null
+        sizeBytes: r.size_bytes != null ? Number(r.size_bytes) : null,
+        locked: r.locked === true
       });
     }
     return res.status(200).json({ groups });

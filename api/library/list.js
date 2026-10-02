@@ -21,7 +21,10 @@ export default async function handler(req, res) {
         id: r.id, title: r.title, course: r.course, category: r.category,
         description: r.description, tags: r.tags || [],
         createdAt: r.source_created_at, likes: r.likes ?? 0,
-        thumb: r.thumb_key ? `/api/library/asset?key=${encodeURIComponent(r.thumb_key)}` : null
+        thumb: r.thumb_key ? `/api/library/asset?key=${encodeURIComponent(r.thumb_key)}` : null,
+        // Membership content this member cannot open. Returned rather than
+        // hidden, so the page shows a lock instead of a shorter library.
+        locked: r.locked === true
       });
     }
     return res.status(200).json({ groups });
