@@ -42,6 +42,7 @@ export default async function handler(req, res) {
     // if Stripe cannot be reached the member list still renders, just without
     // the button - losing the page would be the worse failure.
     const subscribed = new Set();
+    const endingAt = new Map();
     try {
       const Stripe = (await import('stripe')).default;
       const sk = process.env.STRIPE_SECRET_KEY;
@@ -52,7 +53,12 @@ export default async function handler(req, res) {
         })) {
           if (!['active', 'trialing', 'past_due', 'unpaid'].includes(sub.status)) continue;
           const addr = typeof sub.customer === 'object' ? sub.customer?.email : null;
-          if (addr) subscribed.add(String(addr).trim().toLowerCase());
+          if (!addr) continue;
+          const at = String(addr).trim().toLowerCase();
+          subscribed.add(at);
+          // Scheduled to end but not ended. Worth saying, because it can be
+          // undone and nothing else on the page would show it.
+          if (sub.cancel_at_period_end) endingAt.set(at, sub.cancel_at || sub.current_period_end || null);
         }
       }
     } catch (err) {
@@ -120,6 +126,8 @@ export default async function handler(req, res) {
         // Whether there is a subscription to end. Absent means no button, which
         // is right: there is nothing to cancel.
         viaSubscription: subscribed.has(String(c.email).toLowerCase()),
+        // Set to end, not ended. The admin offers to undo it.
+        endingAt: endingAt.get(String(c.email).toLowerCase()) || null,
         viaReminder: won
           ? {
             count: won.reminderCount,

@@ -68,6 +68,17 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   border-radius:999px;padding:8px 16px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
 .oc .acts button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-2)}
 .oc .acts button:disabled{opacity:.55;cursor:default}
+.unsub-panel{margin-top:13px;border-top:1px solid var(--line);padding-top:13px}
+.us-head{font-size:.9rem;margin:0}
+.us-note{color:var(--txt-2);font-size:.84rem;line-height:1.55;margin:7px 0 0;max-width:62ch}
+.us-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.us-acts button{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);
+  border-radius:999px;padding:8px 15px;font-family:var(--mono);font-size:.75rem;cursor:pointer}
+.us-acts button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-2)}
+.us-acts button.danger:hover:not(:disabled){border-color:#f87171;color:#fca5a5}
+.us-acts button.quiet{color:var(--txt-3)}
+.us-acts button:disabled{opacity:.5;cursor:default}
+.us-msg{color:var(--txt-2);font-size:.83rem;line-height:1.55;margin:10px 0 0}
 .pbody{color:var(--txt-2);font-size:.9rem;line-height:1.6;margin:8px 0 0;white-space:pre-wrap}
 .fb{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
 .fb textarea{width:100%;background:var(--bg-3);border:1px solid var(--line-2);border-radius:9px;
@@ -679,7 +690,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         ? '<span class="st done">bought after ' + m.viaReminder.count +
           ' reminder' + (m.viaReminder.count === 1 ? '' : 's') + '</span>'
         : '';
-      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + via +
+      var ending = m.endingAt
+        ? '<span class="st new">ends ' + esc(stamp(m.endingAt * 1000)) + '</span>'
+        : '';
+      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + via + ending +
         '<span class="st ' + (active ? 'done' : 'declined') + '">' + esc(m.status) + '</span>' +
         '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(stamp(m.joinedAt)) + '</span></div>' +
         '<div class="acts">' +
@@ -687,7 +701,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             ? '<button class="danger" data-act="revoke" data-email="' + esc(m.email) + '">Cancel access</button>'
             : '<button data-act="restore" data-email="' + esc(m.email) + '">Restore access</button>') +
           (m.viaSubscription
-            ? '<button data-act="unsub" data-email="' + esc(m.email) + '">End subscription&hellip;</button>'
+            ? (m.endingAt
+              ? '<button data-act="resub" data-email="' + esc(m.email) + '">Keep the subscription</button>'
+              : '<button data-act="unsub" data-email="' + esc(m.email) + '">End subscription&hellip;</button>')
             : '') +
           (m.paymentIntent ? '<button class="danger" data-act="refund" data-email="' + esc(m.email) + '">Refund&hellip;</button>' : '') +
         '</div></div>';
@@ -862,43 +878,72 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
   /* ---------------- end a subscription ---------------- */
 
+  /* Opened in the card rather than as a confirm dialog. There are three
+     answers here - at the period end, immediately, or not at all - and a
+     confirm only has two buttons, so one of them had to mean something other
+     than "stop". On a cancellation screen that is the wrong button to overload. */
   function endSubscription(email, btn) {
-    // Said in full, because the whole point is that it does not take away what
-    // they bought, and somebody pressing this needs to know that before they do.
-    var now = window.confirm(
-      'End the membership for ' + email + '?\n\n' +
-      'They keep everything they bought: the plugin packs, the specialist courses, ' +
-      'and any upsell they paid for. Only the membership content closes.\n\n' +
-      'OK  = let it run to the end of the period they have paid for\n' +
-      'Cancel = choose to end it immediately instead');
+    var card = btn.closest('.card');
+    if (!card) return;
+    var open = card.querySelector('.unsub-panel');
+    if (open) { open.remove(); return; }
 
-    var immediate = false;
-    if (!now) {
-      if (!window.confirm('End it immediately instead?\n\nThey lose the rest of a month they have already paid for. ' +
-        'Press Cancel to leave everything as it is.')) return;
-      immediate = true;
-    }
+    var panel = document.createElement('div');
+    panel.className = 'unsub-panel';
+    panel.innerHTML =
+      '<p class="us-head">End the membership for <b>' + esc(email) + '</b>?</p>' +
+      '<p class="us-note">They keep everything they bought \u2014 the plugin packs, the ' +
+        'specialist courses, and any upsell they paid for. Only the membership content closes.</p>' +
+      '<div class="us-acts">' +
+        '<button data-us="end">At the end of the paid period</button>' +
+        '<button class="danger" data-us="now">Immediately</button>' +
+        '<button class="quiet" data-us="no">Leave it alone</button>' +
+      '</div>' +
+      '<p class="us-msg" id="us-msg"></p>';
+    card.appendChild(panel);
 
-    var was = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Working\u2026';
-    fetch('/api/admin/cancel-subscription', {
-      method: 'POST', credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, immediate: immediate })
-    })
-      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-      .then(function (res) {
-        btn.disabled = false; btn.textContent = was;
-        if (!res.ok) { window.alert(res.d.error || 'Could not cancel that.'); return; }
-        window.alert(
-          (res.d.immediate
-            ? 'Ended. ' + res.d.cancelled.length + ' subscription(s) cancelled now.'
-            : 'Set to end at the end of the period. ' + res.d.cancelled.length + ' subscription(s).') +
-          '\n\n' + res.d.kept);
-        members = null;
-        paintMembers(document.getElementById('panel'));
+    panel.querySelector('[data-us="no"]').addEventListener('click', function () { panel.remove(); });
+
+    var run = function (immediate, button) {
+      var msg = panel.querySelector('.us-msg');
+      [].forEach.call(panel.querySelectorAll('button'), function (b) { b.disabled = true; });
+      msg.textContent = 'Working\u2026';
+
+      fetch('/api/admin/cancel-subscription', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, immediate: immediate })
       })
-      .catch(function () { btn.disabled = false; btn.textContent = was; window.alert('Could not cancel that.'); });
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (!res.ok) {
+            [].forEach.call(panel.querySelectorAll('button'), function (b) { b.disabled = false; });
+            msg.textContent = res.d.error || 'Could not cancel that.';
+            return;
+          }
+          msg.textContent = (res.d.immediate
+            ? 'Ended now \u2014 ' + res.d.cancelled.length + ' subscription(s).'
+            : 'Will end at the period end \u2014 ' + res.d.cancelled.length + ' subscription(s).') +
+            ' ' + res.d.kept;
+          // Re-read rather than guess: the button should disappear only if the
+          // subscription really has gone.
+          members = null;
+          setTimeout(function () { paintMembers(document.getElementById('panel')); }, 1800);
+        })
+        .catch(function () {
+          [].forEach.call(panel.querySelectorAll('button'), function (b) { b.disabled = false; });
+          msg.textContent = 'Could not cancel that.';
+        });
+    };
+
+    panel.querySelector('[data-us="end"]').addEventListener('click', function () { run(false, this); });
+    panel.querySelector('[data-us="now"]').addEventListener('click', function () {
+      // The only genuinely destructive option: it takes back days they paid for.
+      if (!window.confirm('End it immediately?\n\n' + email +
+        ' loses the rest of a month they have already paid for. ' +
+        'Everything they bought is still kept.')) return;
+      run(true, this);
+    });
   }
 
   function stat(value, label, sub) {
@@ -1072,6 +1117,26 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           // Refund now opens a picker of this member's payments rather than
           // firing straight away — one click no longer moves money.
           openRefundPanel(b);
+          return;
+        } else if (act === 'resub') {
+          // Undoing a cancellation that has not happened yet. Safe enough to do
+          // on one press: it puts things back rather than taking anything away.
+          b.disabled = true;
+          var was = b.textContent;
+          b.textContent = 'Working\u2026';
+          fetch('/api/admin/cancel-subscription', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, resume: true })
+          })
+            .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+            .then(function (res) {
+              b.disabled = false; b.textContent = was;
+              if (!res.ok) { window.alert(res.d.error || 'Could not do that.'); return; }
+              members = null;
+              paintMembers(document.getElementById('panel'));
+            })
+            .catch(function () { b.disabled = false; b.textContent = was; window.alert('Could not do that.'); });
           return;
         } else if (act === 'unsub') {
           // Ends the billing and leaves the account alone. Separate from

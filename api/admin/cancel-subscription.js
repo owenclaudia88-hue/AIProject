@@ -36,6 +36,9 @@ export default async function handler(req, res) {
     const email = String(b.email || '').trim().toLowerCase();
     if (!email) return res.status(400).json({ error: 'Which member?' });
     const immediate = b.immediate === true;
+    // Undo: a subscription scheduled to end has not ended, so the flag can
+    // simply be cleared.
+    const resume = b.resume === true;
 
     const stripe = new Stripe(key, { apiVersion: '2024-12-18.acacia' });
 
@@ -57,9 +60,11 @@ export default async function handler(req, res) {
 
     const done = [];
     for (const s of live) {
-      const updated = immediate
-        ? await stripe.subscriptions.cancel(s.id)
-        : await stripe.subscriptions.update(s.id, { cancel_at_period_end: true });
+      const updated = resume
+        ? await stripe.subscriptions.update(s.id, { cancel_at_period_end: false })
+        : immediate
+          ? await stripe.subscriptions.cancel(s.id)
+          : await stripe.subscriptions.update(s.id, { cancel_at_period_end: true });
       done.push({
         id: updated.id,
         status: updated.status,
@@ -69,7 +74,9 @@ export default async function handler(req, res) {
 
     // Ended now means closed now. Ended at the period's end means the webhook
     // closes it when that arrives, so nothing is taken away early.
-    if (immediate) {
+    if (resume) {
+      console.log('[admin/cancel-subscription]', staff, 'resumed', email);
+    } else if (immediate) {
       await revokeEntitlement(email, ALL_ACCESS);
       console.log('[admin/cancel-subscription]', staff, 'ended', email, 'immediately');
     } else {
@@ -81,9 +88,12 @@ export default async function handler(req, res) {
       immediate,
       cancelled: done,
       // Said back plainly, because this is the part that must not go wrong.
-      kept: immediate
-        ? 'Their purchases are untouched: the plugin packs, the specialist courses, and any upsell they bought.'
-        : 'Nothing changes until the period ends. Their purchases are never affected.'
+      resumed: resume,
+      kept: resume
+        ? 'The cancellation is cancelled. Billing carries on as before.'
+        : immediate
+          ? 'Their purchases are untouched: the plugin packs, the specialist courses, and any upsell they bought.'
+          : 'Nothing changes until the period ends. Their purchases are never affected.'
     });
   } catch (err) {
     console.error('[admin/cancel-subscription]', err);
