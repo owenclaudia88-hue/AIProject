@@ -591,8 +591,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       stat(members.counts.active, 'Active members') +
       stat(members.counts.revoked, 'Revoked') +
       (f && f.people != null ? stat(f.people, 'Reached checkout') : '') +
-      (f && f.conversionRate != null
-        ? stat(f.conversionRate + '%', 'Converted to paid', f.converted + ' of ' + f.people) : '') +
+      (f && f.detailsStats && f.detailsStats.rate != null
+        ? stat(f.detailsStats.rate + '%', 'Converted to paid',
+            f.detailsStats.bought + ' of ' + f.detailsStats.gaveDetails + ' who gave their details')
+        : '') +
       // What the reminder sequence is worth: of everyone who handed over their
       // details and did not buy there and then, how many an email won back.
       (f && f.reminderStats && f.reminderStats.rate != null

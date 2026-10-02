@@ -4,6 +4,7 @@ import { listCustomers, displayNameFor, outreachLog, optOuts, bouncedEmails,
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
 import { reminderSettings, abandonedCheckouts, STEPS } from '../../lib/reminders.js';
+import { listLeads } from '../../lib/db.js';
 
 /**
  * GET /api/admin/members — everyone who has an account, everyone who started
@@ -38,6 +39,15 @@ export default async function handler(req, res) {
     // down — so the people to chase still appear even when the funnel numbers
     // above could not be worked out.
     const abandoned = await abandonedCheckouts();
+
+    // Everyone who handed over a name and an email, which is the only honest
+    // denominator for "how many of the people we know about went on to pay".
+    // Stripe's own figure counts PaymentIntents instead, so it read 16 of 17
+    // beside a list of 19 members and looked like a member had gone missing.
+    const leadRows = await listLeads(5000).catch((err) => {
+      console.error('[admin/members] leads unavailable:', err.message);
+      return [];
+    });
 
     // The mirror of the list above: the people who were chased and did buy.
     // The query returns a row per reminder they had been sent, collapsed here
@@ -127,8 +137,12 @@ export default async function handler(req, res) {
     // rather than every lead who later bought: somebody who returned on their
     // own was not won by an email.
     const wasReminded = (p) => STEPS.some((s2) => sentByKind.get(s2.kind).has(p.email));
-    const pool = abandoned.length;
+    // The people the sequence exists for: still to win back, plus the ones it
+    // won. Anybody who was ever sent a reminder was in this pool by definition,
+    // because that is the only list reminders are sent from - and a buyer who
+    // never abandoned anything is correctly outside it.
     const wonBack = convertedFromReminder.length;
+    const pool = didNotConvert.length + wonBack;
     const reminderStats = {
       pool,
       bought: wonBack,
@@ -137,6 +151,17 @@ export default async function handler(req, res) {
       // Null rather than zero on an empty pool: no data is not the same as a
       // nought per cent conversion rate.
       rate: pool ? Math.round((wonBack / pool) * 1000) / 10 : null
+    };
+
+    // Of everyone who gave their details, how many paid. Counted over our own
+    // records rather than Stripe's, so the figure sits in the same world as the
+    // member list beside it.
+    const gaveDetails = leadRows.length;
+    const gaveDetailsBought = leadRows.filter((l) => l.purchased).length;
+    const detailsStats = {
+      gaveDetails,
+      bought: gaveDetailsBought,
+      rate: gaveDetails ? Math.round((gaveDetailsBought / gaveDetails) * 1000) / 10 : null
     };
 
     // Paid, not refunded, and yet has no access — a webhook that never
@@ -165,6 +190,7 @@ export default async function handler(req, res) {
         didNotConvert,
         convertedFromReminder,
         reminderStats,
+        detailsStats,
         paidWithoutAccess
       },
       funnelError,
