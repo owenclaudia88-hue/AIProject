@@ -12,7 +12,10 @@ export default async function handler(req, res) {
       slug: r.slug, title: r.title,
       lessonCount: r.lesson_count,
       sectionCount: r.section_count,
-      stats: r.stats || null
+      stats: r.stats || null,
+      // Shown with a lock rather than hidden: a course nobody can see is a
+      // course nobody knows they are missing.
+      locked: r.locked === true
     }));
     return res.status(200).json({ courses });
   } catch (err) {

@@ -203,6 +203,15 @@ button{font-family:inherit}
 }
 /* Membership content a cancelled member can no longer open. The card stays
    where it was rather than vanishing, so the library does not look emptied. */
+.course-card.locked{opacity:.66;text-decoration:none;display:flex;flex-direction:column;position:relative}
+.course-card.locked:hover{opacity:.95;border-color:var(--accent)}
+.course-card.locked .cc-top{filter:saturate(.3) brightness(.7)}
+.cc-unlock{display:block;color:var(--accent-2);font-size:.82rem;font-weight:700;margin-top:10px}
+/* a locked download: dimmed, and the button offers the way in rather than a
+   refusal */
+.card.locked .head,.card.locked .body h3,.card.locked .body p{opacity:.72}
+.dl.locked{background:var(--bg-3);color:var(--accent-2);border:1px solid var(--line-2)}
+.dl.locked:hover{border-color:var(--accent)}
 .card.locked{position:relative;opacity:.62;text-decoration:none;display:block}
 .card.locked:hover{opacity:.9;border-color:var(--accent)}
 .lock-badge{position:absolute;top:10px;right:10px;z-index:2;font-size:.9rem;
@@ -1488,12 +1497,17 @@ button{font-family:inherit}
       html += '<div class="sec-h"><h2>' + m.glyph + ' ' + esc(m.label) + '</h2><span class="c">' + items.length + '</span></div>';
       html += '<div class="grid">';
       items.forEach(function (it) {
-        html += '<div class="card" style="cursor:default">' +
+        html += '<div class="card' + (it.locked ? ' locked' : '') + '" style="cursor:default">' +
+          (it.locked ? '<span class="lock-badge">\ud83d\udd12</span>' : '') +
           '<div class="head" style="background:linear-gradient(135deg,#2a1a08,#161016)"><span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span class="glyph">' + m.glyph + '</span></div>' +
           '<div class="body"><div class="cat">' + esc(m.label) + '</div><h3>' + esc(it.title) + '</h3>' +
           '<p>' + esc(it.filename || '') + (it.sizeBytes ? ' · ' + kb(it.sizeBytes) : '') + '</p>' +
-          '<div class="foot"><a class="dl" href="/api/content/download?key=' + encodeURIComponent(it.key) + '">Download</a></div>' +
-          '</div></div>';
+          // A locked download used to offer a button that led straight to a
+          // refusal. It offers the way in instead.
+          '<div class="foot">' + (it.locked
+            ? '<a class="dl locked" href="join.html">\ud83d\udd12 Unlock</a>'
+            : '<a class="dl" href="/api/content/download?key=' + encodeURIComponent(it.key) + '">Download</a>') +
+          '</div></div></div>';
       });
       html += '</div>';
     });
@@ -1649,6 +1663,11 @@ button{font-family:inherit}
   function renderCourses(c) {
     var html = '<h1 class="page-h">Courses</h1>' +
       '<p class="page-sub">Work through every course — video lessons, step by step.</p>';
+    var shut = courses.filter(function (x) { return x.locked; }).length;
+    if (shut) {
+      html = html.replace('step by step.</p>',
+        'step by step. <b>' + shut + '</b> of them open with the membership.</p>');
+    }
     if (!courses.length) { c.innerHTML = html + '<p class="empty">Your courses are being set up — check back shortly.</p>'; return; }
     html += '<div class="course-grid">';
     courses.forEach(function (co) {
@@ -1657,6 +1676,20 @@ button{font-family:inherit}
       var done = doneForSlug(co.slug);
       var pct = total ? Math.round(done / total * 100) : 0;
       var meta = (co.sectionCount || st.sections || 0) + ' sections · ' + total + ' lessons' + (st.minutes ? ' · ' + fmtTime(st.minutes) : '');
+
+      // A course they cannot open. No progress bar: there is no progress to
+      // have made, and an empty one reads as a course they started and dropped.
+      if (co.locked) {
+        html += '<a class="course-card locked" href="join.html" title="Unlock with the membership">' +
+          '<span class="lock-badge">\ud83d\udd12</span>' +
+          '<div class="cc-top"><span class="g">\ud83c\udf93</span></div>' +
+          '<div class="cc-body"><h3>' + esc(co.title) + '</h3>' +
+          '<div class="cc-meta">' + esc(meta) + '</div>' +
+          '<span class="cc-unlock">Unlock with the membership \u2192</span>' +
+          '</div></a>';
+        return;
+      }
+
       html += '<div class="course-card" data-slug="' + esc(co.slug) + '">' +
         '<div class="cc-top"><span class="g">🎓</span><span class="cc-prog" style="width:' + pct + '%"></span></div>' +
         '<div class="cc-body"><h3>' + esc(co.title) + '</h3>' +
@@ -1667,7 +1700,7 @@ button{font-family:inherit}
     });
     html += '</div>';
     c.innerHTML = html;
-    [].forEach.call(c.querySelectorAll('.course-card'), function (card) {
+    [].forEach.call(c.querySelectorAll('.course-card[data-slug]'), function (card) {
       card.addEventListener('click', function () { location.hash = 'course-' + card.getAttribute('data-slug'); });
     });
   }
