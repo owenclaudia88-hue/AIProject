@@ -1,6 +1,6 @@
-import { sessionEmail } from '../../lib/session.js';
-import { isActive, entitlementsFor, getCourse, addProject, projectsFor } from '../../lib/db.js';
-import { isTester } from '../../lib/testers.js';
+import { sessionEmail } from '../lib/session.js';
+import { isActive, entitlementsFor, getCourse, addProject, projectsFor } from '../lib/db.js';
+import { isTester } from '../lib/testers.js';
 
 /**
  * The Projects & Resources tab.
@@ -23,7 +23,9 @@ export default async function handler(req, res) {
     const entitled = await entitlementsFor(email);
 
     if (req.method === 'GET') {
-      const slug = String(req.query.course ?? '');
+      // Read off the URL rather than req.query: the runtime does not always
+      // populate req.query, and every other endpoint here parses the URL.
+      const slug = new URL(req.url, 'http://localhost').searchParams.get('course') || '';
       const course = await getCourse(slug, entitled);
       if (!course) return res.status(404).json({ error: 'no such course' });
 

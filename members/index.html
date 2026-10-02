@@ -890,6 +890,10 @@ button{font-family:inherit}
         me.name = res.d.name || '';
         me.hasName = !!res.d.hasName;
         me.isAdmin = !!res.d.isAdmin;
+        // Course features still being built. Copied across like the rest — this
+        // object is assembled field by field, so anything left out here is
+        // undefined no matter what the server sent.
+        me.isTester = !!res.d.isTester;
         // the admin view is staff-only server-side; this just stops showing a
         // link to a page that would refuse them anyway
         if (me.isAdmin) document.getElementById('admin-link').hidden = false;
@@ -949,7 +953,7 @@ button{font-family:inherit}
     'claude-carousel-studio': 'Claude Carousel Studio'
   };
 
-  var me = { email: '', name: '', hasName: false, isAdmin: false };
+  var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false };
   var all = [];        // library items (with .kind)
   var downloads = {};  // grouped downloadables
   var courses = [];    // course list (cards)
