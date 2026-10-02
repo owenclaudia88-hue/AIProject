@@ -1,6 +1,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { isActive, createComment, setCustomerName, getCustomer, displayNameFor } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
+import { sanitizeHtml, htmlIsEmpty } from '../../lib/sanitize-html.js';
 
 const MAX_BODY = 4000;
 
@@ -9,8 +10,12 @@ const MAX_BODY = 4000;
  * { course, lessonId?, lessonTitle?, parentId?, body, displayName? }
  *
  * `displayName` is only honoured the first time — it is how a member names
- * themselves before their first post. The body is stored as plain text and is
- * escaped by the browser on render; no HTML is ever interpreted.
+ * themselves before their first post.
+ *
+ * The body arrives as markup, because members write it in a formatting editor.
+ * It is cut down here to a short list of tags before it is stored, so what sits
+ * in the database is already safe and a second mistake somewhere else cannot
+ * turn it into a page that runs something.
  */
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
@@ -22,10 +27,13 @@ export default async function handler(req, res) {
 
     const b = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const course = typeof b.course === 'string' ? b.course.trim() : '';
-    const body = typeof b.body === 'string' ? b.body.trim() : '';
+    const raw = typeof b.body === 'string' ? b.body.trim() : '';
     if (!course) return res.status(400).json({ error: 'missing course' });
-    if (!body) return res.status(400).json({ error: 'empty comment' });
-    if (body.length > MAX_BODY) return res.status(400).json({ error: 'comment too long' });
+    if (raw.length > MAX_BODY * 4) return res.status(400).json({ error: 'comment too long' });
+
+    // Whatever arrives, only this survives.
+    const body = sanitizeHtml(raw, { maxLength: MAX_BODY });
+    if (htmlIsEmpty(body)) return res.status(400).json({ error: 'empty comment' });
 
     if (b.displayName) await setCustomerName(email, b.displayName);
     const customer = await getCustomer(email);

@@ -375,21 +375,57 @@ button{font-family:inherit}
 .cmt .cl{font-family:var(--mono);font-size:.67rem;color:var(--txt-3);margin:2px 0 3px}
 .cmt .ctext{font-size:.88rem;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
 .cmt .ctext a{color:var(--accent-2);overflow-wrap:anywhere}
+.cmt .ctext p{margin:0 0 6px}
+.cmt .ctext p:last-child{margin-bottom:0}
+.cmt .ctext blockquote{margin:6px 0;padding-left:11px;border-left:2px solid var(--line-2);color:var(--txt-3)}
+.cmt .ctext pre{background:var(--bg-4);border:1px solid var(--line);border-radius:8px;
+  padding:9px 11px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;margin:7px 0}
 .cmt .ctext code{background:var(--bg-4);border:1px solid var(--line);border-radius:5px;
                  padding:1px 5px;font-family:var(--mono);font-size:.84em}
 .cmt .ctext ul,.cmt .ctext ol{margin:7px 0 0;padding-left:20px;white-space:normal}
 .cmt .ctext li{margin:3px 0}
 /* the composer toolbar */
-.plc-tools{display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin:0 0 7px}
-.plc-tools button{background:none;border:1px solid transparent;border-radius:7px;color:var(--txt-3);
-  font:inherit;font-size:.82rem;line-height:1;min-width:30px;height:30px;cursor:pointer}
-.plc-tools button:hover{background:var(--bg-4);color:var(--txt);border-color:var(--line-2)}
-.plc-tools .sep{width:1px;height:16px;background:var(--line-2);margin:0 5px}
-.plc-emoji{display:flex;flex-wrap:wrap;gap:3px;margin:0 0 7px}
-.plc-emoji[hidden]{display:none}
-.plc-emoji button{background:none;border:0;font-size:1.1rem;line-height:1;padding:5px;
-  border-radius:6px;cursor:pointer}
-.plc-emoji button:hover{background:var(--bg-4)}
+/* the message editor */
+.rt{position:relative}
+.rt-bar{display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin:0 0 7px}
+.rt-bar button{background:none;border:1px solid transparent;border-radius:7px;color:var(--txt-2);
+  font:inherit;font-size:.86rem;font-weight:700;line-height:1;
+  /* 34px so it stays a tap target on a phone without crowding the row */
+  min-width:34px;height:34px;cursor:pointer;display:grid;place-items:center}
+.rt-bar button:hover{background:var(--bg-4);color:var(--txt);border-color:var(--line-2)}
+.rt-bar button.on{background:var(--bg-4);color:var(--accent-2);border-color:var(--line-2)}
+.rt-sep{width:1px;height:16px;background:var(--line-2);margin:0 5px}
+.rt-box{min-height:76px;max-height:260px;overflow-y:auto;background:var(--bg-3);
+  border:1px solid var(--line-2);border-radius:10px;color:var(--txt);font-size:.92rem;
+  line-height:1.55;padding:11px 12px;outline:none}
+.rt-box:focus{border-color:var(--accent)}
+.rt-box:empty::before{content:attr(data-placeholder);color:var(--txt-3)}
+.rt-box ul,.rt-box ol{margin:6px 0;padding-left:22px}
+.rt-box code{background:var(--bg-4);border:1px solid var(--line);border-radius:5px;
+  padding:1px 5px;font-family:var(--mono);font-size:.86em}
+.rt-box a{color:var(--accent-2)}
+/* the emoji tray */
+.rt-emoji{background:var(--bg-2);border:1px solid var(--line-2);border-radius:11px;
+  margin:0 0 8px;overflow:hidden}
+.rt-emoji[hidden]{display:none}
+.rt-emoji-head{padding:9px 10px 0}
+.rt-emoji-head input{width:100%;background:var(--bg-3);border:1px solid var(--line-2);
+  border-radius:8px;color:var(--txt);font:inherit;font-size:.86rem;padding:8px 11px;outline:none}
+.rt-emoji-head input:focus{border-color:var(--accent)}
+.rt-emoji-tabs{display:flex;gap:2px;padding:8px 10px;border-bottom:1px solid var(--line);
+  overflow-x:auto;scrollbar-width:none}
+.rt-emoji-tabs::-webkit-scrollbar{display:none}
+.rt-emoji-tabs button{background:none;border:0;font-size:1.05rem;line-height:1;padding:6px 8px;
+  border-radius:7px;cursor:pointer;flex:none}
+.rt-emoji-tabs button:hover{background:var(--bg-4)}
+.rt-emoji-grid{max-height:210px;overflow-y:auto;padding:4px 10px 10px}
+.rt-emoji-group h5{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--txt-3);margin:10px 0 5px;font-weight:700}
+.rt-emoji-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:1px}
+.rt-emoji-row button{background:none;border:0;font-size:1.25rem;line-height:1;
+  height:34px;border-radius:7px;cursor:pointer}
+.rt-emoji-row button:hover{background:var(--bg-4)}
+.rt-emoji-none{color:var(--txt-3);font-size:.85rem;padding:14px 2px}
 .cmt.removed .ctext{color:var(--txt-3);font-style:italic}
 .cmt .ca{display:flex;gap:14px;margin-top:6px}
 .cmt .ca button{background:none;border:0;padding:0;color:var(--txt-3);font-family:var(--mono);font-size:.72rem;cursor:pointer}
@@ -719,6 +755,8 @@ button{font-family:inherit}
 .brand-logo{width:176px;max-width:44vw;height:auto;display:block;flex:none}
 @media(max-width:600px){.brand-logo{width:150px}}
 </style>
+<script src="../assets/emoji.js"></script>
+<script src="../assets/richtext.js"></script>
 </head>
 <body>
 
@@ -841,20 +879,7 @@ button{font-family:inherit}
       <div class="plc-list" id="plc-list"></div>
       <div class="plc-form">
         <input class="nm" id="plc-name" type="text" maxlength="60" placeholder="Your display name" hidden>
-        <div class="plc-tools" id="plc-tools">
-          <button type="button" data-wrap="**" title="Bold"><b>B</b></button>
-          <button type="button" data-wrap="*" title="Italic"><i>I</i></button>
-          <button type="button" data-wrap="~~" title="Strikethrough"><s>S</s></button>
-          <button type="button" data-wrap="`" title="Code">&lt;/&gt;</button>
-          <span class="sep"></span>
-          <button type="button" data-line="- " title="Bullet list">&#8226;</button>
-          <button type="button" data-line="1. " title="Numbered list">1.</button>
-          <button type="button" data-link="1" title="Link">&#128279;</button>
-          <span class="sep"></span>
-          <button type="button" data-emoji="1" title="Emoji">&#128512;</button>
-        </div>
-        <div class="plc-emoji" id="plc-emoji" hidden></div>
-        <textarea id="plc-text" maxlength="4000" placeholder="Type a message…"></textarea>
+        <div class="rt" id="plc-rt"></div>
         <div class="row">
           <span class="hint" id="plc-hint"></span>
           <button class="send" id="plc-send">Post</button>
@@ -1781,9 +1806,8 @@ button{font-family:inherit}
     document.getElementById('pt-bookmark').addEventListener('click', toggleBookmarkCurrent);
     document.getElementById('plc-x').addEventListener('click', closeComments);
     document.getElementById('plc-send').addEventListener('click', submitComment);
-    document.getElementById('plc-text').addEventListener('keydown', function (e) {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') submitComment();
-    });
+    // Ctrl/Cmd+Enter is bound when the editor is built, not here — the box
+     // does not exist until somebody opens the discussion.
     try { if (localStorage.getItem('afu_wide') === '1') setWide(true); } catch (e) {}
     document.getElementById('pl-side-x').addEventListener('click', function () { playerEl.classList.remove('menu-open'); });
     document.addEventListener('keydown', function (e) {
@@ -1951,6 +1975,19 @@ button{font-family:inherit}
   // The discussion already exists as a side panel. Rather than a second copy
   // that could drift from it, the tab moves the same element into place - one
   // list, one set of handlers, whichever way it is opened.
+  // The message editor. Built once; `rt` is what everything else talks to.
+  var rt = null;
+  function composer() {
+    if (rt) return rt;
+    var host = document.getElementById('plc-rt');
+    if (!host || !window.rtMount) return null;
+    rt = window.rtMount(host, { placeholder: 'Type a message\u2026' });
+    rt.el.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') submitComment();
+    });
+    return rt;
+  }
+
   function mountCommunity() {
     var pane = document.getElementById('pl-pane-community');
     var panel = document.getElementById('pl-comments');
@@ -1959,7 +1996,7 @@ button{font-family:inherit}
       pane.appendChild(panel);
     }
     if (commentsLoaded !== curCourseSlug) loadComments(curCourseSlug, true);
-    wireComposer();
+    composer();
   }
 
   function openLesson(slug, idx) {
@@ -2341,126 +2378,6 @@ button{font-family:inherit}
   }
 
 
-  /* ---------------- message formatting ---------------- */
-
-  /**
-   * Turn a member's message into markup.
-   *
-   * Escaped first, then a fixed set of patterns is replaced in the already-safe
-   * text. Nothing anybody types can become HTML, because by the time any of
-   * these run there are no angle brackets left to close - the formatting is a
-   * whitelist applied to safe text rather than a parser trusted with raw input.
-   */
-  var EMOJI = ['\ud83d\udc4d', '\ud83d\ude42', '\ud83c\udf89', '\ud83d\udd25', '\ud83d\ude4f',
-               '\ud83d\udca1', '\u2705', '\u26a1', '\ud83d\ude80', '\u2764\ufe0f',
-               '\ud83e\udd14', '\ud83d\udc40'];
-
-  function fmtMessage(text) {
-    var out = esc(String(text == null ? '' : text));
-
-    // Code first: whatever is inside it must not then be read as emphasis.
-    var code = [];
-    out = out.replace(/`([^`\n]+)`/g, function (m, inner) {
-      code.push(inner);
-      return '\u0000' + (code.length - 1) + '\u0000';
-    });
-
-    out = out.replace(/\*\*([^\n*]+)\*\*/g, '<strong>$1</strong>');
-    out = out.replace(/(^|[^*])\*([^\n*]+)\*(?!\*)/g, '$1<em>$2</em>');
-    out = out.replace(/~~([^\n~]+)~~/g, '<s>$1</s>');
-
-    // [label](url) and bare links, http(s) only — a scheme nobody can see is
-    // how a link becomes a script.
-    out = out.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g,
-      function (m, label, href) {
-        return '<a href="' + href + '" target="_blank" rel="noopener noreferrer nofollow">' + label + '</a>';
-      });
-    out = out.replace(/(^|[\s(])(https?:\/\/[^\s<]+)/g, function (m, pre, href) {
-      return pre + '<a href="' + href + '" target="_blank" rel="noopener noreferrer nofollow">' + href + '</a>';
-    });
-
-    // Lists, built from runs of consecutive marked lines.
-    var lines = out.split('\n'), html = [], buf = [], mode = null;
-    var flush = function () {
-      if (!buf.length) return;
-      html.push('<' + mode + '>' + buf.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</' + mode + '>');
-      buf = []; mode = null;
-    };
-    lines.forEach(function (line) {
-      var b = /^\s*-\s+(.*)$/.exec(line);
-      var n = /^\s*\d+\.\s+(.*)$/.exec(line);
-      if (b) { if (mode && mode !== 'ul') flush(); mode = 'ul'; buf.push(b[1]); return; }
-      if (n) { if (mode && mode !== 'ol') flush(); mode = 'ol'; buf.push(n[1]); return; }
-      flush();
-      html.push(line);
-    });
-    flush();
-    out = html.join('\n');
-
-    return out.replace(/\u0000(\d+)\u0000/g, function (m, i) { return '<code>' + code[Number(i)] + '</code>'; });
-  }
-
-  /* The toolbar. Each button works on the selection, so pressing Bold with
-     something selected wraps it and pressing it with nothing selected leaves the
-     cursor between the markers ready to type. */
-  function wireComposer() {
-    var box = document.getElementById('plc-text');
-    var tools = document.getElementById('plc-tools');
-    var tray = document.getElementById('plc-emoji');
-    if (!box || !tools || tools.getAttribute('data-wired')) return;
-    tools.setAttribute('data-wired', '1');
-
-    var put = function (before, after, placeholder) {
-      var s1 = box.selectionStart, s2 = box.selectionEnd;
-      var sel = box.value.slice(s1, s2) || placeholder || '';
-      box.value = box.value.slice(0, s1) + before + sel + after + box.value.slice(s2);
-      box.focus();
-      var at = s1 + before.length;
-      box.setSelectionRange(at, at + sel.length);
-    };
-
-    var startOfLine = function (before) {
-      var s1 = box.selectionStart;
-      var bol = box.value.lastIndexOf('\n', s1 - 1) + 1;
-      box.value = box.value.slice(0, bol) + before + box.value.slice(bol);
-      box.focus();
-      box.setSelectionRange(s1 + before.length, s1 + before.length);
-    };
-
-    [].forEach.call(tools.querySelectorAll('button'), function (b) {
-      b.addEventListener('click', function () {
-        var wrap = b.getAttribute('data-wrap');
-        if (wrap) return put(wrap, wrap, '');
-        var line = b.getAttribute('data-line');
-        if (line) return startOfLine(line);
-        if (b.getAttribute('data-link')) {
-          var url = window.prompt('Link address', 'https://');
-          if (!url || !/^https?:\/\/\S+$/i.test(url)) return;
-          return put('[', '](' + url + ')', 'link text');
-        }
-        if (b.getAttribute('data-emoji')) {
-          if (!tray.innerHTML) {
-            tray.innerHTML = EMOJI.map(function (e) {
-              return '<button type="button">' + e + '</button>';
-            }).join('');
-            [].forEach.call(tray.querySelectorAll('button'), function (e) {
-              e.addEventListener('click', function () { put(e.textContent, '', ''); });
-            });
-          }
-          tray.hidden = !tray.hidden;
-        }
-      });
-    });
-
-    // Ctrl/Cmd+B and +I, because anybody who uses the buttons twice will try it.
-    box.addEventListener('keydown', function (ev) {
-      if (!(ev.ctrlKey || ev.metaKey)) return;
-      var k = ev.key.toLowerCase();
-      if (k === 'b') { ev.preventDefault(); put('**', '**', ''); }
-      if (k === 'i') { ev.preventDefault(); put('*', '*', ''); }
-    });
-  }
-
   /* --- left button: the course discussion --- */
   var commentsLoaded = null;  // slug currently shown in the panel
   var replyTo = null;         // comment id being replied to
@@ -2472,15 +2389,15 @@ button{font-family:inherit}
     if (bar && !bar.hidden) {
       if (curTab !== 'community') showTab('community');
       if (commentsLoaded !== curCourseSlug) loadComments(curCourseSlug, true);
-      var box = document.getElementById('plc-text');
-      if (box) { box.scrollIntoView({ block: 'center' }); box.focus(); }
+      var ed = composer();
+      if (ed) { ed.el.scrollIntoView({ block: 'center' }); ed.focus(); }
       return;
     }
     var open = playerEl.classList.toggle('comments-open');
     document.getElementById('pt-comments').classList.toggle('on', open);
     if (open) {
       if (commentsLoaded !== curCourseSlug) loadComments(curCourseSlug, true);
-      document.getElementById('plc-text').focus();
+      (function () { var e0 = composer(); if (e0) e0.focus(); })();
     }
   }
   function closeComments() {
@@ -2539,7 +2456,7 @@ button{font-family:inherit}
         (c.isAdmin ? '<span class="badge">Admin</span>' : '') +
         '<span class="ct">' + esc(when(c.createdAt)) + '</span></div>' +
         (c.lessonTitle ? '<div class="cl">on ' + esc(c.lessonTitle) + '</div>' : '') +
-        '<div class="ctext">' + (c.body ? fmtMessage(c.body) : '') + '</div>' +
+        '<div class="ctext">' + (c.body ? window.rtSanitize(c.body) : '') + '</div>' +
         '<div class="ca"><button data-reply="' + c.id + '">Reply</button>' +
         (c.canDelete ? '<button data-del="' + c.id + '">Delete</button>' : '') + '</div>' +
       '</div></div>';
@@ -2580,7 +2497,7 @@ button{font-family:inherit}
   function startReply(id) {
     replyTo = id;
     updateHint();
-    document.getElementById('plc-text').focus();
+    (function () { var e0 = composer(); if (e0) e0.focus(); })();
   }
 
   function updateHint() {
@@ -2597,11 +2514,13 @@ button{font-family:inherit}
   }
 
   function submitComment() {
-    var text = document.getElementById('plc-text');
+    var ed = composer();
     var nameEl = document.getElementById('plc-name');
     var send = document.getElementById('plc-send');
-    var body = text.value.trim();
-    if (!body || !curCourseSlug) return;
+    if (!ed || ed.isEmpty() || !curCourseSlug) return;
+    // Sanitised before it leaves the page as well as when it arrives. The
+    // server does not trust this, but there is no reason to send it rubbish.
+    var body = ed.html();
     var l = curFlat[curIdx] || {};
     var payload = {
       course: curCourseSlug, lessonId: l.libId, lessonTitle: l.title,
@@ -2617,7 +2536,7 @@ button{font-family:inherit}
     }).then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         if (!d) { alert('Could not post that comment. Please try again.'); return; }
-        text.value = '';
+        ed.clear();
         replyTo = null;
         if (newName) { me.hasName = true; me.name = newName; nameEl.hidden = true; }
         return loadComments(curCourseSlug, true).then(updateHint);
