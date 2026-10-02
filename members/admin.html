@@ -57,6 +57,17 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .st.planned{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.12)}
 .st.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12)}
 .st.declined{color:var(--txt-3)}
+.oc{background:var(--bg-2);border:1px solid var(--line-2);border-radius:12px;padding:16px 18px;margin:0 0 18px}
+.oc b{display:block;font-size:.95rem}
+.oc .meta{margin-top:6px;line-height:1.55}
+.oc-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
+.oc-list li{font-size:.86rem;color:var(--txt-2);display:flex;gap:9px;align-items:center}
+/* the button rules above only reach inside .card, and this block is not one */
+.oc .acts{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.oc .acts button{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);
+  border-radius:999px;padding:8px 16px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
+.oc .acts button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-2)}
+.oc .acts button:disabled{opacity:.55;cursor:default}
 .pbody{color:var(--txt-2);font-size:.9rem;line-height:1.6;margin:8px 0 0;white-space:pre-wrap}
 .fb{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
 .fb textarea{width:100%;background:var(--bg-3);border:1px solid var(--line-2);border-radius:9px;
@@ -635,6 +646,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       '</div>';
     if (members.funnelError) h += '<p class="warn">' + esc(members.funnelError) + '</p>';
 
+    /* Opening the courses to people who subscribed before the webhook did it
+       for us. Only ever a catch-up; new payments grant it themselves. */
+    h += '<div class="oc" id="oc"><p class="meta">Checking subscriptions…</p></div>';
+
     /* paid but no access — the thing that needs acting on */
     if (f && f.paidWithoutAccess && f.paidWithoutAccess.length) {
       h += '<div class="alert"><b>' + f.paidWithoutAccess.length + ' paid but have no access.</b>' +
@@ -768,6 +783,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
     p.innerHTML = h;
     wireMemberActions(p);
+    paintOpenCourses();
   }
 
   /* "checkout-reminder-3" -> the label the sequence uses for it, or a readable
@@ -778,6 +794,66 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       if (steps[i].kind === kind) return steps[i].label.toLowerCase();
     }
     return String(kind || '').replace(/-/g, ' ');
+  }
+
+
+  /* ---------------- open the courses to subscribers ---------------- */
+
+  function paintOpenCourses() {
+    var box = document.getElementById('oc');
+    if (!box) return;
+
+    fetch('/api/admin/open-courses', { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok) { box.innerHTML = '<p class="meta">' + esc(res.d.error || 'Could not check.') + '</p>'; return; }
+        var d = res.d;
+
+        // Locally this talks to test-mode Stripe and finds nothing real. Saying
+        // so beats showing a confident zero.
+        var testNote = d.mode === 'test'
+          ? '<p class="meta">Stripe is in test mode here, so these are test subscriptions. '
+            + 'Run this on the live site to act on real ones.</p>'
+          : '';
+
+        if (!d.toGrant.length) {
+          box.innerHTML = '<b>Courses are open to every subscriber.</b>' +
+            '<p class="meta">' + d.already + ' of ' + d.subscribers +
+            ' live subscription(s) already have them.</p>' + testNote;
+          return;
+        }
+
+        box.innerHTML = '<b>' + d.toGrant.length + ' subscriber(s) cannot see the courses yet.</b>' +
+          '<p class="meta">They subscribed before this was automatic, so they have no new invoice ' +
+          'to open it for them. New payments grant it themselves.</p>' + testNote +
+          '<ul class="oc-list">' + d.toGrant.map(function (x) {
+            return '<li>' + esc(x.email) + ' <span class="st">' + esc(x.status) + '</span></li>';
+          }).join('') + '</ul>' +
+          '<div class="acts"><button id="oc-go">Open the courses to them</button>' +
+          '<span class="meta" id="oc-msg"></span></div>';
+
+        document.getElementById('oc-go').addEventListener('click', function () {
+          var b = this;
+          if (!window.confirm('Give all ' + d.toGrant.length + ' of them access to every course?')) return;
+          b.disabled = true;
+          document.getElementById('oc-msg').textContent = 'Working\u2026';
+          fetch('/api/admin/open-courses', { method: 'POST', credentials: 'same-origin' })
+            .then(function (r) { return r.json().then(function (x) { return { ok: r.ok, d: x }; }); })
+            .then(function (out) {
+              if (!out.ok) {
+                b.disabled = false;
+                document.getElementById('oc-msg').textContent = out.d.error || 'Did not work.';
+                return;
+              }
+              paintOpenCourses();
+            })
+            .catch(function () {
+              b.disabled = false;
+              document.getElementById('oc-msg').textContent = 'Did not work.';
+            });
+        });
+      })
+      .catch(function () { box.innerHTML = '<p class="meta">Could not check subscriptions.</p>'; });
   }
 
   function stat(value, label, sub) {
