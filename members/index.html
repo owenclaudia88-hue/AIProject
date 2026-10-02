@@ -269,6 +269,40 @@ button{font-family:inherit}
   .pl-dur{margin-bottom:12px}
 }
 .pl-dur{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:0 0 22px}
+.pl-tabs{display:flex;gap:2px;margin:18px 0 0;border-bottom:1px solid var(--line);overflow-x:auto;
+         scrollbar-width:none}
+.pl-tabs::-webkit-scrollbar{display:none}
+.pl-tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--txt-3);
+                font:inherit;font-size:.88rem;font-weight:600;
+                /* 44px tall: still a tap target on a phone */
+                padding:12px 14px;cursor:pointer;white-space:nowrap;margin-bottom:-1px}
+.pl-tabs button:hover{color:var(--txt-2)}
+.pl-tabs button.on{color:var(--txt);border-bottom-color:var(--accent)}
+.pl-panel{margin:20px 0 0}
+.pl-panel[hidden]{display:none}
+.pl-panel h3{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent-2);
+             font-weight:800;margin:24px 0 0}
+.pl-panel h3:first-child{margin-top:0}
+.pl-panel p{color:var(--txt-2);font-size:.94rem;line-height:1.65;margin:11px 0 0;max-width:72ch}
+.pl-panel ul{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:9px}
+.pl-panel ul li{display:flex;gap:10px;color:var(--txt-2);font-size:.92rem;line-height:1.5}
+.pl-panel ul li::before{content:'\2713';color:var(--green);font-weight:800;flex:none}
+.pl-empty{color:var(--txt-3);font-size:.92rem;margin:0}
+.pj-form{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0 0}
+.pj-form input,.pj-form textarea{width:100%;background:var(--bg-3);border:1px solid var(--line-2);
+  border-radius:9px;color:var(--txt);font:inherit;font-size:.92rem;padding:11px 12px;margin:0 0 9px}
+.pj-form textarea{min-height:110px;resize:vertical}
+.pj-form button{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#140c03;
+  border:0;border-radius:9px;font:inherit;font-weight:800;font-size:.9rem;padding:12px 20px;cursor:pointer}
+.pj-form button:disabled{opacity:.55;cursor:default}
+.pj-item{background:var(--bg-2);border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin:10px 0 0}
+.pj-item .when{color:var(--txt-3);font-size:.76rem;font-family:var(--mono)}
+.pj-item .body{color:var(--txt-2);font-size:.9rem;line-height:1.6;margin:7px 0 0;white-space:pre-wrap}
+.pj-item a{color:var(--accent-2);font-size:.86rem;word-break:break-all}
+.pj-fb{background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.28);border-radius:9px;
+       padding:11px 13px;margin:11px 0 0}
+.pj-fb b{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+.pj-fb p{color:var(--txt);font-size:.89rem;line-height:1.6;margin:6px 0 0;white-space:pre-wrap}
 .pl-content{color:var(--txt);line-height:1.7;font-size:.99rem}
 .pl-content img{max-width:100%;border-radius:10px;margin:14px 0}
 .pl-content h1,.pl-content h2,.pl-content h3{color:#fff;margin:22px 0 8px}
@@ -313,6 +347,12 @@ button{font-family:inherit}
 
 /* ---------- comments panel ---------- */
 .pl-comments{display:none;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-left:1px solid var(--line);background:var(--bg-2)}
+/* the same panel, inside the Ask the Community tab: it is the page now, so
+   it loses the side rail's border, its own scrolling and its close button */
+.pl-comments.inline{display:flex;border-left:0;background:none;overflow:visible;height:auto}
+.pl-comments.inline .plc-head{display:none}
+.pl-comments.inline .plc-list{overflow:visible;padding-left:0;padding-right:0}
+.pl-comments.inline .plc-form{padding-left:0;padding-right:0;border-top:1px solid var(--line)}
 .player.comments-open .pl-comments{display:flex}
 .player.comments-open{grid-template-columns:1fr minmax(320px,400px) 300px}
 .player.wide{grid-template-columns:1fr}
@@ -765,7 +805,11 @@ button{font-family:inherit}
         <h1 class="pl-title" id="pl-title"></h1>
         <div class="video-wrap" id="pl-video"></div>
         <p class="pl-dur" id="pl-dur"></p>
+        <div class="pl-tabs" id="pl-tabs" role="tablist" hidden></div>
         <div class="pl-content" id="pl-content"></div>
+        <div class="pl-panel" id="pl-pane-about" hidden></div>
+        <div class="pl-panel" id="pl-pane-projects" hidden></div>
+        <div class="pl-panel" id="pl-pane-community" hidden></div>
         <div class="pl-complete">
           <button id="pl-complete"><span id="pl-complete-label">Complete lesson</span> <span>→</span></button>
         </div>
@@ -1636,18 +1680,6 @@ button{font-family:inherit}
     return h;
   }
 
-  function aboutPanel(a) {
-    if (!a) return '';
-    var body = aboutHTML(a);
-    if (!body) return '';
-    return '<div class="cd-about" id="cd-about">' +
-      '<div class="ab-head"><h2>About this course</h2>' +
-      '<button class="ab-toggle" id="ab-toggle" type="button" aria-expanded="false">Read more</button></div>' +
-      (a.summary ? '<p class="ab-sum">' + esc(a.summary) + '</p>' : '') +
-      '<div class="ab-body" id="ab-body" hidden>' + body + '</div>' +
-      '</div>';
-  }
-
   function renderCourseDetail(c, slug) {
     c.innerHTML = '<p class="empty">Loading course…</p>';
     loadCourse(slug).then(function (tree) {
@@ -1663,8 +1695,7 @@ button{font-family:inherit}
         '<p class="page-sub">' + (st.sections || (tree.sections || []).length) + ' sections · ' + total + ' lessons' +
         (st.minutes ? ' · ' + fmtTime(st.minutes) : '') + '</p>' +
         '<div class="cd-prog"><div class="bar"><i style="width:' + pct + '%"></i></div>' +
-        '<span class="lbl">Completed ' + done + ' of ' + total + ' lessons · ' + pct + '%</span></div>' +
-        aboutPanel(tree.about);
+        '<span class="lbl">Completed ' + done + ' of ' + total + ' lessons · ' + pct + '%</span></div>';
 
       var gi = 0;
       (tree.sections || []).forEach(function (s, si) {
@@ -1689,16 +1720,8 @@ button{font-family:inherit}
 
       document.getElementById('cd-back').addEventListener('click', function () { location.hash = 'courses'; });
 
-      var abT = document.getElementById('ab-toggle');
-      if (abT) {
-        abT.addEventListener('click', function () {
-          var body = document.getElementById('ab-body');
-          var open = body.hidden;
-          body.hidden = !open;
-          abT.textContent = open ? 'Show less' : 'Read more';
-          abT.setAttribute('aria-expanded', String(open));
-        });
-      }
+      // The course overview lives in the lesson's About tab now, so there is
+      // no collapsed panel on this page to wire up.
       [].forEach.call(c.querySelectorAll('.section-h'), function (h) {
         h.addEventListener('click', function () { h.parentElement.classList.toggle('collapsed'); });
       });
@@ -1741,6 +1764,165 @@ button{font-family:inherit}
       else if (e.key === 'ArrowLeft' && curIdx > 0) gotoLesson(curIdx - 1);
       else if (e.key === 'ArrowRight' && curIdx < curFlat.length - 1) gotoLesson(curIdx + 1);
     });
+  }
+
+
+  /* ---------------- lesson tabs ---------------- */
+
+  // The course overview, the project brief and the discussion all belong beside
+  // the lesson rather than in front of it. Which tab opens first follows the
+  // lesson: its own notes when it has any, the course overview when it does not,
+  // so a lesson with nothing written against it never opens on an empty panel.
+  var PANES = { about: 'pl-pane-about', projects: 'pl-pane-projects', community: 'pl-pane-community' };
+  var curTab = 'lesson';
+
+  function showTab(name) {
+    curTab = name;
+    document.getElementById('pl-content').hidden = name !== 'lesson';
+    Object.keys(PANES).forEach(function (k) {
+      document.getElementById(PANES[k]).hidden = k !== name;
+    });
+    [].forEach.call(document.querySelectorAll('#pl-tabs button'), function (b) {
+      var on = b.getAttribute('data-tab') === name;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    if (name === 'projects') loadProjects();
+    if (name === 'community') mountCommunity();
+  }
+
+  function buildTabs(tree, lesson) {
+    var bar = document.getElementById('pl-tabs');
+    // Unfinished, so only the test account sees any of it. Everyone else gets
+    // the lesson exactly as before.
+    if (!me.isTester) { bar.hidden = true; document.getElementById('pl-content').hidden = false; return; }
+
+    var hasText = !!(lesson && lesson.bodyHtml && String(lesson.bodyHtml).trim());
+    var hasAbout = !!(tree && tree.about);
+
+    var tabs = [];
+    if (hasText) tabs.push(['lesson', 'Lesson']);
+    if (hasAbout) tabs.push(['about', 'About the Course']);
+    tabs.push(['projects', 'Projects &amp; Resources']);
+    tabs.push(['community', 'Ask the Community']);
+
+    // One tab is not a tab bar, it is a heading nobody needs.
+    if (tabs.length < 2) { bar.hidden = true; document.getElementById('pl-content').hidden = false; return; }
+
+    bar.innerHTML = tabs.map(function (t) {
+      return '<button role="tab" data-tab="' + t[0] + '" aria-selected="false">' + t[1] + '</button>';
+    }).join('');
+    bar.hidden = false;
+    [].forEach.call(bar.querySelectorAll('button'), function (b) {
+      b.addEventListener('click', function () { showTab(b.getAttribute('data-tab')); });
+    });
+
+    document.getElementById('pl-pane-about').innerHTML =
+      hasAbout ? aboutHTML(tree.about) : '';
+
+    showTab(hasText ? 'lesson' : (hasAbout ? 'about' : 'projects'));
+  }
+
+  /* ---------------- projects ---------------- */
+
+  function projectItem(p) {
+    return '<div class="pj-item">' +
+      '<span class="when">' + esc(when(p.created_at)) + '</span>' +
+      (p.title ? '<div style="font-weight:700;margin-top:5px">' + esc(p.title) + '</div>' : '') +
+      (p.body ? '<div class="body">' + esc(p.body) + '</div>' : '') +
+      (p.url ? '<div style="margin-top:8px"><a href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer">' + esc(p.url) + '</a></div>' : '') +
+      (p.feedback
+        ? '<div class="pj-fb"><b>Feedback</b><p>' + esc(p.feedback) + '</p></div>'
+        : '<div class="when" style="margin-top:9px">Waiting for feedback</div>') +
+      '</div>';
+  }
+
+  function loadProjects() {
+    var el = document.getElementById('pl-pane-projects');
+    if (el.getAttribute('data-slug') === curCourseSlug) return;   // already loaded
+    el.innerHTML = '<p class="pl-empty">Loading\u2026</p>';
+
+    fetch('/api/projects?course=' + encodeURIComponent(curCourseSlug), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { el.innerHTML = '<p class="pl-empty">Could not load this.</p>'; return; }
+        el.setAttribute('data-slug', curCourseSlug);
+
+        var h = '';
+        if (d.brief) {
+          h += '<h3>The brief</h3>';
+          if (d.brief.lead) h += '<p>' + esc(d.brief.lead) + '</p>';
+          if (d.brief.items && d.brief.items.length) {
+            h += '<ul>' + d.brief.items.map(function (i) { return '<li>' + esc(i) + '</li>'; }).join('') + '</ul>';
+          }
+        } else {
+          h += '<p class="pl-empty">No brief for this course yet \u2014 submit whatever you have built and we will take a look.</p>';
+        }
+
+        h += '<h3>Hand yours in</h3>' +
+          '<div class="pj-form">' +
+            '<input id="pj-title" type="text" maxlength="160" placeholder="What did you build? (optional)">' +
+            '<input id="pj-url" type="url" maxlength="500" placeholder="Link to it \u2014 your page, doc or video (optional)">' +
+            '<textarea id="pj-body" maxlength="8000" placeholder="Tell us about it: what you made, what worked, where you got stuck\u2026"></textarea>' +
+            '<div style="display:flex;align-items:center;gap:12px">' +
+              '<button id="pj-send" type="button">Submit project</button>' +
+              '<span class="pl-empty" id="pj-msg"></span>' +
+            '</div>' +
+          '</div>';
+
+        if (d.mine && d.mine.length) {
+          h += '<h3>What you have handed in</h3>' + d.mine.map(projectItem).join('');
+        }
+
+        el.innerHTML = h;
+        document.getElementById('pj-send').addEventListener('click', submitProject);
+      })
+      .catch(function () { el.innerHTML = '<p class="pl-empty">Could not load this.</p>'; });
+  }
+
+  function submitProject() {
+    var btn = document.getElementById('pj-send');
+    var msg = document.getElementById('pj-msg');
+    var body = document.getElementById('pj-body').value.trim();
+    var url = document.getElementById('pj-url').value.trim();
+    if (!body && !url) { msg.textContent = 'Write something about it, or add a link.'; return; }
+
+    btn.disabled = true;
+    msg.textContent = 'Sending\u2026';
+    fetch('/api/projects', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        course: curCourseSlug,
+        lessonId: (curFlat[curIdx] || {}).lessonId || null,
+        title: document.getElementById('pj-title').value.trim(),
+        body: body, url: url
+      })
+    })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false;
+        if (!res.ok) { msg.textContent = res.d.error || 'That did not send.'; return; }
+        msg.textContent = 'Sent \u2014 thank you.';
+        // Force a reload so the new submission appears with the rest.
+        document.getElementById('pl-pane-projects').removeAttribute('data-slug');
+        loadProjects();
+      })
+      .catch(function () { btn.disabled = false; msg.textContent = 'That did not send.'; });
+  }
+
+  /* ---------------- community ---------------- */
+
+  // The discussion already exists as a side panel. Rather than a second copy
+  // that could drift from it, the tab moves the same element into place - one
+  // list, one set of handlers, whichever way it is opened.
+  function mountCommunity() {
+    var pane = document.getElementById('pl-pane-community');
+    var panel = document.getElementById('pl-comments');
+    if (panel && panel.parentNode !== pane) {
+      panel.classList.add('inline');
+      pane.appendChild(panel);
+    }
   }
 
   function openLesson(slug, idx) {
@@ -2054,10 +2236,14 @@ button{font-family:inherit}
     fetch('/api/library/item?id=' + encodeURIComponent(l.libId), { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (it) {
-        body.innerHTML = (it && it.bodyHtml) ? it.bodyHtml
+        var hasText = !!(it && it.bodyHtml && String(it.bodyHtml).trim());
+        body.innerHTML = hasText ? it.bodyHtml
           : '<p style="color:var(--txt-3)">Lesson notes will appear here.</p>';
         // a lesson can carry its own recordings in the body — fill them in
         mountClips(body, l);
+        // Only now is it known whether this lesson has anything written against
+        // it, which is what decides the default tab.
+        buildTabs(courseCache[curCourseSlug], { bodyHtml: hasText ? it.bodyHtml : '' });
       })
       .catch(function () { body.innerHTML = '<p style="color:#fca5a5">Could not load this lesson.</p>'; });
 

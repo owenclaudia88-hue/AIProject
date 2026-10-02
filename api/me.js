@@ -1,6 +1,7 @@
 import { currentSession } from '../lib/session.js';
 import { getCustomer, displayNameFor } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
+import { isTester } from '../lib/testers.js';
 
 /**
  * GET /api/me — who is signed in, and are they still active.
@@ -30,7 +31,10 @@ export default async function handler(req, res) {
       signedInWith: method,
       name: displayNameFor(email, customer.name),
       hasName: !!(customer.name && customer.name.trim()),
-      isAdmin: isAdmin(email)
+      isAdmin: isAdmin(email),
+      // Course features still being built show only for this account. Every
+      // other member sees the member area exactly as it was.
+      isTester: isTester(email)
     });
   } catch (err) {
     console.error('[me]', err);

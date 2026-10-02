@@ -57,6 +57,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .st.planned{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.12)}
 .st.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12)}
 .st.declined{color:var(--txt-3)}
+.pbody{color:var(--txt-2);font-size:.9rem;line-height:1.6;margin:8px 0 0;white-space:pre-wrap}
+.fb{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.fb textarea{width:100%;background:var(--bg-3);border:1px solid var(--line-2);border-radius:9px;
+             color:var(--txt);font:inherit;font-size:.88rem;padding:10px 12px;min-height:72px;resize:vertical}
+.fb .acts{margin-top:9px;display:flex;align-items:center;gap:11px}
 
 /* the line under a section heading that says what the list below means */
 .sub-note{margin:-6px 0 14px;font-size:.84rem;color:var(--txt-2);line-height:1.55;max-width:70ch}
@@ -197,6 +202,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     <div class="tabs">
       <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
+      <button class="tab" data-tab="projects">Projects<span class="n" id="n-proj"></span></button>
       <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
       <button class="tab" data-tab="leads">Leads &amp; buyers<span class="n" id="n-leads"></span></button>
       <button class="tab" data-tab="traffic">Traffic</button>
@@ -214,6 +220,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   var membersError = '';
   var leads = null;            // loaded when the tab is first opened
   var leadsError = '';
+  var projects = null;         // loaded the first time the tab is opened
+  var projectsError = '';
   var traffic = null;          // same again, keyed by the window being shown
   var trafficError = '';
   var trafficDays = 30;
@@ -981,11 +989,101 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     });
   }
 
+
+  /* ---------------- projects members have handed in ---------------- */
+
+  function paintProjects(p) {
+    if (projectsError) { p.innerHTML = '<p class="empty">' + esc(projectsError) + '</p>'; return; }
+    if (!projects) {
+      p.innerHTML = '<p class="empty">Loading\u2026</p>';
+      fetch('/api/admin/projects', { credentials: 'same-origin' })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (!res.ok) { projectsError = res.d.error || 'Could not load projects.'; }
+          else {
+            projects = res.d;
+            var n = document.getElementById('n-proj');
+            if (n) n.textContent = res.d.counts.waiting || '';
+          }
+          if (tab === 'projects') paintProjects(document.getElementById('panel'));
+        })
+        .catch(function () {
+          projectsError = 'Could not reach the server.';
+          if (tab === 'projects') paintProjects(document.getElementById('panel'));
+        });
+      return;
+    }
+
+    var list = projects.projects || [];
+    if (!list.length) { p.innerHTML = '<p class="empty">Nobody has handed anything in yet.</p>'; return; }
+
+    var h = '<h3 class="sech">Projects <span class="meta">' + list.length + '</span></h3>';
+    h += '<p class="sub-note">' + projects.counts.waiting + ' waiting for a reply. '
+      + 'Feedback is optional \u2014 leaving it blank puts a project back in the queue.</p>';
+
+    list.forEach(function (x) {
+      h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' +
+        '<span class="st ' + (x.status === 'reviewed' ? 'done' : 'new') + '">' +
+          (x.status === 'reviewed' ? 'replied' : 'waiting') + '</span>' +
+        '<span class="meta" style="margin-left:auto">' + esc(x.courseSlug) + ' \u00b7 ' +
+        esc(when(x.createdAt)) + '</span></div>';
+
+      if (x.title) h += '<div style="font-weight:600;margin-top:8px">' + esc(x.title) + '</div>';
+      if (x.body) h += '<p class="pbody">' + esc(x.body) + '</p>';
+      if (x.url) h += '<p style="margin-top:7px"><a href="' + esc(x.url) +
+        '" target="_blank" rel="noopener noreferrer">' + esc(x.url) + '</a></p>';
+
+      h += '<div class="fb">' +
+        '<textarea data-fb="' + x.id + '" maxlength="8000" placeholder="Feedback for ' +
+          esc((x.name || x.email).split(' ')[0]) + '\u2026">' + esc(x.feedback || '') + '</textarea>' +
+        '<div class="acts"><button data-save="' + x.id + '">' +
+          (x.feedback ? 'Update feedback' : 'Send feedback') + '</button>' +
+          '<span class="meta" data-msg="' + x.id + '">' +
+          (x.feedbackAt ? 'replied ' + esc(when(x.feedbackAt)) : '') + '</span></div>' +
+        '</div></div>';
+    });
+
+    p.innerHTML = h;
+
+    [].forEach.call(p.querySelectorAll('[data-save]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-save');
+        var box = p.querySelector('[data-fb="' + id + '"]');
+        var msg = p.querySelector('[data-msg="' + id + '"]');
+        var was = b.textContent;
+        b.disabled = true; b.textContent = 'Saving\u2026';
+        fetch('/api/admin/projects', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: Number(id), feedback: box.value })
+        })
+          .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+          .then(function (res) {
+            b.disabled = false; b.textContent = was;
+            if (!res.ok) { msg.textContent = res.d.error || 'Did not save.'; return; }
+            msg.textContent = res.d.project.feedback ? 'saved' : 'cleared';
+            // The queue count moved, so it is refetched rather than guessed at.
+            projects = null;
+            fetch('/api/admin/projects', { credentials: 'same-origin' })
+              .then(function (r) { return r.ok ? r.json() : null; })
+              .then(function (d) {
+                if (!d) return;
+                projects = d;
+                var n = document.getElementById('n-proj');
+                if (n) n.textContent = d.counts.waiting || '';
+              });
+          })
+          .catch(function () { b.disabled = false; b.textContent = was; msg.textContent = 'Did not save.'; });
+      });
+    });
+  }
+
   function paint() {
     var p = document.getElementById('panel');
     if (tab === 'members') { paintMembers(p); return; }
     if (tab === 'leads') { paintLeads(p); return; }
     if (tab === 'traffic') { paintTraffic(p); return; }
+    if (tab === 'projects') { paintProjects(p); return; }
     p.innerHTML = tab === 'requests' ? requestsHTML() : commentsHTML();
     if (tab === 'requests') {
       [].forEach.call(p.querySelectorAll('[data-set]'), function (b) {
