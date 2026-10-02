@@ -57,6 +57,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .st.planned{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.12)}
 .st.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12)}
 .st.declined{color:var(--txt-3)}
+/* somebody who bought: still listed, so the sequence can be seen working,
+   but dimmed because there is nothing left to do about them */
+.card.won{opacity:.62}
+.card.won b{color:var(--txt-2)}
 /* the line under a section heading that says what the list below means */
 .sub-note{margin:-6px 0 14px;font-size:.84rem;color:var(--txt-2);line-height:1.55;max-width:70ch}
 .badge{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(255,122,26,.16);color:var(--accent-2);border:1px solid rgba(255,122,26,.3)}
@@ -322,6 +326,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   // would refuse: not unsubscribed, hasn't had this one, and has had the one
   // before it.
   function canSend(person, step, steps) {
+    // Buying ends the sequence. Checked here rather than at each caller so the
+    // single Send button, the bulk send and the counts beside it cannot
+    // disagree about it — and so a buyer can never be offered one.
+    if (person.purchased) return false;
     if (person.unsubscribed) return false;
     // A dead mailbox. Offering the button would only produce another hard
     // bounce, which is what erodes the reputation the receipts depend on.
@@ -658,7 +666,18 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     /* everyone who started and did not finish */
     if (f && f.didNotConvert && f.didNotConvert.length) {
       // who could still be written to: not unsubscribed, not already reminded
-      h += '<h3 class="sech">Started checkout, did not buy <span class="meta">' + f.didNotConvert.length + '</span></h3>';
+      var stillOpen = f.didNotConvert.filter(function (x) { return !x.purchased; });
+      var wonBack = f.didNotConvert.length - stillOpen.length;
+      h += '<h3 class="sech">Started checkout, did not buy <span class="meta">' + stillOpen.length + '</span></h3>';
+
+      var rs2 = f.reminderStats;
+      if (rs2 && rs2.rate !== null) {
+        h += '<p class="sub-note"><b>' + rs2.rate + '%</b> of the people who were reminded went on to buy' +
+          ' \u2014 ' + rs2.bought + ' of ' + rs2.reminded + '.' +
+          (wonBack ? ' They are listed below, marked as bought.' : '') + '</p>';
+      } else if (rs2) {
+        h += '<p class="sub-note">Nobody has been reminded yet, so there is no conversion rate to show.</p>';
+      }
 
       // the automatic sequence, its waits, and the switch for the lot
       var rs = members.reminders || { enabled: true, steps: [], regularPriceLabel: '' };
@@ -687,7 +706,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
       // one "send now" per step, for whoever is currently due it
       var bulk = steps.map(function (s) {
-        var list = f.didNotConvert.filter(function (x) { return canSend(x, s, steps); });
+        var list = stillOpen.filter(function (x) { return canSend(x, s, steps); });
         return list.length
           ? '<button class="bulk" data-sendall="' + esc(s.kind) + '">Send ' + esc(s.label.toLowerCase()) + ' to ' + list.length + ' now</button>'
           : '';
@@ -696,18 +715,24 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       f.didNotConvert.forEach(function (x) {
         var sent = x.sent || {};
         // where they are in the sequence, in order
-        var notes = x.bounced ? '<span class="st declined">email does not exist</span>'
+        var notes = x.purchased ? '<span class="st done">bought</span>'
+          : x.bounced ? '<span class="st declined">email does not exist</span>'
           : x.unsubscribed ? '<span class="st declined">unsubscribed</span>'
           : steps.filter(function (s) { return sent[s.kind]; })
                  .map(function (s) { return '<span class="st planned">' + esc(s.label.toLowerCase()) + ' ' + esc(day(sent[s.kind])) + '</span>'; })
                  .join('');
 
-        var acts = (x.unsubscribed || x.bounced) ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
+        var acts = (x.purchased || x.unsubscribed || x.bounced) ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
           .map(function (s) {
             return '<button data-remind="' + esc(x.email) + '" data-kind="' + esc(s.kind) + '">Send ' + esc(s.label.toLowerCase()) + '</button>';
           }).join('');
 
-        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + notes +
+        var reached = x.purchased
+          ? steps.filter(function (s) { return sent[s.kind]; }).length
+          : 0;
+        h += '<div class="card' + (x.purchased ? ' won' : '') + '"><div class="hd"><b>' +
+          esc(x.name || x.email) + '</b>' + notes +
+          (reached ? '<span class="st">after ' + reached + ' reminder' + (reached === 1 ? '' : 's') + '</span>' : '') +
           '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + esc(day(x.createdAt)) + '</span></div>' +
           (acts ? '<div class="acts">' + acts + '</div>' : '') +
           '</div>';

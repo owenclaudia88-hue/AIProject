@@ -94,10 +94,35 @@ export default async function handler(req, res) {
         // where someone is in it rather than just "reminded" or not
         sent: Object.fromEntries(STEPS.map((s) => [s.kind, sentByKind.get(s.kind).get(p.email) || null])),
         unsubscribed: optedOut.has(p.email),
+        // They started a checkout and have since bought. Shown rather than
+        // dropped, so the sequence can be seen working instead of people
+        // quietly leaving the list.
+        purchased: !!p.purchased,
         // An address that does not exist. Shown rather than hidden, so a dead
         // lead reads as dead instead of as one the sequence forgot.
         bounced: bounced.has(p.email)
       }));
+
+    // How often chasing somebody actually works.
+    //
+    // Counted over the people who were reminded and nobody else: someone who
+    // bought before a reminder went out says nothing about whether reminders
+    // work, and leaving them in the denominator would drag the figure down for
+    // no reason. A reminder is counted as sent only once it has gone out, so
+    // the rate does not improve just because the sequence has not reached
+    // somebody yet.
+    const wasReminded = (p) => STEPS.some((s2) => sentByKind.get(s2.kind).has(p.email));
+    const remindedAll = didNotConvert.filter(wasReminded);
+    const remindedWhoBought = remindedAll.filter((p) => p.purchased).length;
+    const reminderStats = {
+      reminded: remindedAll.length,
+      bought: remindedWhoBought,
+      // Null rather than zero when nobody has been reminded: no data is not
+      // the same as a nought per cent conversion rate.
+      rate: remindedAll.length
+        ? Math.round((remindedWhoBought / remindedAll.length) * 1000) / 10
+        : null
+    };
 
     // Paid, not refunded, and yet has no access — a webhook that never
     // arrived, or a payment taken before it was wired up. Nobody would ever
@@ -124,6 +149,7 @@ export default async function handler(req, res) {
         ...(funnel ? funnel.stats : {}),
         didNotConvert,
         convertedFromReminder,
+        reminderStats,
         paidWithoutAccess
       },
       funnelError,
