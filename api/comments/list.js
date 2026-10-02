@@ -13,7 +13,10 @@ export default async function handler(req, res) {
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
-    if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
+    // Staff read the same threads members do, and have no membership to check.
+    if (!isAdmin(email) && !(await isActive(email))) {
+      return res.status(403).json({ error: 'not active' });
+    }
 
     const course = new URL(req.url, 'http://localhost').searchParams.get('course');
     if (!course) return res.status(400).json({ error: 'missing course' });

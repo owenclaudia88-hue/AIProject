@@ -67,6 +67,16 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .sub-note{margin:-6px 0 14px;font-size:.84rem;color:var(--txt-2);line-height:1.55;max-width:70ch}
 .badge{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(255,122,26,.16);color:var(--accent-2);border:1px solid rgba(255,122,26,.3)}
 .reply{margin-left:16px;border-left:2px solid var(--line-2);padding-left:14px}
+.ctext{font-size:.9rem;line-height:1.6;margin:8px 0 0;overflow-wrap:anywhere}
+.ctext a{color:var(--accent-2)}
+.ctext ul,.ctext ol{margin:6px 0;padding-left:21px}
+.ctext code{background:var(--bg-4);border:1px solid var(--line);border-radius:5px;
+  padding:1px 5px;font-family:var(--mono);font-size:.85em}
+.ctext pre{background:var(--bg-4);border:1px solid var(--line);border-radius:8px;
+  padding:9px 11px;overflow-x:auto;font-family:var(--mono);font-size:.82rem}
+.rt-reply{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.rt-reply[hidden]{display:none}
+.rt-reply .acts{margin-top:9px}
 .removed{opacity:.55;font-style:italic}
 .empty{color:var(--txt-3);font-family:var(--mono);font-size:.88rem;padding:40px 0;text-align:center}
 .back{display:inline-block;margin-top:30px;color:var(--txt-2);font-family:var(--mono);font-size:.85rem}
@@ -173,6 +183,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 #staff-signin button:disabled{opacity:.6;cursor:default}
 #staff-signin .note{margin-top:14px;font-size:.85rem;color:var(--txt-2);line-height:1.5}
 </style>
+<script src="../assets/emoji.js"></script>
+<script src="../assets/richtext.js"></script>
 </head>
 <body>
 
@@ -238,14 +250,21 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     return new Date(t).toLocaleDateString();
   }
 
-  fetch('/api/admin/overview', { credentials: 'same-origin' })
+  /* Requests and comments, fetched at startup and again whenever something
+     here changes them. */
+  function reloadOverview(first) {
+    return fetch('/api/admin/overview', { credentials: 'same-origin' })
     .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
     .then(function (res) {
       if (res.status === 200) {
         data = res.d;
-        document.getElementById('gate').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        counts(); paint(); wire();
+        if (first) {
+          document.getElementById('gate').style.display = 'none';
+          document.getElementById('app').style.display = 'block';
+          counts(); paint(); wire();
+        } else {
+          counts(); paint();
+        }
       } else if (res.status === 403) {
         document.getElementById('gate-msg').innerHTML =
           'That account is not a staff account. <a href="index.html">Back to the member area</a>';
@@ -260,6 +279,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     .catch(function () {
       document.getElementById('gate-msg').textContent = 'Could not load the admin view. Please refresh.';
     });
+  }
+
+  reloadOverview(true);
 
   /* ---------------- staff sign-in ---------------- */
   document.getElementById('staff-signin').addEventListener('submit', function (e) {
@@ -1101,6 +1123,65 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         });
       });
     } else {
+      // Reply, with the same editor members write in. The editor is built the
+      // first time a box is opened and kept, so reopening it keeps a half-typed
+      // reply rather than throwing it away.
+      var editors = {};
+      [].forEach.call(p.querySelectorAll('[data-reply]'), function (b) {
+        b.addEventListener('click', function () {
+          var id = b.getAttribute('data-reply');
+          var host = p.querySelector('.rt-reply[data-for="' + id + '"]');
+          if (!host) return;
+
+          if (!editors[id]) {
+            var mount = document.createElement('div');
+            host.appendChild(mount);
+            var ed = window.rtMount(mount, { placeholder: 'Reply as admin\u2026' });
+
+            var acts = document.createElement('div');
+            acts.className = 'acts';
+            var send = document.createElement('button');
+            send.type = 'button';
+            send.textContent = 'Post reply';
+            var note = document.createElement('span');
+            note.className = 'meta';
+            acts.appendChild(send);
+            acts.appendChild(note);
+            host.appendChild(acts);
+
+            send.addEventListener('click', function () {
+              if (ed.isEmpty()) { note.textContent = 'Write something first.'; return; }
+              send.disabled = true; note.textContent = 'Posting\u2026';
+              fetch('/api/comments/create', {
+                method: 'POST', credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                // The reply is flagged as staff by the endpoint, from the
+                // session - never from anything this page sends.
+                body: JSON.stringify({
+                  course: b.getAttribute('data-course'),
+                  parentId: Number(id),
+                  body: ed.html()
+                })
+              })
+                .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+                .then(function (res) {
+                  send.disabled = false;
+                  if (!res.ok) { note.textContent = res.d.error || 'Did not post.'; return; }
+                  ed.clear();
+                  note.textContent = 'Posted.';
+                  reloadOverview(false);
+                })
+                .catch(function () { send.disabled = false; note.textContent = 'Did not post.'; });
+            });
+
+            editors[id] = ed;
+          }
+
+          host.hidden = !host.hidden;
+          if (!host.hidden) editors[id].focus();
+        });
+      });
+
       [].forEach.call(p.querySelectorAll('[data-del]'), function (b) {
         b.addEventListener('click', function () {
           if (!window.confirm('Delete this comment? The member will see it as removed.')) return;
@@ -1148,8 +1229,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         '</div>' +
         '<span class="meta">' + (c.isReply ? 'reply · ' : '') + esc(c.course || '') +
           (c.lesson ? ' · ' + esc(c.lesson) : '') + '</span>' +
-        '<p>' + esc(c.body) + '</p>' +
-        '<div class="acts"><button class="danger" data-del="' + c.id + '">Delete</button></div></div>';
+        '<div class="ctext">' + (c.body ? window.rtSanitize(c.body) : '') + '</div>' +
+        '<div class="acts">' +
+          '<button data-reply="' + c.id + '" data-course="' + esc(c.course || '') + '">Reply</button>' +
+          '<button class="danger" data-del="' + c.id + '">Delete</button>' +
+        '</div>' +
+        '<div class="rt-reply" data-for="' + c.id + '" hidden></div></div>';
     }).join('');
   }
 })();

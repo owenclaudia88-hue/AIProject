@@ -23,7 +23,10 @@ export default async function handler(req, res) {
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
-    if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
+    // Staff have never bought anything, so a membership cannot be the test for
+    // them. Same rule the delete endpoint already uses.
+    const staff = isAdmin(email);
+    if (!staff && !(await isActive(email))) return res.status(403).json({ error: 'not active' });
 
     const b = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const course = typeof b.course === 'string' ? b.course.trim() : '';
@@ -44,7 +47,7 @@ export default async function handler(req, res) {
       lessonTitle: typeof b.lessonTitle === 'string' ? b.lessonTitle.slice(0, 300) : null,
       parentId: Number.isFinite(Number(b.parentId)) && b.parentId != null ? Number(b.parentId) : null,
       email,
-      isAdmin: isAdmin(email),
+      isAdmin: staff,
       body
     });
 
