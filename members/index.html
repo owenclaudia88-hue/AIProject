@@ -349,10 +349,12 @@ button{font-family:inherit}
 .pl-comments{display:none;flex-direction:column;min-width:0;min-height:0;overflow:hidden;border-left:1px solid var(--line);background:var(--bg-2)}
 /* the same panel, inside the Ask the Community tab: it is the page now, so
    it loses the side rail's border, its own scrolling and its close button */
-.pl-comments.inline{display:flex;border-left:0;background:none;overflow:visible;height:auto}
-.pl-comments.inline .plc-head{display:none}
-.pl-comments.inline .plc-list{overflow:visible;padding-left:0;padding-right:0}
-.pl-comments.inline .plc-form{padding-left:0;padding-right:0;border-top:1px solid var(--line)}
+#pl-comments.inline{position:static;display:flex;width:auto;height:auto;max-height:none;
+  inset:auto;z-index:auto;border-left:0;background:none;overflow:visible}
+#pl-comments.inline .plc-head{display:none}
+#pl-comments.inline .plc-list{overflow:visible;max-height:none;padding-left:0;padding-right:0}
+#pl-comments.inline .plc-form{position:static;padding-left:0;padding-right:0;
+  border-top:1px solid var(--line);background:none}
 .player.comments-open .pl-comments{display:flex}
 .player.comments-open{grid-template-columns:1fr minmax(320px,400px) 300px}
 .player.wide{grid-template-columns:1fr}
@@ -372,6 +374,22 @@ button{font-family:inherit}
 .cmt .ct{font-family:var(--mono);font-size:.68rem;color:var(--txt-3)}
 .cmt .cl{font-family:var(--mono);font-size:.67rem;color:var(--txt-3);margin:2px 0 3px}
 .cmt .ctext{font-size:.88rem;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.cmt .ctext a{color:var(--accent-2);overflow-wrap:anywhere}
+.cmt .ctext code{background:var(--bg-4);border:1px solid var(--line);border-radius:5px;
+                 padding:1px 5px;font-family:var(--mono);font-size:.84em}
+.cmt .ctext ul,.cmt .ctext ol{margin:7px 0 0;padding-left:20px;white-space:normal}
+.cmt .ctext li{margin:3px 0}
+/* the composer toolbar */
+.plc-tools{display:flex;align-items:center;gap:2px;flex-wrap:wrap;margin:0 0 7px}
+.plc-tools button{background:none;border:1px solid transparent;border-radius:7px;color:var(--txt-3);
+  font:inherit;font-size:.82rem;line-height:1;min-width:30px;height:30px;cursor:pointer}
+.plc-tools button:hover{background:var(--bg-4);color:var(--txt);border-color:var(--line-2)}
+.plc-tools .sep{width:1px;height:16px;background:var(--line-2);margin:0 5px}
+.plc-emoji{display:flex;flex-wrap:wrap;gap:3px;margin:0 0 7px}
+.plc-emoji[hidden]{display:none}
+.plc-emoji button{background:none;border:0;font-size:1.1rem;line-height:1;padding:5px;
+  border-radius:6px;cursor:pointer}
+.plc-emoji button:hover{background:var(--bg-4)}
 .cmt.removed .ctext{color:var(--txt-3);font-style:italic}
 .cmt .ca{display:flex;gap:14px;margin-top:6px}
 .cmt .ca button{background:none;border:0;padding:0;color:var(--txt-3);font-family:var(--mono);font-size:.72rem;cursor:pointer}
@@ -823,6 +841,19 @@ button{font-family:inherit}
       <div class="plc-list" id="plc-list"></div>
       <div class="plc-form">
         <input class="nm" id="plc-name" type="text" maxlength="60" placeholder="Your display name" hidden>
+        <div class="plc-tools" id="plc-tools">
+          <button type="button" data-wrap="**" title="Bold"><b>B</b></button>
+          <button type="button" data-wrap="*" title="Italic"><i>I</i></button>
+          <button type="button" data-wrap="~~" title="Strikethrough"><s>S</s></button>
+          <button type="button" data-wrap="`" title="Code">&lt;/&gt;</button>
+          <span class="sep"></span>
+          <button type="button" data-line="- " title="Bullet list">&#8226;</button>
+          <button type="button" data-line="1. " title="Numbered list">1.</button>
+          <button type="button" data-link="1" title="Link">&#128279;</button>
+          <span class="sep"></span>
+          <button type="button" data-emoji="1" title="Emoji">&#128512;</button>
+        </div>
+        <div class="plc-emoji" id="plc-emoji" hidden></div>
         <textarea id="plc-text" maxlength="4000" placeholder="Type a message…"></textarea>
         <div class="row">
           <span class="hint" id="plc-hint"></span>
@@ -1927,6 +1958,8 @@ button{font-family:inherit}
       panel.classList.add('inline');
       pane.appendChild(panel);
     }
+    if (commentsLoaded !== curCourseSlug) loadComments(curCourseSlug, true);
+    wireComposer();
   }
 
   function openLesson(slug, idx) {
@@ -2307,11 +2340,142 @@ button{font-family:inherit}
     }).catch(function () {}).then(function () { btn.disabled = false; });
   }
 
+
+  /* ---------------- message formatting ---------------- */
+
+  /**
+   * Turn a member's message into markup.
+   *
+   * Escaped first, then a fixed set of patterns is replaced in the already-safe
+   * text. Nothing anybody types can become HTML, because by the time any of
+   * these run there are no angle brackets left to close - the formatting is a
+   * whitelist applied to safe text rather than a parser trusted with raw input.
+   */
+  var EMOJI = ['\ud83d\udc4d', '\ud83d\ude42', '\ud83c\udf89', '\ud83d\udd25', '\ud83d\ude4f',
+               '\ud83d\udca1', '\u2705', '\u26a1', '\ud83d\ude80', '\u2764\ufe0f',
+               '\ud83e\udd14', '\ud83d\udc40'];
+
+  function fmtMessage(text) {
+    var out = esc(String(text == null ? '' : text));
+
+    // Code first: whatever is inside it must not then be read as emphasis.
+    var code = [];
+    out = out.replace(/`([^`\n]+)`/g, function (m, inner) {
+      code.push(inner);
+      return '\u0000' + (code.length - 1) + '\u0000';
+    });
+
+    out = out.replace(/\*\*([^\n*]+)\*\*/g, '<strong>$1</strong>');
+    out = out.replace(/(^|[^*])\*([^\n*]+)\*(?!\*)/g, '$1<em>$2</em>');
+    out = out.replace(/~~([^\n~]+)~~/g, '<s>$1</s>');
+
+    // [label](url) and bare links, http(s) only — a scheme nobody can see is
+    // how a link becomes a script.
+    out = out.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      function (m, label, href) {
+        return '<a href="' + href + '" target="_blank" rel="noopener noreferrer nofollow">' + label + '</a>';
+      });
+    out = out.replace(/(^|[\s(])(https?:\/\/[^\s<]+)/g, function (m, pre, href) {
+      return pre + '<a href="' + href + '" target="_blank" rel="noopener noreferrer nofollow">' + href + '</a>';
+    });
+
+    // Lists, built from runs of consecutive marked lines.
+    var lines = out.split('\n'), html = [], buf = [], mode = null;
+    var flush = function () {
+      if (!buf.length) return;
+      html.push('<' + mode + '>' + buf.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</' + mode + '>');
+      buf = []; mode = null;
+    };
+    lines.forEach(function (line) {
+      var b = /^\s*-\s+(.*)$/.exec(line);
+      var n = /^\s*\d+\.\s+(.*)$/.exec(line);
+      if (b) { if (mode && mode !== 'ul') flush(); mode = 'ul'; buf.push(b[1]); return; }
+      if (n) { if (mode && mode !== 'ol') flush(); mode = 'ol'; buf.push(n[1]); return; }
+      flush();
+      html.push(line);
+    });
+    flush();
+    out = html.join('\n');
+
+    return out.replace(/\u0000(\d+)\u0000/g, function (m, i) { return '<code>' + code[Number(i)] + '</code>'; });
+  }
+
+  /* The toolbar. Each button works on the selection, so pressing Bold with
+     something selected wraps it and pressing it with nothing selected leaves the
+     cursor between the markers ready to type. */
+  function wireComposer() {
+    var box = document.getElementById('plc-text');
+    var tools = document.getElementById('plc-tools');
+    var tray = document.getElementById('plc-emoji');
+    if (!box || !tools || tools.getAttribute('data-wired')) return;
+    tools.setAttribute('data-wired', '1');
+
+    var put = function (before, after, placeholder) {
+      var s1 = box.selectionStart, s2 = box.selectionEnd;
+      var sel = box.value.slice(s1, s2) || placeholder || '';
+      box.value = box.value.slice(0, s1) + before + sel + after + box.value.slice(s2);
+      box.focus();
+      var at = s1 + before.length;
+      box.setSelectionRange(at, at + sel.length);
+    };
+
+    var startOfLine = function (before) {
+      var s1 = box.selectionStart;
+      var bol = box.value.lastIndexOf('\n', s1 - 1) + 1;
+      box.value = box.value.slice(0, bol) + before + box.value.slice(bol);
+      box.focus();
+      box.setSelectionRange(s1 + before.length, s1 + before.length);
+    };
+
+    [].forEach.call(tools.querySelectorAll('button'), function (b) {
+      b.addEventListener('click', function () {
+        var wrap = b.getAttribute('data-wrap');
+        if (wrap) return put(wrap, wrap, '');
+        var line = b.getAttribute('data-line');
+        if (line) return startOfLine(line);
+        if (b.getAttribute('data-link')) {
+          var url = window.prompt('Link address', 'https://');
+          if (!url || !/^https?:\/\/\S+$/i.test(url)) return;
+          return put('[', '](' + url + ')', 'link text');
+        }
+        if (b.getAttribute('data-emoji')) {
+          if (!tray.innerHTML) {
+            tray.innerHTML = EMOJI.map(function (e) {
+              return '<button type="button">' + e + '</button>';
+            }).join('');
+            [].forEach.call(tray.querySelectorAll('button'), function (e) {
+              e.addEventListener('click', function () { put(e.textContent, '', ''); });
+            });
+          }
+          tray.hidden = !tray.hidden;
+        }
+      });
+    });
+
+    // Ctrl/Cmd+B and +I, because anybody who uses the buttons twice will try it.
+    box.addEventListener('keydown', function (ev) {
+      if (!(ev.ctrlKey || ev.metaKey)) return;
+      var k = ev.key.toLowerCase();
+      if (k === 'b') { ev.preventDefault(); put('**', '**', ''); }
+      if (k === 'i') { ev.preventDefault(); put('*', '*', ''); }
+    });
+  }
+
   /* --- left button: the course discussion --- */
   var commentsLoaded = null;  // slug currently shown in the panel
   var replyTo = null;         // comment id being replied to
 
   function toggleComments() {
+    // Once the discussion lives in a tab, the old side rail is an empty box.
+    // The button opens the tab instead of a panel with nothing in it.
+    var bar = document.getElementById('pl-tabs');
+    if (bar && !bar.hidden) {
+      if (curTab !== 'community') showTab('community');
+      if (commentsLoaded !== curCourseSlug) loadComments(curCourseSlug, true);
+      var box = document.getElementById('plc-text');
+      if (box) { box.scrollIntoView({ block: 'center' }); box.focus(); }
+      return;
+    }
     var open = playerEl.classList.toggle('comments-open');
     document.getElementById('pt-comments').classList.toggle('on', open);
     if (open) {
@@ -2375,7 +2539,7 @@ button{font-family:inherit}
         (c.isAdmin ? '<span class="badge">Admin</span>' : '') +
         '<span class="ct">' + esc(when(c.createdAt)) + '</span></div>' +
         (c.lessonTitle ? '<div class="cl">on ' + esc(c.lessonTitle) + '</div>' : '') +
-        '<div class="ctext">' + esc(c.body) + '</div>' +
+        '<div class="ctext">' + (c.body ? fmtMessage(c.body) : '') + '</div>' +
         '<div class="ca"><button data-reply="' + c.id + '">Reply</button>' +
         (c.canDelete ? '<button data-del="' + c.id + '">Delete</button>' : '') + '</div>' +
       '</div></div>';
