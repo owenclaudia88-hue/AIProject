@@ -827,60 +827,13 @@ button{font-family:inherit}
 .rm-wait h3{margin:0 0 8px;font-size:1.12rem;font-weight:800}
 .rm-wait p{margin:0;color:var(--txt-2);font-size:.93rem;line-height:1.6}
 
-/* the roadmap itself */
-.rm{max-width:860px}
-.rm-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px}
-.rm h1{margin:0;font-size:clamp(1.45rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.03em;line-height:1.2;flex:1;min-width:260px}
-.rm-print{flex:none;background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);
-  border-radius:999px;min-height:42px;padding:0 18px;font-family:var(--mono);font-size:.78rem;cursor:pointer}
-.rm-print:hover{border-color:var(--accent);color:var(--accent-2)}
-.rm-read{color:var(--txt-2);font-size:1rem;line-height:1.65;margin:14px 0 0}
-.rm-bet{margin:20px 0 30px;padding:18px 20px;background:rgba(255,122,26,.08);
-  border:1px solid rgba(255,122,26,.28);border-left-width:3px;border-radius:12px;
-  font-size:.98rem;line-height:1.7;color:var(--txt)}
-.rm-phase{margin:0 0 30px}
-.rm-phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 4px;
-  padding-bottom:10px;border-bottom:1px solid var(--line)}
-.rm-phase-h h2{margin:0;font-size:1.22rem;font-weight:800;letter-spacing:-.02em}
-.rm-phase-h .goal{color:var(--txt-2);font-size:.9rem;line-height:1.5}
-.rm-step{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)}
-.rm-step:last-child{border-bottom:0}
-.rm-n{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
-  font-family:var(--mono);font-size:.82rem;font-weight:700;color:#1a0d00;
-  background:linear-gradient(135deg,var(--accent),var(--accent-2))}
-.rm-s{flex:1;min-width:0}
-.rm-s h3{margin:3px 0 0;font-size:1.02rem;font-weight:700;letter-spacing:-.01em;line-height:1.35}
-.rm-s .t{display:inline-block;margin-left:9px;font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
-.rm-s .why{margin:8px 0 0;color:var(--txt-2);font-size:.93rem;line-height:1.65}
-.rm-s ol.how{margin:12px 0 0;padding-left:20px;color:var(--txt);font-size:.93rem;line-height:1.7}
-.rm-s ol.how li{margin-bottom:5px}
-.rm-res{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
-.rm-res a{display:inline-flex;align-items:center;gap:7px;background:var(--bg-3);border:1px solid var(--line-2);
-  border-radius:999px;padding:8px 14px;font-size:.82rem;color:var(--txt-2);min-height:38px}
-.rm-res a:hover{border-color:var(--accent);color:var(--accent-2)}
-.rm-res a .k{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;
-  color:var(--accent-2)}
-.rm-block{margin:0 0 26px}
-.rm-block h2{margin:0 0 10px;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
-.rm-block p,.rm-block li{color:var(--txt-2);font-size:.94rem;line-height:1.7}
-.rm-block ul{margin:0;padding-left:20px}
-.rm-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:10px}
-.rm-metric{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
-.rm-metric b{display:block;font-size:.93rem;margin-bottom:4px}
-.rm-metric span{font-family:var(--mono);font-size:.78rem;color:var(--accent-2)}
-.rm-foot{margin:30px 0 0;padding-top:18px;border-top:1px solid var(--line);
-  font-family:var(--mono);font-size:.76rem;color:var(--txt-3);line-height:1.6}
-
+/* The roadmap document itself is styled in assets/roadmap-doc.css, which the
+   admin preview loads as well so the two cannot drift apart. What stays here
+   is the page around it: on paper the member area's furniture is noise. */
 @media print{
-  .sidebar,.topbar,.scrim,.rm-print,#join-banner{display:none!important}
+  .sidebar,.topbar,.scrim,#join-banner{display:none!important}
   .shell,.main,.content{display:block!important;padding:0!important;max-width:none!important}
   body{background:#fff!important;color:#000!important}
-  .rm h1,.rm-phase-h h2,.rm-block h2,.rm-s h3,.rm-metric b{color:#000!important}
-  .rm-read,.rm-s .why,.rm-block p,.rm-block li,.rm-phase-h .goal{color:#333!important}
-  .rm-bet{background:#f6f6f6!important;border-color:#ccc!important}
-  .rm-res a{border-color:#ccc!important;color:#333!important}
-  .rm-step{break-inside:avoid}
-  .rm-phase{break-inside:avoid-page}
 }
 
 /* ---------- request content ---------- */
@@ -1135,8 +1088,10 @@ button{font-family:inherit}
 @media(max-width:600px){.brand-logo{width:150px}}
 </style>
 <link rel="stylesheet" href="../assets/richtext.css">
+<link rel="stylesheet" href="../assets/roadmap-doc.css">
 <script src="../assets/emoji.js"></script>
 <script src="../assets/richtext.js"></script>
+<script src="../assets/roadmap-doc.js"></script>
 </head>
 <body>
 
@@ -1594,6 +1549,13 @@ button{font-family:inherit}
     });
     window.addEventListener('hashchange', routeFromHash);
   }
+  // A hash somebody typed by hand can be malformed, and decodeURIComponent
+  // throws on that rather than returning anything, which would take the whole
+  // router down.
+  function safeDecode(s) {
+    try { return decodeURIComponent(s); } catch (e) { return s; }
+  }
+
   function routeFromHash() {
     var raw = (location.hash || '#dashboard').slice(1);
     var navKey = raw;
@@ -1604,9 +1566,23 @@ button{font-family:inherit}
     else if (raw.indexOf('item-') === 0) {
       // Opens the reader over whatever is already there, then takes the hash
       // back out so closing it does not leave a URL that reopens it.
-      var wanted = raw.slice('item-'.length);
+      // Decoded, because ids carry colons ("automation:38a2…") and a link that
+      // percent-encodes one would otherwise be looked up with the %3A still in
+      // it and found to be nothing.
+      var wanted = safeDecode(raw.slice('item-'.length));
       history.replaceState(null, '', location.pathname + location.search + '#' + (view || 'dashboard'));
       openItem(wanted);
+      return;
+    }
+    // A roadmap step that says "watch section 3" links to section 3. Same
+    // treatment as an item: the player opens over the page and the hash goes
+    // back to where you were, so closing it does not reopen it.
+    else if (raw.indexOf('lesson-') === 0 && raw.indexOf('/') > 0) {
+      var cut = raw.indexOf('/');
+      var lslug = safeDecode(raw.slice('lesson-'.length, cut));
+      var lid = safeDecode(raw.slice(cut + 1));
+      history.replaceState(null, '', location.pathname + location.search + '#' + (view || 'dashboard'));
+      openLessonById(lslug, lid);
       return;
     }
     else if (raw.indexOf('c-') === 0) { view = raw; navKey = raw; }
@@ -2564,67 +2540,29 @@ button{font-family:inherit}
 
   /* ---- the finished roadmap ---- */
 
-  // Where a recommendation actually goes. A link that drops somebody in the
-  // right section and leaves them to find it is not a link to the tool.
-  function resourceHref(r) {
-    if (r.type === 'course') return '#course-' + r.id;
-    if (r.type === 'item') return '#item-' + r.id;
-    return '#downloads';
-  }
-
   function paintRoadmap(c, R) {
-    var html =
-      '<div class="rm">' +
-      '<div class="rm-top"><h1>' + esc(R.headline || 'Your AI Roadmap') + '</h1>' +
-        '<button class="rm-print" id="rm-print" type="button">\u2193 Download / print</button></div>' +
-      (R.readback ? '<p class="rm-read">' + esc(R.readback) + '</p>' : '') +
-      (R.theBet ? '<div class="rm-bet">' + esc(R.theBet) + '</div>' : '');
-
-    (R.phases || []).forEach(function (p) {
-      html += '<section class="rm-phase"><div class="rm-phase-h"><h2>' + esc(p.window) + '</h2>' +
-        (p.goal ? '<span class="goal">' + esc(p.goal) + '</span>' : '') + '</div>';
-      (p.steps || []).forEach(function (st, n) {
-        html += '<div class="rm-step"><span class="rm-n">' + (n + 1) + '</span><div class="rm-s">' +
-          '<h3>' + esc(st.title) + (st.time ? '<span class="t">' + esc(st.time) + '</span>' : '') + '</h3>' +
-          (st.why ? '<p class="why">' + esc(st.why) + '</p>' : '') +
-          ((st.how || []).length
-            ? '<ol class="how">' + st.how.map(function (h) { return '<li>' + esc(h) + '</li>'; }).join('') + '</ol>'
-            : '') +
-          ((st.resources || []).length
-            ? '<div class="rm-res">' + st.resources.map(function (r) {
-                return '<a href="' + resourceHref(r) + '"><span class="k">' +
-                  esc(r.type === 'course' ? 'Course' : r.type === 'download' ? 'Download' : (r.kindLabel || 'Library')) +
-                  '</span>' + esc(r.title) + '</a>';
-              }).join('') + '</div>'
-            : '') +
-          '</div></div>';
-      });
-      html += '</section>';
+    var req = rm.request || {};
+    c.innerHTML = window.roadmapDoc.render(R, {
+      name: me.name || '',
+      publishedAt: req.publishedAt,
+      // Absolute, so the links still work from a saved PDF. Same page, so
+      // clicking one in the member area is still a hash change rather than a
+      // reload.
+      // Query string included: without it a member who arrived with one on the
+      // URL would have every link in their roadmap reload the page instead of
+      // opening over it.
+      base: location.origin + location.pathname + location.search,
+      foot: 'Built for you by AI Founder University. Something here not fit? ' +
+        'Say so in the community and we will adjust it.'
     });
-
-    if ((R.order || []).length) {
-      html += '<div class="rm-block"><h2>Why this order</h2>' +
-        R.order.map(function (o) { return '<p>' + esc(o) + '</p>'; }).join('') + '</div>';
-    }
-    if ((R.watchOuts || []).length) {
-      html += '<div class="rm-block"><h2>What to watch out for</h2><ul>' +
-        R.watchOuts.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></div>';
-    }
-    if ((R.metrics || []).length) {
-      html += '<div class="rm-block"><h2>How you will know it is working</h2><div class="rm-metrics">' +
-        R.metrics.map(function (m) {
-          return '<div class="rm-metric"><b>' + esc(m.name) + '</b><span>' + esc(m.target) + '</span></div>';
-        }).join('') + '</div></div>';
-    }
-
-    html += '<p class="rm-foot">Built for you by AI Founder University' +
-      (rm.request && rm.request.publishedAt
-        ? ' \u00b7 ' + esc(new Date(rm.request.publishedAt).toLocaleDateString()) : '') +
-      '. Something not fit? Say so in the community and we will adjust it.</p></div>';
-
-    c.innerHTML = html;
-    document.getElementById('rm-print').addEventListener('click', function () { window.print(); });
+    window.roadmapDoc.wire(c, {
+      // Ticks belong to this published version. A republished roadmap is a
+      // different plan, and carrying the old ticks over would mark steps done
+      // that nobody has done.
+      storeKey: String(req.id || '0') + '_' + String(req.publishedAt || '')
+    });
   }
+
 
 
   function render() {

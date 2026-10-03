@@ -164,6 +164,16 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   resize:vertical}
 .rm-json:focus{outline:none;border-color:var(--accent)}
 .rm-note{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:10px 0 0;line-height:1.6}
+/* Preview first, JSON behind it. Reviewing a deliverable means reading it the
+   way the member will; the JSON is for fixing what the reading finds. */
+.rm-tabs{display:flex;gap:7px;margin:16px 0 0}
+.rm-tabs button{background:var(--bg-3);border:1px solid var(--line);color:var(--txt-3);
+  border-radius:999px;min-height:34px;padding:0 14px;font-family:var(--mono);font-size:.72rem;cursor:pointer}
+.rm-tabs button.on{background:rgba(255,122,26,.13);border-color:rgba(255,122,26,.34);color:#ffd9b3}
+.rm-prev{margin:14px 0 0;background:var(--bg);border:1px solid var(--line);border-radius:14px;
+  padding:26px 24px;max-height:70vh;overflow:auto}
+.rm-prev .rmd{max-width:none}
+.rm-json[hidden],.rm-prev[hidden]{display:none}
 .rm-warn{background:rgba(255,176,32,.09);border:1px solid rgba(255,176,32,.32);border-radius:12px;
   padding:13px 16px;margin:0 0 16px;font-size:.88rem;line-height:1.6;color:var(--txt-2)}
 .rm-warn b{color:var(--accent-2)}
@@ -315,8 +325,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 #staff-signin .note{margin-top:14px;font-size:.85rem;color:var(--txt-2);line-height:1.5}
 </style>
 <link rel="stylesheet" href="../assets/richtext.css">
+<link rel="stylesheet" href="../assets/roadmap-doc.css">
 <script src="../assets/emoji.js"></script>
 <script src="../assets/richtext.js"></script>
+<script src="../assets/roadmap-doc.js"></script>
 </head>
 <body>
 
@@ -1842,20 +1854,63 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             (r.model ? 'Written by ' + esc(r.model) : '') +
             (r.publishedAt ? ' \u00b7 published ' + esc(new Date(r.publishedAt).toLocaleString()) : '') +
           '</p>' +
-          (body ? '<textarea class="rm-json" id="rm-json-' + id + '">' +
-                    esc(JSON.stringify(body, null, 2)) + '</textarea>' : '');
+          (body
+            ? '<div class="rm-tabs"><button class="on" data-view="prev">Preview</button>' +
+                '<button data-view="json">JSON</button></div>' +
+              '<div class="rm-prev" id="rm-prev-' + id + '"></div>' +
+              '<textarea class="rm-json" id="rm-json-' + id + '" hidden>' +
+                esc(JSON.stringify(body, null, 2)) + '</textarea>'
+            : '');
 
-        wireRoadmapActions(host, id);
+        if (body) showPreview(id, body, r.name || r.email);
+        wireRoadmapActions(host, id, r.name || r.email);
       });
   }
 
-  function wireRoadmapActions(host, id) {
+  /**
+   * The roadmap as the member will see it, rendered by the member area's own
+   * renderer rather than a second one that would quietly drift away from it.
+   * Links point into the member area; nothing here is interactive, because
+   * ticking somebody else's steps off is not a thing an admin should be able
+   * to do by accident.
+   */
+  function showPreview(id, body, name) {
+    var host = document.getElementById('rm-prev-' + id);
+    if (!host) return;
+    try {
+      host.innerHTML = window.roadmapDoc.render(body, {
+        name: name, base: 'index.html', interactive: false
+      });
+    } catch (err) {
+      host.innerHTML = '<p class="empty">Could not render that: ' + esc(err.message) + '</p>';
+    }
+  }
+
+  function wireRoadmapActions(host, id, name) {
     var msg = host.querySelector('#rm-msg-' + id);
 
     host.addEventListener('click', function (e) {
       var b = e.target.closest('button');
       if (!b) return;
       e.stopPropagation();
+
+      if (b.hasAttribute('data-view')) {
+        var wantJson = b.getAttribute('data-view') === 'json';
+        var ta = host.querySelector('#rm-json-' + id);
+        var prev = host.querySelector('#rm-prev-' + id);
+        // Coming back from the JSON box previews what is in the box, so an
+        // edit can be read before it is published rather than after.
+        if (!wantJson) {
+          try { showPreview(id, JSON.parse(ta.value), name); }
+          catch (err) { msg.textContent = 'That is not valid JSON: ' + err.message; return; }
+        }
+        ta.hidden = !wantJson;
+        prev.hidden = wantJson;
+        [].forEach.call(host.querySelectorAll('.rm-tabs button'), function (t) {
+          t.classList.toggle('on', t === b);
+        });
+        return;
+      }
 
       if (b.hasAttribute('data-gen')) {
         b.disabled = true;
@@ -1904,6 +1959,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             b.disabled = false;
             if (!j) { msg.textContent = 'That did not save.'; return; }
             msg.textContent = publish ? 'Published \u2014 the member has been emailed.' : 'Saved.';
+            showPreview(id, parsed, name);
             if (publish) {
               rmq.list = null;
               loadRoadmaps().then(function () { paintRoadmaps(document.getElementById('panel')); });
