@@ -23,10 +23,9 @@ export default async function handler(req, res) {
   const url = new URL(req.url, 'http://localhost');
   const q = url.searchParams;
 
-  // Coming back from signing in, the query string is gone - it was parked in a
-  // cookie rather than carried through the sign-in redirect.
-  const parked = q.get('client_id') ? null : readPending(req);
-  const p = parked || {
+  // The request as it was parked in a signed cookie, if it was.
+  const parked = readPending(req);
+  const asked = q.get('client_id') ? {
     clientId: q.get('client_id') || '',
     redirectUri: q.get('redirect_uri') || '',
     state: q.get('state') || '',
@@ -35,7 +34,25 @@ export default async function handler(req, res) {
     scope: q.get('scope') || '',
     responseType: q.get('response_type') || '',
     resource: q.get('resource') || ''
-  };
+  } : null;
+
+  /*
+   * On a POST the cookie is the only thing worth reading.
+   *
+   * The consent form posts back to this same URL, query string and all, so the
+   * query cannot be used to tell a fresh request apart from the approval of
+   * one - and the cookie is the half that was signed by us and is the reason a
+   * cross-site form cannot approve anything on the member's behalf.
+   *
+   * On a GET the query leads, because that is Claude arriving with a new
+   * request. The cookie is the fallback for coming back from signing in, where
+   * the query string is deliberately gone.
+   */
+  const p = req.method === 'POST' ? parked : (asked || parked);
+  if (!p) {
+    return page(res, 400, errorHtml('That took too long',
+      'This approval expired, or it was opened in a different browser. Start again from your Claude app.'));
+  }
 
   try {
     /* ---- 1. the client, before anything is sent anywhere ---- */
@@ -99,12 +116,10 @@ export default async function handler(req, res) {
 
     /* ---- 5. ask ---- */
     if (req.method === 'POST') {
-      // Only a request that carried our own cookie gets this far: the cookie is
-      // SameSite=Lax, which a browser will not attach to a cross-site POST, so
-      // a form on somebody else's page cannot approve this on their behalf.
-      if (!parked) return page(res, 400, errorHtml('That took too long',
-        'This approval expired. Start again from your Claude app.'));
-
+      // Only a request carrying our own cookie reaches here - the guard above
+      // sees to that. The cookie is SameSite=Lax, which a browser will not
+      // attach to a cross-site POST, so a form on somebody else's page cannot
+      // approve this on the member's behalf.
       const body = parseForm(req.body);
       if (body.decision !== 'allow') return back('access_denied', 'the member declined');
 
