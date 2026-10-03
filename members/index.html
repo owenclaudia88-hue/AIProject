@@ -166,6 +166,15 @@ button{font-family:inherit}
   display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-size:.95rem;font-family:inherit}
 .sp-new:hover{filter:brightness(1.06)}
 
+.sp-search{display:flex;align-items:center;gap:10px;background:var(--bg-3);border:1px solid var(--line-2);
+  border-radius:11px;padding:0 14px;margin:0 0 18px;min-height:46px}
+.sp-search input{flex:1;min-width:0;background:none;border:0;color:var(--txt);font:inherit;
+  font-size:.94rem;outline:none;padding:12px 0}
+.sp-search .x{background:none;border:0;color:var(--txt-3);cursor:pointer;font-size:1.1rem;
+  padding:8px;border-radius:7px;line-height:1}
+.sp-search .x:hover{color:var(--accent-2)}
+.sp-found{font-family:var(--mono);font-size:.8rem;color:var(--txt-3);margin:0 0 14px}
+
 .th-list{display:grid;gap:10px}
 .th{display:flex;gap:14px;align-items:flex-start;background:var(--bg-2);border:1px solid var(--line);
   border-radius:14px;padding:16px 18px;cursor:pointer;transition:border-color .15s ease}
@@ -1066,6 +1075,7 @@ button{font-family:inherit}
 
         <div class="sb-group" id="sb-community">
           <div class="sb-group-t">Community</div>
+          <button class="nav" data-view="c-all"><span class="nic">✨</span>All activity</button>
           <button class="nav" data-view="c-announcements"><span class="nic">📣</span>Announcements<span class="n-count" id="cnt-c-announcements"></span></button>
           <button class="nav" data-view="c-intros"><span class="nic">👋</span>Introductions<span class="n-count" id="cnt-c-intros"></span></button>
           <button class="nav" data-view="c-help"><span class="nic">🙋</span>Ask for help<span class="n-count" id="cnt-c-help"></span></button>
@@ -1708,6 +1718,7 @@ button{font-family:inherit}
      loaded the spaces - which is the one thing a member without a membership
      is not allowed to do. */
   var SPACE_PITCH = {
+    all: ['Community', 'Everything the other founders are asking, building and sharing, newest first.'],
     announcements: ['Announcements', 'Hear first about new courses, new tools and what is coming next.'],
     intros: ['Introductions', 'Meet the other founders building with AI, and tell them what you are working on.'],
     help: ['Ask for help', 'Stuck on a prompt, a tool or a lesson? Ask, and members and the team both answer.'],
@@ -1730,7 +1741,11 @@ button{font-family:inherit}
       return;
     }
 
-    var sp = spaceMeta(key);
+    var all = key === 'all';
+    var sp = all
+      ? { label: 'Community', glyph: '\u2728', blurb: SPACE_PITCH.all[1], canPost: false }
+      : spaceMeta(key);
+
     var head =
       '<div class="sp-head"><span class="g">' + (sp.glyph || '') + '</span>' +
         '<div><h1 class="page-h" style="margin:0">' + esc(sp.label) + '</h1>' +
@@ -1739,12 +1754,25 @@ button{font-family:inherit}
         ? '<button class="sp-new" id="sp-new" type="button"><span>\u270e</span>' +
             (key === 'intros' ? 'Introduce yourself' : key === 'wins' ? 'Share a win'
               : key === 'help' ? 'Ask a question' : 'New announcement') + '</button>'
-        : '<p class="page-sub" style="margin:16px 0 22px">Posted by the AI Founder University team. Replies are open to everyone.</p>');
+        : all ? '<div style="height:18px"></div>'
+        : '<p class="page-sub" style="margin:16px 0 22px">Posted by the AI Founder University team. Replies are open to everyone.</p>') +
+      // One box over the whole community, not this room: somebody looking for
+      // an answer does not know which room it was given in.
+      '<div class="sp-search"><span>\ud83d\udd0d</span>' +
+        '<input id="sp-q" type="search" placeholder="Search the community\u2026" ' +
+          'value="' + esc(communityQ) + '" autocomplete="off">' +
+        (communityQ ? '<button class="x" id="sp-qx" type="button" aria-label="Clear">\u00d7</button>' : '') +
+      '</div>';
 
     c.innerHTML = head + '<div id="sp-body"><p class="empty">Loading\u2026</p></div>';
     if (sp.canPost) document.getElementById('sp-new').addEventListener('click', function () { newThread(key); });
+    wireCommunitySearch(key);
 
-    fetch('/api/community/list?space=' + encodeURIComponent(key), { credentials: 'same-origin' })
+    var url = communityQ
+      ? '/api/community/list?q=' + encodeURIComponent(communityQ)
+      : '/api/community/list?space=' + encodeURIComponent(key);
+
+    fetch(url, { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         if (view !== 'c-' + key) return;              // they navigated on
@@ -1757,23 +1785,40 @@ button{font-family:inherit}
           if (el) el.textContent = x.threads || '';
         });
         feeds[key] = d.threads;
-        body.innerHTML = d.threads.length
-          ? '<div class="th-list">' + d.threads.map(threadCard).join('') + '</div>'
-          : '<p class="empty">' + esc(sp.empty || 'Nothing here yet.') + '</p>';
+        var found = communityQ
+          ? '<p class="sp-found">' + d.threads.length +
+              (d.threads.length === 1 ? ' result for \u201c' : ' results for \u201c') +
+              esc(communityQ) + '\u201d</p>'
+          : '';
+        body.innerHTML = found + (d.threads.length
+          ? '<div class="th-list">' + d.threads.map(function (t) { return threadCard(t, all || !!communityQ); }).join('') + '</div>'
+          : '<p class="empty">' + esc(communityQ
+              ? 'Nothing matched. Try fewer words.'
+              : (sp.empty || 'Nothing here yet.')) + '</p>');
         [].forEach.call(body.querySelectorAll('.th'), function (el) {
           el.addEventListener('click', function () {
-            threadSpace = key;
-            location.hash = 't-' + el.getAttribute('data-id');
+            var id = Number(el.getAttribute('data-id'));
+            var hit = (d.threads || []).find(function (x) { return x.id === id; });
+            // Back goes to the room the thread lives in rather than to a
+            // search that may no longer be on screen.
+            threadSpace = (hit && hit.space) || (all ? 'all' : key);
+            // And the search ends here. Its button says "back to Ask for
+            // help"; landing there still filtered by something typed two
+            // clicks ago would make that label a lie.
+            communityQ = '';
+            location.hash = 't-' + id;
           });
         });
       });
   }
 
-  function threadCard(t) {
+  function threadCard(t, showSpace) {
+    var sp = spaceMeta(t.space);
     return '<article class="th' + (t.pinned ? ' pinned' : '') + '" data-id="' + t.id + '">' +
       avatar(t.author) +
       '<div class="th-main">' +
         '<div class="th-t"><b>' + esc(t.title || excerpt(t.body).slice(0, 80)) + '</b>' +
+          (showSpace ? '<span class="tag">' + esc(sp.label || t.space) + '</span>' : '') +
           (t.pinned ? '<span class="tag pin">Pinned</span>' : '') +
           (t.resolved ? '<span class="tag ok">Answered</span>' : '') +
           (t.isAdmin ? '<span class="tag staff">Team</span>' : '') +
@@ -1987,6 +2032,45 @@ button{font-family:inherit}
     document.getElementById('nt-title').focus();
   }
 
+  /* What is being searched for, kept outside the view so it survives a
+     repaint and is cleared when they walk away from the community. */
+  var communityQ = '';
+  var qTimer = null;
+
+  function wireCommunitySearch(key) {
+    var box = document.getElementById('sp-q');
+    if (!box) return;
+
+    box.addEventListener('input', function () {
+      clearTimeout(qTimer);
+      var v = box.value.trim();
+      // Waits for them to stop typing: one query per search, not one per key.
+      qTimer = setTimeout(function () {
+        if (v === communityQ) return;
+        communityQ = v;
+        var at = box.selectionStart;
+        renderSpace(document.getElementById('content'), key);
+        var again = document.getElementById('sp-q');
+        if (again) { again.focus(); try { again.setSelectionRange(at, at); } catch (e) {} }
+      }, 280);
+    });
+
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && box.value) {
+        box.value = ''; communityQ = ''; clearTimeout(qTimer);
+        renderSpace(document.getElementById('content'), key);
+      }
+    });
+
+    var x = document.getElementById('sp-qx');
+    if (x) x.addEventListener('click', function () {
+      communityQ = ''; clearTimeout(qTimer);
+      renderSpace(document.getElementById('content'), key);
+      var again = document.getElementById('sp-q');
+      if (again) again.focus();
+    });
+  }
+
   function closeNewThread() { document.getElementById('nt').classList.remove('show'); }
 
   function wireNewThread() {
@@ -2142,6 +2226,7 @@ button{font-family:inherit}
     if (view === 'request') return renderRequest(c);
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
+    if (view.indexOf('c-') !== 0 && view.indexOf('t-') !== 0) communityQ = '';
     if (view.indexOf('c-') === 0 || view.indexOf('t-') === 0) {
       if (!me.canCommunity) { location.hash = 'dashboard'; return; }
       return view.indexOf('c-') === 0

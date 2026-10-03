@@ -10,7 +10,9 @@
  * harvested from a forum is the usual way an address book leaks.
  */
 import { communityMember } from '../../lib/community-access.js';
-import { listThreads, countThreadsBySpace, communityStats } from '../../lib/db.js';
+import {
+  listThreads, countThreadsBySpace, communityStats, listAllThreads, searchCommunity
+} from '../../lib/db.js';
 import { spaceList, SPACE_KEYS, canPostIn, authorName } from '../../lib/community.js';
 
 export default async function handler(req, res) {
@@ -33,22 +35,31 @@ export default async function handler(req, res) {
     // many questions are waiting for an answer.
     const stats = who.isAdmin ? await communityStats() : null;
 
-    if (!space) {
-      return res.status(200).json({ spaces, isAdmin: !!who.isAdmin, ...(stats ? { stats } : {}) });
+    const base = { spaces, isAdmin: !!who.isAdmin, ...(stats ? { stats } : {}) };
+
+    // A search, which crosses every room: somebody looking for an answer does
+    // not know which one it was given in.
+    const q = (url.searchParams.get('q') || '').trim();
+    if (q) {
+      const found = await searchCommunity(q, { email: who.email });
+      return res.status(200).json({ ...base, q, space: 'search', threads: found.map((r) => shape(r, who)) });
     }
+
+    // Everything, newest activity first. The default view, because four rooms
+    // to check is three too many when you only want to know what is new.
+    if (asked === 'all') {
+      const rows = await listAllThreads({ email: who.email });
+      return res.status(200).json({ ...base, space: 'all', threads: rows.map((r) => shape(r, who)) });
+    }
+
+    if (!space) return res.status(200).json(base);
 
     const rows = await listThreads(space, {
       email: who.email,
       before: url.searchParams.get('before') || null
     });
 
-    return res.status(200).json({
-      spaces,
-      isAdmin: !!who.isAdmin,
-      ...(stats ? { stats } : {}),
-      space,
-      threads: rows.map((r) => shape(r, who))
-    });
+    return res.status(200).json({ ...base, space, threads: rows.map((r) => shape(r, who)) });
   } catch (err) {
     console.error('[community/list]', err);
     return res.status(500).json({ error: 'server' });
