@@ -193,6 +193,10 @@ button{font-family:inherit}
 .jb-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
 .jb-chips span{font-family:var(--mono);font-size:.7rem;color:var(--txt-2);
   background:rgba(255,255,255,.05);border:1px solid var(--line-2);border-radius:999px;padding:4px 9px}
+.jb-new{display:inline-flex;align-items:center;gap:7px;margin:11px 0 0;
+  font-size:.82rem;color:var(--accent-2);line-height:1.4}
+.jb-new b{font-family:var(--mono);font-size:.64rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:#140c03;background:var(--accent-2);border-radius:999px;padding:3px 7px}
 .jb-cta{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
 .jb-btn{display:inline-flex;align-items:center;gap:9px;white-space:nowrap;
   background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#140c03;
@@ -1422,6 +1426,10 @@ button{font-family:inherit}
             (shutCourses && total ? ', along with ' + shutCourses + ' courses' : '') +
             '. One membership opens all of it \u2014 and everything added every week.</p>' +
           '<span class="jb-chips">' + chips.join('') + '</span>' +
+          // The newest reason to subscribe, and the one nothing else here says.
+          // A line rather than another chip: the chips are counts of what is
+          // shut, and this is not one of those.
+          '<span class="jb-new">🔌 <b>New</b> · pull any of it straight into Claude</span>' +
         '</span>' +
         '<span class="jb-cta">' +
           '<span class="jb-btn">Unlock everything \u2014 $39/month</span>' +
