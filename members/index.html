@@ -772,6 +772,113 @@ button{font-family:inherit}
 .panel-b img{max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line);margin:14px 0;display:block}
 .copy{margin-top:22px;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:800;border:0;border-radius:999px;padding:11px 22px;cursor:pointer}
 
+/* ---------- the AI roadmap ---------- */
+.rm-hero{background:linear-gradient(135deg,rgba(255,122,26,.14),rgba(255,176,32,.05));
+  border:1px solid rgba(255,122,26,.32);border-radius:18px;padding:clamp(22px,4vw,34px);margin-bottom:22px}
+.rm-hero h2{margin:0 0 10px;font-size:clamp(1.2rem,2.6vw,1.6rem);font-weight:800;letter-spacing:-.025em}
+.rm-hero p{margin:0 0 12px;color:var(--txt-2);font-size:.96rem;line-height:1.65;max-width:62ch}
+.rm-hero .val{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.74rem;
+  color:var(--accent-2);background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.35);
+  border-radius:999px;padding:5px 12px;margin-bottom:14px}
+.rm-go{margin-top:8px;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;
+  font-weight:800;border:0;border-radius:12px;min-height:50px;padding:0 26px;cursor:pointer;
+  font-size:1rem;font-family:inherit}
+.rm-go:hover{filter:brightness(1.06)}
+
+/* the form */
+.rm-form{background:var(--bg-2);border:1px solid var(--line);border-radius:17px;
+  padding:clamp(20px,3vw,28px);max-width:760px}
+.rm-prog{display:flex;gap:6px;margin:0 0 20px}
+.rm-prog i{flex:1;height:4px;border-radius:999px;background:var(--bg-4)}
+.rm-prog i.on{background:linear-gradient(90deg,var(--accent-2),var(--accent))}
+.rm-step-h{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--accent-2);margin:0 0 6px}
+.rm-form h3{margin:0 0 5px;font-size:1.15rem;font-weight:800;letter-spacing:-.02em}
+.rm-form .blurb{margin:0 0 22px;color:var(--txt-2);font-size:.9rem;line-height:1.55}
+.rm-f{margin-bottom:20px}
+.rm-f label{display:block;font-weight:700;font-size:.92rem;margin-bottom:8px;line-height:1.4}
+.rm-f label .req{color:var(--accent-2);margin-left:3px}
+.rm-f input[type=text],.rm-f textarea{width:100%;background:var(--bg-3);border:1px solid var(--line-2);
+  color:var(--txt);border-radius:11px;padding:13px 14px;font-family:inherit;font-size:.94rem;line-height:1.55}
+.rm-f textarea{min-height:96px;resize:vertical}
+.rm-f input:focus,.rm-f textarea:focus{outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(255,122,26,.14)}
+.rm-opts{display:grid;gap:8px}
+.rm-opt{display:flex;align-items:center;gap:11px;background:var(--bg-3);border:1px solid var(--line-2);
+  border-radius:11px;padding:13px 15px;cursor:pointer;font-size:.93rem}
+.rm-opt:hover{border-color:var(--line-2)}
+.rm-opt.on{background:rgba(255,122,26,.12);border-color:rgba(255,122,26,.45);color:#ffd9b3}
+.rm-opt input{width:18px;height:18px;flex:none;accent-color:var(--accent)}
+.rm-nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.rm-nav button{min-height:48px;padding:0 24px;border-radius:12px;font-weight:800;cursor:pointer;
+  font-family:inherit;font-size:.95rem;border:0}
+.rm-next{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;flex:1}
+.rm-back{background:none;border:1px solid var(--line-2);color:var(--txt-2);font-weight:600}
+.rm-err{color:#fca5a5;font-size:.88rem;margin:14px 0 0;line-height:1.5}
+
+/* waiting */
+.rm-wait{background:var(--bg-2);border:1px solid var(--line);border-radius:17px;padding:30px;max-width:640px;
+  text-align:center}
+.rm-wait .g{font-size:2.2rem;display:block;margin-bottom:12px}
+.rm-wait h3{margin:0 0 8px;font-size:1.12rem;font-weight:800}
+.rm-wait p{margin:0;color:var(--txt-2);font-size:.93rem;line-height:1.6}
+
+/* the roadmap itself */
+.rm{max-width:860px}
+.rm-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.rm h1{margin:0;font-size:clamp(1.45rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.03em;line-height:1.2;flex:1;min-width:260px}
+.rm-print{flex:none;background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);
+  border-radius:999px;min-height:42px;padding:0 18px;font-family:var(--mono);font-size:.78rem;cursor:pointer}
+.rm-print:hover{border-color:var(--accent);color:var(--accent-2)}
+.rm-read{color:var(--txt-2);font-size:1rem;line-height:1.65;margin:14px 0 0}
+.rm-bet{margin:20px 0 30px;padding:18px 20px;background:rgba(255,122,26,.08);
+  border:1px solid rgba(255,122,26,.28);border-left-width:3px;border-radius:12px;
+  font-size:.98rem;line-height:1.7;color:var(--txt)}
+.rm-phase{margin:0 0 30px}
+.rm-phase-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 4px;
+  padding-bottom:10px;border-bottom:1px solid var(--line)}
+.rm-phase-h h2{margin:0;font-size:1.22rem;font-weight:800;letter-spacing:-.02em}
+.rm-phase-h .goal{color:var(--txt-2);font-size:.9rem;line-height:1.5}
+.rm-step{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)}
+.rm-step:last-child{border-bottom:0}
+.rm-n{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--mono);font-size:.82rem;font-weight:700;color:#1a0d00;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+.rm-s{flex:1;min-width:0}
+.rm-s h3{margin:3px 0 0;font-size:1.02rem;font-weight:700;letter-spacing:-.01em;line-height:1.35}
+.rm-s .t{display:inline-block;margin-left:9px;font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
+.rm-s .why{margin:8px 0 0;color:var(--txt-2);font-size:.93rem;line-height:1.65}
+.rm-s ol.how{margin:12px 0 0;padding-left:20px;color:var(--txt);font-size:.93rem;line-height:1.7}
+.rm-s ol.how li{margin-bottom:5px}
+.rm-res{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+.rm-res a{display:inline-flex;align-items:center;gap:7px;background:var(--bg-3);border:1px solid var(--line-2);
+  border-radius:999px;padding:8px 14px;font-size:.82rem;color:var(--txt-2);min-height:38px}
+.rm-res a:hover{border-color:var(--accent);color:var(--accent-2)}
+.rm-res a .k{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--accent-2)}
+.rm-block{margin:0 0 26px}
+.rm-block h2{margin:0 0 10px;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.rm-block p,.rm-block li{color:var(--txt-2);font-size:.94rem;line-height:1.7}
+.rm-block ul{margin:0;padding-left:20px}
+.rm-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:10px}
+.rm-metric{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+.rm-metric b{display:block;font-size:.93rem;margin-bottom:4px}
+.rm-metric span{font-family:var(--mono);font-size:.78rem;color:var(--accent-2)}
+.rm-foot{margin:30px 0 0;padding-top:18px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:.76rem;color:var(--txt-3);line-height:1.6}
+
+@media print{
+  .sidebar,.topbar,.scrim,.rm-print,#join-banner{display:none!important}
+  .shell,.main,.content{display:block!important;padding:0!important;max-width:none!important}
+  body{background:#fff!important;color:#000!important}
+  .rm h1,.rm-phase-h h2,.rm-block h2,.rm-s h3,.rm-metric b{color:#000!important}
+  .rm-read,.rm-s .why,.rm-block p,.rm-block li,.rm-phase-h .goal{color:#333!important}
+  .rm-bet{background:#f6f6f6!important;border-color:#ccc!important}
+  .rm-res a{border-color:#ccc!important;color:#333!important}
+  .rm-step{break-inside:avoid}
+  .rm-phase{break-inside:avoid-page}
+}
+
 /* ---------- request content ---------- */
 .req-card{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:760px}
 .req-card h2{margin:0 0 4px;font-size:1.12rem;font-weight:800;letter-spacing:-.02em}
@@ -1098,6 +1205,7 @@ button{font-family:inherit}
           <button class="nav" data-view="guide"><span class="nic">📖</span>Prompting Fundamentals<span class="n-count" id="cnt-guide"></span></button>
           <button class="nav" data-view="video"><span class="nic">🎬</span>Tutorials<span class="n-count" id="cnt-video"></span></button>
           <button class="nav" data-view="skill"><span class="nic">🤖</span>Agents &amp; Skills<span class="n-count" id="cnt-skill"></span></button>
+          <button class="nav" data-view="roadmap"><span class="nic">🗺️</span>AI Roadmap<span class="n-count" id="cnt-roadmap"></span></button>
           <button class="nav" data-view="request"><span class="nic">📮</span>Request Content</button>
         </div>
 
@@ -1269,6 +1377,11 @@ button{font-family:inherit}
         // undefined no matter what the server sent.
         me.isTester = !!res.d.isTester;
         me.hasMembership = !!res.d.hasMembership;
+        // Features that are not finished yet: the test account and staff see
+        // them, nobody else does. Set here, with the rest of the fields copied
+        // off /api/me, because several gates below read it and a flag assigned
+        // after its first reader is a flag that is undefined when it matters.
+        me.canPreview = !!(me.isTester || me.isAdmin);
         // A perk they are not currently paying for reads as one, rather than
         // as a menu item that turns out to be a dead end.
         var reqNav = document.querySelector('.nav[data-view="request"]');
@@ -1277,19 +1390,21 @@ button{font-family:inherit}
         // so it carries a lock rather than leading somewhere that refuses them.
         var connectNav = document.getElementById('nav-connect');
         if (connectNav && !me.hasMembership) connectNav.classList.add('is-locked');
-        // Unfinished, so it is the test account's and staff's alone for now.
-        // Remove this once every phase is done; the membership rule underneath
-        // is the one that stays.
-        me.canCommunity = !!(me.isTester || me.isAdmin);
+        var rmNav = document.querySelector('.nav[data-view="roadmap"]');
+        if (rmNav) rmNav.hidden = !me.canPreview;
+        if (me.canPreview) {
+          if (!me.hasMembership) rmNav.classList.add('is-locked');
+          else loadRoadmap();
+        }
         var sbCommunity = document.getElementById('sb-community');
-        if (sbCommunity) sbCommunity.hidden = !me.canCommunity;
+        if (sbCommunity) sbCommunity.hidden = !me.canPreview;
         // Nobody outside the community can have a notification waiting, so the
         // bell is shown on the same condition rather than on one of its own.
         var bell = document.getElementById('bell');
-        if (bell) bell.classList.toggle('on', me.canCommunity);
-        if (me.canCommunity) loadNotes();
+        if (bell) bell.classList.toggle('on', me.canPreview);
+        if (me.canPreview) loadNotes();
 
-        if (me.canCommunity) {
+        if (me.canPreview) {
           // A membership perk, said the same way as the others: the rooms stay
           // in the sidebar wearing a lock rather than vanishing, so somebody
           // without a subscription can see what they are missing.
@@ -1376,7 +1491,7 @@ button{font-family:inherit}
     'claude-carousel-studio': 'Claude Carousel Studio'
   };
 
-  var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false, canCommunity: false,
+  var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false, canPreview: false,
              hasMembership: true };
   var all = [];        // library items (with .kind)
   var downloads = {};  // grouped downloadables
@@ -1478,9 +1593,17 @@ button{font-family:inherit}
     // A thread keeps its space highlighted in the sidebar: you are still in
     // the room you walked into.
     else if (raw.indexOf('t-') === 0) { view = raw; navKey = 'c-' + (threadSpace || ''); }
+    else if (raw.indexOf('item-') === 0) {
+      // Opens the reader over whatever is already there, then takes the hash
+      // back out so closing it does not leave a URL that reopens it.
+      var wanted = raw.slice('item-'.length);
+      history.replaceState(null, '', location.pathname + location.search + '#' + (view || 'dashboard'));
+      openItem(wanted);
+      return;
+    }
     else if (raw.indexOf('c-') === 0) { view = raw; navKey = raw; }
     else {
-      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && !KINDS[raw]) raw = 'dashboard';
+      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && !KINDS[raw]) raw = 'dashboard';
       view = raw; navKey = raw;
     }
     [].forEach.call(document.querySelectorAll('.nav'), function (n) {
@@ -2128,7 +2251,7 @@ button{font-family:inherit}
   }
 
   function loadNotes() {
-    if (!me.canCommunity) return;
+    if (!me.canPreview) return;
     fetch('/api/notifications', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
@@ -2216,6 +2339,286 @@ button{font-family:inherit}
   }
 
 
+
+  /* ---------------- the personalised AI roadmap ---------------- */
+
+  var rm = { steps: null, request: null, loaded: false, at: 0, answers: {}, err: '' };
+
+  function loadRoadmap() {
+    return fetch('/api/roadmap', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return null;
+        rm.steps = d.steps;
+        rm.request = d.request;
+        rm.loaded = true;
+        if (d.request && d.request.answers) rm.answers = d.request.answers;
+        var c = document.getElementById('cnt-roadmap');
+        if (c) c.textContent = d.request && d.request.status === 'published' ? '\u2713' : '';
+        return d;
+      })
+      .catch(function () { return null; });
+  }
+
+  function renderRoadmap(c) {
+    if (!me.hasMembership) {
+      c.innerHTML = '<h1 class="page-h">Your AI Roadmap</h1>' +
+        '<p class="page-sub">A plan built for your business, not a template.</p>' +
+        '<div class="req-card locked-perk"><span class="lock-badge">\ud83d\udd12</span>' +
+          '<h2>A membership perk</h2>' +
+          '<p class="sub">We build you a personalised AI roadmap from what you tell us about your ' +
+            'business \u2014 priorities, strategy and the exact tools to use in the next 7, 30 and 90 days.</p>' +
+          '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">' +
+            '\ud83d\udd12 Unlock with the membership</a></div>';
+      return;
+    }
+
+    if (!rm.loaded) {
+      c.innerHTML = '<p class="empty">Loading\u2026</p>';
+      loadRoadmap().then(function () { if (view === 'roadmap') renderRoadmap(document.getElementById('content')); });
+      return;
+    }
+
+    var st = rm.request && rm.request.status;
+    if (st === 'published' && rm.request.roadmap) return paintRoadmap(c, rm.request.roadmap);
+    if (st === 'new' || st === 'generating' || st === 'draft') return paintWaiting(c, st);
+    if (rm.at > 0) return paintForm(c);
+    return paintRoadmapIntro(c);
+  }
+
+  function paintRoadmapIntro(c) {
+    c.innerHTML =
+      '<h1 class="page-h">Your Personalised AI Roadmap</h1>' +
+      '<p class="page-sub">Done for you, from what you tell us about your business.</p>' +
+      '<div class="rm-hero">' +
+        '<span class="val">\u2728 Included in your membership</span>' +
+        '<h2>High clarity, clear direction, zero overwhelm.</h2>' +
+        '<p>We build your roadmap by hand from the answers you give us \u2014 your industry, your ' +
+          'customer, your goals, what you have to work with and what is in the way.</p>' +
+        '<p>It sets out the priorities, strategy, tactics and tools to focus on across the next ' +
+          '<b>7, 30 and 90 days</b>, and names the exact courses, prompts, skills and automations ' +
+          'in your membership to use at each step, in the order to use them.</p>' +
+        '<p>Consultants charge thousands for this. It takes about ten minutes of your time.</p>' +
+        '<button class="rm-go" id="rm-go" type="button">Create your personalised roadmap</button>' +
+      '</div>';
+    document.getElementById('rm-go').addEventListener('click', function () {
+      rm.at = 1; rm.err = '';
+      renderRoadmap(document.getElementById('content'));
+    });
+  }
+
+  function paintWaiting(c, st) {
+    var done = st !== 'new';
+    c.innerHTML =
+      '<h1 class="page-h">Your Personalised AI Roadmap</h1>' +
+      '<p class="page-sub">Submitted \u2014 we are working on it.</p>' +
+      '<div class="rm-wait"><span class="g">\ud83d\uddfa\ufe0f</span>' +
+        '<h3>' + (done ? 'Being written now' : 'We have your answers') + '</h3>' +
+        '<p>Your roadmap is being built from what you told us, and checked by hand before it ' +
+          'reaches you. You will get an email the moment it is ready, and it will appear here.</p>' +
+      '</div>';
+  }
+
+  /* ---- the form ---- */
+
+  function paintForm(c) {
+    var i = rm.at - 1;
+    var step = rm.steps[i];
+    var bars = rm.steps.map(function (_, n) {
+      return '<i class="' + (n < rm.at ? 'on' : '') + '"></i>';
+    }).join('');
+
+    c.innerHTML =
+      '<h1 class="page-h">Your Personalised AI Roadmap</h1>' +
+      '<p class="page-sub">Step ' + rm.at + ' of ' + rm.steps.length + '. Nothing here is shared with anybody else.</p>' +
+      '<div class="rm-form">' +
+        '<div class="rm-prog">' + bars + '</div>' +
+        '<p class="rm-step-h">' + esc(step.title) + '</p>' +
+        '<h3>' + esc(step.title) + '</h3>' +
+        '<p class="blurb">' + esc(step.blurb) + '</p>' +
+        step.fields.map(fieldHTML).join('') +
+        (rm.err ? '<p class="rm-err">' + esc(rm.err) + '</p>' : '') +
+        '<div class="rm-nav">' +
+          '<button class="rm-next" id="rm-next" type="button">' +
+            (rm.at === rm.steps.length ? 'Submit for your roadmap' : 'Continue') + '</button>' +
+          (rm.at > 1 ? '<button class="rm-back" id="rm-prev" type="button">Back</button>' : '') +
+        '</div>' +
+      '</div>';
+
+    wireForm(step);
+  }
+
+  function fieldHTML(f) {
+    var v = rm.answers[f.key] || '';
+    var label = '<label for="f-' + esc(f.key) + '">' + esc(f.label) +
+      (f.required ? '<span class="req">*</span>' : '') + '</label>';
+
+    if (f.type === 'choice') {
+      return '<div class="rm-f" data-k="' + esc(f.key) + '">' + label + '<div class="rm-opts">' +
+        f.options.map(function (o) {
+          return '<label class="rm-opt' + (v === o ? ' on' : '') + '">' +
+            '<input type="radio" name="' + esc(f.key) + '" value="' + esc(o) + '"' +
+              (v === o ? ' checked' : '') + '><span>' + esc(o) + '</span></label>';
+        }).join('') + '</div></div>';
+    }
+    if (f.type === 'line') {
+      return '<div class="rm-f" data-k="' + esc(f.key) + '">' + label +
+        '<input type="text" id="f-' + esc(f.key) + '" value="' + esc(v) + '" maxlength="300" ' +
+        'placeholder="' + esc(f.placeholder) + '"></div>';
+    }
+    return '<div class="rm-f" data-k="' + esc(f.key) + '">' + label +
+      '<textarea id="f-' + esc(f.key) + '" maxlength="2000" ' +
+      'placeholder="' + esc(f.placeholder) + '">' + esc(v) + '</textarea></div>';
+  }
+
+  function collect(step) {
+    step.fields.forEach(function (f) {
+      if (f.type === 'choice') {
+        var on = document.querySelector('input[name="' + CSS.escape(f.key) + '"]:checked');
+        if (on) rm.answers[f.key] = on.value;
+      } else {
+        var el = document.getElementById('f-' + f.key);
+        if (el) {
+          var v = el.value.trim();
+          if (v) rm.answers[f.key] = v; else delete rm.answers[f.key];
+        }
+      }
+    });
+  }
+
+  function wireForm(step) {
+    [].forEach.call(document.querySelectorAll('.rm-opt input'), function (r) {
+      r.addEventListener('change', function () {
+        [].forEach.call(r.closest('.rm-opts').querySelectorAll('.rm-opt'), function (o) {
+          o.classList.remove('on');
+        });
+        r.closest('.rm-opt').classList.add('on');
+      });
+    });
+
+    var prev = document.getElementById('rm-prev');
+    if (prev) prev.addEventListener('click', function () {
+      collect(step); rm.err = ''; rm.at--;
+      renderRoadmap(document.getElementById('content'));
+    });
+
+    document.getElementById('rm-next').addEventListener('click', function () {
+      collect(step);
+      // Checked here as well as on the server, so somebody is told on the step
+      // they are standing on rather than six screens later.
+      var gap = step.fields.find(function (f) { return f.required && !rm.answers[f.key]; });
+      if (gap) {
+        rm.err = 'Please answer: ' + gap.label;
+        renderRoadmap(document.getElementById('content'));
+        var el = document.querySelector('[data-k="' + CSS.escape(gap.key) + '"]');
+        if (el) el.scrollIntoView({ block: 'center' });
+        return;
+      }
+      rm.err = '';
+      if (rm.at < rm.steps.length) {
+        rm.at++;
+        renderRoadmap(document.getElementById('content'));
+        window.scrollTo(0, 0);
+        return;
+      }
+      submitRoadmap();
+    });
+  }
+
+  function submitRoadmap() {
+    var btn = document.getElementById('rm-next');
+    btn.disabled = true; btn.textContent = 'Sending\u2026';
+    fetch('/api/roadmap', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers: rm.answers })
+    })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (out) {
+        btn.disabled = false; btn.textContent = 'Submit for your roadmap';
+        if (!out.ok) {
+          rm.err = out.j.missing ? 'Still needed: ' + out.j.missing.join(', ') : (out.j.error || 'Could not send that.');
+          renderRoadmap(document.getElementById('content'));
+          return;
+        }
+        rm.loaded = false; rm.at = 0;
+        loadRoadmap().then(function () {
+          renderRoadmap(document.getElementById('content'));
+          window.scrollTo(0, 0);
+        });
+      })
+      .catch(function () {
+        btn.disabled = false; btn.textContent = 'Submit for your roadmap';
+        rm.err = 'Network error. Try again.';
+        renderRoadmap(document.getElementById('content'));
+      });
+  }
+
+  /* ---- the finished roadmap ---- */
+
+  // Where a recommendation actually goes. A link that drops somebody in the
+  // right section and leaves them to find it is not a link to the tool.
+  function resourceHref(r) {
+    if (r.type === 'course') return '#course-' + r.id;
+    if (r.type === 'item') return '#item-' + r.id;
+    return '#downloads';
+  }
+
+  function paintRoadmap(c, R) {
+    var html =
+      '<div class="rm">' +
+      '<div class="rm-top"><h1>' + esc(R.headline || 'Your AI Roadmap') + '</h1>' +
+        '<button class="rm-print" id="rm-print" type="button">\u2193 Download / print</button></div>' +
+      (R.readback ? '<p class="rm-read">' + esc(R.readback) + '</p>' : '') +
+      (R.theBet ? '<div class="rm-bet">' + esc(R.theBet) + '</div>' : '');
+
+    (R.phases || []).forEach(function (p) {
+      html += '<section class="rm-phase"><div class="rm-phase-h"><h2>' + esc(p.window) + '</h2>' +
+        (p.goal ? '<span class="goal">' + esc(p.goal) + '</span>' : '') + '</div>';
+      (p.steps || []).forEach(function (st, n) {
+        html += '<div class="rm-step"><span class="rm-n">' + (n + 1) + '</span><div class="rm-s">' +
+          '<h3>' + esc(st.title) + (st.time ? '<span class="t">' + esc(st.time) + '</span>' : '') + '</h3>' +
+          (st.why ? '<p class="why">' + esc(st.why) + '</p>' : '') +
+          ((st.how || []).length
+            ? '<ol class="how">' + st.how.map(function (h) { return '<li>' + esc(h) + '</li>'; }).join('') + '</ol>'
+            : '') +
+          ((st.resources || []).length
+            ? '<div class="rm-res">' + st.resources.map(function (r) {
+                return '<a href="' + resourceHref(r) + '"><span class="k">' +
+                  esc(r.type === 'course' ? 'Course' : r.type === 'download' ? 'Download' : (r.kindLabel || 'Library')) +
+                  '</span>' + esc(r.title) + '</a>';
+              }).join('') + '</div>'
+            : '') +
+          '</div></div>';
+      });
+      html += '</section>';
+    });
+
+    if ((R.order || []).length) {
+      html += '<div class="rm-block"><h2>Why this order</h2>' +
+        R.order.map(function (o) { return '<p>' + esc(o) + '</p>'; }).join('') + '</div>';
+    }
+    if ((R.watchOuts || []).length) {
+      html += '<div class="rm-block"><h2>What to watch out for</h2><ul>' +
+        R.watchOuts.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></div>';
+    }
+    if ((R.metrics || []).length) {
+      html += '<div class="rm-block"><h2>How you will know it is working</h2><div class="rm-metrics">' +
+        R.metrics.map(function (m) {
+          return '<div class="rm-metric"><b>' + esc(m.name) + '</b><span>' + esc(m.target) + '</span></div>';
+        }).join('') + '</div></div>';
+    }
+
+    html += '<p class="rm-foot">Built for you by AI Founder University' +
+      (rm.request && rm.request.publishedAt
+        ? ' \u00b7 ' + esc(new Date(rm.request.publishedAt).toLocaleDateString()) : '') +
+      '. Something not fit? Say so in the community and we will adjust it.</p></div>';
+
+    c.innerHTML = html;
+    document.getElementById('rm-print').addEventListener('click', function () { window.print(); });
+  }
+
+
   function render() {
     var c = document.getElementById('content');
     if (q) { renderSearch(c); return; }
@@ -2224,11 +2627,15 @@ button{font-family:inherit}
     if (view === 'favorites') return renderFavorites(c);
     if (view === 'bookmarks') return renderBookmarks(c);
     if (view === 'request') return renderRequest(c);
+    if (view === 'roadmap') {
+      if (!me.canPreview) { location.hash = 'dashboard'; return; }
+      return renderRoadmap(c);
+    }
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
     if (view.indexOf('c-') !== 0 && view.indexOf('t-') !== 0) communityQ = '';
     if (view.indexOf('c-') === 0 || view.indexOf('t-') === 0) {
-      if (!me.canCommunity) { location.hash = 'dashboard'; return; }
+      if (!me.canPreview) { location.hash = 'dashboard'; return; }
       return view.indexOf('c-') === 0
         ? renderSpace(c, view.slice(2))
         : renderThread(c, view.slice(2));

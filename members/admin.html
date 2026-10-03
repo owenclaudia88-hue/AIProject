@@ -137,6 +137,37 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   border-radius:999px;padding:7px 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
 .dl .bulk:hover{border-color:var(--accent)}
 .dl .bulk:disabled{opacity:.6;cursor:default}
+/* ---------- roadmaps view ---------- */
+.rmq{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:11px}
+.rmq.open{border-color:rgba(255,176,32,.4)}
+.rmq .h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer}
+.rmq .h b{font-size:.98rem}
+.rmq .h .who{font-family:var(--mono);font-size:.75rem;color:var(--txt-3)}
+.rmq .st{flex:none;font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;
+  font-weight:700;padding:3px 9px;border-radius:999px;border:1px solid var(--line-2);color:var(--txt-3)}
+.rmq .st.new{color:var(--accent-2);border-color:rgba(255,176,32,.45);background:rgba(255,176,32,.12)}
+.rmq .st.draft{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.1)}
+.rmq .st.published{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1)}
+.rmq .st.failed{color:#fca5a5;border-color:rgba(252,165,165,.4);background:rgba(252,165,165,.08)}
+.rm-ans{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line);
+  white-space:pre-wrap;font-size:.88rem;line-height:1.65;color:var(--txt-2);overflow-wrap:anywhere}
+.rm-ans strong{color:var(--txt)}
+.rm-acts{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0}
+.rm-acts button{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);border-radius:999px;
+  min-height:40px;padding:0 16px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
+.rm-acts button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-2)}
+.rm-acts button:disabled{opacity:.55;cursor:default}
+.rm-acts .go{background:rgba(255,122,26,.16);border-color:rgba(255,122,26,.42);color:#ffd9b3}
+.rm-acts .pub{background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.4);color:#a7f3d0}
+.rm-json{width:100%;min-height:340px;margin:14px 0 0;background:var(--bg-3);border:1px solid var(--line-2);
+  color:var(--txt);border-radius:10px;padding:13px;font-family:var(--mono);font-size:.78rem;line-height:1.6;
+  resize:vertical}
+.rm-json:focus{outline:none;border-color:var(--accent)}
+.rm-note{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:10px 0 0;line-height:1.6}
+.rm-warn{background:rgba(255,176,32,.09);border:1px solid rgba(255,176,32,.32);border-radius:12px;
+  padding:13px 16px;margin:0 0 16px;font-size:.88rem;line-height:1.6;color:var(--txt-2)}
+.rm-warn b{color:var(--accent-2)}
+
 /* ---------- community view ---------- */
 .cm-filters{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 16px}
 .cm-filters button{background:var(--bg-3);border:1px solid var(--line);color:var(--txt-2);
@@ -315,6 +346,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     <div class="tabs">
       <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
+      <button class="tab" data-tab="roadmaps">Roadmaps<span class="n" id="n-rm"></span></button>
       <button class="tab" data-tab="community">Community<span class="n" id="n-cm"></span></button>
       <button class="tab" data-tab="projects">Projects<span class="n" id="n-proj"></span></button>
       <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
@@ -365,7 +397,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           document.getElementById('app').style.display = 'block';
           // So the tab says how many questions are waiting without anybody
           // having to open it and find out.
-          counts(); refreshBadge(); paint(); wire();
+          counts(); refreshBadge(); loadRoadmaps().catch(function () {}); paint(); wire();
         } else {
           counts(); paint();
         }
@@ -1707,6 +1739,182 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   }
 
 
+
+  /* ---------------- roadmaps ---------------- */
+
+  var rmq = { list: null, open: null, canGenerate: false, model: '', err: '' };
+
+  function rmBadge() {
+    var n = (rmq.list || []).filter(function (r) { return r.status === 'new' || r.status === 'draft'; }).length;
+    var el = document.getElementById('n-rm');
+    if (el) el.textContent = n ? n + ' waiting' : '';
+  }
+
+  function loadRoadmaps() {
+    return fetch('/api/admin/roadmaps', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return null;
+        rmq.list = d.roadmaps || [];
+        rmq.canGenerate = !!d.canGenerate;
+        rmq.model = d.model || '';
+        rmBadge();
+        return d;
+      });
+  }
+
+  function paintRoadmaps(p) {
+    if (!rmq.list) {
+      p.innerHTML = '<p class="empty">Loading roadmaps&hellip;</p>';
+      loadRoadmaps()
+        .then(function () { if (tab === 'roadmaps') paintRoadmaps(document.getElementById('panel')); })
+        .catch(function () { p.innerHTML = '<p class="empty">Could not load roadmaps.</p>'; });
+      return;
+    }
+
+    var waiting = rmq.list.filter(function (r) { return r.status === 'new'; }).length;
+    var drafts = rmq.list.filter(function (r) { return r.status === 'draft'; }).length;
+    var done = rmq.list.filter(function (r) { return r.status === 'published'; }).length;
+
+    var html =
+      '<div class="stats">' +
+        '<div class="stat"><span class="v">' + waiting + '</span><span class="l">Waiting to generate</span></div>' +
+        '<div class="stat"><span class="v">' + drafts + '</span><span class="l">Drafts to review</span></div>' +
+        '<div class="stat"><span class="v">' + done + '</span><span class="l">Published</span></div>' +
+      '</div>';
+
+    if (!rmq.canGenerate) {
+      html += '<div class="rm-warn"><b>Generation is off.</b> ANTHROPIC_API_KEY is not set on this ' +
+        'deployment, so the Generate button will refuse. Everything else \u2014 reading answers, editing ' +
+        'and publishing \u2014 works without it.</div>';
+    }
+
+    html += rmq.list.length
+      ? rmq.list.map(rmCard).join('')
+      : '<p class="empty">No roadmap requests yet.</p>';
+
+    p.innerHTML = html;
+    wireRoadmaps(p);
+  }
+
+  function rmCard(r) {
+    var when = new Date(r.createdAt);
+    return '<div class="rmq' + (rmq.open === r.id ? ' open' : '') + '" data-id="' + r.id + '">' +
+      '<div class="h"><b>' + esc(r.name || r.email) + '</b>' +
+        '<span class="who">' + esc(r.email) + ' \u00b7 ' + esc(when.toLocaleDateString()) + '</span>' +
+        '<span class="st ' + esc(r.status) + '" style="margin-left:auto">' + esc(r.status) + '</span></div>' +
+      (rmq.open === r.id ? '<div id="rm-body-' + r.id + '"><p class="empty">Loading\u2026</p></div>' : '') +
+      '</div>';
+  }
+
+  function wireRoadmaps(p) {
+    [].forEach.call(p.querySelectorAll('.rmq .h'), function (h) {
+      h.addEventListener('click', function () {
+        var id = Number(h.closest('.rmq').getAttribute('data-id'));
+        rmq.open = rmq.open === id ? null : id;
+        paintRoadmaps(document.getElementById('panel'));
+        if (rmq.open) openRoadmap(rmq.open);
+      });
+    });
+  }
+
+  function openRoadmap(id) {
+    var host = document.getElementById('rm-body-' + id);
+    if (!host) return;
+    fetch('/api/admin/roadmaps?id=' + id, { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { host.innerHTML = '<p class="empty">Could not load that.</p>'; return; }
+        var r = d.roadmap;
+        var body = r.published || r.draft;
+
+        host.innerHTML =
+          '<div class="rm-ans">' + esc(r.answersText).replace(/^## (.+)$/gm, '<strong>$1</strong>') + '</div>' +
+          (r.error ? '<p class="rm-note" style="color:#fca5a5">Last attempt failed: ' + esc(r.error) + '</p>' : '') +
+          '<div class="rm-acts">' +
+            '<button class="go" data-gen="' + id + '"' + (rmq.canGenerate ? '' : ' disabled') + '>' +
+              (body ? '\u21bb Generate again' : '\u2728 Generate AI Roadmap') + '</button>' +
+            (body ? '<button data-save="' + id + '">Save edits</button>' +
+                    '<button class="pub" data-pub="' + id + '">' +
+                      (r.status === 'published' ? 'Republish to member' : 'Publish to member') + '</button>' : '') +
+          '</div>' +
+          '<p class="rm-note" id="rm-msg-' + id + '">' +
+            (r.model ? 'Written by ' + esc(r.model) : '') +
+            (r.publishedAt ? ' \u00b7 published ' + esc(new Date(r.publishedAt).toLocaleString()) : '') +
+          '</p>' +
+          (body ? '<textarea class="rm-json" id="rm-json-' + id + '">' +
+                    esc(JSON.stringify(body, null, 2)) + '</textarea>' : '');
+
+        wireRoadmapActions(host, id);
+      });
+  }
+
+  function wireRoadmapActions(host, id) {
+    var msg = host.querySelector('#rm-msg-' + id);
+
+    host.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      e.stopPropagation();
+
+      if (b.hasAttribute('data-gen')) {
+        b.disabled = true;
+        msg.textContent = 'Writing it \u2014 this takes up to a minute\u2026';
+        fetch('/api/admin/roadmaps', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, generate: true })
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (out) {
+            b.disabled = false;
+            if (!out.ok) { msg.textContent = out.j.message || out.j.error || 'Generation failed.'; return; }
+            // Said out loud rather than swallowed: if the model keeps naming
+            // things that are not in the library, that is worth knowing.
+            msg.textContent = 'Done. ' + (out.j.dropped && out.j.dropped.length
+              ? out.j.dropped.length + ' invented reference(s) dropped: ' + out.j.dropped.join(', ')
+              : 'Every resource it named exists.');
+            rmq.list = null;
+            loadRoadmaps().then(function () {
+              paintRoadmaps(document.getElementById('panel'));
+              openRoadmap(id);
+            });
+          })
+          .catch(function () { b.disabled = false; msg.textContent = 'Network error.'; });
+        return;
+      }
+
+      if (b.hasAttribute('data-save') || b.hasAttribute('data-pub')) {
+        var publish = b.hasAttribute('data-pub');
+        var ta = host.querySelector('#rm-json-' + id);
+        var parsed;
+        try { parsed = JSON.parse(ta.value); }
+        catch (err) { msg.textContent = 'That is not valid JSON: ' + err.message; return; }
+        if (publish && !window.confirm('Publish this to the member? They get an email and it appears in their member area.')) return;
+
+        b.disabled = true;
+        msg.textContent = publish ? 'Publishing\u2026' : 'Saving\u2026';
+        fetch('/api/admin/roadmaps', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(publish ? { id: id, publish: true, roadmap: parsed } : { id: id, roadmap: parsed })
+        })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (j) {
+            b.disabled = false;
+            if (!j) { msg.textContent = 'That did not save.'; return; }
+            msg.textContent = publish ? 'Published \u2014 the member has been emailed.' : 'Saved.';
+            if (publish) {
+              rmq.list = null;
+              loadRoadmaps().then(function () { paintRoadmaps(document.getElementById('panel')); });
+            }
+          })
+          .catch(function () { b.disabled = false; msg.textContent = 'Network error.'; });
+      }
+    });
+  }
+
+
   function paint() {
     var p = document.getElementById('panel');
     if (tab === 'members') { paintMembers(p); return; }
@@ -1714,6 +1922,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     if (tab === 'traffic') { paintTraffic(p); return; }
     if (tab === 'projects') { paintProjects(p); return; }
     if (tab === 'community') { paintCommunity(p); return; }
+    if (tab === 'roadmaps') { paintRoadmaps(p); return; }
     p.innerHTML = tab === 'requests' ? requestsHTML() : commentsHTML();
     if (tab === 'requests') {
       [].forEach.call(p.querySelectorAll('[data-set]'), function (b) {
