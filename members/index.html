@@ -1218,15 +1218,24 @@ button{font-family:inherit}
         // so it carries a lock rather than leading somewhere that refuses them.
         var connectNav = document.getElementById('nav-connect');
         if (connectNav && !me.hasMembership) connectNav.classList.add('is-locked');
-        // The community is a membership perk, said the same way as the others:
-        // the rooms stay in the sidebar wearing a lock rather than vanishing,
-        // so somebody without a subscription can see what they are missing.
-        if (!me.hasMembership) {
-          [].forEach.call(document.querySelectorAll('#sb-community .nav'), function (n) {
-            n.classList.add('is-locked');
-          });
-        } else {
-          loadSpaces();
+        // Unfinished, so it is the test account's and staff's alone for now.
+        // Remove this once every phase is done; the membership rule underneath
+        // is the one that stays.
+        me.canCommunity = !!(me.isTester || me.isAdmin);
+        var sbCommunity = document.getElementById('sb-community');
+        if (sbCommunity) sbCommunity.hidden = !me.canCommunity;
+
+        if (me.canCommunity) {
+          // A membership perk, said the same way as the others: the rooms stay
+          // in the sidebar wearing a lock rather than vanishing, so somebody
+          // without a subscription can see what they are missing.
+          if (!me.hasMembership) {
+            [].forEach.call(document.querySelectorAll('#sb-community .nav'), function (n) {
+              n.classList.add('is-locked');
+            });
+          } else {
+            loadSpaces();
+          }
         }
         // The account and the library load as separate requests, so whichever
         // lands second is the one that can paint this correctly. Called from
@@ -1303,7 +1312,7 @@ button{font-family:inherit}
     'claude-carousel-studio': 'Claude Carousel Studio'
   };
 
-  var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false,
+  var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false, canCommunity: false,
              hasMembership: true };
   var all = [];        // library items (with .kind)
   var downloads = {};  // grouped downloadables
@@ -1976,8 +1985,12 @@ button{font-family:inherit}
     if (view === 'request') return renderRequest(c);
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
-    if (view.indexOf('c-') === 0) return renderSpace(c, view.slice(2));
-    if (view.indexOf('t-') === 0) return renderThread(c, view.slice(2));
+    if (view.indexOf('c-') === 0 || view.indexOf('t-') === 0) {
+      if (!me.canCommunity) { location.hash = 'dashboard'; return; }
+      return view.indexOf('c-') === 0
+        ? renderSpace(c, view.slice(2))
+        : renderThread(c, view.slice(2));
+    }
     return renderKind(c, view);
   }
 
