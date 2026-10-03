@@ -61,6 +61,7 @@ export default async function handler(req, res) {
         await sendReplyNotification(email, {
           name: rows[0].name,
           items: rows.map((r) => ({
+            kind: r.kind,
             threadId: r.thread_id == null ? null : Number(r.thread_id),
             title: r.title,
             actor: r.actor_name || 'Someone'

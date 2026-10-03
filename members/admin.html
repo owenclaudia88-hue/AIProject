@@ -137,6 +137,50 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   border-radius:999px;padding:7px 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
 .dl .bulk:hover{border-color:var(--accent)}
 .dl .bulk:disabled{opacity:.6;cursor:default}
+/* ---------- community view ---------- */
+.cm-filters{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 16px}
+.cm-filters button{background:var(--bg-3);border:1px solid var(--line);color:var(--txt-2);
+  border-radius:999px;min-height:38px;padding:0 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
+.cm-filters button.on{background:rgba(255,122,26,.13);border-color:rgba(255,122,26,.34);color:#ffd9b3}
+.cm-filters .n{margin-left:6px;opacity:.7}
+
+.cm-t{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:15px 18px;
+  margin-bottom:10px;cursor:pointer}
+.cm-t:hover{border-color:var(--line-2)}
+.cm-t.open{border-color:rgba(255,176,32,.4)}
+.cm-t .h{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.cm-t .h b{font-size:.97rem}
+.cm-t .ex{margin:6px 0 0;color:var(--txt-2);font-size:.88rem;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cm-t .m{margin:9px 0 0;font-family:var(--mono);font-size:.73rem;color:var(--txt-3);
+  display:flex;gap:7px;flex-wrap:wrap}
+.cm-sp{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;
+  font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid var(--line-2);color:var(--txt-3)}
+.cm-need{color:var(--accent-2);border-color:rgba(255,176,32,.45);background:rgba(255,176,32,.12)}
+.cm-done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1)}
+
+.cm-open{background:var(--bg-2);border:1px solid rgba(255,176,32,.35);border-radius:14px;
+  padding:18px;margin-bottom:12px}
+.cm-open h3{margin:0 0 4px;font-size:1.05rem;font-weight:800;letter-spacing:-.02em}
+.cm-open .who{font-family:var(--mono);font-size:.75rem;color:var(--txt-3);margin:0 0 12px}
+.cm-body{color:var(--txt);font-size:.94rem;line-height:1.65;overflow-wrap:anywhere}
+.cm-body p{margin:0 0 10px}
+.cm-body a{color:var(--accent-2)}
+.cm-body code{background:var(--bg-4);border:1px solid var(--line);border-radius:5px;padding:1px 5px;
+  font-family:var(--mono);font-size:.86em}
+.cm-rp{display:flex;gap:11px;padding:14px 0;border-top:1px solid var(--line)}
+.cm-rp .av{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  font-weight:800;font-size:.85rem;color:#140c03;background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+.cm-rp .w{flex:1;min-width:0}
+.cm-rp .w .n{font-size:.9rem;font-weight:700}
+.cm-rp .w .t{font-family:var(--mono);font-size:.7rem;color:var(--txt-3);margin-left:7px}
+.cm-reply{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+.cm-new{background:var(--bg-2);border:1px solid var(--line-2);border-radius:14px;padding:18px;margin-bottom:16px}
+.cm-new[hidden]{display:none}
+.cm-new input[type=text]{width:100%;background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt);
+  border-radius:9px;padding:11px 13px;font-family:inherit;font-size:.92rem;margin-bottom:12px}
+.cm-new input:focus{outline:none;border-color:var(--accent)}
+
 /* ---------- traffic view ---------- */
 .range{display:flex;gap:8px;margin:0 0 18px;flex-wrap:wrap;align-items:center}
 .range button{background:var(--bg-3);border:1px solid var(--line);color:var(--txt-2);border-radius:999px;
@@ -271,6 +315,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     <div class="tabs">
       <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
+      <button class="tab" data-tab="community">Community<span class="n" id="n-cm"></span></button>
       <button class="tab" data-tab="projects">Projects<span class="n" id="n-proj"></span></button>
       <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
       <button class="tab" data-tab="leads">Leads &amp; buyers<span class="n" id="n-leads"></span></button>
@@ -318,7 +363,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         if (first) {
           document.getElementById('gate').style.display = 'none';
           document.getElementById('app').style.display = 'block';
-          counts(); paint(); wire();
+          // So the tab says how many questions are waiting without anybody
+          // having to open it and find out.
+          counts(); refreshBadge(); paint(); wire();
         } else {
           counts(); paint();
         }
@@ -1351,12 +1398,322 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     });
   }
 
+
+  /* ---------------- community ---------------- */
+
+  var cm = { spaces: [], stats: null, threads: [], filter: 'need', open: null, loaded: false };
+
+  function cmAgo(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    var secs = Math.max(0, (Date.now() - d.getTime()) / 1000);
+    if (secs < 60) return 'just now';
+    if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
+    if (secs < 86400) return Math.floor(secs / 3600) + 'h ago';
+    if (secs < 604800) return Math.floor(secs / 86400) + 'd ago';
+    return d.toLocaleDateString();
+  }
+
+  function cmText(html) {
+    var d = document.createElement('div');
+    d.innerHTML = html || '';
+    return (d.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
+  /** A question nobody on the team has answered yet. */
+  function cmNeeds(t) {
+    return t.space === 'help' && !t.resolved && !t.staffReplies;
+  }
+
+  function cmLoad(p) {
+    // Every space in one pass. Four small queries beat making the admin click
+    // through four tabs to find out where the unanswered question is.
+    var keys = ['help', 'intros', 'wins', 'announcements'];
+    return Promise.all(keys.map(function (k) {
+      return fetch('/api/community/list?space=' + k, { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : null; });
+    })).then(function (all) {
+      var threads = [];
+      all.forEach(function (d) {
+        if (!d) return;
+        cm.spaces = d.spaces || cm.spaces;
+        if (d.stats) cm.stats = d.stats;
+        (d.threads || []).forEach(function (t) { threads.push(t); });
+      });
+      threads.sort(function (a, b) { return new Date(b.lastAt) - new Date(a.lastAt); });
+      cm.threads = threads;
+      cm.loaded = true;
+      var badge = document.getElementById('n-cm');
+      if (badge) badge.textContent = cm.stats && cm.stats.unanswered ? cm.stats.unanswered + ' to answer' : '';
+      return threads;
+    });
+  }
+
+  function paintCommunity(p) {
+    if (!cm.loaded) {
+      p.innerHTML = '<p class="empty">Loading the community&hellip;</p>';
+      cmLoad(p).then(function () { if (tab === 'community') paintCommunity(document.getElementById('panel')); })
+        .catch(function () { p.innerHTML = '<p class="empty">Could not load the community.</p>'; });
+      return;
+    }
+
+    var needs = cm.threads.filter(cmNeeds);
+    var counts = { need: needs.length, all: cm.threads.length };
+    ['help', 'intros', 'wins', 'announcements'].forEach(function (k) {
+      counts[k] = cm.threads.filter(function (t) { return t.space === k; }).length;
+    });
+
+    var st = cm.stats || { unanswered: 0, this_week: 0, threads: 0 };
+    var html =
+      '<div class="stats">' +
+        '<div class="stat"><span class="v">' + st.unanswered + '</span><span class="l">Questions to answer</span>' +
+          '<span class="s">nobody from the team has replied</span></div>' +
+        '<div class="stat"><span class="v">' + st.this_week + '</span><span class="l">Posted this week</span></div>' +
+        '<div class="stat"><span class="v">' + st.threads + '</span><span class="l">Threads in total</span></div>' +
+      '</div>' +
+
+      '<button class="bulk" id="cm-announce" style="margin:0 0 16px">\u2709 New announcement</button>' +
+      '<div class="cm-new" id="cm-new" hidden>' +
+        '<input type="text" id="cm-title" maxlength="140" placeholder="Announcement title">' +
+        '<div id="cm-rt"></div>' +
+        '<div class="acts" style="margin-top:11px;display:flex;gap:8px;flex-wrap:wrap">' +
+          '<button class="bulk" id="cm-post">Post announcement</button>' +
+          '<button id="cm-cancel">Cancel</button></div>' +
+        '<p class="us-msg" id="cm-msg"></p>' +
+      '</div>' +
+
+      '<div class="cm-filters">' +
+        filterBtn('need', 'Needs an answer', counts.need) +
+        filterBtn('all', 'Everything', counts.all) +
+        filterBtn('help', 'Ask for help', counts.help) +
+        filterBtn('intros', 'Introductions', counts.intros) +
+        filterBtn('wins', 'Wins', counts.wins) +
+        filterBtn('announcements', 'Announcements', counts.announcements) +
+      '</div>';
+
+    var shown = cm.filter === 'need' ? needs
+      : cm.filter === 'all' ? cm.threads
+      : cm.threads.filter(function (t) { return t.space === cm.filter; });
+
+    html += shown.length
+      ? shown.map(cmCard).join('')
+      : '<p class="empty">' + (cm.filter === 'need'
+          ? 'Nothing waiting \u2014 every question has an answer.'
+          : 'Nothing here yet.') + '</p>';
+
+    p.innerHTML = html;
+    wireCommunity(p);
+  }
+
+  function filterBtn(key, label, n) {
+    return '<button data-f="' + key + '" class="' + (cm.filter === key ? 'on' : '') + '">' +
+      esc(label) + (n ? '<span class="n">' + n + '</span>' : '') + '</button>';
+  }
+
+  function cmCard(t) {
+    var sp = (cm.spaces.find(function (x) { return x.key === t.space; }) || {});
+    return '<div class="cm-t' + (cm.open === t.id ? ' open' : '') + '" data-id="' + t.id + '">' +
+      '<div class="h"><b>' + esc(t.title || cmText(t.body).slice(0, 70)) + '</b>' +
+        '<span class="cm-sp">' + esc(sp.label || t.space) + '</span>' +
+        (cmNeeds(t) ? '<span class="cm-sp cm-need">Needs an answer</span>' : '') +
+        (t.resolved ? '<span class="cm-sp cm-done">Answered</span>' : '') +
+        (t.pinned ? '<span class="cm-sp">Pinned</span>' : '') +
+      '</div>' +
+      '<p class="ex">' + esc(cmText(t.body)) + '</p>' +
+      '<div class="m"><span>' + esc(t.author) + '</span><span>\u00b7</span><span>' + esc(cmAgo(t.lastAt)) + '</span>' +
+        '<span>\u00b7</span><span>' + t.replies + (t.replies === 1 ? ' reply' : ' replies') + '</span>' +
+        (t.likes ? '<span>\u00b7</span><span>\u2665 ' + t.likes + '</span>' : '') +
+        (t.lesson ? '<span>\u00b7</span><span>on ' + esc(t.lesson) + '</span>' : '') +
+      '</div></div>' +
+      (cm.open === t.id ? '<div class="cm-open" id="cm-open-' + t.id + '"><p class="empty">Loading\u2026</p></div>' : '');
+  }
+
+  function cmAct(body) {
+    return fetch('/api/community/act', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    }).then(function (r) { return r.ok ? r.json() : null; });
+  }
+
+  function wireCommunity(p) {
+    [].forEach.call(p.querySelectorAll('.cm-filters button'), function (b) {
+      b.addEventListener('click', function () {
+        cm.filter = b.getAttribute('data-f');
+        cm.open = null;
+        paintCommunity(document.getElementById('panel'));
+      });
+    });
+
+    [].forEach.call(p.querySelectorAll('.cm-t'), function (card) {
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('.cm-open')) return;
+        var id = Number(card.getAttribute('data-id'));
+        cm.open = cm.open === id ? null : id;
+        paintCommunity(document.getElementById('panel'));
+        if (cm.open) openThread(cm.open);
+      });
+    });
+
+    var announce = p.querySelector('#cm-announce');
+    if (announce) {
+      var box = p.querySelector('#cm-new');
+      announce.addEventListener('click', function () {
+        box.hidden = !box.hidden;
+        if (!box.hidden && !box.dataset.mounted) {
+          box.dataset.mounted = '1';
+          var rt = window.rtMount(p.querySelector('#cm-rt'), { placeholder: 'What is new\u2026' });
+          p.querySelector('#cm-cancel').addEventListener('click', function () { box.hidden = true; });
+          p.querySelector('#cm-post').addEventListener('click', function () {
+            var btn = this, msg = p.querySelector('#cm-msg');
+            var title = p.querySelector('#cm-title').value.trim();
+            if (!title) { msg.textContent = 'Give it a title.'; return; }
+            if (rt.isEmpty()) { msg.textContent = 'Write something first.'; return; }
+            btn.disabled = true; msg.textContent = 'Posting\u2026';
+            fetch('/api/community/post', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ space: 'announcements', title: title, body: rt.html() })
+            })
+              .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+              .then(function (out) {
+                btn.disabled = false;
+                if (!out.ok) { msg.textContent = out.j.error || 'Could not post that.'; return; }
+                cm.loaded = false; cm.filter = 'announcements';
+                paintCommunity(document.getElementById('panel'));
+              })
+              .catch(function () { btn.disabled = false; msg.textContent = 'Network error.'; });
+          });
+        }
+      });
+    }
+  }
+
+  function openThread(id) {
+    var host = document.getElementById('cm-open-' + id);
+    if (!host) return;
+    fetch('/api/community/thread?id=' + id, { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { host.innerHTML = '<p class="empty">Could not load that.</p>'; return; }
+        var t = d.thread;
+        host.innerHTML =
+          '<h3>' + esc(t.title || 'Post') + '</h3>' +
+          '<p class="who">' + esc(t.author) + ' \u00b7 ' + esc(cmAgo(t.createdAt)) +
+            (t.lesson ? ' \u00b7 on ' + esc(t.lesson) : '') + '</p>' +
+          '<div class="cm-body">' + window.rtSanitize(t.body) + '</div>' +
+          d.replies.map(function (r) {
+            return '<div class="cm-rp"><span class="av">' +
+              esc(String(r.author || 'M').charAt(0).toUpperCase()) + '</span><div class="w">' +
+              '<span class="n">' + esc(r.author || 'Removed') + '</span>' +
+              (r.isAdmin ? '<span class="badge">Team</span>' : '') +
+              '<span class="t">' + esc(cmAgo(r.createdAt)) + '</span>' +
+              '<div class="cm-body" style="margin-top:6px">' +
+                (r.removed ? '<p class="removed">This reply was removed.</p>' : window.rtSanitize(r.body)) +
+              '</div>' +
+              (r.canDelete ? '<div class="acts"><button data-del="' + r.id + '" class="danger">Delete</button></div>' : '') +
+            '</div></div>';
+          }).join('') +
+          '<div class="cm-reply"><div id="cm-rt-' + id + '"></div>' +
+            '<div class="acts" style="margin-top:10px">' +
+              '<button class="bulk" data-send="' + id + '">Reply as the team</button>' +
+              '<button data-like="' + id + '" class="' + (t.liked ? 'on' : '') + '">' +
+                (t.liked ? '\u2665' : '\u2661') + ' ' + (t.likes || 0) + '</button>' +
+              '<button data-pin="' + id + '">' + (t.pinned ? 'Unpin' : 'Pin to top') + '</button>' +
+              (t.resolvable ? '<button data-res="' + id + '" class="' + (t.resolved ? 'on' : '') + '">' +
+                (t.resolved ? '\u2713 Answered' : 'Mark answered') + '</button>' : '') +
+              '<button data-rm="' + id + '" class="danger">Delete thread</button>' +
+            '</div><p class="us-msg" id="cm-m-' + id + '"></p></div>';
+
+        var rt = window.rtMount(host.querySelector('#cm-rt-' + id), { placeholder: 'Reply as the team\u2026' });
+        var msg = host.querySelector('#cm-m-' + id);
+
+        host.addEventListener('click', function (e) {
+          var b = e.target.closest('button');
+          if (!b) return;
+          e.stopPropagation();
+
+          if (b.hasAttribute('data-send')) {
+            if (rt.isEmpty()) return;
+            b.disabled = true; msg.textContent = 'Posting\u2026';
+            fetch('/api/community/post', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ parentId: id, body: rt.html() })
+            }).then(function (r) { return r.ok ? r.json() : null; })
+              .then(function (j) {
+                b.disabled = false;
+                if (!j) { msg.textContent = 'Could not post that.'; return; }
+                msg.textContent = '';
+                // The whole view, not just this thread: answering a question
+                // takes it out of "Needs an answer", and leaving it sitting in
+                // the queue it has just left is how an admin answers something
+                // twice.
+                cm.loaded = false;
+                cmLoad().then(function () {
+                  paintCommunity(document.getElementById('panel'));
+                  // Still on screen under the current filter? Then keep it open.
+                  if (document.getElementById('cm-open-' + id)) openThread(id);
+                  refreshBadge();
+                });
+              });
+            return;
+          }
+          if (b.hasAttribute('data-like')) {
+            cmAct({ id: id, like: true }).then(function (r) {
+              if (r) b.textContent = (r.liked ? '\u2665' : '\u2661') + ' ' + r.likes;
+            });
+            return;
+          }
+          if (b.hasAttribute('data-pin')) {
+            cmAct({ id: id, pinned: b.textContent.indexOf('Unpin') < 0 }).then(function () {
+              cm.loaded = false; paintCommunity(document.getElementById('panel'));
+            });
+            return;
+          }
+          if (b.hasAttribute('data-res')) {
+            cmAct({ id: id, resolved: b.textContent.indexOf('\u2713') < 0 }).then(function () {
+              cm.loaded = false; paintCommunity(document.getElementById('panel'));
+            });
+            return;
+          }
+          if (b.hasAttribute('data-rm')) {
+            if (!window.confirm('Delete this thread? Its replies go too.')) return;
+            cmAct({ id: id, remove: true }).then(function () {
+              cm.open = null; cm.loaded = false; paintCommunity(document.getElementById('panel'));
+            });
+            return;
+          }
+          if (b.hasAttribute('data-del')) {
+            if (!window.confirm('Delete this reply?')) return;
+            cmAct({ id: Number(b.getAttribute('data-del')), remove: true }).then(function () {
+              openThread(id);
+            });
+          }
+        });
+      });
+  }
+
+  /* The tab says how many questions are waiting, without opening it. */
+  function refreshBadge() {
+    fetch('/api/community/list', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.stats) return;
+        cm.stats = d.stats;
+        var badge = document.getElementById('n-cm');
+        if (badge) badge.textContent = d.stats.unanswered ? d.stats.unanswered + ' to answer' : '';
+      })
+      .catch(function () {});
+  }
+
+
   function paint() {
     var p = document.getElementById('panel');
     if (tab === 'members') { paintMembers(p); return; }
     if (tab === 'leads') { paintLeads(p); return; }
     if (tab === 'traffic') { paintTraffic(p); return; }
     if (tab === 'projects') { paintProjects(p); return; }
+    if (tab === 'community') { paintCommunity(p); return; }
     p.innerHTML = tab === 'requests' ? requestsHTML() : commentsHTML();
     if (tab === 'requests') {
       [].forEach.call(p.querySelectorAll('[data-set]'), function (b) {

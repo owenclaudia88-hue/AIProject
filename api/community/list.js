@@ -10,7 +10,7 @@
  * harvested from a forum is the usual way an address book leaks.
  */
 import { communityMember } from '../../lib/community-access.js';
-import { listThreads, countThreadsBySpace } from '../../lib/db.js';
+import { listThreads, countThreadsBySpace, communityStats } from '../../lib/db.js';
 import { spaceList, SPACE_KEYS, canPostIn, authorName } from '../../lib/community.js';
 
 export default async function handler(req, res) {
@@ -29,7 +29,13 @@ export default async function handler(req, res) {
       ...s, threads: counts[s.key] || 0, canPost: canPostIn(s.key, who)
     }));
 
-    if (!space) return res.status(200).json({ spaces, isAdmin: !!who.isAdmin });
+    // Triage numbers, for staff only — a member has nothing to do with how
+    // many questions are waiting for an answer.
+    const stats = who.isAdmin ? await communityStats() : null;
+
+    if (!space) {
+      return res.status(200).json({ spaces, isAdmin: !!who.isAdmin, ...(stats ? { stats } : {}) });
+    }
 
     const rows = await listThreads(space, {
       email: who.email,
@@ -39,6 +45,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       spaces,
       isAdmin: !!who.isAdmin,
+      ...(stats ? { stats } : {}),
       space,
       threads: rows.map((r) => shape(r, who))
     });
@@ -65,6 +72,10 @@ export function shape(r, who) {
     // field rather than the page re-deriving the rule.
     canDelete: !!r.mine || !!who.isAdmin,
     replies: r.replies ?? 0,
+    // Only staff act on this, and it tells them nothing about another member
+    // they could not already see, so it is sent to everybody rather than
+    // shaped differently per caller.
+    staffReplies: r.staff_replies ?? 0,
     likes: r.likes ?? 0,
     liked: !!r.liked,
     pinned: !!r.pinned_at,

@@ -11,8 +11,9 @@
 import { communityMember } from '../../lib/community-access.js';
 import {
   createThread, createReply, setCustomerName, getCustomer,
-  threadsPostedSince, notifyReply
+  threadsPostedSince, notifyReply, notifyStaffQuestion
 } from '../../lib/db.js';
+import { adminEmails } from '../../lib/admin.js';
 import { sanitizeHtml, htmlIsEmpty } from '../../lib/sanitize-html.js';
 import { canPostIn, SPACE_KEYS, authorName } from '../../lib/community.js';
 
@@ -92,6 +93,20 @@ export default async function handler(req, res) {
 
     const row = await createThread({ space, title, body, email: who.email, isAdmin: who.isAdmin });
     const customer = await getCustomer(who.email);
+    const name = authorName(customer?.name, who.isAdmin);
+
+    // A question nobody has seen is the one thing staff need telling about:
+    // there is no reply yet, so notifyReply would never fire, and an unanswered
+    // question is the only thing in here with a clock on it.
+    if (space === 'help' && !who.isAdmin) {
+      await notifyStaffQuestion({
+        staff: adminEmails(),
+        actorEmail: who.email,
+        actorName: name,
+        threadId: row.id,
+        title: row.title
+      }).catch(function (err) { console.error('[community/post] notify staff', err); });
+    }
 
     return res.status(200).json({
       thread: {
@@ -99,7 +114,7 @@ export default async function handler(req, res) {
         space: row.space,
         title: row.title,
         body: row.body,
-        author: authorName(customer?.name, who.isAdmin),
+        author: name,
         isAdmin: !!who.isAdmin,
         mine: true, canDelete: true,
         replies: 0, likes: 0, liked: false,
