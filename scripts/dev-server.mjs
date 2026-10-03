@@ -17,6 +17,40 @@ import { pathToFileURL } from 'node:url';
 const ROOT = process.cwd();
 const PORT = Number(process.env.PORT ?? 3000);
 
+/**
+ * Vercel's rewrites, read from vercel.json so this cannot drift from what
+ * production actually does. Only the plain and `:param*` forms are supported,
+ * which is all the file uses.
+ */
+const REWRITES = await loadRewrites();
+
+async function loadRewrites() {
+  try {
+    const cfg = JSON.parse(await readFile(join(ROOT, 'vercel.json'), 'utf8'));
+    return (cfg.rewrites ?? []).map(({ source, destination }) => ({
+      re: new RegExp('^' + source
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .replace(/\\:(\w+)\\\*/g, '(?<$1>.*)')
+        .replace(/:(\w+)\\\*/g, '(?<$1>.*)') + '$'),
+      destination
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** The path a request really resolves to, after rewrites. */
+function rewrite(pathname) {
+  for (const { re, destination } of REWRITES) {
+    const m = pathname.match(re);
+    if (!m) continue;
+    let out = destination;
+    for (const [k, v] of Object.entries(m.groups ?? {})) out = out.replaceAll(`:${k}*`, v ?? '');
+    return out;
+  }
+  return pathname;
+}
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -97,13 +131,18 @@ async function serveStatic(req, res, pathname) {
 
 createServer(async (req, res) => {
   decorate(res);
-  const { pathname } = new URL(req.url, `http://localhost:${PORT}`);
+  const { pathname, search } = new URL(req.url, `http://localhost:${PORT}`);
 
   try {
-    if (pathname.startsWith('/api/')) {
-      return await handleApi(req, res, pathname.slice('/api/'.length));
+    const target = rewrite(pathname);
+    if (target.startsWith('/api/')) {
+      // A rewrite can carry a query string of its own; the handler reads it
+      // off req.url, so it has to end up there.
+      const [path, extra] = target.split('?');
+      req.url = path + (extra ? `?${extra}${search ? `&${search.slice(1)}` : ''}` : search);
+      return await handleApi(req, res, path.slice('/api/'.length));
     }
-    return await serveStatic(req, res, pathname);
+    return await serveStatic(req, res, target);
   } catch (err) {
     console.error('[dev-server]', err);
     if (!res.headersSent) res.status(500).json({ error: String(err && err.message) });

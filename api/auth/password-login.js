@@ -2,6 +2,7 @@ import { isActive, normalizeEmail, passwordHashFor, recordAuthFailure, clearAuth
 import { verifyPassword, dummyVerify } from '../../lib/passwords.js';
 import { createSessionCookie } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
+import { destinationFor } from '../../lib/destinations.js';
 
 /**
  * POST /api/auth/password-login  { email, password }
@@ -84,7 +85,11 @@ export default async function handler(req, res) {
     res.setHeader('Set-Cookie', createSessionCookie(email, 'pw', await sessionEpochFor(email)));
     return res.status(200).json({
       ok: true,
-      redirect: (staff && !active) ? '/members/admin.html' : '/members/'
+      // Where they were headed before being asked to sign in, if it is one of
+      // the handful of places a sign-in is allowed to land.
+      redirect: (staff && !active)
+        ? '/members/admin.html'
+        : (destinationFor(req.body?.next) || '/members/')
     });
   } catch (err) {
     console.error('[password-login]', err);

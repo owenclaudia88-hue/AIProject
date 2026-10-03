@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Connect to Claude — AI Founder University</title>
+<link rel="icon" href="../assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="../assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0b;--bg-2:#111113;--bg-3:#161619;--bg-4:#1c1c20;
+  --line:#242429;--line-2:#33333a;--txt:#f4f4f5;--txt-2:#a1a1aa;--txt-3:#71717a;
+  --accent:#ff7a1a;--accent-2:#ffb020;--green:#34d399;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+/* A class selector that sets display beats the browser's own [hidden] rule, so
+   an element with a class and a hidden attribute stays on screen. Settled once
+   here rather than patched per element, as the member area already does. */
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+
+.wrap{max-width:900px;margin:0 auto;padding:clamp(22px,3vw,44px) clamp(18px,3vw,32px) 80px}
+.back{display:inline-flex;align-items:center;gap:8px;color:var(--txt-2);font-family:var(--mono);
+  font-size:.85rem;padding:10px 10px 10px 0;margin-bottom:10px}
+.back:hover{color:var(--accent-2)}
+
+h1{font-size:clamp(1.6rem,4vw,2.3rem);font-weight:800;letter-spacing:-.03em;margin:0;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.beta{font-family:var(--mono);font-size:.64rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--accent-2);background:rgba(255,176,32,.13);
+  border:1px solid rgba(255,176,32,.38);border-radius:999px;padding:5px 11px}
+.lede{color:var(--txt-2);font-size:1rem;line-height:1.65;margin:14px 0 6px;max-width:66ch}
+.lede b{color:var(--txt);font-weight:600}
+.beta-note{color:var(--txt-3);font-size:.88rem;line-height:1.6;margin:0 0 30px;max-width:66ch}
+
+/* what it does */
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:14px;margin-bottom:30px}
+.feat{background:var(--bg-2);border:1px solid var(--line);border-radius:15px;padding:19px 20px}
+.feat h3{display:flex;align-items:center;gap:11px;margin:0 0 9px;font-size:.98rem;font-weight:700;letter-spacing:-.01em}
+.feat .ic{flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+  font-size:.95rem;background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.3)}
+.feat p{margin:0;color:var(--txt-2);font-size:.9rem;line-height:1.6}
+
+/* the panels */
+.panel{background:var(--bg-2);border:1px solid var(--line);border-radius:17px;padding:clamp(20px,3vw,26px);margin-bottom:18px}
+.panel h2{display:flex;align-items:center;gap:12px;margin:0 0 7px;font-size:1.12rem;font-weight:800;letter-spacing:-.02em}
+.panel h2 .ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:1rem;
+  background:linear-gradient(140deg,var(--accent-2),var(--accent));color:#1a0d00}
+.panel .sub{color:var(--txt-2);font-size:.92rem;line-height:1.6;margin:0 0 18px}
+
+/* the URL */
+.url{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-3);
+  border:1px solid var(--line-2);border-radius:12px;padding:12px 12px 12px 16px;margin-bottom:14px}
+.url code{flex:1;min-width:0;font-family:var(--mono);font-size:.92rem;color:var(--txt);
+  overflow-wrap:anywhere}
+.copy{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;
+  background:var(--bg-4);border:1px solid var(--line-2);color:var(--txt-2);border-radius:9px;
+  font-family:var(--mono);font-size:.8rem;cursor:pointer}
+.copy:hover{border-color:var(--accent);color:var(--accent-2)}
+.copy.done{border-color:rgba(52,211,153,.5);color:var(--green)}
+
+/* app tabs */
+.tabs{display:flex;gap:3px;background:var(--bg-3);border:1px solid var(--line);border-radius:11px;
+  padding:4px;margin-bottom:18px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1;white-space:nowrap;background:none;border:0;color:var(--txt-3);
+  font-family:var(--mono);font-size:.84rem;min-height:40px;padding:0 14px;border-radius:8px;cursor:pointer}
+.tabs button.on{background:var(--bg-2);color:var(--txt);box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+
+ol.steps{margin:0;padding-left:21px;color:var(--txt-2);font-size:.94rem;line-height:1.75}
+ol.steps li{margin-bottom:7px}
+ol.steps b{color:var(--txt);font-weight:600}
+ol.steps a{color:var(--accent-2);text-decoration:underline}
+ol.steps code{font-family:var(--mono);font-size:.86em;background:var(--bg-4);
+  border:1px solid var(--line);border-radius:5px;padding:2px 6px;overflow-wrap:anywhere}
+.cmd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-4);
+  border:1px solid var(--line);border-radius:10px;padding:12px 12px 12px 15px;margin:12px 0 0}
+.cmd code{flex:1;min-width:0;font-family:var(--mono);font-size:.84rem;overflow-wrap:anywhere}
+
+.safe{display:flex;gap:9px;align-items:flex-start;margin:18px 0 0;padding-top:16px;
+  border-top:1px solid var(--line);color:var(--txt-3);font-size:.85rem;line-height:1.6}
+.safe b{color:var(--txt-2);font-weight:600}
+
+/* try it */
+.try{display:grid;gap:9px}
+.try button{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;
+  background:var(--bg-3);border:1px solid var(--line);border-radius:11px;padding:14px 16px;
+  color:var(--txt-2);font-size:.92rem;line-height:1.5;cursor:pointer}
+.try button:hover{border-color:rgba(255,122,26,.45);color:var(--txt)}
+.try button .q{flex:none;color:var(--accent-2);font-size:.9rem;line-height:1.5}
+.try button.done{border-color:rgba(52,211,153,.5)}
+
+/* faq */
+.faq h3{margin:20px 0 5px;font-size:.96rem;font-weight:700}
+.faq h3:first-of-type{margin-top:0}
+.faq p{margin:0;color:var(--txt-2);font-size:.91rem;line-height:1.65;max-width:70ch}
+.faq a{color:var(--accent-2);text-decoration:underline}
+
+/* gate */
+.gate{min-height:70vh;display:grid;place-items:center;text-align:center;padding:30px 0}
+.gate p{color:var(--txt-2);max-width:48ch;line-height:1.65;margin:0 0 20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 24px;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;
+  font-weight:800;border:0;border-radius:12px;cursor:pointer;font-size:.98rem}
+.btn.quiet{background:none;border:1px solid var(--line-2);color:var(--txt-2);font-weight:600}
+
+@media(max-width:620px){
+  .url{padding:12px}
+  .copy{width:100%;justify-content:center}
+  .cmd{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="back" href="./">&larr; Back to your library</a>
+
+  <div id="gate" class="gate" hidden>
+    <div>
+      <h1 style="justify-content:center">Connect to Claude</h1>
+      <p id="gate-msg" style="margin-top:14px">Checking your access&hellip;</p>
+      <div id="gate-acts" hidden>
+        <a class="btn" id="gate-btn" href="join.html">See what the membership opens</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" hidden>
+    <h1>Connect to Claude <span class="beta">Beta</span></h1>
+    <p class="lede">Plug your AI Founder University library straight into Claude. Ask for a prompt,
+      a skill or a lesson <b>inside your chat</b> — no more opening the site and copying things across.</p>
+    <p class="beta-note">This is new. It works today, and you may hit the odd rough edge while we polish it.</p>
+
+    <div class="feats">
+      <div class="feat">
+        <h3><span class="ic">🔍</span>Search the whole library</h3>
+        <p>Ask Claude to find the right prompt, template or GPT from any chat — 1,200-odd of them, without digging through the site.</p>
+      </div>
+      <div class="feat">
+        <h3><span class="ic">🤖</span>Pull in a skill or agent</h3>
+        <p>Have Claude open one of your Agents &amp; Skills and put it straight to work on what you are doing.</p>
+      </div>
+      <div class="feat">
+        <h3><span class="ic">📖</span>Work through a lesson</h3>
+        <p>Claude reads a course lesson and walks you through it step by step, in the chat, at your pace.</p>
+      </div>
+      <div class="feat">
+        <h3><span class="ic">⭐</span>Use what is proven</h3>
+        <p>Surface the prompts other members have liked most and drop them straight into your work.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><span class="ic">⚡</span>Connect in about 2 minutes</h2>
+      <p class="sub">Add this URL in your Claude app, then sign in with your AI Founder University account.</p>
+
+      <div class="url">
+        <code id="mcp-url">https://aifounderuniversity.com/api/mcp</code>
+        <button class="copy" id="copy-url" type="button"><span>⧉</span><span id="copy-label">Copy</span></button>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button class="on" data-app="web" role="tab">claude.ai (web)</button>
+        <button data-app="desktop" role="tab">Desktop</button>
+        <button data-app="code" role="tab">Claude Code</button>
+      </div>
+
+      <ol class="steps" id="steps-web">
+        <li>Open <a href="https://claude.ai/settings/connectors" target="_blank" rel="noopener">claude.ai</a> → <b>Settings</b> → <b>Connectors</b>.</li>
+        <li>Click <b>Add custom connector</b>.</li>
+        <li>Paste the URL above and click <b>Add</b>.</li>
+        <li>Click <b>Connect</b> and sign in with your AI Founder University account.</li>
+      </ol>
+
+      <ol class="steps" id="steps-desktop" hidden>
+        <li>Open <b>Claude</b> → <b>Settings</b> → <b>Connectors</b>.</li>
+        <li>Click <b>Add custom connector</b>.</li>
+        <li>Paste the URL above and click <b>Add</b>.</li>
+        <li>Click <b>Connect</b> and sign in with your AI Founder University account.</li>
+      </ol>
+
+      <div id="steps-code" hidden>
+        <ol class="steps">
+          <li>Run this in your terminal:</li>
+        </ol>
+        <div class="cmd">
+          <code id="cli-cmd">claude mcp add --transport http aifu https://aifounderuniversity.com/api/mcp</code>
+          <button class="copy" id="copy-cmd" type="button"><span>⧉</span><span id="copy-cmd-label">Copy</span></button>
+        </div>
+        <ol class="steps" start="2" style="margin-top:12px">
+          <li>Run <code>/mcp</code> inside Claude Code and choose <b>aifu</b> to sign in.</li>
+        </ol>
+      </div>
+
+      <p class="safe"><span>🛡</span><span><b>Read-only.</b> Claude can read your library and can never change,
+        add or delete anything — and it cannot see any other member's content. Connecting is part of the membership.</span></p>
+    </div>
+
+    <div class="panel">
+      <h2><span class="ic">✨</span>Try it — tap to copy</h2>
+      <p class="sub">Once you are connected, paste one of these into Claude.</p>
+      <div class="try">
+        <button type="button"><span class="q">💬</span><span>Find me a skill from my AI Founder University library and a prompt for writing a cold outreach email.</span></button>
+        <button type="button"><span class="q">💬</span><span>What are the most popular prompts in my AI Founder University library right now?</span></button>
+        <button type="button"><span class="q">💬</span><span>Using my AI Founder University library, help me plan a week of social content.</span></button>
+        <button type="button"><span class="q">💬</span><span>Walk me through the first lesson of the Claude Business Builder course, one step at a time.</span></button>
+      </div>
+    </div>
+
+    <div class="panel faq">
+      <h2 style="margin-bottom:18px"><span class="ic">?</span>Questions</h2>
+
+      <h3>Claude is not showing the tools</h3>
+      <p>Disconnect and reconnect the connector, or restart the Claude app. Claude re-reads what is available each time it reconnects.</p>
+
+      <h3>Which apps work?</h3>
+      <p>claude.ai on the web, the Claude desktop app, and Claude Code. Connect once and it follows you across them.</p>
+
+      <h3>Is it safe?</h3>
+      <p>Yes. It is read-only access to your own library: Claude can read your content but can never edit or delete anything, and it cannot see other members' data or anything about your payments. You can take the access away at any time by removing the connector in Claude.</p>
+
+      <h3>Do I need a membership?</h3>
+      <p>Yes — connecting to Claude comes with the AI Founder University membership, trials included. Anything you bought outright is always in <a href="./">your member area</a> whatever happens to your subscription.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var gate = document.getElementById('gate');
+  var app = document.getElementById('app');
+
+  function showGate(msg, offerJoin) {
+    document.getElementById('gate-msg').textContent = msg;
+    document.getElementById('gate-acts').hidden = !offerJoin;
+    gate.hidden = false;
+  }
+
+  /* The page is a set of instructions, not content, but there is no point
+     showing somebody how to connect something they cannot connect. */
+  showGate('Checking your access…', false);
+  fetch('/api/me', { credentials: 'same-origin' })
+    .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+    .then(function (res) {
+      if (res.status === 401) { location.replace('login.html'); return; }
+      if (res.status !== 200) {
+        showGate('Your access is not active. If you were recently refunded that is expected; otherwise email support@aifounderuniversity.com.', false);
+        return;
+      }
+      if (!res.d.hasMembership) {
+        showGate('Connecting your library to Claude comes with the AI Founder University membership. Everything you bought outright stays in your member area either way.', true);
+        return;
+      }
+      gate.hidden = true;
+      app.hidden = false;
+      // Always the origin being browsed, so a staging copy never tells somebody
+      // to connect the live site by mistake.
+      var url = location.origin + '/api/mcp';
+      document.getElementById('mcp-url').textContent = url;
+      document.getElementById('cli-cmd').textContent = 'claude mcp add --transport http aifu ' + url;
+    })
+    .catch(function () { showGate('Could not check your access. Please reload.', false); });
+
+  function copier(btn, label, text) {
+    btn.addEventListener('click', function () {
+      var value = typeof text === 'function' ? text() : text;
+      var done = function () {
+        btn.classList.add('done'); label.textContent = 'Copied';
+        setTimeout(function () { btn.classList.remove('done'); label.textContent = 'Copy'; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(done, fallback);
+      } else fallback();
+      function fallback() {
+        // Clipboard access is refused in plenty of ordinary situations, and a
+        // copy button that silently does nothing is worse than no button.
+        var ta = document.createElement('textarea');
+        ta.value = value; ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:-9999px';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch (e) { label.textContent = 'Select and copy'; }
+        ta.remove();
+      }
+    });
+  }
+
+  copier(document.getElementById('copy-url'), document.getElementById('copy-label'),
+         function () { return document.getElementById('mcp-url').textContent; });
+  copier(document.getElementById('copy-cmd'), document.getElementById('copy-cmd-label'),
+         function () { return document.getElementById('cli-cmd').textContent; });
+
+  var PANELS = { web: 'steps-web', desktop: 'steps-desktop', code: 'steps-code' };
+  [].forEach.call(document.querySelectorAll('.tabs button'), function (b) {
+    b.addEventListener('click', function () {
+      [].forEach.call(document.querySelectorAll('.tabs button'), function (o) { o.classList.remove('on'); });
+      b.classList.add('on');
+      var want = b.getAttribute('data-app');
+      Object.keys(PANELS).forEach(function (k) {
+        document.getElementById(PANELS[k]).hidden = k !== want;
+      });
+    });
+  });
+
+  [].forEach.call(document.querySelectorAll('.try button'), function (b) {
+    b.addEventListener('click', function () {
+      var text = b.querySelector('span:last-child').textContent.trim();
+      var flash = function () {
+        b.classList.add('done');
+        setTimeout(function () { b.classList.remove('done'); }, 1200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(flash, flash);
+      } else flash();
+    });
+  });
+})();
+</script>
+</body>
+</html>

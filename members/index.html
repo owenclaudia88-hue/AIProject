@@ -42,6 +42,11 @@ button{font-family:inherit}
 .mark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(140deg,var(--accent-2),var(--accent));color:#1a0d00;font-weight:900;font-size:.78rem;flex:none}
 .sb-brand .name{font-weight:800;letter-spacing:-.02em;font-size:.98rem;line-height:1.15}
 .sb-group{padding:14px 14px 2px}
+.pill-beta{margin-left:auto;font-family:var(--mono);font-size:.56rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--accent-2);
+  background:rgba(255,176,32,.13);border:1px solid rgba(255,176,32,.35);
+  border-radius:999px;padding:3px 7px}
+.nav.is-locked .pill-beta{display:none}
 .sb-group-t{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--txt-3);font-weight:700;padding:0 8px 6px}
 .nav{display:flex;align-items:center;gap:11px;padding:9px 12px;margin:1px 6px;border-radius:9px;color:var(--txt-2);font-size:.9rem;font-weight:500;cursor:pointer;border:1px solid transparent;width:calc(100% - 12px);background:none;text-align:left}
 .nav[hidden]{display:none} /* display:flex above beats the hidden attribute */
@@ -888,6 +893,7 @@ button{font-family:inherit}
         <div class="sb-group">
           <div class="sb-group-t">Main</div>
           <button class="nav" data-view="dashboard"><span class="nic">🏠</span>Dashboard</button>
+          <a class="nav" id="nav-connect" href="connect.html"><span class="nic">🔌</span>Connect to Claude<span class="pill-beta">Beta</span></a>
           <button class="nav" data-view="favorites"><span class="nic">❤️</span>Favorites<span class="n-count" id="cnt-fav">0</span></button>
           <button class="nav" data-view="bookmarks"><span class="nic">🔖</span>Bookmarks<span class="n-count" id="cnt-bookmarks">0</span></button>
         </div>
@@ -1074,6 +1080,10 @@ button{font-family:inherit}
         // as a menu item that turns out to be a dead end.
         var reqNav = document.querySelector('.nav[data-view="request"]');
         if (reqNav && !me.hasMembership) reqNav.classList.add('is-locked');
+        // Same rule, said the same way: connecting is part of the membership,
+        // so it carries a lock rather than leading somewhere that refuses them.
+        var connectNav = document.getElementById('nav-connect');
+        if (connectNav && !me.hasMembership) connectNav.classList.add('is-locked');
         // The account and the library load as separate requests, so whichever
         // lands second is the one that can paint this correctly. Called from
         // both; it reads the current state and is safe to run twice.

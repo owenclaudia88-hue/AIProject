@@ -117,6 +117,11 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   var usingPassword = false;
   var resetting = false;   // came via "Forgot your password?", so land on the account page
 
+  /* Where to go after signing in, as a key. The server keeps the list of what
+     a key means, so an unknown one simply falls through to the member area and
+     there is nothing here to point somewhere else. */
+  var next = new URLSearchParams(location.search).get('next') || '';
+
   var TEXT = {
     link: { sub: "Enter the email you bought with. We'll send you a one-time sign-in link — no password needed.",
             btn: 'Email me a sign-in link', alt: 'I have a password' },
@@ -160,7 +165,7 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
       if (usingPassword) {
         res = await fetch('/api/auth/password-login', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email, password: pwInput.value })
+          body: JSON.stringify({ email: email, password: pwInput.value, next: next })
         });
         data = await res.json();
         if (res.ok && data.redirect) { location.replace(data.redirect); return; }
@@ -172,7 +177,9 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
       } else {
         res = await fetch('/api/auth/request-link', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(resetting ? { email: email, next: 'account' } : { email: email })
+          // Resetting wins: a new password is set on the account page, wherever
+          // they were headed before.
+          body: JSON.stringify({ email: email, next: resetting ? 'account' : next })
         });
         data = await res.json();
         if (res.ok) {
