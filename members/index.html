@@ -118,6 +118,110 @@ button{font-family:inherit}
 .card .head .klabel{font-family:var(--mono);font-size:.95rem;font-weight:500;color:var(--txt);letter-spacing:-.01em}
 @media(max-width:520px){.card .head .kmark svg{width:52px;height:52px}.card .head .klabel{font-size:.86rem}}
 
+/* ---------- the community ---------- */
+.sp-head{display:flex;align-items:flex-start;gap:14px;margin:0 0 6px}
+.sp-head .g{font-size:1.7rem;line-height:1;flex:none}
+.sp-new{margin:18px 0 22px;background:linear-gradient(180deg,var(--accent-2),var(--accent));
+  color:#1a0d00;font-weight:800;border:0;border-radius:11px;padding:0 20px;min-height:44px;
+  display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-size:.95rem;font-family:inherit}
+.sp-new:hover{filter:brightness(1.06)}
+
+.th-list{display:grid;gap:10px}
+.th{display:flex;gap:14px;align-items:flex-start;background:var(--bg-2);border:1px solid var(--line);
+  border-radius:14px;padding:16px 18px;cursor:pointer;transition:border-color .15s ease}
+.th:hover{border-color:var(--line-2)}
+.th.pinned{border-color:rgba(255,122,26,.34)}
+.av{flex:none;width:38px;height:38px;border-radius:50%;overflow:hidden;display:grid;place-items:center;
+  font-weight:800;font-size:.95rem;color:#140c03;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.th-main{flex:1;min-width:0}
+.th-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.th-t b{font-size:.98rem;font-weight:700;letter-spacing:-.01em}
+.th-ex{margin:5px 0 0;color:var(--txt-2);font-size:.89rem;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.th-m{margin:9px 0 0;font-family:var(--mono);font-size:.74rem;color:var(--txt-3);
+  display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.tag{font-family:var(--mono);font-size:.6rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.09em;border-radius:999px;padding:3px 8px;border:1px solid var(--line-2);color:var(--txt-3)}
+.tag.ok{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.1)}
+.tag.pin{color:var(--accent-2);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.1)}
+.tag.staff{color:var(--accent-2);border-color:rgba(255,122,26,.4);background:rgba(255,122,26,.12)}
+.tag.les{color:#93c5fd;border-color:rgba(147,197,253,.35);background:rgba(147,197,253,.1);
+  text-transform:none;letter-spacing:.02em;font-size:.64rem}
+
+/* one thread */
+.tv-back{display:inline-flex;align-items:center;gap:8px;color:var(--txt-2);font-family:var(--mono);
+  font-size:.85rem;padding:10px 10px 10px 0;margin-bottom:6px;background:none;border:0;cursor:pointer}
+.tv-back:hover{color:var(--accent-2)}
+.tv-head{display:flex;gap:14px;align-items:flex-start;margin:0 0 4px}
+.tv h1{margin:0;font-size:clamp(1.3rem,3vw,1.75rem);font-weight:800;letter-spacing:-.025em;line-height:1.25}
+.tv-m{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:8px 0 0;
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tv-body{margin:18px 0 0;color:var(--txt);font-size:.98rem;line-height:1.7;overflow-wrap:anywhere}
+.tv-body p{margin:0 0 12px}
+.tv-body ul,.tv-body ol{margin:10px 0;padding-left:22px}
+.tv-body a{color:var(--accent-2)}
+.tv-body code{background:var(--bg-4);border:1px solid var(--line);border-radius:5px;padding:1px 5px;
+  font-family:var(--mono);font-size:.87em}
+.tv-body pre{background:var(--bg-4);border:1px solid var(--line);border-radius:9px;padding:11px 13px;
+  overflow-x:auto;font-family:var(--mono);font-size:.84rem}
+.tv-acts{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.tv-acts button{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);border-radius:999px;
+  min-height:40px;padding:0 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px}
+.tv-acts button:hover{border-color:var(--accent);color:var(--accent-2)}
+.tv-acts button.on{background:rgba(255,122,26,.14);border-color:rgba(255,122,26,.4);color:#ffd9b3}
+.tv-acts button.danger:hover{border-color:#f87171;color:#fca5a5}
+
+.rp{display:flex;gap:13px;align-items:flex-start;padding:17px 0;border-top:1px solid var(--line)}
+.rp.answer{background:rgba(52,211,153,.05);border-radius:12px;padding:17px 14px;margin-top:10px;
+  border:1px solid rgba(52,211,153,.3)}
+.rp-main{flex:1;min-width:0}
+.rp-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rp-h b{font-size:.92rem}
+.rp-h .t{font-family:var(--mono);font-size:.72rem;color:var(--txt-3)}
+.rp-b{margin:7px 0 0;font-size:.93rem;line-height:1.65;overflow-wrap:anywhere}
+.rp-b p{margin:0 0 10px}
+.rp-b a{color:var(--accent-2)}
+.rp-a{display:flex;gap:4px;margin:8px 0 0 -10px}
+.rp-a button{background:none;border:0;color:var(--txt-3);font-family:var(--mono);font-size:.74rem;
+  padding:10px;cursor:pointer;border-radius:7px;min-height:38px}
+.rp-a button:hover{color:var(--accent-2)}
+.rp-a button.on{color:var(--accent-2)}
+.rp.gone .rp-b{color:var(--txt-3);font-style:italic}
+
+.cw{margin:24px 0 0;padding-top:20px;border-top:1px solid var(--line)}
+.cw h3{margin:0 0 12px;font-size:.95rem;font-weight:700}
+.cw-send{margin-top:11px;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;
+  font-weight:800;border:0;border-radius:10px;min-height:44px;padding:0 22px;cursor:pointer;
+  font-size:.92rem;font-family:inherit}
+.cw-send:disabled{opacity:.5;cursor:default}
+
+/* the new-thread sheet */
+.nt{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.66);backdrop-filter:blur(5px);
+  display:none;overflow:auto;padding:24px 18px}
+.nt.show{display:block}
+.nt-in{max-width:620px;margin:28px auto;background:var(--bg-2);border:1px solid var(--line);
+  border-radius:18px;padding:24px}
+.nt-in h2{margin:0 0 4px;font-size:1.15rem;font-weight:800;letter-spacing:-.02em}
+.nt-in .sub{margin:0 0 18px;color:var(--txt-2);font-size:.9rem;line-height:1.55}
+.nt-in label{display:block;font-weight:700;font-size:.88rem;margin:0 0 7px}
+.nt-in input[type=text],.nt-in select{width:100%;background:var(--bg-3);border:1px solid var(--line-2);
+  color:var(--txt);border-radius:10px;padding:13px 14px;font-family:inherit;font-size:.94rem;margin-bottom:16px}
+.nt-in input:focus,.nt-in select:focus{outline:none;border-color:var(--accent)}
+.nt-acts{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.nt-acts button{min-height:46px;padding:0 22px;border-radius:11px;font-weight:800;cursor:pointer;
+  font-family:inherit;font-size:.94rem;border:0}
+.nt-go{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00}
+.nt-no{background:none;border:1px solid var(--line-2);color:var(--txt-2);font-weight:600}
+.nt-err{color:#fca5a5;font-size:.86rem;margin:12px 0 0}
+@media(max-width:620px){
+  .nt{padding:0}
+  .nt-in{margin:0;border-radius:0;min-height:100vh;padding:20px 16px 40px}
+  .nt-acts button{flex:1 1 100%}
+}
+
 /* ---------- pagination ---------- */
 .pager{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
   margin:26px 0 8px;padding-top:18px;border-top:1px solid var(--line)}
@@ -876,6 +980,24 @@ button{font-family:inherit}
 </head>
 <body>
 
+  <!-- starting a thread: a sheet rather than a page, so the feed behind it
+       stays put and cancelling costs nothing -->
+  <div class="nt" id="nt">
+    <div class="nt-in">
+      <h2 id="nt-h">New post</h2>
+      <p class="sub" id="nt-sub"></p>
+      <label for="nt-title">Title</label>
+      <input type="text" id="nt-title" maxlength="140" placeholder="Say it in one line">
+      <label>Your post</label>
+      <div id="nt-rt"></div>
+      <p class="nt-err" id="nt-err" hidden></p>
+      <div class="nt-acts">
+        <button class="nt-go" id="nt-go" type="button">Post</button>
+        <button class="nt-no" id="nt-no" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- gate: shown until /api/me confirms access -->
   <div id="gate">
     <div>
@@ -900,6 +1022,14 @@ button{font-family:inherit}
           <a class="nav" id="nav-connect" href="connect.html"><span class="nic">🔌</span>Connect to Claude<span class="pill-beta">Beta</span></a>
           <button class="nav" data-view="favorites"><span class="nic">❤️</span>Favorites<span class="n-count" id="cnt-fav">0</span></button>
           <button class="nav" data-view="bookmarks"><span class="nic">🔖</span>Bookmarks<span class="n-count" id="cnt-bookmarks">0</span></button>
+        </div>
+
+        <div class="sb-group" id="sb-community">
+          <div class="sb-group-t">Community</div>
+          <button class="nav" data-view="c-announcements"><span class="nic">📣</span>Announcements<span class="n-count" id="cnt-c-announcements"></span></button>
+          <button class="nav" data-view="c-intros"><span class="nic">👋</span>Introductions<span class="n-count" id="cnt-c-intros"></span></button>
+          <button class="nav" data-view="c-help"><span class="nic">🙋</span>Ask for help<span class="n-count" id="cnt-c-help"></span></button>
+          <button class="nav" data-view="c-wins"><span class="nic">🏆</span>Wins<span class="n-count" id="cnt-c-wins"></span></button>
         </div>
 
         <div class="sb-group">
@@ -1088,6 +1218,16 @@ button{font-family:inherit}
         // so it carries a lock rather than leading somewhere that refuses them.
         var connectNav = document.getElementById('nav-connect');
         if (connectNav && !me.hasMembership) connectNav.classList.add('is-locked');
+        // The community is a membership perk, said the same way as the others:
+        // the rooms stay in the sidebar wearing a lock rather than vanishing,
+        // so somebody without a subscription can see what they are missing.
+        if (!me.hasMembership) {
+          [].forEach.call(document.querySelectorAll('#sb-community .nav'), function (n) {
+            n.classList.add('is-locked');
+          });
+        } else {
+          loadSpaces();
+        }
         // The account and the library load as separate requests, so whichever
         // lands second is the one that can paint this correctly. Called from
         // both; it reads the current state and is safe to run twice.
@@ -1241,6 +1381,7 @@ button{font-family:inherit}
 
       wireNav();
       wirePlayer();
+      wireNewThread();
       routeFromHash();
     }).catch(function(){
       document.getElementById('content').innerHTML = '<p class="empty" style="color:#fca5a5">Could not load your library. Please refresh.</p>';
@@ -1260,6 +1401,10 @@ button{font-family:inherit}
     var raw = (location.hash || '#dashboard').slice(1);
     var navKey = raw;
     if (raw.indexOf('course-') === 0) { navKey = 'courses'; view = raw; }
+    // A thread keeps its space highlighted in the sidebar: you are still in
+    // the room you walked into.
+    else if (raw.indexOf('t-') === 0) { view = raw; navKey = 'c-' + (threadSpace || ''); }
+    else if (raw.indexOf('c-') === 0) { view = raw; navKey = raw; }
     else {
       if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && !KINDS[raw]) raw = 'dashboard';
       view = raw; navKey = raw;
@@ -1440,6 +1585,387 @@ button{font-family:inherit}
     el.hidden = false;
   }
 
+
+  /* ---------------- the community ---------------- */
+
+  var spaces = {};            // key -> { label, glyph, blurb, canPost, threads, ... }
+  var threadSpace = '';       // the space of the thread being read, for the sidebar
+  var feeds = {};             // space -> threads, so going back does not refetch
+  var openThread = null;      // { thread, replies }
+
+  function spaceMeta(key) { return spaces[key] || { label: key, glyph: '', blurb: '' }; }
+
+  /** "2 days ago" beats a timestamp on something you are deciding whether to read. */
+  function ago(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    var secs = Math.max(0, (Date.now() - d.getTime()) / 1000);
+    if (secs < 60) return 'just now';
+    if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
+    if (secs < 86400) return Math.floor(secs / 3600) + 'h ago';
+    if (secs < 604800) return Math.floor(secs / 86400) + 'd ago';
+    return d.toLocaleDateString();
+  }
+
+  /* An avatar is the member's photo when they have one. Initials otherwise -
+     never a stock silhouette, which makes a room of real people look like a
+     room of placeholders. */
+  function avatar(name, cls) {
+    var initial = String(name || 'M').trim().charAt(0).toUpperCase() || 'M';
+    return '<span class="av ' + (cls || '') + '">' + esc(initial) + '</span>';
+  }
+
+  /** Markup already sanitised by the server; shown as the text it is. */
+  function excerpt(html) {
+    var d = document.createElement('div');
+    d.innerHTML = html || '';
+    return (d.textContent || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function loadSpaces() {
+    return fetch('/api/community/list', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return null;
+        spaces = {};
+        d.spaces.forEach(function (sp) {
+          spaces[sp.key] = sp;
+          var el = document.getElementById('cnt-c-' + sp.key);
+          if (el) el.textContent = sp.threads || '';
+        });
+        return d;
+      })
+      .catch(function () { return null; });
+  }
+
+  /* ---- a space ---- */
+
+  /* What each room is for, so the locked panel can say it without having
+     loaded the spaces - which is the one thing a member without a membership
+     is not allowed to do. */
+  var SPACE_PITCH = {
+    announcements: ['Announcements', 'Hear first about new courses, new tools and what is coming next.'],
+    intros: ['Introductions', 'Meet the other founders building with AI, and tell them what you are working on.'],
+    help: ['Ask for help', 'Stuck on a prompt, a tool or a lesson? Ask, and members and the team both answer.'],
+    wins: ['Wins', 'See what other members are shipping, and post your own.']
+  };
+
+  function renderSpace(c, key) {
+    var pitch = SPACE_PITCH[key] || ['Community', 'Talk to the other members.'];
+    if (!me.hasMembership) {
+      c.innerHTML = '<h1 class="page-h">' + esc(pitch[0]) + '</h1>' +
+        '<p class="page-sub">' + esc(pitch[1]) + '</p>' +
+        '<div class="req-card locked-perk">' +
+          '<span class="lock-badge">\ud83d\udd12</span>' +
+          '<h2>A membership perk</h2>' +
+          '<p class="sub">The AI Founder University community is open to members \u2014 ask questions, ' +
+            'share what you are building, and get answers from other founders and from the team.</p>' +
+          '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">' +
+            '\ud83d\udd12 Unlock with the membership</a>' +
+        '</div>';
+      return;
+    }
+
+    var sp = spaceMeta(key);
+    var head =
+      '<div class="sp-head"><span class="g">' + (sp.glyph || '') + '</span>' +
+        '<div><h1 class="page-h" style="margin:0">' + esc(sp.label) + '</h1>' +
+        '<p class="page-sub" style="margin:6px 0 0">' + esc(sp.blurb || '') + '</p></div></div>' +
+      (sp.canPost
+        ? '<button class="sp-new" id="sp-new" type="button"><span>\u270e</span>' +
+            (key === 'intros' ? 'Introduce yourself' : key === 'wins' ? 'Share a win'
+              : key === 'help' ? 'Ask a question' : 'New announcement') + '</button>'
+        : '<p class="page-sub" style="margin:16px 0 22px">Posted by the AI Founder University team. Replies are open to everyone.</p>');
+
+    c.innerHTML = head + '<div id="sp-body"><p class="empty">Loading\u2026</p></div>';
+    if (sp.canPost) document.getElementById('sp-new').addEventListener('click', function () { newThread(key); });
+
+    fetch('/api/community/list?space=' + encodeURIComponent(key), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (view !== 'c-' + key) return;              // they navigated on
+        var body = document.getElementById('sp-body');
+        if (!body) return;
+        if (!d) { body.innerHTML = '<p class="empty">Could not load this yet.</p>'; return; }
+        d.spaces.forEach(function (x) {
+          spaces[x.key] = x;
+          var el = document.getElementById('cnt-c-' + x.key);
+          if (el) el.textContent = x.threads || '';
+        });
+        feeds[key] = d.threads;
+        body.innerHTML = d.threads.length
+          ? '<div class="th-list">' + d.threads.map(threadCard).join('') + '</div>'
+          : '<p class="empty">' + esc(sp.empty || 'Nothing here yet.') + '</p>';
+        [].forEach.call(body.querySelectorAll('.th'), function (el) {
+          el.addEventListener('click', function () {
+            threadSpace = key;
+            location.hash = 't-' + el.getAttribute('data-id');
+          });
+        });
+      });
+  }
+
+  function threadCard(t) {
+    return '<article class="th' + (t.pinned ? ' pinned' : '') + '" data-id="' + t.id + '">' +
+      avatar(t.author) +
+      '<div class="th-main">' +
+        '<div class="th-t"><b>' + esc(t.title || excerpt(t.body).slice(0, 80)) + '</b>' +
+          (t.pinned ? '<span class="tag pin">Pinned</span>' : '') +
+          (t.resolved ? '<span class="tag ok">Answered</span>' : '') +
+          (t.isAdmin ? '<span class="tag staff">Team</span>' : '') +
+          (t.lesson ? '<span class="tag les">on ' + esc(t.lesson) + '</span>' : '') +
+        '</div>' +
+        '<p class="th-ex">' + esc(excerpt(t.body)) + '</p>' +
+        '<div class="th-m"><span>' + esc(t.author) + '</span><span>\u00b7</span>' +
+          '<span>' + esc(ago(t.lastAt || t.createdAt)) + '</span>' +
+          (t.replies ? '<span>\u00b7</span><span>' + t.replies + (t.replies === 1 ? ' reply' : ' replies') + '</span>' : '') +
+          (t.likes ? '<span>\u00b7</span><span>\u2665 ' + t.likes + '</span>' : '') +
+        '</div>' +
+      '</div></article>';
+  }
+
+  /* ---- one thread ---- */
+
+  function renderThread(c, id) {
+    c.innerHTML = '<p class="empty">Loading\u2026</p>';
+    fetch('/api/community/thread?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (view !== 't-' + id) return;
+        if (!d) { c.innerHTML = '<p class="empty">That post is no longer here.</p>'; return; }
+        openThread = d;
+        threadSpace = d.thread.space;
+        [].forEach.call(document.querySelectorAll('.nav'), function (n) {
+          n.classList.toggle('active', n.getAttribute('data-view') === 'c-' + threadSpace);
+        });
+        paintThread(c, d);
+      });
+  }
+
+  function paintThread(c, d) {
+    var t = d.thread;
+    var answer = t.resolvedReplyId;
+
+    c.innerHTML =
+      '<div class="tv">' +
+      '<button class="tv-back" type="button" id="tv-back">\u2190 ' + esc(t.spaceLabel) + '</button>' +
+      '<div class="tv-head">' + avatar(t.author) +
+        '<div style="flex:1;min-width:0">' +
+          '<h1>' + esc(t.title || 'Post') + '</h1>' +
+          '<div class="tv-m"><span>' + esc(t.author) + '</span>' +
+            (t.isAdmin ? '<span class="tag staff">Team</span>' : '') +
+            '<span>\u00b7</span><span>' + esc(ago(t.createdAt)) + '</span>' +
+            (t.resolved ? '<span class="tag ok">Answered</span>' : '') +
+            (t.pinned ? '<span class="tag pin">Pinned</span>' : '') +
+            (t.lesson ? '<span class="tag les">on ' + esc(t.lesson) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="tv-body">' + window.rtSanitize(t.body) + '</div>' +
+      '<div class="tv-acts">' +
+        '<button type="button" id="tv-like" class="' + (t.liked ? 'on' : '') + '">' +
+          '<span>' + (t.liked ? '\u2665' : '\u2661') + '</span><span id="tv-likes">' + (t.likes || 0) + '</span></button>' +
+        (t.canResolve
+          ? '<button type="button" id="tv-res" class="' + (t.resolved ? 'on' : '') + '">' +
+              (t.resolved ? '\u2713 Answered' : 'Mark answered') + '</button>' : '') +
+        (d.isAdmin
+          ? '<button type="button" id="tv-pin">' + (t.pinned ? 'Unpin' : 'Pin to top') + '</button>' : '') +
+        (t.canDelete ? '<button type="button" id="tv-del" class="danger">Delete</button>' : '') +
+      '</div>' +
+
+      '<div id="tv-replies">' +
+        (d.replies.length
+          ? d.replies.map(function (r) { return replyHTML(r, r.id === answer); }).join('')
+          : '') +
+      '</div>' +
+
+      '<div class="cw">' +
+        '<h3>' + (d.replies.length ? 'Add a reply' : 'Be the first to reply') + '</h3>' +
+        '<div id="tv-rt"></div>' +
+        '<button class="cw-send" id="tv-send" type="button">Post reply</button>' +
+      '</div></div>';
+
+    document.getElementById('tv-back').addEventListener('click', function () {
+      location.hash = 'c-' + t.space;
+    });
+    wireThreadActions(c, d);
+  }
+
+  function replyHTML(r, isAnswer) {
+    if (r.removed) {
+      return '<div class="rp gone"><span class="av" style="opacity:.4">\u00b7</span>' +
+        '<div class="rp-main"><p class="rp-b">This reply was removed.</p></div></div>';
+    }
+    return '<div class="rp' + (isAnswer ? ' answer' : '') + '" data-id="' + r.id + '">' +
+      avatar(r.author) +
+      '<div class="rp-main">' +
+        '<div class="rp-h"><b>' + esc(r.author) + '</b>' +
+          (r.isAdmin ? '<span class="tag staff">Team</span>' : '') +
+          (isAnswer ? '<span class="tag ok">Answer</span>' : '') +
+          '<span class="t">' + esc(ago(r.createdAt)) + '</span></div>' +
+        '<div class="rp-b">' + window.rtSanitize(r.body) + '</div>' +
+        '<div class="rp-a">' +
+          '<button type="button" data-like="' + r.id + '" class="' + (r.liked ? 'on' : '') + '">' +
+            (r.liked ? '\u2665' : '\u2661') + ' ' + (r.likes || '') + '</button>' +
+          (r.canDelete ? '<button type="button" data-del="' + r.id + '">Delete</button>' : '') +
+        '</div>' +
+      '</div></div>';
+  }
+
+  function act(body) {
+    return fetch('/api/community/act', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.ok ? r.json() : null; });
+  }
+
+  function wireThreadActions(c, d) {
+    var t = d.thread;
+
+    document.getElementById('tv-like').addEventListener('click', function () {
+      var btn = this;
+      act({ id: t.id, like: true }).then(function (res) {
+        if (!res) return;
+        t.liked = res.liked; t.likes = res.likes;
+        btn.classList.toggle('on', res.liked);
+        btn.firstChild.textContent = res.liked ? '\u2665' : '\u2661';
+        document.getElementById('tv-likes').textContent = res.likes;
+      });
+    });
+
+    var res = document.getElementById('tv-res');
+    if (res) res.addEventListener('click', function () {
+      act({ id: t.id, resolved: !t.resolved }).then(function (r) {
+        if (r) renderThread(c, t.id);
+      });
+    });
+
+    var pin = document.getElementById('tv-pin');
+    if (pin) pin.addEventListener('click', function () {
+      act({ id: t.id, pinned: !t.pinned }).then(function (r) {
+        if (r) renderThread(c, t.id);
+      });
+    });
+
+    var del = document.getElementById('tv-del');
+    if (del) del.addEventListener('click', function () {
+      if (!window.confirm('Delete this post? Replies to it go too.')) return;
+      act({ id: t.id, remove: true }).then(function (r) {
+        if (r) { delete feeds[t.space]; location.hash = 'c-' + t.space; loadSpaces(); }
+      });
+    });
+
+    document.getElementById('tv-replies').addEventListener('click', function (e) {
+      var likeBtn = e.target.closest('[data-like]');
+      if (likeBtn) {
+        act({ id: Number(likeBtn.getAttribute('data-like')), like: true }).then(function (r) {
+          if (!r) return;
+          likeBtn.classList.toggle('on', r.liked);
+          likeBtn.textContent = (r.liked ? '\u2665' : '\u2661') + ' ' + (r.likes || '');
+        });
+        return;
+      }
+      var delBtn = e.target.closest('[data-del]');
+      if (delBtn && window.confirm('Delete this reply?')) {
+        act({ id: Number(delBtn.getAttribute('data-del')), remove: true }).then(function (r) {
+          if (r) renderThread(c, t.id);
+        });
+      }
+    });
+
+    // The same editor members write comments in, mounted again - not a second
+    // one built to look like it.
+    var rt = window.rtMount(document.getElementById('tv-rt'), { placeholder: 'Write a reply\u2026' });
+    var send = document.getElementById('tv-send');
+    function post() {
+      if (rt.isEmpty()) return;
+      send.disabled = true; send.textContent = 'Posting\u2026';
+      fetch('/api/community/post', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parentId: t.id, body: rt.html() })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (out) {
+          send.disabled = false; send.textContent = 'Post reply';
+          if (!out.ok) { alert(out.j.error || 'Could not post that.'); return; }
+          rt.clear();
+          delete feeds[t.space];
+          renderThread(c, t.id);
+        })
+        .catch(function () { send.disabled = false; send.textContent = 'Post reply'; });
+    }
+    send.addEventListener('click', post);
+    rt.el.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') post();
+    });
+  }
+
+  /* ---- starting a thread ---- */
+
+  var ntRt = null, ntSpace = '';
+  function newThread(key) {
+    ntSpace = key;
+    var sp = spaceMeta(key);
+    document.getElementById('nt-h').textContent =
+      key === 'intros' ? 'Introduce yourself'
+      : key === 'wins' ? 'Share a win'
+      : key === 'help' ? 'Ask a question'
+      : 'New announcement';
+    document.getElementById('nt-sub').textContent = sp.blurb || '';
+    document.getElementById('nt-title').value = '';
+    document.getElementById('nt-err').hidden = true;
+    if (!ntRt) ntRt = window.rtMount(document.getElementById('nt-rt'), { placeholder: 'Write your post\u2026' });
+    else ntRt.clear();
+    document.getElementById('nt').classList.add('show');
+    document.getElementById('nt-title').focus();
+  }
+
+  function closeNewThread() { document.getElementById('nt').classList.remove('show'); }
+
+  function wireNewThread() {
+    document.getElementById('nt-no').addEventListener('click', closeNewThread);
+    document.getElementById('nt').addEventListener('click', function (e) {
+      if (e.target.id === 'nt') closeNewThread();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && document.getElementById('nt').classList.contains('show')) closeNewThread();
+    });
+
+    document.getElementById('nt-go').addEventListener('click', function () {
+      var btn = this;
+      var title = document.getElementById('nt-title').value.trim();
+      var err = document.getElementById('nt-err');
+      err.hidden = true;
+      if (!title) { err.textContent = 'Give it a title.'; err.hidden = false; return; }
+      if (!ntRt || ntRt.isEmpty()) { err.textContent = 'Write something first.'; err.hidden = false; return; }
+
+      btn.disabled = true; btn.textContent = 'Posting\u2026';
+      fetch('/api/community/post', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ space: ntSpace, title: title, body: ntRt.html() })
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (out) {
+          btn.disabled = false; btn.textContent = 'Post';
+          if (!out.ok) { err.textContent = out.j.error || 'Could not post that.'; err.hidden = false; return; }
+          closeNewThread();
+          ntRt.clear();
+          delete feeds[ntSpace];
+          loadSpaces();
+          threadSpace = ntSpace;
+          location.hash = 't-' + out.j.thread.id;
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = 'Post';
+          err.textContent = 'Network error. Try again.'; err.hidden = false;
+        });
+    });
+  }
+
+
   function render() {
     var c = document.getElementById('content');
     if (q) { renderSearch(c); return; }
@@ -1450,6 +1976,8 @@ button{font-family:inherit}
     if (view === 'request') return renderRequest(c);
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
+    if (view.indexOf('c-') === 0) return renderSpace(c, view.slice(2));
+    if (view.indexOf('t-') === 0) return renderThread(c, view.slice(2));
     return renderKind(c, view);
   }
 
