@@ -24,7 +24,10 @@ body{margin:0;background:var(--bg);color:var(--txt);
 h1{font-size:1.6rem;font-weight:800;margin:0 0 6px;letter-spacing:-.02em}
 .sub{color:var(--txt-3);font-size:.95rem;margin:0 0 30px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;margin-bottom:18px}
-.panel[hidden]{display:none}
+/* A class selector that sets display beats the browser's own [hidden] rule, so
+   an element with a class and a hidden attribute stays on screen. Settled once
+   here rather than patched per element, as the member area already does. */
+[hidden]{display:none!important}
 /* the profile picture and the buttons beside it */
 .pf-row{display:flex;gap:18px;align-items:center;margin:18px 0 4px;flex-wrap:wrap}
 .pf-pic{width:84px;height:84px;border-radius:50%;overflow:hidden;flex:none;position:relative;

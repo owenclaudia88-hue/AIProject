@@ -97,7 +97,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .ctext pre{background:var(--bg-4);border:1px solid var(--line);border-radius:8px;
   padding:9px 11px;overflow-x:auto;font-family:var(--mono);font-size:.82rem}
 .rt-reply{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
-.rt-reply[hidden]{display:none}
+/* A class selector that sets display beats the browser's own [hidden] rule, so
+   an element with a class and a hidden attribute stays on screen. Settled once
+   here rather than patched per element, as the member area already does. */
+[hidden]{display:none!important}
 .rt-reply .acts{margin-top:9px}
 .removed{opacity:.55;font-style:italic}
 .empty{color:var(--txt-3);font-family:var(--mono);font-size:.88rem;padding:40px 0;text-align:center}
