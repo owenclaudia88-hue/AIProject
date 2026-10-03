@@ -77,7 +77,11 @@ button{font-family:inherit}
 .sb-user b{color:var(--txt-2);font-weight:600;display:block}
 /* the name identifies the person, the address identifies which account —
    both matter, so keep the email but let the name lead */
-.sb-email{display:block;font-size:.72rem;color:var(--txt-3);opacity:.75;margin-top:1px}
+/* Truncated like the name above it. Without this a long address ran out of
+   the card and under the chevron, which reads as a broken layout rather than
+   as a long email. */
+.sb-email{display:block;font-size:.72rem;color:var(--txt-3);opacity:.75;margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .signout{background:none;border:1px solid var(--line-2);color:var(--txt-2);font-size:.82rem;padding:8px 14px;border-radius:999px;cursor:pointer;width:100%}
 .signout:hover{background:var(--bg-3);color:var(--txt)}
 
@@ -1366,7 +1370,11 @@ button{font-family:inherit}
       if (res.status === 200 && res.d.active) {
         gate.style.display = 'none';
         appEl.style.display = 'block';
-        document.getElementById('who-email').textContent = res.d.email;
+        var whoEmail = document.getElementById('who-email');
+        whoEmail.textContent = res.d.email;
+        // The card is too narrow for most addresses, so it is cut with an
+        // ellipsis. The whole thing is still one hover away rather than gone.
+        whoEmail.title = res.d.email;
         document.getElementById('who-name').textContent = res.d.name || res.d.email;
         me.email = res.d.email;
         me.name = res.d.name || '';
