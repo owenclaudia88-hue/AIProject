@@ -97,7 +97,25 @@ ol.steps code{font-family:var(--mono);font-size:.86em;background:var(--bg-4);
   color:var(--txt-2);font-size:.92rem;line-height:1.5;cursor:pointer}
 .try button:hover{border-color:rgba(255,122,26,.45);color:var(--txt)}
 .try button .q{flex:none;color:var(--accent-2);font-size:.9rem;line-height:1.5}
+.try button .t{flex:1;min-width:0}
+.try button .tick{flex:none;color:var(--green);font-size:.95rem;line-height:1.5}
 .try button.done{border-color:rgba(52,211,153,.5)}
+
+/* Says the copy actually happened, and only when it did. It sits over the page,
+   so it needs a background of its own rather than one a shade off the page's -
+   at --bg-3 the text read as part of whatever was behind it. */
+.toast{position:fixed;right:20px;bottom:20px;z-index:40;max-width:min(360px,calc(100vw - 40px));
+  display:flex;align-items:flex-start;gap:10px;
+  background:#07070a;border:1px solid var(--line-2);border-radius:12px;padding:13px 18px;
+  font-size:.9rem;line-height:1.45;color:var(--txt);
+  box-shadow:0 18px 44px -12px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.6);
+  opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .16s ease,transform .16s ease}
+.toast::before{content:'✓';color:var(--green);font-weight:800;line-height:1.45}
+.toast.bad::before{content:'!';color:var(--accent-2)}
+.toast.bad{border-color:rgba(255,176,32,.5)}
+.toast.show{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.toast{transition:opacity .16s ease;transform:none}}
+@media(max-width:620px){.toast{left:14px;right:14px;bottom:14px;max-width:none}}
 
 /* faq */
 .faq h3{margin:20px 0 5px;font-size:.96rem;font-weight:700}
@@ -178,27 +196,30 @@ ol.steps code{font-family:var(--mono);font-size:.86em;background:var(--bg-4);
       <ol class="steps" id="steps-web">
         <li>Open <a href="https://claude.ai/settings/connectors" target="_blank" rel="noopener">claude.ai</a> → <b>Settings</b> → <b>Connectors</b>.</li>
         <li>Click <b>Add custom connector</b>.</li>
-        <li>Paste the URL above and click <b>Add</b>.</li>
+        <li>Give it a name, paste the URL above, and click <b>Continue</b>, then <b>Add</b>.</li>
         <li>Click <b>Connect</b> and sign in with your AI Founder University account.</li>
       </ol>
 
       <ol class="steps" id="steps-desktop" hidden>
-        <li>Open <b>Claude</b> → <b>Settings</b> → <b>Connectors</b>.</li>
-        <li>Click <b>Add custom connector</b>.</li>
-        <li>Paste the URL above and click <b>Add</b>.</li>
-        <li>Click <b>Connect</b> and sign in with your AI Founder University account.</li>
+        <li>Open <b>Claude Desktop</b> → <b>Settings</b> → <b>Connectors</b>.</li>
+        <li>Click <b>Add custom connector</b>, paste the URL above, and click <b>Connect</b>.</li>
+        <li>Sign in, then when the browser says &ldquo;Connected&rdquo;, click <b>Open desktop app</b>.</li>
       </ol>
 
       <div id="steps-code" hidden>
         <ol class="steps">
-          <li>Run this in your terminal:</li>
+          <li>Run this in your terminal — it opens a browser to sign in:</li>
         </ol>
         <div class="cmd">
-          <code id="cli-cmd">claude mcp add --transport http aifu https://aifounderuniversity.com/api/mcp</code>
+          <!-- --scope user, not the default: without it the connector is added
+               to whichever project you happen to be in, and is missing from
+               every other one. -->
+          <code id="cli-cmd">claude mcp add --transport http --scope user aifu https://aifounderuniversity.com/api/mcp</code>
           <button class="copy" id="copy-cmd" type="button"><span>⧉</span><span id="copy-cmd-label">Copy</span></button>
         </div>
         <ol class="steps" start="2" style="margin-top:12px">
-          <li>Run <code>/mcp</code> inside Claude Code and choose <b>aifu</b> to sign in.</li>
+          <li>If it does not open by itself, run <code>/mcp</code> inside Claude Code and pick <b>aifu</b>,
+            or run <code>claude mcp login aifu</code>.</li>
         </ol>
       </div>
 
@@ -210,10 +231,10 @@ ol.steps code{font-family:var(--mono);font-size:.86em;background:var(--bg-4);
       <h2><span class="ic">✨</span>Try it — tap to copy</h2>
       <p class="sub">Once you are connected, paste one of these into Claude.</p>
       <div class="try">
-        <button type="button"><span class="q">💬</span><span>Find me a skill from my AI Founder University library and a prompt for writing a cold outreach email.</span></button>
-        <button type="button"><span class="q">💬</span><span>What are the most popular prompts in my AI Founder University library right now?</span></button>
-        <button type="button"><span class="q">💬</span><span>Using my AI Founder University library, help me plan a week of social content.</span></button>
-        <button type="button"><span class="q">💬</span><span>Walk me through the first lesson of the Claude Business Builder course, one step at a time.</span></button>
+        <button type="button"><span class="q">💬</span><span class="t">Find me a skill from my AI Founder University library and a prompt for writing a cold outreach email.</span><span class="tick" hidden>✓</span></button>
+        <button type="button"><span class="q">💬</span><span class="t">What are the most popular prompts in my AI Founder University library right now?</span><span class="tick" hidden>✓</span></button>
+        <button type="button"><span class="q">💬</span><span class="t">Using my AI Founder University library, help me plan a week of social content.</span><span class="tick" hidden>✓</span></button>
+        <button type="button"><span class="q">💬</span><span class="t">Walk me through the first lesson of the Claude Business Builder course, one step at a time.</span><span class="tick" hidden>✓</span></button>
       </div>
     </div>
 
@@ -267,37 +288,81 @@ ol.steps code{font-family:var(--mono);font-size:.86em;background:var(--bg-4);
       // to connect the live site by mistake.
       var url = location.origin + '/api/mcp';
       document.getElementById('mcp-url').textContent = url;
-      document.getElementById('cli-cmd').textContent = 'claude mcp add --transport http aifu ' + url;
+      // Kept in step with the markup above, flags and all — this line replaces
+      // it, so a correction made only there would never reach anybody.
+      document.getElementById('cli-cmd').textContent =
+        'claude mcp add --transport http --scope user aifu ' + url;
     })
     .catch(function () { showGate('Could not check your access. Please reload.', false); });
 
-  function copier(btn, label, text) {
+  /* ---------------- copying ---------------- */
+
+  /**
+   * One copy implementation for the whole page.
+   *
+   * The clipboard API is refused in plenty of ordinary situations - an
+   * insecure origin, a browser that wants a more direct gesture, a locked-down
+   * work laptop - so there is a fallback, and it reports whether the text
+   * actually went anywhere. A button that says "Copied" when nothing was
+   * copied is worse than one that says nothing at all.
+   */
+  function copyText(value) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(value).then(function () { return true; }, legacy);
+    }
+    return Promise.resolve(legacy());
+
+    function legacy() {
+      var ta = document.createElement('textarea');
+      ta.value = value;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, value.length);   // iOS needs the range as well
+      var won = false;
+      try { won = document.execCommand('copy'); } catch (e) { won = false; }
+      ta.remove();
+      return won;
+    }
+  }
+
+  var toastEl = null, toastTimer = null;
+  function toast(msg, bad) {
+    if (!toastEl) {
+      toastEl = document.createElement('div');
+      toastEl.className = 'toast';
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('bad', !!bad);
+    // Restart the animation even when one toast follows another straight away.
+    toastEl.classList.remove('show');
+    void toastEl.offsetWidth;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2000);
+  }
+
+  function copier(btn, label, text, what) {
     btn.addEventListener('click', function () {
-      var value = typeof text === 'function' ? text() : text;
-      var done = function () {
-        btn.classList.add('done'); label.textContent = 'Copied';
-        setTimeout(function () { btn.classList.remove('done'); label.textContent = 'Copy'; }, 1800);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(value).then(done, fallback);
-      } else fallback();
-      function fallback() {
-        // Clipboard access is refused in plenty of ordinary situations, and a
-        // copy button that silently does nothing is worse than no button.
-        var ta = document.createElement('textarea');
-        ta.value = value; ta.setAttribute('readonly', '');
-        ta.style.cssText = 'position:fixed;top:-9999px';
-        document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); done(); } catch (e) { label.textContent = 'Select and copy'; }
-        ta.remove();
-      }
+      copyText(typeof text === 'function' ? text() : text).then(function (won) {
+        if (!won) { toast('Could not copy — select the text instead', true); return; }
+        toast(what + ' copied');
+        btn.classList.add('done');
+        if (label) label.textContent = 'Copied';
+        setTimeout(function () {
+          btn.classList.remove('done');
+          if (label) label.textContent = 'Copy';
+        }, 1800);
+      });
     });
   }
 
   copier(document.getElementById('copy-url'), document.getElementById('copy-label'),
-         function () { return document.getElementById('mcp-url').textContent; });
+         function () { return document.getElementById('mcp-url').textContent; }, 'URL');
   copier(document.getElementById('copy-cmd'), document.getElementById('copy-cmd-label'),
-         function () { return document.getElementById('cli-cmd').textContent; });
+         function () { return document.getElementById('cli-cmd').textContent; }, 'Command');
 
   var PANELS = { web: 'steps-web', desktop: 'steps-desktop', code: 'steps-code' };
   [].forEach.call(document.querySelectorAll('.tabs button'), function (b) {
@@ -312,15 +377,18 @@ ol.steps code{font-family:var(--mono);font-size:.86em;background:var(--bg-4);
   });
 
   [].forEach.call(document.querySelectorAll('.try button'), function (b) {
+    var tick = b.querySelector('.tick');
     b.addEventListener('click', function () {
-      var text = b.querySelector('span:last-child').textContent.trim();
-      var flash = function () {
+      copyText(b.querySelector('.t').textContent.trim()).then(function (won) {
+        if (!won) { toast('Could not copy — select the text instead', true); return; }
+        toast('Prompt copied');
         b.classList.add('done');
-        setTimeout(function () { b.classList.remove('done'); }, 1200);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(flash, flash);
-      } else flash();
+        if (tick) tick.hidden = false;
+        setTimeout(function () {
+          b.classList.remove('done');
+          if (tick) tick.hidden = true;
+        }, 1600);
+      });
     });
   });
 })();
