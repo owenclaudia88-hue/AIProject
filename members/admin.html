@@ -152,7 +152,13 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .chart .axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.68rem;
   color:var(--txt-3);margin-top:8px}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:.72rem;color:var(--txt-3);
-  margin:0 0 22px;padding-left:2px}
+  margin:0 0 8px;padding-left:2px}
+/* The day's numbers used to live in a title attribute, which a phone never
+   shows. Here they are readable whichever way the bar was reached. */
+.chart-read{font-family:var(--mono);font-size:.76rem;color:var(--txt-2);margin:0 0 22px;
+  padding-left:2px;min-height:1.2em}
+.chart .col{cursor:pointer}
+.chart .col.sel .seg-v{background:var(--line-2)}
 .legend span{display:flex;align-items:center;gap:6px}
 .legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
 .tbls{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
@@ -192,6 +198,31 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .sched .bulk{background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.4);color:#ffd9b3;
   border-radius:999px;padding:7px 15px;font-family:var(--mono);font-size:.76rem;cursor:pointer}
 .sched .hint{flex:1 1 100%;color:var(--txt-3);font-size:.74rem}
+
+/* These are 29-30px beside a pointer, which is under every platform's
+   minimum under a thumb - and they are the buttons that cancel access and
+   issue refunds. Every row here already wraps, so the width costs nothing. */
+@media(max-width:620px),(hover:none){
+  .card .acts button,.oc .acts button,.us-acts button,.refund-panel .rp-btn,
+  .range button,.dl a,.dl .bulk,.sched .bulk{min-height:40px;padding-top:0;padding-bottom:0;
+    display:inline-flex;align-items:center;justify-content:center}
+  .tab{min-height:42px;display:inline-flex;align-items:center}
+  .back{padding:10px 0;display:inline-block}
+  .fb textarea{min-height:88px}
+  /* This checkbox switches the reminder emails on and off; 16px is not a
+     thumb-sized way to decide that. */
+  .sched .tog input{width:22px;height:22px}
+  .sched .tog{padding:8px 0}
+  .sched input[type=number],.sched input[type=text]{min-height:40px}
+}
+@media(max-width:620px){
+  /* A 4px floor and a 3px gap put 90 days at 627px of bars in a 298px box. */
+  .chart{padding:14px}
+  .chart .bars{gap:1px;height:140px}
+  .chart .col{min-width:2px}
+  .stat{padding:14px 15px}
+  .stat .v{font-size:1.45rem}
+}
 
 /* ---------- staff sign-in ---------- */
 #staff-signin{width:min(380px,90vw);text-align:left}
@@ -568,7 +599,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       // in, because the three counts nest rather than add up.
       var title = day(d.day) + ' — ' + d.visitors + ' visitors, ' + d.views + ' views, ' +
         d.checkouts + ' checkouts, ' + d.purchases + ' purchases';
-      h += '<div class="col" title="' + esc(title) + '">' +
+      h += '<div class="col" data-read="' + esc(title) + '" title="' + esc(title) + '">' +
         '<div class="seg-v" style="height:' + Math.max(0, pvis - pc) + '%"></div>' +
         '<div class="seg-c" style="height:' + Math.max(0, pc - pv) + '%"></div>' +
         '<div class="seg-p" style="height:' + pv + '%"></div>' +
@@ -581,7 +612,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       '<span><i style="background:var(--bg-4)"></i>Visitors</span>' +
       '<span><i style="background:rgba(255,176,32,.55)"></i>Started checkout</span>' +
       '<span><i style="background:var(--green)"></i>Purchased</span>' +
-      '<span>hover a bar for the day’s numbers</span></div>';
+      '</div><p class="chart-read" id="chart-read">Tap or hover a bar for that day’s numbers.</p>';
 
     // `pick` turns a row into its label, so the same table renders a path, a
     // country name or a "City, Country" without four near-identical functions.
@@ -606,6 +637,31 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
     p.innerHTML = h;
     wireRange(p);
+    wireChart(p);
+  }
+
+  /* One listener on the bars rather than one per column, so the 90-day view
+     costs no more than the 7-day one. */
+  function wireChart(p) {
+    var bars = p.querySelector('.chart .bars');
+    var out = p.querySelector('#chart-read');
+    if (!bars || !out) return;
+    var resting = out.textContent;
+
+    function show(e) {
+      var col = e.target.closest && e.target.closest('.col');
+      if (!col) return;
+      [].forEach.call(bars.querySelectorAll('.col.sel'), function (c) { c.classList.remove('sel'); });
+      col.classList.add('sel');
+      out.textContent = col.getAttribute('data-read');
+    }
+
+    bars.addEventListener('click', show);
+    bars.addEventListener('mouseover', show);
+    bars.addEventListener('mouseleave', function () {
+      [].forEach.call(bars.querySelectorAll('.col.sel'), function (c) { c.classList.remove('sel'); });
+      out.textContent = resting;
+    });
   }
 
   function wireRange(p) {

@@ -44,3 +44,26 @@
   height:34px;border-radius:7px;cursor:pointer}
 .rt-emoji-row button:hover{background:var(--bg-4)}
 .rt-emoji-none{color:var(--txt-3);font-size:.85rem;padding:14px 2px}
+
+/* No cursor to aim with: the controls grow. True of a touch tablet as much as
+   a phone, so it is the pointer that is asked about rather than the width. */
+@media(hover:none){
+  .rt-bar button{min-width:40px;height:40px;font-size:.92rem}
+  .rt-emoji-tabs button{padding:9px 11px}
+  .rt-emoji-row{grid-template-columns:repeat(auto-fill,minmax(40px,1fr))}
+  .rt-emoji-row button{height:40px;font-size:1.35rem}
+}
+
+/* Not much width: fixed widths fit one phone and wrap on the next, stranding a
+   single button on a second row. One implicit row of equal shares fits any
+   width and never wraps, whatever the toolbar ends up holding. A tablet is
+   deliberately not included - there the shares would be 120px each.
+   The separators are decoration and would take a share of their own. */
+@media(max-width:620px){
+  .rt-bar{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px}
+  .rt-bar button{min-width:0;height:40px;font-size:.92rem}
+  .rt-sep{display:none}
+  /* The tray opens below the toolbar; on a short screen the whole of it has to
+     stay reachable without the page scrolling out from under the keyboard. */
+  .rt-emoji-grid{max-height:min(210px,34vh)}
+}
