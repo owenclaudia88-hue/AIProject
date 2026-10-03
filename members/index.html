@@ -1227,10 +1227,11 @@ button{font-family:inherit}
       counts.downloads = dlTotal;
 
       LIB_ORDER.forEach(function(k){ var el=document.getElementById('cnt-'+k); if(el) el.textContent = counts[k]||0; });
-      // Routines are bought separately, and the catalogue query already hides
-      // them from anyone without the entitlement. So an empty count is the
-      // signal to hide the nav entry as well — otherwise every member sees a
-      // section in their sidebar that opens on nothing.
+      // Routines are bought separately, and used to be filtered out of the
+      // catalogue for anyone without them — so this hid the nav entry too, and
+      // a member without a subscription had no idea they existed. They are
+      // listed locked now, so the entry stays. It goes only when there are
+      // genuinely none, which would otherwise open on an empty page.
       var navRoutine = document.getElementById('nav-routine');
       if (navRoutine) navRoutine.hidden = !(counts.routine > 0);
       document.getElementById('cnt-downloads').textContent = dlTotal;
