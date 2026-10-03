@@ -11,7 +11,7 @@
  * the member's session cookie, because a cookie would let any page in their
  * browser drive it. The token has to be presented, and only Claude has one.
  */
-import { getCustomer, sessionEpochFor, entitlementsFor } from '../lib/db.js';
+import { getCustomer, sessionEpochFor, entitlementsFor, liveGrant, touchGrant } from '../lib/db.js';
 import { MEMBERSHIP_ONLY } from '../lib/products.js';
 import { readAccessToken, resourceUrl, siteUrl, SCOPE } from '../lib/oauth.js';
 import { TOOL_SCHEMAS, toolByName } from '../lib/mcp-tools.js';
@@ -51,7 +51,14 @@ export default async function handler(req, res) {
   let email;
   try {
     email = claims.sub;
-    const [customer, epoch] = await Promise.all([getCustomer(email), sessionEpochFor(email)]);
+    const [customer, epoch, grant] = await Promise.all([
+      getCustomer(email),
+      sessionEpochFor(email),
+      // Checked on every call, not just at refresh: disconnecting a connector
+      // from the account screen should stop it now, not in eight hours when
+      // its access token happens to run out.
+      claims.gid ? liveGrant(claims.gid) : Promise.resolve(null)
+    ]);
     if (!customer || customer.status !== 'active') {
       return unauthorized(res, 'this account is no longer active');
     }
@@ -60,6 +67,12 @@ export default async function handler(req, res) {
     if (Number(epoch) !== Number(claims.epoch)) {
       return unauthorized(res, 'this authorization was ended, please reconnect');
     }
+    if (claims.gid && !grant) {
+      return unauthorized(res, 'this connector was disconnected, please reconnect');
+    }
+    // So the account screen can say when each connector was last used. Writes
+    // at most once every few minutes, not once per call.
+    if (claims.gid) touchGrant(claims.gid).catch(() => {});
   } catch (err) {
     console.error('[mcp] auth', err);
     return rpcError(res, null, -32603, 'server error');

@@ -6,10 +6,10 @@
  * up front and has to show the value it hashed. A code stolen in transit is
  * useless without it.
  */
-import { sessionEpochFor } from '../../lib/db.js';
+import { sessionEpochFor, grantFor, liveGrant } from '../../lib/db.js';
 import {
   consumeCode, verifyChallenge, issueAccessToken, issueRefreshToken,
-  readRefreshToken, accessTokenTtl, resourceUrl, SCOPE
+  readRefreshToken, accessTokenTtl, resourceUrl, SCOPE, getClient
 } from '../../lib/oauth.js';
 
 export default async function handler(req, res) {
@@ -53,8 +53,14 @@ async function byCode(res, body) {
     return fail(res, 400, 'invalid_grant', 'code_verifier does not match the challenge');
   }
 
+  // The grant is made here rather than at the consent screen, so a member who
+  // opens the screen and wanders off does not leave a connector listed on
+  // their account that was never actually connected.
+  const client = await getClient(row.clientId);
+  const grantId = await grantFor(row.email, row.clientId, client?.name);
+
   const resource = row.resource || resourceUrl();
-  return issue(res, { email: row.email, epoch: row.epoch, clientId: row.clientId, resource });
+  return issue(res, { email: row.email, epoch: row.epoch, clientId: row.clientId, resource, grantId });
 }
 
 async function byRefresh(res, body) {
@@ -68,13 +74,21 @@ async function byRefresh(res, body) {
   // everywhere. Checking it here is what makes those reach a connector that was
   // authorized before: the refresh stops, and the access token expires on its
   // own within hours.
-  const epoch = await sessionEpochFor(claims.sub);
+  const [epoch, grant] = await Promise.all([
+    sessionEpochFor(claims.sub),
+    // Disconnected from the account screen: the token is still perfectly
+    // signed, and refused anyway because the grant behind it is gone.
+    claims.gid ? liveGrant(claims.gid) : Promise.resolve(null)
+  ]);
   if (Number(epoch) !== Number(claims.epoch)) {
     return fail(res, 400, 'invalid_grant', 'this authorization was ended, please reconnect');
   }
+  if (claims.gid && !grant) {
+    return fail(res, 400, 'invalid_grant', 'this connector was disconnected, please reconnect');
+  }
 
   return issue(res, {
-    email: claims.sub, epoch: claims.epoch, clientId: claims.cid,
+    email: claims.sub, epoch: claims.epoch, clientId: claims.cid, grantId: claims.gid,
     resource: claims.aud || resourceUrl()
   });
 }
