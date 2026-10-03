@@ -10,8 +10,8 @@
  * harvested from a forum is the usual way an address book leaks.
  */
 import { communityMember } from '../../lib/community-access.js';
-import { listThreads, countThreadsBySpace, displayNameFor } from '../../lib/db.js';
-import { spaceList, SPACE_KEYS, canPostIn } from '../../lib/community.js';
+import { listThreads, countThreadsBySpace } from '../../lib/db.js';
+import { spaceList, SPACE_KEYS, canPostIn, authorName } from '../../lib/community.js';
 
 export default async function handler(req, res) {
   const who = await communityMember(req);
@@ -54,12 +54,11 @@ export function shape(r, who) {
     space: r.space,
     title: r.title || null,
     body: r.body,
-    // No email passed on purpose. displayNameFor falls back to the local part
-    // of an address, which is fine on a course discussion between people who
-    // bought the same thing and not fine on a public-ish forum: it would put a
-    // fragment of everybody's email beside their posts. Unnamed members show
-    // as "Member" until they set a name.
-    author: displayNameFor(null, r.name),
+    // Never derived from an email. The usual fallback is the local part of an
+    // address, which is fine on a course discussion between people who bought
+    // the same thing and not fine on a forum, where it would put a fragment of
+    // everybody's email beside their posts.
+    author: authorName(r.name, r.is_admin),
     isAdmin: !!r.is_admin,
     mine: !!r.mine,
     // So the admin's moderation and a member's own tidying both work off one

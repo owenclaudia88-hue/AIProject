@@ -85,7 +85,47 @@ button{font-family:inherit}
 .main{min-width:0;display:flex;flex-direction:column}
 .topbar{position:sticky;top:0;z-index:5;background:rgba(10,10,11,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:12px clamp(18px,3vw,40px)}
 .hamb{display:none;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);width:40px;height:40px;border-radius:10px;font-size:1.1rem;cursor:pointer;flex:none}
-.tb-acct{display:none;flex:none;margin-left:2px;border-radius:50%}
+/* the bell */
+.bell{position:relative;flex:none;margin-left:auto;width:40px;height:40px;border-radius:10px;
+  background:var(--bg-3);border:1px solid var(--line);color:var(--txt-2);cursor:pointer;
+  display:none;place-items:center;font-size:1.05rem}
+.bell.on{display:grid}
+.bell:hover{color:var(--txt);border-color:var(--line-2)}
+.bell .n{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;
+  border-radius:999px;background:var(--accent);color:#1a0d00;font-family:var(--mono);
+  font-size:.6rem;font-weight:700;display:none;align-items:center;justify-content:center}
+.bell .n.show{display:flex}
+
+.nb{position:absolute;top:calc(100% + 10px);right:0;width:min(360px,calc(100vw - 28px));
+  background:var(--bg-2);border:1px solid var(--line-2);border-radius:14px;z-index:30;
+  box-shadow:0 20px 50px -14px rgba(0,0,0,.85);overflow:hidden;display:none;text-align:left}
+.nb.show{display:block}
+.nb-h{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.nb-h b{font-size:.92rem;flex:1}
+.nb-h button{background:none;border:0;color:var(--txt-3);font-family:var(--mono);font-size:.72rem;
+  cursor:pointer;padding:8px;border-radius:7px}
+.nb-h button:hover{color:var(--accent-2)}
+.nb-list{max-height:min(380px,60vh);overflow-y:auto}
+.nb-i{display:flex;gap:11px;align-items:flex-start;width:100%;text-align:left;background:none;
+  border:0;border-bottom:1px solid var(--line);padding:13px 16px;cursor:pointer;color:inherit;
+  font-family:inherit}
+.nb-i:last-child{border-bottom:0}
+.nb-i:hover{background:var(--bg-3)}
+.nb-i.unread{background:rgba(255,122,26,.06)}
+.nb-i .d{flex:none;width:7px;height:7px;border-radius:50%;margin-top:7px;background:transparent}
+.nb-i.unread .d{background:var(--accent)}
+.nb-i .w{flex:1;min-width:0}
+.nb-i .w p{margin:0;font-size:.88rem;line-height:1.45}
+.nb-i .w b{font-weight:700}
+.nb-i .w .t{display:block;margin-top:4px;font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
+.nb-empty{padding:30px 16px;text-align:center;color:var(--txt-3);font-family:var(--mono);font-size:.84rem}
+/* Anchored to the bell, the panel is wider than the space to its left and
+   hangs off the screen. On a phone it belongs to the viewport instead. */
+@media(max-width:620px){
+  .nb{position:fixed;top:64px;left:12px;right:12px;width:auto}
+}
+
+.tb-acct{display:none;flex:none;margin-left:8px;border-radius:50%}
 .tb-acct:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .tb-acct .acct-pic{width:40px;height:40px}
 .search{flex:1;max-width:560px;position:relative}
@@ -1074,6 +1114,15 @@ button{font-family:inherit}
             <span class="si">🔍</span>
             <input id="search" type="search" placeholder="Search across everything…" autocomplete="off">
           </div>
+          <div style="position:relative;margin-left:auto">
+            <button class="bell" id="bell" type="button" aria-label="Notifications">
+              🔔<span class="n" id="bell-n"></span>
+            </button>
+            <div class="nb" id="nb">
+              <div class="nb-h"><b>Notifications</b><button type="button" id="nb-read">Mark all read</button></div>
+              <div class="nb-list" id="nb-list"></div>
+            </div>
+          </div>
           <!-- Shown only while the sidebar is a drawer; on a wide screen the
                account row in the sidebar is already in front of them. -->
           <a class="tb-acct" id="tb-acct" href="account.html" aria-label="Your account">
@@ -1224,6 +1273,11 @@ button{font-family:inherit}
         me.canCommunity = !!(me.isTester || me.isAdmin);
         var sbCommunity = document.getElementById('sb-community');
         if (sbCommunity) sbCommunity.hidden = !me.canCommunity;
+        // Nobody outside the community can have a notification waiting, so the
+        // bell is shown on the same condition rather than on one of its own.
+        var bell = document.getElementById('bell');
+        if (bell) bell.classList.toggle('on', me.canCommunity);
+        if (me.canCommunity) loadNotes();
 
         if (me.canCommunity) {
           // A membership perk, said the same way as the others: the rooms stay
@@ -1391,6 +1445,7 @@ button{font-family:inherit}
       wireNav();
       wirePlayer();
       wireNewThread();
+      wireBell();
       routeFromHash();
     }).catch(function(){
       document.getElementById('content').innerHTML = '<p class="empty" style="color:#fca5a5">Could not load your library. Please refresh.</p>';
@@ -1902,6 +1957,7 @@ button{font-family:inherit}
           rt.clear();
           delete feeds[t.space];
           renderThread(c, t.id);
+          loadNotes();
         })
         .catch(function () { send.disabled = false; send.textContent = 'Post reply'; });
     }
@@ -1971,6 +2027,107 @@ button{font-family:inherit}
           btn.disabled = false; btn.textContent = 'Post';
           err.textContent = 'Network error. Try again.'; err.hidden = false;
         });
+    });
+  }
+
+
+
+  /* ---------------- notifications ---------------- */
+
+  var notes = [];
+
+  function paintBell(unread) {
+    var n = document.getElementById('bell-n');
+    if (!n) return;
+    n.textContent = unread > 9 ? '9+' : String(unread || '');
+    n.classList.toggle('show', unread > 0);
+  }
+
+  function loadNotes() {
+    if (!me.canCommunity) return;
+    fetch('/api/notifications', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        notes = d.notifications || [];
+        paintBell(d.unread || 0);
+        paintNotes();
+      })
+      .catch(function () {});
+  }
+
+  function paintNotes() {
+    var list = document.getElementById('nb-list');
+    if (!list) return;
+    if (!notes.length) {
+      list.innerHTML = '<p class="nb-empty">Nothing yet. Replies to your posts land here.</p>';
+      return;
+    }
+    list.innerHTML = notes.map(function (n) {
+      return '<button class="nb-i' + (n.read ? '' : ' unread') + '" type="button" ' +
+        'data-id="' + n.id + '" data-thread="' + (n.threadId || '') + '">' +
+        '<span class="d"></span><span class="w">' +
+          '<p><b>' + esc(n.actor) + '</b> replied' +
+            (n.title ? ' to <b>' + esc(n.title) + '</b>' : ' to your post') + '</p>' +
+          '<span class="t">' + esc(ago(n.createdAt)) + '</span>' +
+        '</span></button>';
+    }).join('');
+  }
+
+  function closeBell() { document.getElementById('nb').classList.remove('show'); }
+
+  function wireBell() {
+    var bell = document.getElementById('bell');
+    var panel = document.getElementById('nb');
+    if (!bell) return;
+
+    bell.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var opening = !panel.classList.contains('show');
+      panel.classList.toggle('show', opening);
+      if (opening) loadNotes();
+    });
+
+    // Anywhere else closes it, but not a click inside it - which would shut
+    // the panel before the item underneath had a chance to be followed.
+    document.addEventListener('click', function (e) {
+      if (panel.classList.contains('show') && !panel.contains(e.target) && e.target !== bell) closeBell();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeBell();
+    });
+
+    document.getElementById('nb-read').addEventListener('click', function (e) {
+      e.stopPropagation();
+      fetch('/api/notifications', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: '{}'
+      }).then(function () {
+        notes.forEach(function (n) { n.read = true; });
+        paintBell(0); paintNotes();
+      });
+    });
+
+    document.getElementById('nb-list').addEventListener('click', function (e) {
+      var item = e.target.closest('.nb-i');
+      if (!item) return;
+      var id = Number(item.getAttribute('data-id'));
+      var thread = item.getAttribute('data-thread');
+      closeBell();
+      // Marked read because they are about to read it; the count should not
+      // wait for the round trip to catch up.
+      var was = notes.find(function (n) { return n.id === id; });
+      if (was && !was.read) {
+        was.read = true;
+        paintBell(notes.filter(function (n) { return !n.read; }).length);
+        paintNotes();
+      }
+      fetch('/api/notifications', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+      }).catch(function () {});
+      if (thread) location.hash = 't-' + thread;
     });
   }
 

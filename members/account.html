@@ -50,6 +50,10 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
 .btn:hover{filter:brightness(1.06)}
 .btn:disabled{opacity:.55;cursor:default}
 .btn.quiet{background:none;border:1px solid var(--line);color:var(--txt-2);font-weight:600}
+/* a setting that is a single yes or no */
+.tog{display:flex;align-items:center;gap:12px;cursor:pointer;padding:10px 0;font-size:.94rem}
+.tog input{width:22px;height:22px;flex:none;accent-color:var(--accent);cursor:pointer}
+
 /* connected apps */
 .conn{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
   padding:14px 0;border-top:1px solid var(--line)}
@@ -116,6 +120,16 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
       <button type="submit" class="btn" id="pf-save">Save name</button>
     </form>
     <div class="note" id="pf-note"></div>
+  </div>
+
+  <!-- Only shown to somebody who can actually reach the community, which is
+       the only thing that sends these. -->
+  <div class="panel" id="notif" hidden>
+    <h2>Community emails</h2>
+    <p class="hint">When someone replies to a post of yours, we can let you know by email.
+      Either way it shows on the bell in your member area.</p>
+    <label class="tog"><input type="checkbox" id="notif-on"><span>Email me when someone replies</span></label>
+    <div class="note" id="notif-note"></div>
   </div>
 
   <!-- Only drawn when there is something in it: a member who has never
@@ -350,6 +364,48 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   });
 
   loadConnections();
+
+
+  /* ---------------- community emails ---------------- */
+
+  /* The endpoint is behind the community's own gate, so a 403 here is the
+     answer to "can this member have notifications at all" — and the panel
+     simply stays away rather than offering a setting that does nothing. */
+  function loadNotifySetting() {
+    fetch('/api/notifications', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        $('notif-on').checked = d.emailOn !== false;
+        $('notif').hidden = false;
+      })
+      .catch(function () {});
+  }
+
+  $('notif-on').addEventListener('change', function () {
+    var on = this.checked;
+    var note = $('notif-note');
+    fetch('/api/notifications', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: on })
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) throw new Error('failed');
+        note.className = 'note ok show';
+        note.textContent = on
+          ? 'We will email you when someone replies.'
+          : 'Reply emails are off. The bell still shows them.';
+      })
+      .catch(function () {
+        $('notif-on').checked = !on;
+        note.className = 'note err show';
+        note.textContent = 'Could not save that. Please try again.';
+      });
+  });
+
+  loadNotifySetting();
 
 
   /* The page reflects one fact: whether a password is already set. Set one, or

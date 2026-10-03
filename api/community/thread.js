@@ -2,8 +2,8 @@
  * GET /api/community/thread?id=…  — one thread and everything under it.
  */
 import { communityMember } from '../../lib/community-access.js';
-import { getThread, listReplies, displayNameFor } from '../../lib/db.js';
-import { spaceFor } from '../../lib/community.js';
+import { getThread, listReplies } from '../../lib/db.js';
+import { spaceFor, authorName } from '../../lib/community.js';
 
 export default async function handler(req, res) {
   const who = await communityMember(req);
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         resolvable: !!space?.resolvable,
         title: t.title || null,
         body: t.body,
-        author: displayNameFor(null, t.name),
+        author: authorName(t.name, t.is_admin),
         isAdmin: !!t.is_admin,
         mine: !!t.mine,
         canDelete: !!t.mine || !!who.isAdmin,
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         // the thread does not lose its shape.
         removed: !!r.deleted_at,
         body: r.deleted_at ? '' : r.body,
-        author: r.deleted_at ? null : displayNameFor(null, r.name),
+        author: r.deleted_at ? null : authorName(r.name, r.is_admin),
         isAdmin: !!r.is_admin,
         mine: !!r.mine,
         canDelete: !r.deleted_at && (!!r.mine || !!who.isAdmin),

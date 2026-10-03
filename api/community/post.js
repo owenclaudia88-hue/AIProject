@@ -10,10 +10,11 @@
  */
 import { communityMember } from '../../lib/community-access.js';
 import {
-  createThread, createReply, setCustomerName, getCustomer, displayNameFor, threadsPostedSince
+  createThread, createReply, setCustomerName, getCustomer,
+  threadsPostedSince, notifyReply
 } from '../../lib/db.js';
 import { sanitizeHtml, htmlIsEmpty } from '../../lib/sanitize-html.js';
-import { canPostIn, SPACE_KEYS } from '../../lib/community.js';
+import { canPostIn, SPACE_KEYS, authorName } from '../../lib/community.js';
 
 const MAX_BODY = 8000;
 const MAX_TITLE = 140;
@@ -47,19 +48,31 @@ export default async function handler(req, res) {
       if (!row) return res.status(404).json({ error: 'that thread is no longer there' });
 
       const customer = await getCustomer(who.email);
+      const author = authorName(customer?.name, who.isAdmin);
+
+      // The person who asked, and the person being answered if that is
+      // somebody else. notifyReply drops duplicates and never tells the writer
+      // about their own reply, so both can be handed over without checking.
+      const told = await notifyReply({
+        to: [row.threadAuthor, row.repliedTo],
+        actorEmail: who.email,
+        actorName: author,
+        threadId: row.threadId,
+        commentId: row.id,
+        title: row.threadTitle
+      }).catch(function (err) { console.error('[community/post] notify', err); return 0; });
+
       return res.status(200).json({
         reply: {
           id: Number(row.id),
           body: row.body ?? body,
-          author: displayNameFor(null, customer?.name),
+          author,
           isAdmin: !!who.isAdmin,
           mine: true, canDelete: true, removed: false,
           likes: 0, liked: false,
           createdAt: row.created_at
         },
-        // Phase 2 notifies this person. Returned now so the shape does not
-        // change under the page when it does.
-        notify: row.threadAuthor && row.threadAuthor !== who.email ? true : false
+        notified: told
       });
     }
 
@@ -86,7 +99,7 @@ export default async function handler(req, res) {
         space: row.space,
         title: row.title,
         body: row.body,
-        author: displayNameFor(null, customer?.name),
+        author: authorName(customer?.name, who.isAdmin),
         isAdmin: !!who.isAdmin,
         mine: true, canDelete: true,
         replies: 0, likes: 0, liked: false,
