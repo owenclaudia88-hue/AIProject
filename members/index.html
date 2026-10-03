@@ -145,6 +145,56 @@ button{font-family:inherit}
 .tile .tic{font-size:1.5rem}
 .tile h3{margin:8px 0 3px;font-size:1.02rem;font-weight:700;letter-spacing:-.01em}
 .tile .tc{font-family:var(--mono);font-size:.78rem;color:var(--txt-3)}
+/* The upgrade banner, for members without a subscription. Sits above the
+   content so it survives a view change, and is built once. */
+#join-banner[hidden]{display:none}
+.jb{position:relative;overflow:hidden;display:flex;gap:22px;align-items:center;flex-wrap:wrap;
+  margin:0 0 24px;padding:22px 26px;border-radius:18px;text-decoration:none;color:inherit;
+  background:
+    radial-gradient(900px 200px at 12% -40%,rgba(255,176,32,.20),transparent 70%),
+    linear-gradient(118deg,rgba(255,122,26,.16),rgba(255,176,32,.05) 48%,rgba(255,122,26,.12));
+  border:1px solid rgba(255,122,26,.38)}
+.jb:hover{border-color:var(--accent)}
+.jb::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.07) 50%,transparent 58%);
+  transform:translateX(-120%);animation:jbshine 5.5s ease-in-out infinite}
+@keyframes jbshine{0%,72%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@media (prefers-reduced-motion:reduce){.jb::after{animation:none;opacity:0}}
+
+/* The art: a grid of tiles with most of them shut and one still lit, which is
+   what the member area actually looks like to them right now. */
+.jb-art{flex:none;position:relative;width:86px;height:86px;border-radius:16px;
+  background:linear-gradient(140deg,#1d1409,#120d14);border:1px solid rgba(255,122,26,.3);
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+  gap:5px;padding:10px}
+.jb-art i{border-radius:4px;background:rgba(255,255,255,.07)}
+.jb-art i.on{background:linear-gradient(140deg,var(--accent-2),var(--accent));
+  box-shadow:0 0 14px rgba(255,160,30,.55)}
+.jb-lock{position:absolute;right:-7px;bottom:-7px;width:30px;height:30px;border-radius:50%;
+  display:grid;place-items:center;font-size:.85rem;
+  background:#141418;border:1px solid rgba(255,122,26,.5)}
+
+.jb-text{flex:1;min-width:230px}
+.jb-kicker{font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent-2);margin:0}
+.jb-text h3{margin:7px 0 0;font-size:clamp(1.05rem,2.1vw,1.32rem);font-weight:800;letter-spacing:-.02em}
+.jb-text p{margin:7px 0 0;color:var(--txt-2);font-size:.9rem;line-height:1.5}
+.jb-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.jb-chips span{font-family:var(--mono);font-size:.7rem;color:var(--txt-2);
+  background:rgba(255,255,255,.05);border:1px solid var(--line-2);border-radius:999px;padding:4px 9px}
+.jb-cta{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.jb-btn{display:inline-flex;align-items:center;gap:9px;white-space:nowrap;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#140c03;
+  font-weight:800;font-size:.95rem;border-radius:11px;padding:14px 22px;letter-spacing:-.01em}
+.jb:hover .jb-btn{filter:brightness(1.07)}
+.jb-fine{color:var(--txt-3);font-size:.74rem;font-family:var(--mono)}
+@media(max-width:760px){
+  .jb{padding:18px;gap:16px}
+  .jb-art{width:58px;height:58px;padding:7px;gap:4px;border-radius:13px}
+  .jb-cta{width:100%}
+  .jb-btn{width:100%;justify-content:center;padding:15px 20px}
+}
+
 .banner{background:linear-gradient(120deg,rgba(255,122,26,.16),rgba(255,176,32,.08));border:1px solid rgba(255,122,26,.3);border-radius:16px;padding:22px 24px;margin-bottom:26px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .banner .bic{width:46px;height:46px;border-radius:12px;background:linear-gradient(140deg,var(--accent-2),var(--accent));display:grid;place-items:center;font-size:1.4rem;flex:none}
 .banner h3{margin:0 0 3px;font-size:1.08rem;font-weight:800;letter-spacing:-.01em}
@@ -827,6 +877,7 @@ button{font-family:inherit}
             <input id="search" type="search" placeholder="Search across everything…" autocomplete="off">
           </div>
         </div>
+        <div id="join-banner" hidden></div>
         <div class="content" id="content">
           <p class="empty">Loading your library&hellip;</p>
         </div>
@@ -960,6 +1011,10 @@ button{font-family:inherit}
         // as a menu item that turns out to be a dead end.
         var reqNav = document.querySelector('.nav[data-view="request"]');
         if (reqNav && !me.hasMembership) reqNav.classList.add('is-locked');
+        // The account and the library load as separate requests, so whichever
+        // lands second is the one that can paint this correctly. Called from
+        // both; it reads the current state and is safe to run twice.
+        paintJoinBanner();
         me.photoUrl = res.d.photoUrl || null;
 
         // The account card carries their own picture, or their initial.
@@ -1104,6 +1159,7 @@ button{font-family:inherit}
       document.getElementById('cnt-downloads').textContent = dlTotal;
       document.getElementById('cnt-courses').textContent = courses.length || '';
       updateFavCount();
+      paintJoinBanner();
 
       wireNav();
       wirePlayer();
@@ -1242,6 +1298,66 @@ button{font-family:inherit}
   }
 
   /* ---------------- views ---------------- */
+
+  /* ---------------- the upgrade banner ---------------- */
+
+  /* Shown to members without a subscription. Counted from the same locked
+     flags the cards carry, so it can never promise something the library does
+     not actually have shut. */
+  function paintJoinBanner() {
+    var el = document.getElementById('join-banner');
+    if (!el) return;
+    if (me.hasMembership) { el.hidden = true; el.innerHTML = ''; return; }
+
+    var byKind = {};
+    all.forEach(function (it) { if (it.locked) byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
+
+    var dls = 0;
+    Object.keys(downloads).forEach(function (k) {
+      downloads[k].forEach(function (it) { if (it.locked) dls++; });
+    });
+    var shutCourses = courses.filter(function (c) { return c.locked; }).length;
+
+    var total = Object.keys(byKind).reduce(function (n, k) { return n + byKind[k]; }, 0) + dls;
+    // Nothing is shut, so there is nothing to sell. A banner here would be an
+    // advert for something they already have.
+    if (!total && !shutCourses) { el.hidden = true; el.innerHTML = ''; return; }
+
+    // The biggest few categories, named. A single total is abstract; "901
+    // prompts" is the same fact in a form somebody can picture.
+    var chips = Object.keys(byKind)
+      .sort(function (a, b) { return byKind[b] - byKind[a]; })
+      .slice(0, 5)
+      .map(function (k) {
+        var label = (KINDS[k] && KINDS[k].label) || k;
+        return '<span>' + byKind[k].toLocaleString() + ' ' + esc(label.toLowerCase()) + '</span>';
+      });
+    if (dls) chips.push('<span>' + dls + ' downloads</span>');
+    if (shutCourses) chips.push('<span>' + shutCourses + ' courses</span>');
+
+    var tiles = '';
+    for (var i = 0; i < 9; i++) tiles += '<i' + (i === 4 ? ' class="on"' : '') + '></i>';
+
+    el.innerHTML =
+      '<a class="jb" href="join.html">' +
+        '<span class="jb-art">' + tiles + '<span class="jb-lock">\ud83d\udd12</span></span>' +
+        '<span class="jb-text">' +
+          '<p class="jb-kicker">AI Founder University</p>' +
+          '<h3>You are seeing a fraction of what is in here.</h3>' +
+          '<p>' + (total ? '<b>' + total.toLocaleString() + '</b> prompts, tutorials, templates and downloads are locked'
+                         : 'Courses are locked') +
+            (shutCourses && total ? ', along with ' + shutCourses + ' courses' : '') +
+            '. One membership opens all of it \u2014 and everything added every week.</p>' +
+          '<span class="jb-chips">' + chips.join('') + '</span>' +
+        '</span>' +
+        '<span class="jb-cta">' +
+          '<span class="jb-btn">Unlock everything \u2014 $39/month</span>' +
+          '<span class="jb-fine">Cancel any time \u00b7 keep what you bought</span>' +
+        '</span>' +
+      '</a>';
+    el.hidden = false;
+  }
+
   function render() {
     var c = document.getElementById('content');
     if (q) { renderSearch(c); return; }
@@ -1263,7 +1379,12 @@ button{font-family:inherit}
     // local-part, because that is what displayNameFor falls back to.
     var name = String(me.name || '').trim().split(/\s+/)[0] || '';
     var html = '<h1 class="page-h">Welcome back' + (name ? ', ' + esc(name) : '') + '.</h1>' +
-      '<p class="page-sub">You have full access to everything — courses, plugins, and the full content library.</p>';
+      // Told the truth either way. Saying "full access to everything" above a
+      // banner counting what is locked makes the page argue with itself, and
+      // the member believe neither half.
+      '<p class="page-sub">' + (me.hasMembership
+        ? 'You have full access to everything — courses, plugins, and the full content library.'
+        : 'Everything you bought is here and always will be. The membership opens the rest.') + '</p>';
 
     html += '<div class="banner"><div class="bic">🧩</div><div style="min-width:200px;flex:1">' +
       '<h3>Your Specialists &amp; Plugins are ready</h3>' +
