@@ -2198,15 +2198,26 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           method: 'POST', credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' }, body: '{"testCover":true}'
         })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
+          .then(function (r) { return r.json().then(function (j) { return { status: r.status, d: j }; }); })
+          .then(function (out) {
             b.disabled = false;
-            msg.innerHTML = esc(d.note || '') + ' <span style="opacity:.7">(' + esc(d.kind) + ', ' +
+            var d = out.d || {};
+            // An error here is the whole point of pressing the button, so it
+            // is shown rather than swallowed into an empty pair of brackets.
+            if (!d.url) {
+              msg.textContent = 'No cover came back (HTTP ' + out.status + '). ' +
+                (d.message || d.error || 'The response had no image in it.');
+              return;
+            }
+            msg.innerHTML = esc(d.note || '') + ' <span style="opacity:.7">(' + esc(d.kind || '?') + ', ' +
               Math.round((d.ms || 0) / 100) / 10 + 's)</span>' +
-              (d.url ? '<br><img src="' + esc(d.url) + '" alt="" style="margin-top:10px;max-width:420px;' +
-                'width:100%;border-radius:10px;border:1px solid var(--line)">' : '');
+              '<br><img src="' + esc(d.url) + '" alt="" style="margin-top:10px;max-width:420px;' +
+                'width:100%;border-radius:10px;border:1px solid var(--line)">';
           })
-          .catch(function () { b.disabled = false; msg.textContent = 'That did not run.'; });
+          .catch(function (err) {
+            b.disabled = false;
+            msg.textContent = 'That did not run: ' + (err && err.message ? err.message : 'no response');
+          });
         return;
       }
 
@@ -2221,9 +2232,14 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ run: true, dry: dry })
         })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
+          .then(function (r) { return r.json().then(function (j) { return { status: r.status, d: j }; }); })
+          .then(function (out) {
             b.disabled = false;
+            var d = out.d || {};
+            if (d.error) {
+              msg.textContent = 'It did not run (HTTP ' + out.status + '): ' + (d.message || d.error);
+              return;
+            }
             if (d.skipped) { msg.textContent = 'Nothing published: ' + d.skipped; return; }
             if (d.held) {
               msg.textContent = 'Held — ' + (d.fail || []).join('; ');
@@ -2237,7 +2253,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             rp.list = null;
             loadReportsAdmin().then(function () { paintReports(document.getElementById('panel')); });
           })
-          .catch(function () { b.disabled = false; msg.textContent = 'That did not run.'; });
+          .catch(function (err) {
+            b.disabled = false;
+            msg.textContent = 'That did not run: ' + (err && err.message ? err.message : 'no response');
+          });
       }
     });
   }

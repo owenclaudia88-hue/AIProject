@@ -55,7 +55,9 @@ export default async function handler(req, res) {
         // finish - either way the report would still have gone out.
         note: cover.kind === 'higgsfield'
           ? 'Higgsfield answered and the image is in your blob store.'
-          : 'Fell back to the drawn cover. Check HIGGSFIELD_API_KEY holds "id:secret", and the logs for why.'
+          : cover.kind === 'drawn'
+            ? 'Fell back to the drawn cover. Check HIGGSFIELD_API_KEY holds "id:secret", and the logs for why.'
+            : 'Neither cover could be stored at all — that is the blob store, not Higgsfield. See the logs.'
       });
     }
 
