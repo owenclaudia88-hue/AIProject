@@ -36,6 +36,12 @@
         var next = child.nextSibling;
 
         if (child.nodeType === 3) {                 // text, always fine
+          // Except the zero-width spaces the code button leaves behind to hold
+          // a caret. Invisible characters in stored text are a nuisance
+          // forever afterwards - in search, in exports, in an email.
+          if (child.nodeValue.indexOf('​') !== -1) {
+            child.nodeValue = child.nodeValue.replace(/​/g, '');
+          }
           child = next; continue;
         }
         if (child.nodeType !== 1) {                 // comments, CDATA and the rest
@@ -174,8 +180,25 @@
         }
         node = node.parentNode;
       }
-      if (range.collapsed) return;
       var code = document.createElement('code');
+
+      // Nothing selected: start a code span here and put the cursor in it, so
+      // the button behaves like Bold does rather than doing nothing at all.
+      // The zero-width space is what gives an empty inline element somewhere
+      // to put the caret; both sanitisers strip it on the way out, so it never
+      // reaches anybody's screen.
+      if (range.collapsed) {
+        code.appendChild(document.createTextNode('​'));
+        range.insertNode(code);
+        var after = document.createRange();
+        after.setStart(code.firstChild, 1);
+        after.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(after);
+        syncState();
+        return;
+      }
+
       try { range.surroundContents(code); } catch (e) { /* selection spans elements */ }
       syncState();
     }
