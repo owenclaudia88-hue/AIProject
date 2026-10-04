@@ -89,8 +89,13 @@
 /* Their card. Boxed and tinted so it reads as somebody else's page quoted on
    ours, rather than as our own writing with a picture above it. */
 .wr-src{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.wr-shot{aspect-ratio:16/9;background:var(--bg-4);overflow:hidden}
-.wr-shot img{width:100%;height:100%;object-fit:cover;display:block}
+.wr-shot{margin:0;background:var(--bg-4);position:relative}
+.wr-shot img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.wr-shot figcaption{position:absolute;right:0;bottom:0;font-family:var(--mono);font-size:.6rem;
+  color:var(--txt-2);background:rgba(0,0,0,.62);padding:4px 9px;border-top-left-radius:8px;
+  max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wr-shot figcaption a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.3)}
+.wr-shot figcaption a:hover{color:var(--accent-2)}
 .wr-srcb{padding:15px 18px 17px}
 .wr-srcm{display:flex;align-items:center;gap:9px;margin:0 0 7px;font-family:var(--mono);font-size:.68rem}
 .wr-srcm .nm{color:var(--accent-2)}

@@ -47,7 +47,19 @@ export default async function handler(req, res) {
       nextReportNumber(), recentReportTitles(8), coveredUrls(120)
     ]);
 
-    const { items, health } = await collectWeek({ since: Date.now() - 8 * 864e5, covered });
+    /* Two windows, one collection.
+       The report is about the last eight days, but a quiet week should produce
+       a shorter report rather than a padded one or no report at all - so a
+       fortnight is collected and everything older than the week is marked.
+       Those older items are available to fill a thin week and must be labelled
+       on the page as a spotlight or a follow-up when they are used, which the
+       gate checks rather than trusts. */
+    const weekStart = Date.now() - 8 * 864e5;
+    const { items, health } = await collectWeek({ since: Date.now() - 15 * 864e5, covered });
+    for (const it of items) {
+      it.thisWeek = !it.publishedAt || new Date(it.publishedAt).getTime() >= weekStart;
+    }
+    const fresh = items.filter((it) => it.thisWeek).length;
     const sourcesUp = health.filter((h) => h.ok).length;
 
     // Nothing to write about is a real answer. It is also the shape a broken
@@ -55,7 +67,7 @@ export default async function handler(req, res) {
     if (items.length < 6) {
       const why = sourcesUp < 4
         ? `only ${sourcesUp} of ${health.length} sources answered`
-        : `only ${items.length} new item(s) all week`;
+        : `only ${items.length} new item(s) in a fortnight`;
       if (!dry) {
         await sendReportHeld({ number, reason: why, health })
           .catch((e) => console.error('[cron/report] held email', e?.message));
@@ -68,7 +80,10 @@ export default async function handler(req, res) {
     // than for one person: a report is the same for everybody who reads it.
     const entitled = new Set(MEMBERSHIP_UNLOCKS);
 
-    const out = await makeReport({ number, collected: items, entitled, recentTitles });
+    const out = await makeReport({
+      number, collected: items, entitled, recentTitles,
+      weekStart: new Date(weekStart).toISOString(), fresh
+    });
 
     if (!out.gate.ok) {
       if (!dry) {

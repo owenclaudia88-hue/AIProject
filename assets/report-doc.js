@@ -113,11 +113,25 @@
     var img = it.image && safe(it.image.url);
     var name = esc(it.sourceName || 'Source');
 
+    /* Captioned with whoever is serving it, which is not always whoever wrote
+       the piece: when a story is covered in four places we take the picture
+       from the company's own announcement, and the caption has to say so
+       rather than credit the outlet we happened to link. */
+    var credit = (it.image && it.image.sourceName) || it.sourceName || '';
+    var creditUrl = safe((it.image && it.image.pageUrl) || it.url);
+
     return '<div class="wr-src">' +
       (img
-        ? '<div class="wr-shot"><img src="' + esc(img) + '" alt="' + esc((it.image && it.image.alt) || '') +
+        ? '<figure class="wr-shot"><img src="' + esc(img) + '" alt="' + esc((it.image && it.image.alt) || '') +
           '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" ' +
-          'onerror="this.closest(\'.wr-shot\').remove()"></div>'
+          'onerror="this.closest(\'.wr-shot\').remove()">' +
+          (credit
+            ? '<figcaption>Image via ' + (creditUrl
+                ? '<a href="' + esc(creditUrl) + '" target="_blank" rel="noopener noreferrer nofollow">' +
+                  esc(credit) + '</a>'
+                : esc(credit)) + '</figcaption>'
+            : '') +
+          '</figure>'
         : '') +
       '<div class="wr-srcb">' +
         '<div class="wr-srcm"><span class="nm">' + name + '</span>' +
