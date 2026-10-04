@@ -85,6 +85,10 @@ export default async function handler(req, res) {
       }
       return res.status(200).json({
         ok: false, held: true, number, fail: out.gate.fail,
+        // The held report comes back too. It is the one somebody most wants to
+        // read - a gate failure is a sentence about a report, not the report -
+        // and on a dry run it is not written down anywhere else.
+        report: out.report || null,
         dropped: out.dropped, cut: out.cut, stats: out.stats, ms: Date.now() - started
       });
     }

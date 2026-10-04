@@ -207,6 +207,15 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   padding:13px 16px;margin:0 0 16px;font-size:.88rem;line-height:1.6;color:var(--txt-2)}
 .rm-warn b{color:var(--accent-2)}
 
+/* a dry run, shown rather than summarised */
+.rm-dry{margin:16px 0 0;border:1px solid rgba(255,176,32,.32);border-radius:14px;overflow:hidden}
+.rm-dry .h{display:flex;align-items:center;gap:12px;background:rgba(255,176,32,.09);padding:11px 16px}
+.rm-dry .h b{color:var(--accent-2);font-family:var(--mono);font-size:.76rem;font-weight:400}
+.rm-dry .h button{margin-left:auto;background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);
+  border-radius:999px;min-height:32px;padding:0 13px;font-family:var(--mono);font-size:.72rem;cursor:pointer}
+.rm-dry .h button:hover{border-color:var(--accent);color:var(--accent-2)}
+.rm-dry .rm-prev{margin:0;border:0;border-radius:0}
+
 /* the source list, and the two ways to take something off the page */
 .rm-src{margin:16px 0 0;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:4px 16px}
 .rm-src summary{cursor:pointer;padding:12px 0;font-family:var(--mono);font-size:.78rem;color:var(--txt-2)}
@@ -2125,7 +2134,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
   /* ---------------- the weekly AI reports ---------------- */
 
-  var rp = { list: null, open: null, canRun: false, msg: '' };
+  var rp = { list: null, open: null, canRun: false, msg: '', dry: null };
 
   function loadReportsAdmin() {
     return fetch('/api/admin/reports', { credentials: 'same-origin' })
@@ -2173,11 +2182,32 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         'Pictures come from the publishers themselves and are pointed at, never copied. ' +
         'An item whose source offers none runs without one.') + '</p>';
 
+    /* A dry run builds the whole report and stores nothing, which until now
+       meant it also showed nothing but a one-line summary. The point of a dry
+       run is reading the thing before it goes to anybody, so it is rendered
+       here with the same renderer members get, and kept across repaints until
+       it is dismissed or another run replaces it. */
+    if (rp.dry) {
+      h += '<div class="rm-dry"><div class="h"><b>Dry run — not stored, not sent</b>' +
+        '<button data-drydrop="1">Dismiss</button></div>' +
+        '<div class="rm-prev" id="rp-dry"></div></div>';
+    }
+
     h += rp.list.length
       ? rp.list.map(rpCard).join('')
       : '<p class="empty">No reports yet. The first one lands on Monday, or press Run now.</p>';
 
     p.innerHTML = h;
+
+    if (rp.dry) {
+      var dryBox = document.getElementById('rp-dry');
+      try {
+        dryBox.innerHTML = window.reportDoc.render(rp.dry, { base: 'index.html', interactive: false });
+      } catch (err) {
+        dryBox.innerHTML = '<p class="empty">Built, but could not be rendered: ' + esc(err.message) + '</p>';
+      }
+    }
+
     wireReports(p);
   }
 
@@ -2191,6 +2221,21 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           '" style="margin-left:auto">' + esc(r.status) + '</span></div>' +
       (rp.open === r.number ? '<div id="rp-body-' + r.number + '"><p class="empty">Loading…</p></div>' : '') +
       '</div>';
+  }
+
+  /* Survives a repaint, because the run ends in one. */
+  function say(text) {
+    rp.msg = text;
+    var el = document.getElementById('rp-msg');
+    if (el) el.textContent = text;
+  }
+
+  /* The pipeline returns the report's body; the number and cover live beside
+     it, and the renderer wants them on the same object. */
+  function withMeta(report, number) {
+    return Object.assign({}, report, {
+      number: number, publishedAt: null, coverUrl: null
+    });
   }
 
   function wireReports(p) {
@@ -2208,12 +2253,25 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       var b = e.target.closest('button');
       if (!b) return;
 
+      if (b.hasAttribute('data-drydrop')) {
+        e.stopPropagation();
+        rp.dry = null; rp.msg = '';
+        paintReports(document.getElementById('panel'));
+        return;
+      }
+
       if (b.hasAttribute('data-run') || b.hasAttribute('data-dry')) {
         e.stopPropagation();
         var dry = b.hasAttribute('data-dry');
         if (!dry && !window.confirm('Build and publish this week’s report now? It emails everybody it is open to.')) return;
         b.disabled = true;
-        msg.textContent = dry ? 'Building it, storing nothing…' : 'Running the whole pipeline…';
+        // Every result goes into rp.msg, not just onto the node. paintReports
+        // rebuilds this paragraph from rp.msg, and the run ends by repainting,
+        // so anything written only to the DOM was being wiped milliseconds
+        // after it appeared — which looked exactly like the button doing
+        // nothing at all.
+        say(dry ? 'Building it, storing nothing… this takes a minute or two.'
+                : 'Running the whole pipeline…');
         fetch('/api/admin/reports', {
           method: 'POST', credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
@@ -2224,25 +2282,30 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             b.disabled = false;
             var d = out.d || {};
             if (d.error) {
-              msg.textContent = 'It did not run (HTTP ' + out.status + '): ' + (d.message || d.error);
+              say('It did not run (HTTP ' + out.status + '): ' + (d.message || d.error));
               return;
             }
-            if (d.skipped) { msg.textContent = 'Nothing published: ' + d.skipped; return; }
+            if (d.skipped) { say('Nothing published: ' + d.skipped); return; }
             if (d.held) {
-              msg.textContent = 'Held — ' + (d.fail || []).join('; ');
+              say('Held — ' + (d.fail || []).join('; '));
+              // A held report was still built. It is the most useful thing to
+              // read, because it is the one something is wrong with.
+              if (d.report) rp.dry = withMeta(d.report, d.number);
             } else if (d.dry) {
-              msg.textContent = 'Dry run built report ' + d.number + ': "' + (d.report && d.report.title) +
+              say('Dry run built report ' + d.number + ': "' + (d.report && d.report.title) +
                 '", ' + ((d.report && d.report.items || []).length) + ' items, ' +
-                ((d.cut || []).length) + ' cut by the fact check. Nothing was stored.';
+                ((d.cut || []).length) + ' cut by the fact check. Nothing was stored.');
+              if (d.report) rp.dry = withMeta(d.report, d.number);
             } else {
-              msg.textContent = 'Published report ' + d.number + ', emailed ' + (d.emailed || 0) + '.';
+              say('Published report ' + d.number + ', emailed ' + (d.emailed || 0) + '.');
+              rp.dry = null;
             }
             rp.list = null;
             loadReportsAdmin().then(function () { paintReports(document.getElementById('panel')); });
           })
           .catch(function (err) {
             b.disabled = false;
-            msg.textContent = 'That did not run: ' + (err && err.message ? err.message : 'no response');
+            say('That did not run: ' + (err && err.message ? err.message : 'no response'));
           });
       }
     });
