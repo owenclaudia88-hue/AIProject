@@ -269,15 +269,25 @@
   };
 
   /*
-   * Fire a conversion event at most once per visit.
+   * Fire a conversion event at most once per visit, per person.
    *
    * Stepping back to correct a typo and forward again is one person deciding
    * once, not two conversions. Meta de-duplicates on event_id, which these do
    * not share, so without this the same visitor counts repeatedly — inflating
    * the metric and teaching the optimiser the wrong thing.
+   *
+   * The address is part of the key, and that part matters more than the rest.
+   * Keyed on the event alone, a second person filling the form in the same tab
+   * was dropped before the request left the browser: no Meta event, no row in
+   * the leads table, and the page carried on to the checkout as though it had
+   * worked. Session storage lives as long as the tab, so a tab left open
+   * swallowed every lead after the first — which is exactly what it did to a
+   * morning of testing. A different address is a different person, or the same
+   * person fixing a typo, and either way it has to go.
    */
   window.aifuTrackOnce = function (event, extra) {
-    var key = 'aifu_fired_' + event;
+    var who = extra && extra.email ? String(extra.email).trim().toLowerCase() : '';
+    var key = 'aifu_fired_' + event + (who ? ':' + who : '');
     try {
       if (window.sessionStorage.getItem(key)) return false;
       window.sessionStorage.setItem(key, '1');
