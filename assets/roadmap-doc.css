@@ -43,12 +43,14 @@
 
 /* The shape of the whole plan on one screen. Everything below is the detail of
    these three boxes, so they come first and nothing in them is new. */
-.rmd-dh{margin:30px 0 0}
-.rmd-dh .rule{margin:0;font-size:1.02rem;font-weight:700;letter-spacing:-.015em;line-height:1.45;
-  color:var(--txt)}
-.rmd-dh .goal{margin:10px 0 0;background:var(--bg-2);border:1px solid var(--line);border-radius:11px;
-  padding:11px 16px;font-family:var(--mono);font-size:.8rem;color:var(--accent-2);line-height:1.5;
-  text-align:center}
+/* The goal, as the member wrote it, before anything is said about reaching it. */
+/* Scoped past ".rmd p", which is more specific than a bare class and would
+   otherwise quietly win the colour. */
+.rmd p.rmd-goal{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:22px 0 0;
+  background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 12px 12px 0;padding:14px 18px;font-size:1.05rem;font-weight:700;color:var(--txt)}
+.rmd-goal span{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.12em;
+  font-weight:500;color:var(--accent-2);flex:none}
 
 /* The arrow between phases is drawn, not typed: one gate leads to the next,
    and on a phone they stack so it points down instead of across. */
@@ -68,9 +70,46 @@
 .rmd-gate h3{margin:0 0 9px;font-size:1rem;font-weight:800;letter-spacing:-.015em;line-height:1.35}
 .rmd-gate ul{margin:0 0 12px;padding-left:16px;color:var(--txt-2);font-size:.84rem;line-height:1.6}
 .rmd-gate li{margin-bottom:3px}
+.rmd-gate .tgt{margin:0 0 10px;font-family:var(--mono);font-size:.82rem;color:var(--accent-2)}
 .rmd-gate .exit{margin-top:auto;padding-top:10px;border-top:1px solid var(--line);
   font-size:.78rem;color:var(--txt-3);line-height:1.5}
 .rmd-gate .exit b{color:var(--green);font-weight:700}
+
+/* ---------- the revenue plan ---------- */
+
+.rmd-rev td:not(:first-child){font-family:var(--mono);font-size:.84rem;white-space:nowrap}
+.rmd-rev tr.tot td{border-top:2px solid var(--line-2);font-weight:800;color:var(--txt)}
+.rmd-rev tr.ads td{color:var(--txt-3)}
+/* The one rule that decides what next month may spend. It earns the weight. */
+.rmd p.rmd-rule{margin:14px 0 0;padding:13px 16px;background:rgba(255,122,26,.08);
+  border-left:3px solid var(--accent);border-radius:0 11px 11px 0;
+  font-size:.95rem;font-weight:700;line-height:1.6;color:var(--txt)}
+.rmd-assume{margin:12px 0 0;font-size:.86rem;line-height:1.6;color:var(--txt-3)}
+
+/* ---------- weeks and checkpoints ---------- */
+
+.rmd-week{margin:0 0 6px}
+.rmd-week h3{margin:20px 0 2px;font-family:var(--mono);font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--accent-2);font-weight:500}
+.rmd-ph .tgt{margin:7px 0 0;font-family:var(--mono);font-size:.82rem;color:var(--accent-2)}
+.rmd-sb h4{margin:0;font-size:1.01rem;font-weight:700;letter-spacing:-.01em;line-height:1.4}
+.rmd-step.done .rmd-sb h4{color:var(--txt-3);text-decoration:line-through}
+
+.rmd-cp{margin:18px 0 0;padding:15px 18px;background:rgba(52,211,153,.07);
+  border:1px solid rgba(52,211,153,.25);border-radius:12px}
+.rmd-cp h4{margin:0 0 8px;font-family:var(--mono);font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--green);font-weight:700}
+.rmd-cp ul{margin:0 0 10px;padding-left:19px;color:var(--txt-2);font-size:.9rem;line-height:1.6}
+.rmd-cp p{margin:0 0 6px;font-size:.9rem;line-height:1.6;color:var(--txt-2)}
+.rmd-cp p:last-child{margin-bottom:0}
+.rmd-cp b{color:var(--txt);font-weight:700;margin-right:5px}
+
+.rmd-ol{margin:0;padding-left:21px}
+.rmd-ol li{color:var(--txt-2);font-size:.95rem;line-height:1.7;margin-bottom:9px;max-width:66ch}
+.rmd-list b .min{display:inline-block;margin-left:9px;font-family:var(--mono);font-size:.68rem;
+  font-style:normal;font-weight:400;color:var(--txt-3)}
+.rmd h2 small{font-family:var(--mono);font-size:.74rem;font-weight:400;color:var(--txt-3);
+  letter-spacing:0}
 .rmd-cap{margin:0 0 30px;color:var(--txt-3);font-size:.86rem;line-height:1.6}
 
 /* ---------- blocks ---------- */
@@ -97,23 +136,6 @@
 
 .rmd-ul{margin:0;padding-left:20px}
 .rmd-ul li{color:var(--txt-2);font-size:.95rem;line-height:1.72;margin-bottom:8px;max-width:66ch}
-
-/* ---------- the ladder ----------
-
-   Rungs that climb: each one sits lower than the next, so the shape says
-   "this goes up" before any of the words do. The lift is a share of the tallest
-   rung rather than a fixed step, so three rungs and six rungs both look right. */
-
-.rmd-lad-w{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 0 4px}
-.rmd-lad{display:flex;align-items:flex-end;gap:12px;min-width:min(100%,560px);padding-top:8px}
-.rmd-rung{flex:1 1 0;min-width:120px;background:var(--bg-2);border:1px solid var(--line);
-  border-radius:12px;padding:13px 14px;margin-bottom:calc(var(--i) * 22px)}
-.rmd-rung:last-child{border-color:rgba(255,122,26,.45);background:rgba(255,122,26,.08)}
-.rmd-rung b{display:block;font-size:.9rem;font-weight:700;line-height:1.35}
-.rmd-rung .v{display:block;margin-top:4px;font-family:var(--mono);font-size:.78rem;color:var(--accent-2)}
-.rmd-rung .s{display:block;margin-top:3px;font-size:.76rem;color:var(--txt-3)}
-.rmd-rung .j{display:block;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);
-  font-size:.79rem;color:var(--txt-2);line-height:1.5}
 
 /* ---------- tables ---------- */
 
@@ -186,10 +208,6 @@
 .rmd-use a:hover{color:var(--accent-2);border-color:var(--accent)}
 .rmd-use .ty{font-family:var(--mono);font-size:.72rem;color:var(--txt-3);white-space:nowrap}
 
-.rmd-exit{margin:18px 0 0;padding:13px 16px;background:rgba(52,211,153,.07);
-  border:1px solid rgba(52,211,153,.25);border-radius:11px;font-size:.9rem;line-height:1.6;
-  color:var(--txt-2)}
-.rmd-exit b{color:var(--green);font-weight:700}
 
 .rmd-foot{margin:34px 0 0;padding-top:18px;border-top:1px solid var(--line);
   color:var(--txt-3);font-size:.86rem;line-height:1.6}
@@ -223,24 +241,26 @@
      white at the same lightness, so the muted greys are darkened rather than
      inherited. */
   .rmd h2 .sub,.rmd-cap,.rmd-gate .exit,.rmd-sb h3 .t,.rmd-use h4,.rmd-t .ty,
-  .rmd-foot,.rmd-exit{color:#555!important}
+  .rmd-foot{color:#555!important}
   .rmd-scroll{display:none!important}
 
   .rmd-gate,.rmd-tw,.rmd-t th,.rmd-t td,.rmd-ph,.rmd-step,.rmd-foot,.rmd-list li:before,
-  .rmd-dh .goal,.rmd-rung,.rmd-rung .j{border-color:#ccc!important}
-  .rmd-gate,.rmd-t th,.rmd-dh .goal,.rmd-rung{background:#f7f7f7!important}
-  .rmd-rung:last-child{background:#fdf6ee!important;border-color:#8a4b00!important}
-  .rmd-dh .goal,.rmd-rung .v{color:#8a4b00!important}
-  .rmd-dh .rule,.rmd-rung b{color:#000!important}
-  .rmd-rung .j,.rmd-rung .s{color:#333!important}
-  .rmd-lad-w{overflow:visible!important}
-  .rmd-lad{min-width:0!important}
+  .rmd-goal,.rmd-cp,.rmd-rev tr.tot td{border-color:#ccc!important}
+  .rmd-gate,.rmd-t th,.rmd-goal{background:#f7f7f7!important}
+  .rmd-goal{border-left-color:#8a4b00!important}
+  .rmd-goal span,.rmd-gate .tgt,.rmd-ph .tgt,.rmd-week h3,.rmd-list b .min{color:#8a4b00!important}
+  .rmd p.rmd-goal,.rmd p.rmd-rule{color:#000!important}
+  .rmd p.rmd-rule{background:#fdf6ee!important;border-left-color:#8a4b00!important}
+  .rmd-assume,.rmd-ol li{color:#333!important}
+  .rmd-cp{background:#f2fbf7!important;border-color:#bfe5d6!important}
+  .rmd-cp h4{color:#0a6b4d!important}
+  .rmd-cp p,.rmd-cp ul{color:#333!important}
+  .rmd-cp b,.rmd-sb h4{color:#000!important}
   .rmd-gate+.rmd-gate:before{border-color:#999!important}
   .rmd-gate .w,.rmd-ph .w,.rmd-bet b,.rmd-t .wk,.rmd-res a .k,.rmd-list li:before{color:#8a4b00!important}
-  .rmd-gate .exit b,.rmd-exit b,.rmd-t .mv{color:#0a6b4d!important}
+  .rmd-gate .exit b,.rmd-t .mv{color:#0a6b4d!important}
   .rmd-bet{background:#fdf6ee!important;border-left-color:#8a4b00!important}
   .rmd-bet p{color:#111!important}
-  .rmd-exit{background:#f2fbf7!important;border-color:#bfe5d6!important}
   .rmd-res a{background:#fff!important;border-color:#ccc!important;color:#111!important}
   .rmd-use a{color:#111!important;border-color:#bbb!important}
   .rmd-ml{color:#111!important;border-color:#999!important;box-shadow:none!important}
@@ -252,8 +272,7 @@
   /* A table that scrolls on screen has to print whole. */
   .rmd-tw{overflow:visible!important}
   .rmd-t{min-width:0!important}
-
-  .rmd-step,.rmd-gate,.rmd-use,.rmd-exit,.rmd-list li,.rmd-lad,.rmd-dh{break-inside:avoid}
+  .rmd-step,.rmd-gate,.rmd-use,.rmd-cp,.rmd-list li,.rmd-goal{break-inside:avoid}
   .rmd-phase,.rmd section{break-inside:auto}
   .rmd-ph,.rmd h2{break-after:avoid}
   .rmd-t tr{break-inside:avoid}

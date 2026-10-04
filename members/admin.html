@@ -1935,7 +1935,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             // things that are not in the library, that is worth knowing.
             msg.textContent = 'Done. ' + (out.j.dropped && out.j.dropped.length
               ? out.j.dropped.length + ' invented reference(s) dropped: ' + out.j.dropped.join(', ')
-              : 'Every resource it named exists.');
+              : 'Every resource it named exists.')
+              // The arithmetic is checked, not assumed. A revenue table that
+              // disagrees with its own total is the one thing a member will
+              // certainly notice.
+              + (out.j.warnings && out.j.warnings.length
+                ? ' ⚠ ' + out.j.warnings.join('; ') : '');
             rmq.list = null;
             loadRoadmaps().then(function () {
               paintRoadmaps(document.getElementById('panel'));

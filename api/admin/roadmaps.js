@@ -75,7 +75,7 @@ export default async function handler(req, res) {
         const { data, text, model } = await callClaude(prompt);
         // The tool call is structured data already. parseJson is the fallback
         // for the day a model answers in prose anyway.
-        const { roadmap, dropped } = validate(data || parseJson(text), catalogue);
+        const { roadmap, dropped, warnings } = validate(data || parseJson(text), catalogue);
 
         if (!roadmap.phases.length) throw new Error('the model returned no usable phases');
 
@@ -85,6 +85,9 @@ export default async function handler(req, res) {
           // Surfaced rather than swallowed: if the model keeps naming things
           // that are not in the catalogue, that is worth seeing.
           dropped,
+          // Same for a revenue table whose rows do not add up to its own total.
+          // Reported, never silently corrected.
+          warnings,
           catalogueSize: catalogue.items.length + catalogue.courses.length + catalogue.downloads.length
         });
       } catch (err) {

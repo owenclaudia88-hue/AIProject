@@ -143,94 +143,96 @@
       }).join('') + '</tbody></table></div></div>';
   }
 
-  /* ---------- the plan on one screen ---------- */
+  /* ---------- the plan on one screen ----------
 
-  /* The plan as a picture: the target, then the phases as gates you pass
-     through in order. Drawn from the phases themselves rather than asked for
-     separately, so the diagram cannot disagree with the document. */
-  function gates(phases, R) {
+     Three phases, their targets, and what has to be true to move on. Drawn
+     from the phases themselves rather than asked for separately, so the
+     picture cannot disagree with the document underneath it. */
+
+  function gates(phases) {
     if (phases.length < 2) return '';
-    var anyExit = phases.some(function (p) { return has(p.exit); });
-    var head = (has(R.headline) || has(R.target))
-      ? '<div class="rmd-dh">' +
-          (has(R.headline) ? '<p class="rule">' + esc(R.headline) + '</p>' : '') +
-          (has(R.target) ? '<p class="goal">' + esc(R.target) + '</p>' : '') +
-        '</div>'
-      : '';
-    return head + '<div class="rmd-gates">' + phases.map(function (p) {
-      var bullets = list(p.steps).slice(0, 4).map(function (st) {
-        return '<li>' + esc(st.title) + '</li>';
-      }).join('');
+    return '<div class="rmd-gates">' + phases.map(function (p) {
+      var cp = p.checkpoint || {};
       return '<div class="rmd-gate"><p class="w">' + esc(p.window) + '</p>' +
-        (has(p.goal) ? '<h3>' + esc(p.goal) + '</h3>' : '') +
-        (bullets ? '<ul>' + bullets + '</ul>' : '') +
-        (has(p.exit) ? '<p class="exit"><b>Move on when:</b> ' + esc(p.exit) + '</p>' : '') +
+        (has(p.name) ? '<h3>' + esc(p.name) + '</h3>' : '') +
+        (has(p.target) ? '<p class="tgt">' + esc(p.target) + '</p>' : '') +
+        (list(cp.numbers).length
+          ? '<ul>' + list(cp.numbers).map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>'
+          : '') +
+        (has(cp.label) ? '<p class="exit"><b>' + esc(cp.label) + '</b> checkpoint</p>' : '') +
         '</div>';
-    }).join('') + '</div>' +
-      (anyExit
-        ? '<p class="rmd-cap">Each phase ends at a gate: move on only once its condition is true. ' +
-          'If it is not, repeat that phase rather than starting the next one.</p>'
-        : '<p class="rmd-cap">The whole plan at a glance. Everything below is the detail of these.</p>');
+    }).join('') + '</div>';
   }
 
-  /* The other diagram: steps that stack, drawn ascending so the shape carries
-     the point. Only drawn when there are at least three - two boxes side by
-     side is a diagram of nothing. */
-  function ladder(L) {
-    var steps = list(L && L.steps).filter(function (s) { return s && has(s.name); });
-    if (steps.length < 3) return '';
-    return '<section><h2>' + esc(L.title || 'How this stacks') +
-      (has(L.caption) ? '<span class="sub">' + esc(L.caption) + '</span>' : '') + '</h2>' +
-      '<div class="rmd-lad-w"><div class="rmd-lad">' + steps.map(function (s, i) {
-        return '<div class="rmd-rung" style="--i:' + i + ';--n:' + steps.length + '">' +
-          '<b>' + esc(s.name) + '</b>' +
-          (has(s.value) ? '<span class="v">' + esc(s.value) + '</span>' : '') +
-          (has(s.share) ? '<span class="s">' + esc(s.share) + '</span>' : '') +
-          (has(s.job) ? '<span class="j">' + esc(s.job) + '</span>' : '') +
-          '</div>';
-      }).join('') + '</div></div></section>';
-  }
+  /* ---------- how the goal is reached ---------- */
 
-  function scheduleTable(rows) {
+  function revenueTable(R) {
+    var rev = R.revenue || {};
+    var rows = list(rev.rows);
     if (!rows.length) return '';
-    var anyMove = rows.some(function (r) { return has(r.moveOn); });
-    return '<section><h2>Your week by week<span class="sub">Work through this in order. ' +
-      'The detail of each line is in the phase sections below.</span></h2>' +
-      '<div class="rmd-tw"><table class="rmd-t"><thead><tr><th>When</th><th>Do these, in this order</th>' +
-      (anyMove ? '<th>Move on when</th>' : '') + '</tr></thead><tbody>' +
+    var ads = rev.adSpend;
+    return '<section><h2>How you reach ' + esc(R.goal || 'your goal') +
+      (has(rev.intro) ? '<span class="sub">' + esc(rev.intro) + '</span>' : '') + '</h2>' +
+      '<div class="rmd-tw"><table class="rmd-t rmd-rev"><thead><tr><th>Revenue source</th>' +
+      '<th>Month 1</th><th>Month 2</th><th>Month 3</th></tr></thead><tbody>' +
       rows.map(function (r) {
-        var dos = list(r.do);
-        return '<tr><td class="wk">' + esc(r.label) + '</td>' +
-          '<td>' + (dos.length > 1
-            ? '<ol>' + dos.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ol>'
-            : esc(dos[0] || '')) + '</td>' +
-          (anyMove ? '<td class="mv">' + esc(r.moveOn || '') + '</td>' : '') + '</tr>';
-      }).join('') + '</tbody></table></div></section>';
+        return '<tr><td>' + esc(r.source) + '</td><td>' + esc(r.m1) + '</td>' +
+          '<td>' + esc(r.m2) + '</td><td>' + esc(r.m3) + '</td></tr>';
+      }).join('') +
+      (rev.total && (has(rev.total.m1) || has(rev.total.m3))
+        ? '<tr class="tot"><td>Total</td><td>' + esc(rev.total.m1) + '</td><td>' +
+          esc(rev.total.m2) + '</td><td>' + esc(rev.total.m3) + '</td></tr>'
+        : '') +
+      (ads ? '<tr class="ads"><td>Ad spend</td><td>' + esc(ads.m1) + '</td><td>' +
+        esc(ads.m2) + '</td><td>' + esc(ads.m3) + '</td></tr>' : '') +
+      '</tbody></table></div>' +
+      (has(rev.budgetRule) ? '<p class="rmd-rule">' + esc(rev.budgetRule) + '</p>' : '') +
+      (has(rev.assumptions) ? '<p class="rmd-assume">' + esc(rev.assumptions) + '</p>' : '') +
+      '</section>';
   }
 
-  function metricsTable(rows) {
+  /* ---------- the tables at the end ---------- */
+
+  function scorecardTable(rows, base) {
     if (!rows.length) return '';
-    var anyBench = rows.some(function (m) { return has(m.benchmark); });
-    var anyLow = rows.some(function (m) { return has(m.ifLow); });
-    return '<section><h2>How you will know it is working<span class="sub">Check these weekly. ' +
-      'The first one below its mark is your next job.</span></h2>' +
-      '<div class="rmd-tw"><table class="rmd-t"><thead><tr><th>Measure</th><th>Target</th>' +
-      (anyBench ? '<th>Healthy looks like</th>' : '') +
-      (anyLow ? '<th>If it is below</th>' : '') + '</tr></thead><tbody>' +
+    var anyLow = rows.some(function (m) { return has(m.ifBelow); });
+    var anyTool = rows.some(function (m) { return m.routine; });
+    return '<section><h2>Your weekly scorecard<span class="sub">Check these every week. The first ' +
+      'one below target is your next job.</span></h2>' +
+      '<div class="rmd-tw"><table class="rmd-t"><thead><tr><th>Number</th><th>Target</th>' +
+      (anyLow ? '<th>If it is below target</th>' : '') +
+      (anyTool ? '<th>Prepared by</th>' : '') + '</tr></thead><tbody>' +
       rows.map(function (m) {
-        return '<tr><td>' + esc(m.name) + '</td><td class="wk">' + esc(m.target || '') + '</td>' +
-          (anyBench ? '<td>' + esc(m.benchmark || '') + '</td>' : '') +
-          (anyLow ? '<td>' + esc(m.ifLow || '') + '</td>' : '') + '</tr>';
+        return '<tr><td>' + esc(m.number) + '</td><td class="wk">' + esc(m.target) + '</td>' +
+          (anyLow ? '<td>' + esc(m.ifBelow || '') + '</td>' : '') +
+          (anyTool
+            ? '<td>' + (m.routine
+                ? '<a href="' + esc(hrefFor(m.routine, base)) + '">' + esc(m.routine.title || m.routine.id) + '</a>'
+                : '') + '</td>'
+            : '') +
+          '</tr>';
       }).join('') + '</tbody></table></div></section>';
   }
 
-  function rhythmTable(rows) {
+  function workingWeekTable(rows) {
     if (!rows.length) return '';
-    return '<section><h2>Your working week<span class="sub">Where the hours go, so the plan fits ' +
-      'the time you actually have.</span></h2>' +
+    return '<section><h2>Your working week<span class="sub">Where the hours go, inside the time you ' +
+      'said you have.</span></h2>' +
       '<div class="rmd-tw"><table class="rmd-t"><thead><tr><th>Block</th><th>Hours a week</th></tr></thead>' +
       '<tbody>' + rows.map(function (r) {
-        return '<tr><td>' + esc(r.block) + '</td><td class="wk">' + esc(r.hours || '') + '</td></tr>';
+        return '<tr><td>' + esc(r.block) + '</td><td class="wk">' + esc(r.hours) + '</td></tr>';
+      }).join('') + '</tbody></table></div></section>';
+  }
+
+  function toolkitTable(rows, base) {
+    if (!rows.length) return '';
+    return '<section><h2>Your AI Founder University toolkit<span class="sub">Everything this plan ' +
+      'uses, in the order you need it.</span></h2>' +
+      '<div class="rmd-tw"><table class="rmd-t"><thead><tr><th>When</th><th>Use</th><th>Type</th></tr></thead>' +
+      '<tbody>' + rows.map(function (r) {
+        return '<tr><td class="wk">' + esc(r.when) + '</td>' +
+          '<td><a href="' + esc(hrefFor(r, base)) + '">' + esc(r.title || r.id) + '</a></td>' +
+          '<td class="ty">' + esc(typeLabel(r)) + '</td></tr>';
       }).join('') + '</tbody></table></div></section>';
   }
 
@@ -242,15 +244,12 @@
     var phases = list(R && R.phases).filter(function (p) { return p && has(p.window); });
     var html = '<div class="rmd">';
 
-    // The title names the document, not its conclusion. The model's line is a
-    // rule the plan follows and belongs over the diagram, where a reader can
-    // check it against the phases; as an H1 it reads as a sales promise
-    // however plainly it is written.
-    var title = o.title || ('Personalised AI Roadmap' + (o.name ? ' — ' + o.name : ''));
     // Both pages that render this live in /members/, so one relative path
     // serves them and the PDF carries the mark with it.
     html += '<img class="rmd-logo" src="' + esc(o.logo || '../assets/logo.webp') +
       '" alt="AI Founder University" width="720" height="139">';
+
+    var title = o.title || ('Personalised AI Roadmap' + (o.name ? ' — ' + o.name : ''));
     html += '<div class="rmd-top"><h1>' + esc(title) + '</h1>' +
       (o.interactive === false ? ''
         : '<button class="rmd-pdf" type="button" data-rmd-pdf ' +
@@ -259,8 +258,6 @@
       '</div>';
 
     var meta = [];
-    // The name is in the title already; saying it twice in two lines reads as
-    // a template filling in a field.
     if (o.name && title.indexOf(o.name) === -1) meta.push(o.name);
     if (o.publishedAt) {
       var d = new Date(o.publishedAt);
@@ -271,81 +268,89 @@
       return '<span>' + esc(m) + '</span>';
     }).join('') + '</p>';
 
-    if (has(R.readback)) html += '<p class="rmd-lede">' + esc(R.readback) + '</p>';
+    // 2. The opening, with the goal called out of it.
+    if (has(R.goal)) html += '<p class="rmd-goal"><span>90-day goal</span>' + esc(R.goal) + '</p>';
+    if (has(R.opening)) html += '<p class="rmd-lede">' + esc(R.opening) + '</p>';
 
-    html += gates(phases, R);
+    // 3. How the goal is reached.
+    html += revenueTable(R);
 
-    if (has(R.theBet)) {
-      html += '<div class="rmd-bet"><b>The one thing to get right</b><p>' + esc(R.theBet) + '</p></div>';
-    }
-
-    var sit = R.situation;
-    if (sit && list(sit.paragraphs).length) {
-      html += '<section><h2>' + esc(sit.heading || 'Where you are and what to fix first') + '</h2>' +
-        list(sit.paragraphs).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') + '</section>';
-    }
-
+    // 4. Day one.
     var sh = R.startHere;
     if (sh && list(sh.steps).length) {
-      html += '<section><h2>' + esc(sh.heading || 'Start here') +
-        (has(sh.blurb) ? '<span class="sub">' + esc(sh.blurb) + '</span>' : '') + '</h2><ol class="rmd-list">' +
+      html += '<section><h2>Start here: Day 1' +
+        (has(sh.minutes) ? ' <small>· ' + esc(sh.minutes) + '</small>' : '') +
+        '</h2><ol class="rmd-list">' +
         list(sh.steps).map(function (s) {
           var link = linker(s.mentions, base);
-          return '<li><b>' + esc(s.title) + '</b>' +
+          return '<li><b>' + esc(s.title) +
+            (has(s.minutes) ? '<i class="min">' + esc(s.minutes) + '</i>' : '') + '</b>' +
             (has(s.detail) ? '<span>' + link(s.detail) + '</span>' : '') +
             chips(s.resources, base) + '</li>';
         }).join('') + '</ol></section>';
     }
 
-    html += ladder(R.ladder);
-    html += scheduleTable(list(R.schedule).filter(function (r) { return r && has(r.label); }));
+    // The three phases at a glance, then 5-7: the phases themselves.
+    html += gates(phases);
 
     phases.forEach(function (p, pi) {
       html += '<section class="rmd-phase" data-p="' + pi + '"><div class="rmd-ph">' +
         '<span class="w">' + esc(p.window) + '</span>' +
-        '<h2>' + esc(p.goal || p.window) + '</h2></div>';
+        '<h2>' + esc(p.name || p.window) + '</h2>' +
+        (has(p.target) ? '<p class="tgt">Target: ' + esc(p.target) + '</p>' : '') +
+        '</div>';
 
-      list(p.steps).forEach(function (st, si) {
-        var link = linker(st.mentions, base);
-        html += '<div class="rmd-step" data-step="' + pi + '.' + si + '">' +
-          (o.interactive === false ? ''
-            : '<button class="rmd-chk" type="button" aria-pressed="false" ' +
-              'aria-label="Mark done: ' + esc(st.title) + '">✓</button>') +
-          '<div class="rmd-sb"><h3>' + esc(st.title) +
-            (has(st.time) ? '<span class="t">' + esc(st.time) + '</span>' : '') + '</h3>' +
-          (has(st.why) ? '<p class="why">' + link(st.why) + '</p>' : '') +
-          (list(st.how).length
-            ? '<ol class="how">' + list(st.how).map(function (h) {
-                return '<li>' + link(h) + '</li>';
-              }).join('') + '</ol>'
-            : '') +
-          chips(st.resources, base) +
-          '</div></div>';
+      list(p.weeks).forEach(function (w, wi) {
+        html += '<div class="rmd-week"><h3>' + esc(w.label) + '</h3>';
+        list(w.steps).forEach(function (st, si) {
+          var link = linker(st.mentions, base);
+          html += '<div class="rmd-step" data-step="' + pi + '.' + wi + '.' + si + '">' +
+            (o.interactive === false ? ''
+              : '<button class="rmd-chk" type="button" aria-pressed="false" ' +
+                'aria-label="Mark done: ' + esc(st.title) + '">✓</button>') +
+            '<div class="rmd-sb"><h4>' + esc(st.title) + '</h4>' +
+            (has(st.detail) ? '<p class="why">' + link(st.detail) + '</p>' : '') +
+            chips(st.resources, base) +
+            '</div></div>';
+        });
+        html += '</div>';
       });
 
-      html += useTable(p, base);
-      if (has(p.exit)) {
-        html += '<p class="rmd-exit"><b>Move on when:</b> ' + esc(p.exit) + '</p>';
+      var cp = p.checkpoint || {};
+      if (has(cp.label) || has(cp.hit) || has(cp.missed)) {
+        html += '<div class="rmd-cp"><h4>' + esc(cp.label || 'Checkpoint') + '</h4>' +
+          (list(cp.numbers).length
+            ? '<ul>' + list(cp.numbers).map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>'
+            : '') +
+          (has(cp.hit) ? '<p><b>If you hit it</b> ' + esc(cp.hit) + '</p>' : '') +
+          (has(cp.missed) ? '<p><b>If you miss it</b> ' + esc(cp.missed) + '</p>' : '') +
+          '</div>';
       }
       html += '</section>';
     });
 
-    if (list(R.order).length) {
-      html += '<section><h2>Why this order</h2>' +
-        list(R.order).map(function (x) { return '<p>' + esc(x) + '</p>'; }).join('') + '</section>';
+    // 8. If you fall behind.
+    if (list(R.fallBehind).length) {
+      html += '<section><h2>If you fall behind<span class="sub">In this order: quickest and cheapest ' +
+        'first.</span></h2><ol class="rmd-ol">' +
+        list(R.fallBehind).map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ol></section>';
     }
 
-    html += metricsTable(list(R.metrics).filter(function (m) { return m && has(m.name); }));
-    html += rhythmTable(list(R.rhythm).filter(function (r) { return r && has(r.block); }));
+    // 9, 10, 11.
+    html += scorecardTable(list(R.scorecard), base);
+    html += workingWeekTable(list(R.workingWeek));
+    html += toolkitTable(list(R.toolkit), base);
 
-    if (list(R.watchOuts).length) {
+    // 12.
+    if (list(R.notDoing).length) {
       html += '<section><h2>What not to do</h2><ul class="rmd-ul">' +
-        list(R.watchOuts).map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></section>';
+        list(R.notDoing).map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></section>';
     }
 
     html += '<p class="rmd-foot">' + esc(o.foot || 'Built for you by AI Founder University.') + '</p>';
     return html + '</div>';
   }
+
 
   /* ---------- ticking things off ----------
 
