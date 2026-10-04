@@ -55,6 +55,10 @@ button{font-family:inherit}
 .nav .nic{width:20px;text-align:center;font-size:1rem;flex:none}
 .nav .n-count{margin-left:auto;font-size:.72rem;color:var(--txt-3);font-family:var(--mono)}
 .nav.active .n-count{color:var(--accent-2)}
+/* "New", for the one thing in here that arrives rather than being browsed to.
+   It stops saying it once the roadmap has been opened. */
+.nav .n-count.is-new{background:var(--accent);color:#1a0d00;font-weight:700;font-size:.62rem;
+  text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:999px}
 .sb-spacer{flex:1}
 .sb-foot{padding:14px 20px 4px;border-top:1px solid var(--line);margin-top:8px}
 /* The account card. It used to look like the headings above it, so nothing
@@ -827,6 +831,32 @@ button{font-family:inherit}
 .rm-wait h3{margin:0 0 8px;font-size:1.12rem;font-weight:800}
 .rm-wait p{margin:0;color:var(--txt-2);font-size:.93rem;line-height:1.6}
 
+/* ---------- questions about the roadmap ---------- */
+.rm-notes{max-width:860px;margin:44px 0 0;padding-top:28px;border-top:1px solid var(--line)}
+.rm-notes h2{margin:0 0 6px;font-size:1.12rem;font-weight:800;letter-spacing:-.02em}
+.rm-notes .sub{margin:0 0 20px;color:var(--txt-2);font-size:.92rem;line-height:1.6;max-width:62ch}
+.rm-thread{display:grid;gap:12px;margin:0 0 20px}
+.rm-note{background:var(--bg-2);border:1px solid var(--line);border-radius:13px;padding:14px 16px}
+/* The team's answers lean on the accent, so a thread can be read at a glance
+   as question, answer, question. */
+.rm-note.team{background:rgba(255,122,26,.07);border-color:rgba(255,122,26,.3)}
+.rm-note .h{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+.rm-note .h b{font-size:.9rem;font-weight:700}
+.rm-note.team .h b{color:var(--accent-2)}
+.rm-note .h span{font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
+.rm-note p{margin:0;color:var(--txt-2);font-size:.94rem;line-height:1.7;overflow-wrap:anywhere}
+.rm-ask{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.rm-ask textarea{flex:1;min-width:min(100%,260px);background:var(--bg-3);border:1px solid var(--line-2);
+  color:var(--txt);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:.94rem;
+  line-height:1.6;resize:vertical}
+.rm-ask textarea:focus{outline:none;border-color:var(--accent)}
+.rm-send{flex:none;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;
+  border:0;border-radius:12px;min-height:46px;padding:0 22px;font-family:inherit;font-weight:800;
+  font-size:.92rem;cursor:pointer}
+.rm-send:disabled{opacity:.6;cursor:default}
+.rm-note-msg{width:100%;font-size:.84rem;color:var(--txt-3)}
+@media print{.rm-notes{display:none!important}}
+
 /* The roadmap document itself is styled in assets/roadmap-doc.css, which the
    admin preview loads as well so the two cannot drift apart. What stays here
    is the page around it: on paper the member area's furniture is noise. */
@@ -1134,6 +1164,10 @@ button{font-family:inherit}
         <div class="sb-group">
           <div class="sb-group-t">Main</div>
           <button class="nav" data-view="dashboard"><span class="nic">🏠</span>Dashboard</button>
+          <!-- Second from the top. It was at the bottom of the content
+               libraries, which is where you put a library, and this is the one
+               thing here written for one person. -->
+          <button class="nav" data-view="roadmap" id="nav-roadmap" hidden><span class="nic">🗺️</span>AI Roadmap<span class="n-count" id="cnt-roadmap"></span></button>
           <a class="nav" id="nav-connect" href="connect.html"><span class="nic">🔌</span>Connect to Claude<span class="pill-beta">Beta</span></a>
           <button class="nav" data-view="favorites"><span class="nic">❤️</span>Favorites<span class="n-count" id="cnt-fav">0</span></button>
           <button class="nav" data-view="bookmarks"><span class="nic">🔖</span>Bookmarks<span class="n-count" id="cnt-bookmarks">0</span></button>
@@ -1164,7 +1198,6 @@ button{font-family:inherit}
           <button class="nav" data-view="guide"><span class="nic">📖</span>Prompting Fundamentals<span class="n-count" id="cnt-guide"></span></button>
           <button class="nav" data-view="video"><span class="nic">🎬</span>Tutorials<span class="n-count" id="cnt-video"></span></button>
           <button class="nav" data-view="skill"><span class="nic">🤖</span>Agents &amp; Skills<span class="n-count" id="cnt-skill"></span></button>
-          <button class="nav" data-view="roadmap"><span class="nic">🗺️</span>AI Roadmap<span class="n-count" id="cnt-roadmap"></span></button>
           <button class="nav" data-view="request"><span class="nic">📮</span>Request Content</button>
         </div>
 
@@ -1534,6 +1567,10 @@ button{font-family:inherit}
       wirePlayer();
       wireNewThread();
       wireBell();
+      // Fetched at start rather than when the page is opened, because the
+      // sidebar has to be able to say a roadmap has arrived before anybody
+      // thinks to go and look.
+      if (me.canPreview) loadRoadmap();
       routeFromHash();
     }).catch(function(){
       document.getElementById('content').innerHTML = '<p class="empty" style="color:#fca5a5">Could not load your library. Please refresh.</p>';
@@ -2255,11 +2292,22 @@ button{font-family:inherit}
       return;
     }
     list.innerHTML = notes.map(function (n) {
+      // Three kinds now, and they do not read alike: a reply is about a post,
+      // a roadmap is a thing that has arrived.
+      var what;
+      if (n.kind === 'roadmap') {
+        what = '<p>Your <b>personalised AI roadmap</b> is ready' +
+          (n.title ? ' — ' + esc(n.title) : '') + '</p>';
+      } else if (n.kind === 'roadmap_reply') {
+        what = '<p><b>' + esc(n.actor) + '</b> answered your question about your roadmap</p>';
+      } else {
+        what = '<p><b>' + esc(n.actor) + '</b> replied' +
+          (n.title ? ' to <b>' + esc(n.title) + '</b>' : ' to your post') + '</p>';
+      }
       return '<button class="nb-i' + (n.read ? '' : ' unread') + '" type="button" ' +
-        'data-id="' + n.id + '" data-thread="' + (n.threadId || '') + '">' +
-        '<span class="d"></span><span class="w">' +
-          '<p><b>' + esc(n.actor) + '</b> replied' +
-            (n.title ? ' to <b>' + esc(n.title) + '</b>' : ' to your post') + '</p>' +
+        'data-id="' + n.id + '" data-thread="' + (n.threadId || '') + '" ' +
+        'data-go="' + (n.kind === 'roadmap' || n.kind === 'roadmap_reply' ? 'roadmap' : '') + '">' +
+        '<span class="d"></span><span class="w">' + what +
           '<span class="t">' + esc(ago(n.createdAt)) + '</span>' +
         '</span></button>';
     }).join('');
@@ -2304,6 +2352,7 @@ button{font-family:inherit}
       if (!item) return;
       var id = Number(item.getAttribute('data-id'));
       var thread = item.getAttribute('data-thread');
+      var go = item.getAttribute('data-go');
       closeBell();
       // Marked read because they are about to read it; the count should not
       // wait for the round trip to catch up.
@@ -2318,7 +2367,13 @@ button{font-family:inherit}
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: id })
       }).catch(function () {});
-      if (thread) location.hash = 't-' + thread;
+      if (go) {
+        // The roadmap may have been published since this page loaded, so it is
+        // refetched rather than opened from whatever was cached at boot.
+        rm.loaded = false;
+        location.hash = go;
+        if (view === go) render();
+      } else if (thread) location.hash = 't-' + thread;
     });
   }
 
@@ -2326,7 +2381,37 @@ button{font-family:inherit}
 
   /* ---------------- the personalised AI roadmap ---------------- */
 
-  var rm = { steps: null, request: null, loaded: false, at: 0, answers: {}, err: '' };
+  var rm = { steps: null, request: null, loaded: false, at: 0, answers: {}, err: '', notes: [] };
+
+  /**
+   * "It has arrived" in the sidebar.
+   *
+   * A published roadmap is the one thing here that turns up without being
+   * asked for, so it says New until it has been opened, and then stops. The
+   * key is the publish time, so a rewritten roadmap says New again - it is a
+   * different plan, and that is worth looking at twice.
+   */
+  function roadmapKey() {
+    var r = rm.request;
+    return r && r.status === 'published' ? String(r.publishedAt || r.id || '1') : '';
+  }
+  function roadmapSeen() {
+    try { return localStorage.getItem('afu_rm_seen') || ''; } catch (e) { return ''; }
+  }
+  function paintRoadmapBadge() {
+    var c = document.getElementById('cnt-roadmap');
+    if (!c) return;
+    var key = roadmapKey();
+    var fresh = !!key && roadmapSeen() !== key;
+    c.textContent = fresh ? 'New' : (key ? '✓' : '');
+    c.classList.toggle('is-new', fresh);
+  }
+  function markRoadmapSeen() {
+    var key = roadmapKey();
+    if (!key) return;
+    try { localStorage.setItem('afu_rm_seen', key); } catch (e) {}
+    paintRoadmapBadge();
+  }
 
   function loadRoadmap() {
     return fetch('/api/roadmap', { credentials: 'same-origin' })
@@ -2337,8 +2422,8 @@ button{font-family:inherit}
         rm.request = d.request;
         rm.loaded = true;
         if (d.request && d.request.answers) rm.answers = d.request.answers;
-        var c = document.getElementById('cnt-roadmap');
-        if (c) c.textContent = d.request && d.request.status === 'published' ? '\u2713' : '';
+        if (d.notes) rm.notes = d.notes;
+        paintRoadmapBadge();
         return d;
       })
       .catch(function () { return null; });
@@ -2545,8 +2630,64 @@ button{font-family:inherit}
 
   /* ---- the finished roadmap ---- */
 
+  /**
+   * The conversation under the plan.
+   *
+   * Questions about a roadmap used to be pointed at the community, which asks
+   * somebody to publish their revenue and their constraints in a room full of
+   * other members to ask whether their own plan is right. It belongs here,
+   * under the plan, in front of whoever wrote it.
+   */
+  function roadmapNotes() {
+    var notes = rm.notes || [];
+    return '<section class="rm-notes"><h2>Questions and feedback</h2>' +
+      '<p class="sub">Anything here not fit, or not clear? Ask below and we will answer, and ' +
+        'adjust the roadmap where it needs adjusting. Only you and the AFU team see this.</p>' +
+      (notes.length
+        ? '<div class="rm-thread">' + notes.map(function (n) {
+            return '<div class="rm-note' + (n.mine ? '' : ' team') + '">' +
+              '<div class="h"><b>' + esc(n.author) + '</b><span>' + esc(ago(n.createdAt)) + '</span></div>' +
+              '<p>' + esc(n.body).replace(/\n/g, '<br>') + '</p></div>';
+          }).join('') + '</div>'
+        : '') +
+      '<div class="rm-ask"><textarea id="rm-note" rows="3" maxlength="4000" ' +
+        'placeholder="Ask a question, or tell us what does not fit"></textarea>' +
+        '<button class="rm-send" id="rm-note-send" type="button">Send</button>' +
+        '<span class="rm-note-msg" id="rm-note-msg"></span></div></section>';
+  }
+
+  function wireRoadmapNotes(host) {
+    var box = host.querySelector('#rm-note');
+    var btn = host.querySelector('#rm-note-send');
+    var msg = host.querySelector('#rm-note-msg');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var body = box.value.trim();
+      if (!body) { box.focus(); return; }
+      btn.disabled = true; msg.textContent = 'Sending…';
+      fetch('/api/roadmap', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ note: body })
+      })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          btn.disabled = false;
+          if (!d) { msg.textContent = 'That did not send. Try again.'; return; }
+          rm.notes = d.notes || [];
+          box.value = '';
+          msg.textContent = '';
+          // Repainted rather than appended, so the thread on screen is the
+          // thread on the server.
+          renderRoadmap(document.getElementById('content'));
+        })
+        .catch(function () { btn.disabled = false; msg.textContent = 'Network error.'; });
+    });
+  }
+
   function paintRoadmap(c, R) {
     var req = rm.request || {};
+    markRoadmapSeen();
     c.innerHTML = window.roadmapDoc.render(R, {
       name: me.name || '',
       publishedAt: req.publishedAt,
@@ -2557,8 +2698,7 @@ button{font-family:inherit}
       // URL would have every link in their roadmap reload the page instead of
       // opening over it.
       base: location.origin + location.pathname + location.search,
-      foot: 'Built for you by AI Founder University. Something here not fit? ' +
-        'Say so in the community and we will adjust it.'
+      foot: 'Built for you by AI Founder University.'
     });
     window.roadmapDoc.wire(c, {
       // Ticks belong to this published version. A republished roadmap is a
@@ -2566,6 +2706,13 @@ button{font-family:inherit}
       // that nobody has done.
       storeKey: String(req.id || '0') + '_' + String(req.publishedAt || '')
     });
+
+    // Outside the document, so it is not in the PDF: a printed plan with an
+    // empty comment box at the end is a form nobody can fill in.
+    var notes = document.createElement('div');
+    notes.innerHTML = roadmapNotes();
+    c.appendChild(notes);
+    wireRoadmapNotes(c);
   }
 
 

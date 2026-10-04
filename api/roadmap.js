@@ -7,7 +7,10 @@
  * A membership perk, gated the same way as the rest of them.
  */
 import { sessionEmail } from '../lib/session.js';
-import { isActive, entitlementsFor, createRoadmapRequest, roadmapFor } from '../lib/db.js';
+import {
+  isActive, entitlementsFor, createRoadmapRequest, roadmapFor,
+  addRoadmapNote, listRoadmapNotes, displayNameFor, getCustomer
+} from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
 import { isTester } from '../lib/testers.js';
 import { MEMBERSHIP_ONLY } from '../lib/products.js';
@@ -43,12 +46,25 @@ export default async function handler(req, res) {
           roadmap: mine.status === 'published' ? mine.published : undefined,
           submittedAt: mine.created_at,
           publishedAt: mine.published_at
-        } : null
+        } : null,
+        notes: mine ? await notesFor(mine.id, email) : []
       });
     }
 
     if (req.method === 'POST') {
       const b = typeof req.body === 'string' ? safeJson(req.body) : (req.body ?? {});
+
+      /* ---- a question or a note about the roadmap ---- */
+      if (typeof b.note === 'string') {
+        const mine = await roadmapFor(email);
+        if (!mine) return res.status(400).json({ error: 'no roadmap' });
+        const body = b.note.trim();
+        if (!body) return res.status(400).json({ error: 'empty' });
+        // Written against their own roadmap by definition: the id comes from
+        // their session, never from the request.
+        await addRoadmapNote({ roadmapId: mine.id, email, body });
+        return res.status(200).json({ ok: true, notes: await notesFor(mine.id, email) });
+      }
       // Built from the question definitions, so a field nobody was asked about
       // cannot be posted in and end up in the prompt.
       const answers = cleanAnswers(b.answers);
@@ -73,4 +89,23 @@ export default async function handler(req, res) {
 
 function safeJson(s) {
   try { return JSON.parse(s || '{}'); } catch { return {}; }
+}
+
+/**
+ * The conversation under one roadmap.
+ *
+ * Names rather than addresses: the member sees their own first name and the
+ * team by name, and nobody's email is sent to the browser to be read off the
+ * page.
+ */
+async function notesFor(roadmapId, email) {
+  const [rows, customer] = await Promise.all([listRoadmapNotes(roadmapId), getCustomer(email)]);
+  const mine = displayNameFor(email, customer?.name).split(/\s+/)[0];
+  return rows.map((n) => ({
+    id: Number(n.id),
+    mine: !n.is_admin,
+    author: n.is_admin ? 'AI Founder University' : mine,
+    body: n.body,
+    createdAt: n.created_at
+  }));
 }

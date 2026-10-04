@@ -15,7 +15,8 @@ import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
 import {
   listRoadmaps, roadmapById, claimRoadmap, saveRoadmapDraft, failRoadmap,
-  publishRoadmap, entitlementsFor, getCustomer
+  publishRoadmap, entitlementsFor, getCustomer,
+  addRoadmapNote, listRoadmapNotes, roadmapNoteCounts, notifyRoadmapReply
 } from '../../lib/db.js';
 import { answersAsText } from '../../lib/roadmap.js';
 import {
@@ -32,16 +33,21 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const id = Number(new URL(req.url, 'http://localhost').searchParams.get('id'));
       if (id) {
-        const row = await roadmapById(id);
+        const [row, notes] = await Promise.all([roadmapById(id), listRoadmapNotes(id)]);
         if (!row) return res.status(404).json({ error: 'not found' });
-        return res.status(200).json({ roadmap: shape(row, true) });
+        return res.status(200).json({
+          roadmap: shape(row, true),
+          notes: notes.map((n) => ({
+            id: Number(n.id), fromMember: !n.is_admin, body: n.body, createdAt: n.created_at
+          }))
+        });
       }
-      const rows = await listRoadmaps();
+      const [rows, counts] = await Promise.all([listRoadmaps(), roadmapNoteCounts()]);
       return res.status(200).json({
         // So the screen can say why the button will not work before it is pressed.
         canGenerate: !!process.env.ANTHROPIC_API_KEY,
         model: MODEL,
-        roadmaps: rows.map((r) => shape(r, false))
+        roadmaps: rows.map((r) => ({ ...shape(r, false), notes: counts[Number(r.id)] || null }))
       });
     }
 
@@ -95,6 +101,24 @@ export default async function handler(req, res) {
         await failRoadmap(id, err.message);
         return res.status(500).json({ error: 'generate_failed', message: String(err.message || err).slice(0, 300) });
       }
+    }
+
+    /* ---- answer a member's question ---- */
+    if (typeof b.note === 'string') {
+      const row = await roadmapById(id);
+      if (!row) return res.status(404).json({ error: 'not found' });
+      const note = await addRoadmapNote({ roadmapId: id, email, isAdmin: true, body: b.note });
+      if (!note) return res.status(400).json({ error: 'empty' });
+      // Same bell as the roadmap itself. A reply nobody is told about is a
+      // reply nobody reads.
+      await notifyRoadmapReply(row.email, row.published?.goal || row.draft?.goal || null);
+      const notes = await listRoadmapNotes(id);
+      return res.status(200).json({
+        ok: true,
+        notes: notes.map((n) => ({
+          id: Number(n.id), fromMember: !n.is_admin, body: n.body, createdAt: n.created_at
+        }))
+      });
     }
 
     /* ---- save edits ---- */
