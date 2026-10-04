@@ -2365,7 +2365,12 @@ button{font-family:inherit}
 
     var st = rm.request && rm.request.status;
     if (st === 'published' && rm.request.roadmap) return paintRoadmap(c, rm.request.roadmap);
-    if (st === 'new' || st === 'generating' || st === 'draft') return paintWaiting(c, st);
+    // 'failed' waits too. A generation that fell over is ours to retry, and
+    // dropping somebody back onto the intro would read as their answers having
+    // been lost — which is both alarming and untrue.
+    if (st === 'new' || st === 'generating' || st === 'draft' || st === 'failed') {
+      return paintWaiting(c, st);
+    }
     if (rm.at > 0) return paintForm(c);
     return paintRoadmapIntro(c);
   }

@@ -92,10 +92,19 @@
 
   /* ---------- the plan on one screen ---------- */
 
-  function gates(phases) {
+  /* The plan as a picture: the target, then the phases as gates you pass
+     through in order. Drawn from the phases themselves rather than asked for
+     separately, so the diagram cannot disagree with the document. */
+  function gates(phases, R) {
     if (phases.length < 2) return '';
     var anyExit = phases.some(function (p) { return has(p.exit); });
-    return '<div class="rmd-gates">' + phases.map(function (p) {
+    var head = (has(R.headline) || has(R.target))
+      ? '<div class="rmd-dh">' +
+          (has(R.headline) ? '<p class="rule">' + esc(R.headline) + '</p>' : '') +
+          (has(R.target) ? '<p class="goal">' + esc(R.target) + '</p>' : '') +
+        '</div>'
+      : '';
+    return head + '<div class="rmd-gates">' + phases.map(function (p) {
       var bullets = list(p.steps).slice(0, 4).map(function (st) {
         return '<li>' + esc(st.title) + '</li>';
       }).join('');
@@ -109,6 +118,24 @@
         ? '<p class="rmd-cap">Each phase ends at a gate: move on only once its condition is true. ' +
           'If it is not, repeat that phase rather than starting the next one.</p>'
         : '<p class="rmd-cap">The whole plan at a glance. Everything below is the detail of these.</p>');
+  }
+
+  /* The other diagram: steps that stack, drawn ascending so the shape carries
+     the point. Only drawn when there are at least three - two boxes side by
+     side is a diagram of nothing. */
+  function ladder(L) {
+    var steps = list(L && L.steps).filter(function (s) { return s && has(s.name); });
+    if (steps.length < 3) return '';
+    return '<section><h2>' + esc(L.title || 'How this stacks') +
+      (has(L.caption) ? '<span class="sub">' + esc(L.caption) + '</span>' : '') + '</h2>' +
+      '<div class="rmd-lad-w"><div class="rmd-lad">' + steps.map(function (s, i) {
+        return '<div class="rmd-rung" style="--i:' + i + ';--n:' + steps.length + '">' +
+          '<b>' + esc(s.name) + '</b>' +
+          (has(s.value) ? '<span class="v">' + esc(s.value) + '</span>' : '') +
+          (has(s.share) ? '<span class="s">' + esc(s.share) + '</span>' : '') +
+          (has(s.job) ? '<span class="j">' + esc(s.job) + '</span>' : '') +
+          '</div>';
+      }).join('') + '</div></div></section>';
   }
 
   function scheduleTable(rows) {
@@ -162,7 +189,12 @@
     var phases = list(R && R.phases).filter(function (p) { return p && has(p.window); });
     var html = '<div class="rmd">';
 
-    html += '<div class="rmd-top"><h1>' + esc((R && R.headline) || 'Your AI Roadmap') + '</h1>' +
+    // The title names the document, not its conclusion. The model's line is a
+    // rule the plan follows and belongs over the diagram, where a reader can
+    // check it against the phases; as an H1 it reads as a sales promise
+    // however plainly it is written.
+    var title = o.title || ('Personalised AI Roadmap' + (o.name ? ' — ' + o.name : ''));
+    html += '<div class="rmd-top"><h1>' + esc(title) + '</h1>' +
       (o.interactive === false ? ''
         : '<button class="rmd-pdf" type="button" data-rmd-pdf ' +
           'title="Opens your browser\'s print dialog — choose Save as PDF">' +
@@ -170,7 +202,9 @@
       '</div>';
 
     var meta = [];
-    if (o.name) meta.push(o.name);
+    // The name is in the title already; saying it twice in two lines reads as
+    // a template filling in a field.
+    if (o.name && title.indexOf(o.name) === -1) meta.push(o.name);
     if (o.publishedAt) {
       var d = new Date(o.publishedAt);
       if (!isNaN(d)) meta.push(d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }));
@@ -182,7 +216,7 @@
 
     if (has(R.readback)) html += '<p class="rmd-lede">' + esc(R.readback) + '</p>';
 
-    html += gates(phases);
+    html += gates(phases, R);
 
     if (has(R.theBet)) {
       html += '<div class="rmd-bet"><b>The one thing to get right</b><p>' + esc(R.theBet) + '</p></div>';
@@ -205,6 +239,7 @@
         }).join('') + '</ol></section>';
     }
 
+    html += ladder(R.ladder);
     html += scheduleTable(list(R.schedule).filter(function (r) { return r && has(r.label); }));
 
     phases.forEach(function (p, pi) {

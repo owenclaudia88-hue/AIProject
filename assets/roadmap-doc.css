@@ -37,8 +37,24 @@
 
 /* The shape of the whole plan on one screen. Everything below is the detail of
    these three boxes, so they come first and nothing in them is new. */
+.rmd-dh{margin:30px 0 0}
+.rmd-dh .rule{margin:0;font-size:1.02rem;font-weight:700;letter-spacing:-.015em;line-height:1.45;
+  color:var(--txt)}
+.rmd-dh .goal{margin:10px 0 0;background:var(--bg-2);border:1px solid var(--line);border-radius:11px;
+  padding:11px 16px;font-family:var(--mono);font-size:.8rem;color:var(--accent-2);line-height:1.5;
+  text-align:center}
+
+/* The arrow between phases is drawn, not typed: one gate leads to the next,
+   and on a phone they stack so it points down instead of across. */
 .rmd-gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));
-  gap:12px;margin:26px 0 10px}
+  gap:12px 26px;margin:14px 0 10px}
+.rmd-gates .rmd-gate{position:relative}
+.rmd-gate+.rmd-gate:before{content:'';position:absolute;left:-19px;top:28px;width:11px;height:11px;
+  border-top:2px solid var(--line-2);border-right:2px solid var(--line-2);transform:rotate(45deg)}
+@media (max-width:600px){
+  .rmd-gates{gap:22px 12px}
+  .rmd-gate+.rmd-gate:before{left:calc(50% - 6px);top:-17px;transform:rotate(135deg)}
+}
 .rmd-gate{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:16px 17px;
   display:flex;flex-direction:column}
 .rmd-gate .w{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;
@@ -75,6 +91,23 @@
 
 .rmd-ul{margin:0;padding-left:20px}
 .rmd-ul li{color:var(--txt-2);font-size:.95rem;line-height:1.72;margin-bottom:8px;max-width:66ch}
+
+/* ---------- the ladder ----------
+
+   Rungs that climb: each one sits lower than the next, so the shape says
+   "this goes up" before any of the words do. The lift is a share of the tallest
+   rung rather than a fixed step, so three rungs and six rungs both look right. */
+
+.rmd-lad-w{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 0 4px}
+.rmd-lad{display:flex;align-items:flex-end;gap:12px;min-width:min(100%,560px);padding-top:8px}
+.rmd-rung{flex:1 1 0;min-width:120px;background:var(--bg-2);border:1px solid var(--line);
+  border-radius:12px;padding:13px 14px;margin-bottom:calc(var(--i) * 22px)}
+.rmd-rung:last-child{border-color:rgba(255,122,26,.45);background:rgba(255,122,26,.08)}
+.rmd-rung b{display:block;font-size:.9rem;font-weight:700;line-height:1.35}
+.rmd-rung .v{display:block;margin-top:4px;font-family:var(--mono);font-size:.78rem;color:var(--accent-2)}
+.rmd-rung .s{display:block;margin-top:3px;font-size:.76rem;color:var(--txt-3)}
+.rmd-rung .j{display:block;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);
+  font-size:.79rem;color:var(--txt-2);line-height:1.5}
 
 /* ---------- tables ---------- */
 
@@ -174,10 +207,23 @@
   .rmd p,.rmd-ul li,.rmd-sb .why,.rmd-list span,.rmd-t td,.rmd-gate ul{color:#333!important}
   .rmd-sb ol.how,.rmd-t ol li{color:#222!important}
   .rmd-meta span{color:#555!important;background:#fff!important;border-color:#bbb!important}
+  /* Everything that is deliberately quiet on a dark screen is illegible on
+     white at the same lightness, so the muted greys are darkened rather than
+     inherited. */
+  .rmd h2 .sub,.rmd-cap,.rmd-gate .exit,.rmd-sb h3 .t,.rmd-use h4,.rmd-t .ty,
+  .rmd-foot,.rmd-exit{color:#555!important}
+  .rmd-scroll{display:none!important}
 
-  .rmd-gate,.rmd-tw,.rmd-t th,.rmd-t td,.rmd-ph,.rmd-step,.rmd-foot,.rmd-list li:before{
-    border-color:#ccc!important}
-  .rmd-gate,.rmd-t th{background:#f7f7f7!important}
+  .rmd-gate,.rmd-tw,.rmd-t th,.rmd-t td,.rmd-ph,.rmd-step,.rmd-foot,.rmd-list li:before,
+  .rmd-dh .goal,.rmd-rung,.rmd-rung .j{border-color:#ccc!important}
+  .rmd-gate,.rmd-t th,.rmd-dh .goal,.rmd-rung{background:#f7f7f7!important}
+  .rmd-rung:last-child{background:#fdf6ee!important;border-color:#8a4b00!important}
+  .rmd-dh .goal,.rmd-rung .v{color:#8a4b00!important}
+  .rmd-dh .rule,.rmd-rung b{color:#000!important}
+  .rmd-rung .j,.rmd-rung .s{color:#333!important}
+  .rmd-lad-w{overflow:visible!important}
+  .rmd-lad{min-width:0!important}
+  .rmd-gate+.rmd-gate:before{border-color:#999!important}
   .rmd-gate .w,.rmd-ph .w,.rmd-bet b,.rmd-t .wk,.rmd-res a .k,.rmd-list li:before{color:#8a4b00!important}
   .rmd-gate .exit b,.rmd-exit b,.rmd-t .mv{color:#0a6b4d!important}
   .rmd-bet{background:#fdf6ee!important;border-left-color:#8a4b00!important}
@@ -190,7 +236,7 @@
   .rmd-tw{overflow:visible!important}
   .rmd-t{min-width:0!important}
 
-  .rmd-step,.rmd-gate,.rmd-use,.rmd-exit,.rmd-list li{break-inside:avoid}
+  .rmd-step,.rmd-gate,.rmd-use,.rmd-exit,.rmd-list li,.rmd-lad,.rmd-dh{break-inside:avoid}
   .rmd-phase,.rmd section{break-inside:auto}
   .rmd-ph,.rmd h2{break-after:avoid}
   .rmd-t tr{break-inside:avoid}

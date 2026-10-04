@@ -72,8 +72,10 @@ export default async function handler(req, res) {
         const catalogue = await buildCatalogue(row.answers || {}, entitled);
         const prompt = buildPrompt(row.answers || {}, catalogue, customer?.name || row.name);
 
-        const { text, model } = await callClaude(prompt);
-        const { roadmap, dropped } = validate(parseJson(text), catalogue);
+        const { data, text, model } = await callClaude(prompt);
+        // The tool call is structured data already. parseJson is the fallback
+        // for the day a model answers in prose anyway.
+        const { roadmap, dropped } = validate(data || parseJson(text), catalogue);
 
         if (!roadmap.phases.length) throw new Error('the model returned no usable phases');
 
