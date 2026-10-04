@@ -1129,9 +1129,11 @@ button{font-family:inherit}
 </style>
 <link rel="stylesheet" href="../assets/richtext.css">
 <link rel="stylesheet" href="../assets/roadmap-doc.css">
+<link rel="stylesheet" href="../assets/report-doc.css">
 <script src="../assets/emoji.js"></script>
 <script src="../assets/richtext.js"></script>
 <script src="../assets/roadmap-doc.js"></script>
+<script src="../assets/report-doc.js"></script>
 </head>
 <body>
 
@@ -1178,6 +1180,9 @@ button{font-family:inherit}
                libraries, which is where you put a library, and this is the one
                thing here written for one person. -->
           <button class="nav" data-view="roadmap" id="nav-roadmap" hidden><span class="nic">🗺️</span>AI Roadmap<span class="n-count" id="cnt-roadmap"></span></button>
+          <!-- Hidden until the reports open to everybody; the test account and
+               staff see it in the meantime. -->
+          <button class="nav" data-view="reports" id="nav-reports" hidden><span class="nic">📰</span>AI Reports<span class="n-count" id="cnt-reports"></span></button>
           <a class="nav" id="nav-connect" href="connect.html"><span class="nic">🔌</span>Connect to Claude<span class="pill-beta">Beta</span></a>
           <button class="nav" data-view="favorites"><span class="nic">❤️</span>Favorites<span class="n-count" id="cnt-fav">0</span></button>
           <button class="nav" data-view="bookmarks"><span class="nic">🔖</span>Bookmarks<span class="n-count" id="cnt-bookmarks">0</span></button>
@@ -1382,6 +1387,7 @@ button{font-family:inherit}
         // object is assembled field by field, so anything left out here is
         // undefined no matter what the server sent.
         me.isTester = !!res.d.isTester;
+        me.canSeeReports = !!res.d.canSeeReports;
         me.hasMembership = !!res.d.hasMembership;
         // Who gets the membership rooms rather than a lock on them. Staff are
         // in because they have never bought anything and still have to be able
@@ -1405,6 +1411,14 @@ button{font-family:inherit}
           rmNav.hidden = false;
           if (me.canPreview) loadRoadmap();
           else rmNav.classList.add('is-locked');
+        }
+        // Not open yet: shown to the test account and staff, hidden from
+        // everybody else rather than locked, because a lock advertises
+        // something that cannot be bought yet.
+        var rpNav = document.getElementById('nav-reports');
+        if (rpNav) {
+          rpNav.hidden = !me.canSeeReports;
+          if (me.canSeeReports) loadReports();
         }
         var sbCommunity = document.getElementById('sb-community');
         if (sbCommunity) sbCommunity.hidden = false;
@@ -1606,6 +1620,9 @@ button{font-family:inherit}
     var raw = (location.hash || '#dashboard').slice(1);
     var navKey = raw;
     if (raw.indexOf('course-') === 0) { navKey = 'courses'; view = raw; }
+    // One open report keeps AI Reports lit in the sidebar: you are still in
+    // the thing you walked into.
+    else if (raw.indexOf('report-') === 0) { view = raw; navKey = 'reports'; }
     // A thread keeps its space highlighted in the sidebar: you are still in
     // the room you walked into.
     else if (raw.indexOf('t-') === 0) { view = raw; navKey = 'c-' + (threadSpace || ''); }
@@ -1633,7 +1650,7 @@ button{font-family:inherit}
     }
     else if (raw.indexOf('c-') === 0) { view = raw; navKey = raw; }
     else {
-      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && !KINDS[raw]) raw = 'dashboard';
+      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && raw !== 'reports' && !KINDS[raw]) raw = 'dashboard';
       view = raw; navKey = raw;
     }
     [].forEach.call(document.querySelectorAll('.nav'), function (n) {
@@ -2395,6 +2412,64 @@ button{font-family:inherit}
 
 
 
+  /* ---------------- the weekly AI reports ---------------- */
+
+  var rpState = { list: null, open: null, cache: {} };
+
+  function loadReports() {
+    return fetch('/api/reports', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        rpState.list = d ? (d.reports || []) : [];
+        var c = document.getElementById('cnt-reports');
+        if (c) c.textContent = rpState.list.length || '';
+        return rpState.list;
+      })
+      .catch(function () { rpState.list = []; return []; });
+  }
+
+  function renderReports(c) {
+    if (!rpState.list) {
+      c.innerHTML = '<p class="empty">Loading…</p>';
+      loadReports().then(function () { if (view === 'reports') renderReports(document.getElementById('content')); });
+      return;
+    }
+    c.innerHTML =
+      '<div class="rp-head"><h1>AI Reports</h1>' +
+        (rpState.list.length ? '<span class="rp-count">' + rpState.list.length +
+          ' report' + (rpState.list.length === 1 ? '' : 's') + '</span>' : '') +
+      '</div>' +
+      '<p class="rp-sub">What changed in AI this week, and what to do about it. Every claim links ' +
+        'to the announcement it came from. One report every Monday.</p>' +
+      window.reportDoc.cards(rpState.list, {});
+    window.reportDoc.wire(c, { onOpen: function (n) { location.hash = 'report-' + n; } });
+  }
+
+  function renderReport(c, n) {
+    var cached = rpState.cache[n];
+    if (cached) return paintReport(c, cached);
+    c.innerHTML = '<p class="empty">Loading…</p>';
+    fetch('/api/reports?n=' + encodeURIComponent(n), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (view !== 'report-' + n) return;
+        if (!d || !d.report) { c.innerHTML = '<p class="empty">That report is not here.</p>'; return; }
+        rpState.cache[n] = d.report;
+        paintReport(c, d.report);
+      })
+      .catch(function () { c.innerHTML = '<p class="empty">Could not load that report.</p>'; });
+  }
+
+  function paintReport(c, R) {
+    c.innerHTML = window.reportDoc.render(R, {
+      // Absolute, so a link still works from a saved PDF, and with the query
+      // string so a member who arrived with one does not get a page reload.
+      base: location.origin + location.pathname + location.search
+    });
+    window.reportDoc.wire(c, { onBack: function () { location.hash = 'reports'; } });
+    window.scrollTo(0, 0);
+  }
+
   /* ---------------- the personalised AI roadmap ---------------- */
 
   var rm = { steps: null, request: null, loaded: false, at: 0, answers: {}, err: '', notes: [] };
@@ -2750,6 +2825,16 @@ button{font-family:inherit}
     // Both of these draw their own locked screen for somebody without the
     // membership, which is the point of them being in the sidebar at all.
     if (view === 'roadmap') return renderRoadmap(c);
+    if (view === 'reports') {
+      if (!me.canSeeReports) { location.hash = 'dashboard'; return; }
+      return renderReports(c);
+    }
+    if (view.indexOf('report-') === 0) {
+      if (!me.canSeeReports) { location.hash = 'dashboard'; return; }
+      // The email links by slug ("report-11-longer-context"); the number in
+      // front of it is all the API needs.
+      return renderReport(c, parseInt(view.slice('report-'.length), 10) || 0);
+    }
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
     if (view.indexOf('c-') !== 0 && view.indexOf('t-') !== 0) communityQ = '';

@@ -355,9 +355,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 </style>
 <link rel="stylesheet" href="../assets/richtext.css">
 <link rel="stylesheet" href="../assets/roadmap-doc.css">
+<link rel="stylesheet" href="../assets/report-doc.css">
 <script src="../assets/emoji.js"></script>
 <script src="../assets/richtext.js"></script>
 <script src="../assets/roadmap-doc.js"></script>
+<script src="../assets/report-doc.js"></script>
 </head>
 <body>
 
@@ -388,6 +390,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
       <button class="tab" data-tab="roadmaps">Roadmaps<span class="n" id="n-rm"></span></button>
+      <button class="tab" data-tab="reports">AI Reports<span class="n" id="n-rp"></span></button>
       <button class="tab" data-tab="community">Community<span class="n" id="n-cm"></span></button>
       <button class="tab" data-tab="projects">Projects<span class="n" id="n-proj"></span></button>
       <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
@@ -2101,8 +2104,202 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   }
 
 
+  /* ---------------- the weekly AI reports ---------------- */
+
+  var rp = { list: null, open: null, canRun: false, hasImageKey: false, msg: '' };
+
+  function loadReportsAdmin() {
+    return fetch('/api/admin/reports', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return null;
+        rp.list = d.reports || [];
+        rp.canRun = !!d.canRun;
+        rp.hasImageKey = !!d.hasImageKey;
+        var held = rp.list.filter(function (r) { return r.status === 'held'; }).length;
+        var el = document.getElementById('n-rp');
+        if (el) el.textContent = held ? held + ' held' : (rp.list.length || '');
+        return d;
+      });
+  }
+
+  function paintReports(p) {
+    if (!rp.list) {
+      p.innerHTML = '<p class="empty">Loading reports&hellip;</p>';
+      loadReportsAdmin()
+        .then(function () { if (tab === 'reports') paintReports(document.getElementById('panel')); })
+        .catch(function () { p.innerHTML = '<p class="empty">Could not load reports.</p>'; });
+      return;
+    }
+
+    var published = rp.list.filter(function (r) { return r.status === 'published'; }).length;
+    var held = rp.list.filter(function (r) { return r.status === 'held'; }).length;
+
+    var h = '<div class="stats">' +
+      '<div class="stat"><span class="v">' + published + '</span><span class="l">Published</span></div>' +
+      '<div class="stat"><span class="v">' + held + '</span><span class="l">Held</span></div>' +
+      '<div class="stat"><span class="v">' + (rp.list.length ? rp.list[0].number : 0) +
+        '</span><span class="l">Latest number</span></div>' +
+    '</div>';
+
+    if (!rp.canRun) {
+      h += '<div class="rm-warn"><b>The pipeline cannot run.</b> It needs ANTHROPIC_API_KEY and ' +
+        'CRON_SECRET on this deployment. Everything else on this screen works without them.</div>';
+    }
+
+    h += '<div class="rm-acts">' +
+      '<button class="go" data-run="1"' + (rp.canRun ? '' : ' disabled') + '>▶ Run this week’s report now</button>' +
+      '<button data-dry="1"' + (rp.canRun ? '' : ' disabled') + '>Dry run — build it, store nothing</button>' +
+      '<button data-cover="1">🖼 Test the cover image</button>' +
+      '</div>' +
+      '<p class="rm-note" id="rp-msg">' + esc(rp.msg || (rp.hasImageKey
+        ? 'Higgsfield key is set. Covers are generated; the drawn one is the fallback.'
+        : 'No Higgsfield key on this deployment — covers will be drawn, which is fine.')) + '</p>';
+
+    h += rp.list.length
+      ? rp.list.map(rpCard).join('')
+      : '<p class="empty">No reports yet. The first one lands on Monday, or press Run now.</p>';
+
+    p.innerHTML = h;
+    wireReports(p);
+  }
+
+  function rpCard(r) {
+    return '<div class="rmq' + (rp.open === r.number ? ' open' : '') + '" data-rp="' + r.number + '">' +
+      '<div class="h"><b>Report ' + r.number + ' · ' + esc(r.title) + '</b>' +
+        '<span class="who">' + esc(r.publishedAt ? new Date(r.publishedAt).toLocaleDateString()
+          : new Date(r.createdAt).toLocaleDateString()) +
+          (r.coverKind ? ' · ' + esc(r.coverKind) + ' cover' : '') + '</span>' +
+        '<span class="st ' + (r.status === 'published' ? 'published' : 'draft') +
+          '" style="margin-left:auto">' + esc(r.status) + '</span></div>' +
+      (rp.open === r.number ? '<div id="rp-body-' + r.number + '"><p class="empty">Loading…</p></div>' : '') +
+      '</div>';
+  }
+
+  function wireReports(p) {
+    [].forEach.call(p.querySelectorAll('.rmq .h'), function (hd) {
+      hd.addEventListener('click', function () {
+        var n = Number(hd.closest('.rmq').getAttribute('data-rp'));
+        rp.open = rp.open === n ? null : n;
+        paintReports(document.getElementById('panel'));
+        if (rp.open) openReportAdmin(rp.open);
+      });
+    });
+
+    var msg = p.querySelector('#rp-msg');
+    p.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+
+      if (b.hasAttribute('data-cover')) {
+        e.stopPropagation();
+        b.disabled = true; msg.textContent = 'Asking for one cover… this can take a minute.';
+        fetch('/api/admin/reports', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' }, body: '{"testCover":true}'
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            b.disabled = false;
+            msg.innerHTML = esc(d.note || '') + ' <span style="opacity:.7">(' + esc(d.kind) + ', ' +
+              Math.round((d.ms || 0) / 100) / 10 + 's)</span>' +
+              (d.url ? '<br><img src="' + esc(d.url) + '" alt="" style="margin-top:10px;max-width:420px;' +
+                'width:100%;border-radius:10px;border:1px solid var(--line)">' : '');
+          })
+          .catch(function () { b.disabled = false; msg.textContent = 'That did not run.'; });
+        return;
+      }
+
+      if (b.hasAttribute('data-run') || b.hasAttribute('data-dry')) {
+        e.stopPropagation();
+        var dry = b.hasAttribute('data-dry');
+        if (!dry && !window.confirm('Build and publish this week’s report now? It emails everybody it is open to.')) return;
+        b.disabled = true;
+        msg.textContent = dry ? 'Building it, storing nothing…' : 'Running the whole pipeline…';
+        fetch('/api/admin/reports', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ run: true, dry: dry })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            b.disabled = false;
+            if (d.skipped) { msg.textContent = 'Nothing published: ' + d.skipped; return; }
+            if (d.held) {
+              msg.textContent = 'Held — ' + (d.fail || []).join('; ');
+            } else if (d.dry) {
+              msg.textContent = 'Dry run built report ' + d.number + ': "' + (d.report && d.report.title) +
+                '", ' + ((d.report && d.report.items || []).length) + ' items, ' +
+                ((d.cut || []).length) + ' cut by the fact check. Nothing was stored.';
+            } else {
+              msg.textContent = 'Published report ' + d.number + ', emailed ' + (d.emailed || 0) + '.';
+            }
+            rp.list = null;
+            loadReportsAdmin().then(function () { paintReports(document.getElementById('panel')); });
+          })
+          .catch(function () { b.disabled = false; msg.textContent = 'That did not run.'; });
+      }
+    });
+  }
+
+  function openReportAdmin(n) {
+    var host = document.getElementById('rp-body-' + n);
+    if (!host) return;
+    fetch('/api/admin/reports?n=' + n, { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) { host.innerHTML = '<p class="empty">Could not load that.</p>'; return; }
+        var r = d.report;
+        host.innerHTML =
+          (r.fail ? '<div class="rm-warn"><b>Held because:</b> ' + esc((r.fail || []).join('; ')) + '</div>' : '') +
+          '<p class="rm-note">' + esc(r.model || '') +
+            (r.stats && r.stats.candidates ? ' · ' + r.stats.candidates + ' candidates, ' +
+              (r.stats.picked || '?') + ' picked, ' + (r.stats.published || '?') + ' published' : '') + '</p>' +
+          '<div class="rm-acts">' +
+            (r.status === 'published'
+              ? '<button data-hold="' + n + '">Take it down</button>'
+              : '<button class="pub" data-pub="' + n + '">Publish it</button>') +
+          '</div>' +
+          '<div class="rm-prev" id="rp-prev-' + n + '"></div>';
+
+        var prev = document.getElementById('rp-prev-' + n);
+        try {
+          prev.innerHTML = window.reportDoc.render(
+            Object.assign({}, r.data, {
+              number: r.number, title: r.title, topic: r.topic,
+              coverUrl: r.coverUrl, publishedAt: r.publishedAt
+            }), { base: 'index.html', interactive: false });
+        } catch (err) {
+          prev.innerHTML = '<p class="empty">Could not render that: ' + esc(err.message) + '</p>';
+        }
+
+        host.addEventListener('click', function (e) {
+          var b = e.target.closest('button');
+          if (!b || !(b.hasAttribute('data-pub') || b.hasAttribute('data-hold'))) return;
+          e.stopPropagation();
+          var publish = b.hasAttribute('data-pub');
+          if (publish && !window.confirm('Publish report ' + n + ' to members?')) return;
+          b.disabled = true;
+          fetch('/api/admin/reports', {
+            method: 'POST', credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(publish ? { n: n, publish: true } : { n: n, hold: true })
+          })
+            .then(function () {
+              rp.list = null;
+              loadReportsAdmin().then(function () {
+                paintReports(document.getElementById('panel'));
+                if (rp.open) openReportAdmin(rp.open);
+              });
+            })
+            .catch(function () { b.disabled = false; });
+        });
+      });
+  }
+
   function paint() {
     var p = document.getElementById('panel');
+    if (tab === 'reports') { paintReports(p); return; }
     if (tab === 'members') { paintMembers(p); return; }
     if (tab === 'leads') { paintLeads(p); return; }
     if (tab === 'traffic') { paintTraffic(p); return; }

@@ -2,6 +2,7 @@ import { currentSession } from '../lib/session.js';
 import { getCustomer, displayNameFor, entitlementsFor } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
 import { isTester } from '../lib/testers.js';
+import { reportsOpenTo } from '../lib/report-access.js';
 import { MEMBERSHIP_ONLY } from '../lib/products.js';
 
 /**
@@ -36,6 +37,10 @@ export default async function handler(req, res) {
       // Course features still being built show only for this account. Every
       // other member sees the member area exactly as it was.
       isTester: isTester(email),
+      // The weekly reports, which are not open yet. One flag rather than the
+      // sidebar working it out from isTester, so opening them is a change in
+      // one file.
+      canSeeReports: reportsOpenTo(email),
       // Their own picture, for the account card in the sidebar. The path rather
       // than the storage address: the photo is private and served through us.
       photoUrl: customer.photo_url ? '/api/account/photo' : null,

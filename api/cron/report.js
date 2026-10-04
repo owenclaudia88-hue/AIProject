@@ -22,6 +22,7 @@ import {
   digestAudience, optOuts, bouncedEmails
 } from '../../lib/db.js';
 import { MEMBERSHIP_UNLOCKS } from '../../lib/products.js';
+import { audienceFor } from '../../lib/report-access.js';
 import { sendReportPublished, sendReportHeld } from '../../lib/email.js';
 
 export default async function handler(req, res) {
@@ -107,11 +108,12 @@ export default async function handler(req, res) {
       model: out.stats.model, stats: { ...out.stats, cover: cover.kind }
     });
 
-    // Everybody the community is open to, minus opt-outs and bounces - the
-    // same audience and the same rules as the weekly digest.
+    // Minus opt-outs and bounces, and minus anybody the reports are not open
+    // to yet: telling a member their report is ready when they cannot open it
+    // is worse than not telling them at all.
     const [audience, opted, bounced] = await Promise.all([digestAudience(), optOuts(), bouncedEmails()]);
     const blocked = new Set([...(opted || []), ...(bounced || [])].map((e) => String(e).toLowerCase()));
-    const to = audience.filter((m) => !blocked.has(String(m.email).toLowerCase()));
+    const to = audienceFor(audience.filter((m) => !blocked.has(String(m.email).toLowerCase())));
 
     let sent = 0;
     for (const m of to) {
