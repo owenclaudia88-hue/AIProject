@@ -48,6 +48,8 @@
 .wr-back{background:none;border:0;color:var(--txt-2);font:inherit;font-size:.86rem;cursor:pointer;
   padding:8px 0;margin:0 0 10px;min-height:40px}
 .wr-back:hover{color:var(--accent-2)}
+.wr-logo{display:block;width:168px;max-width:46vw;height:auto;margin:0 0 18px}
+
 .wr-hero{aspect-ratio:1200/480;border:1px solid var(--line);border-radius:16px;overflow:hidden;
   background:var(--bg-4);margin:0 0 22px}
 .wr-hero img{width:100%;height:100%;object-fit:cover;display:block}
@@ -184,17 +186,40 @@
   .sidebar,.topbar,.scrim,.wr-pdf,.wr-back,#join-banner{display:none!important}
   .shell,.main,.content{display:block!important;padding:0!important;max-width:none!important}
   .wr{max-width:none}
-  .wr h1.t,.wr h2.s,.wr-item h3,.wr-tut h2,.wr-move h2,.wr-steps b{color:#000!important}
-  .wr .dek,.wr-item p,.wr-steps span,.wr-tut .intro,.wr-move p,.wr-sixty li{color:#333!important}
-  .wr-sixty,.wr-tut,.wr-move,.wr-stat,.wr-item,.wr-sources,.wr-hero{border-color:#ccc!important}
+  /* The mark is white, so on paper it needs the dark behind it printed, and
+     print-color-adjust is what makes a browser honour that without the reader
+     finding the "background graphics" tickbox. Same as the roadmap. */
+  .wr-logo{width:150px;padding:9px 13px;border-radius:9px;background:#0a0a0b!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  .wr h1.t,.wr h2.s,.wr-item h3,.wr-src h3,.wr-tut h2,.wr-move h2,.wr-steps b{color:#000!important}
+  .wr .dek,.wr-ours p,.wr-how li,.wr-steps span,.wr-tut .intro,.wr-move p,.wr-sixty li,
+  .wr-also li{color:#333!important}
+  .wr-sixty,.wr-tut,.wr-move,.wr-stat,.wr-src,.wr-sources,.wr-hero{border-color:#ccc!important}
   .wr-sixty,.wr-stat,.wr-tut{background:#f7f7f7!important}
-  .wr-sixty h2,.wr-no,.wr-stat b,.wr-steps li:before,.wr-links a .k{color:#8a4b00!important}
+  .wr-src{background:#fafafa!important}
+  .wr-sixty h2,.wr-no,.wr-stat b,.wr-steps li:before,.wr-links a .k,.wr-srcm .nm,
+  .wr-how li::marker{color:#8a4b00!important}
   .wr-move{background:#fdf6ee!important;border-color:#8a4b00!important}
-  .wr-item .act{background:#f2fbf7!important;border-color:#bfe5d6!important}
-  .wr-item .act b{color:#0a6b4d!important}
   .wr-watch{background:#fffaf0!important;border-color:#e7cfa0!important}
   .wr-watch b{color:#8a4b00!important}
-  .wr-links a,.wr-sources a{color:#111!important;border-color:#ccc!important}
-  .wr-when,.wr-item .src,.wr-sources h3,.wr-foot{color:#555!important}
-  .wr-item,.wr-tut,.wr-move,.wr-sixty,.wr-steps li{break-inside:avoid}
+  .wr-links a,.wr-sources a,.wr-read{color:#111!important;border-color:#ccc!important;
+    background:#fff!important}
+  .wr-when,.wr-srcm .dt,.wr-ours h4,.wr-sources h3,.wr-also h2,.wr-foot{color:#555!important}
+
+  /* Our writing is told from theirs by a rule on screen; on paper a light grey
+     line survives where a colour does not. */
+  .wr-ours{border-left-color:#bbb!important}
+
+  /* A label matters more in print than on screen: a printed page has no
+     context around it saying which week it came from. */
+  .wr-kind{background:#fff!important;border-color:#999!important;color:#333!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  /* The credit is white on a dark overlay on screen, which prints as nothing. */
+  .wr-shot figcaption{position:static!important;background:none!important;color:#555!important;
+    max-width:none!important;padding:4px 0 0!important;white-space:normal!important}
+  .wr-shot figcaption a{color:#555!important;border:0!important}
+
+  .wr-item,.wr-src,.wr-tut,.wr-move,.wr-sixty,.wr-steps li{break-inside:avoid}
 }

@@ -189,6 +189,11 @@
       html += '<button class="wr-back" type="button" data-wr-back>← All reports</button>';
     }
 
+    /* The mark, same relative path the roadmap uses: both pages that render
+       this live in /members/, so one path serves them and the PDF carries it. */
+    html += '<img class="wr-logo" src="' + esc(o.logo || '../assets/logo.webp') +
+      '" alt="AI Founder University" width="720" height="139">';
+
     var cover = safe(R.coverUrl);
     if (cover) html += '<div class="wr-hero"><img src="' + esc(cover) + '" alt=""></div>';
 
