@@ -1,0 +1,141 @@
+/**
+ * The weekly report, start to finish, on a Monday morning.
+ *
+ *   collect → select → write → verify → check the links → gate → cover →
+ *   publish, or hold and tell somebody.
+ *
+ * Nobody reads it before members do, which is the whole design constraint: the
+ * gate refuses on anything it cannot confirm, and a held report is a quiet
+ * Monday rather than a wrong one. The admin gets the email either way when
+ * something was held, because a pipeline that fails silently is one that has
+ * been broken for a month before anybody notices.
+ *
+ * `?dry=1` with the secret runs the whole thing and stores nothing, which is
+ * how to look at it before trusting it with a Monday.
+ */
+import { collectWeek } from '../../lib/report-sources.js';
+import { makeReport } from '../../lib/report-generate.js';
+import { reportSlug } from '../../lib/reports.js';
+import { makeCover } from '../../lib/report-cover.js';
+import {
+  nextReportNumber, recentReportTitles, coveredUrls, saveReport,
+  digestAudience, optOuts, bouncedEmails
+} from '../../lib/db.js';
+import { MEMBERSHIP_UNLOCKS } from '../../lib/products.js';
+import { sendReportPublished, sendReportHeld } from '../../lib/email.js';
+
+export default async function handler(req, res) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    console.error('[cron/report] CRON_SECRET is not set — refusing to run.');
+    return res.status(503).json({ error: 'not configured' });
+  }
+  if (req.headers.authorization !== `Bearer ${secret}`) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ error: 'no_key', message: 'ANTHROPIC_API_KEY is not set.' });
+  }
+
+  const url = new URL(req.url, 'http://localhost');
+  const dry = url.searchParams.get('dry') === '1';
+  const started = Date.now();
+
+  try {
+    const [number, recentTitles, covered] = await Promise.all([
+      nextReportNumber(), recentReportTitles(8), coveredUrls(120)
+    ]);
+
+    const { items, health } = await collectWeek({ since: Date.now() - 8 * 864e5, covered });
+    const sourcesUp = health.filter((h) => h.ok).length;
+
+    // Nothing to write about is a real answer. It is also the shape a broken
+    // collector takes, so the two are told apart before deciding.
+    if (items.length < 6) {
+      const why = sourcesUp < 4
+        ? `only ${sourcesUp} of ${health.length} sources answered`
+        : `only ${items.length} new item(s) all week`;
+      if (!dry) {
+        await sendReportHeld({ number, reason: why, health })
+          .catch((e) => console.error('[cron/report] held email', e?.message));
+      }
+      return res.status(200).json({ ok: true, skipped: why, health, ms: Date.now() - started });
+    }
+
+    // What a member can actually open, so "your move" points at their own
+    // library rather than at the internet. Written for the membership rather
+    // than for one person: a report is the same for everybody who reads it.
+    const entitled = new Set(MEMBERSHIP_UNLOCKS);
+
+    const out = await makeReport({ number, collected: items, entitled, recentTitles });
+
+    if (!out.gate.ok) {
+      if (!dry) {
+        if (out.report) {
+          await saveReport({
+            number, slug: reportSlug(number, out.report.title || 'held'),
+            title: out.report.title || `Report ${number}`, topic: out.report.topic || 'what-changed',
+            status: 'held', data: out.report, model: out.stats.model,
+            stats: out.stats, fail: out.gate.fail
+          });
+        }
+        await sendReportHeld({ number, reason: out.gate.fail.join('; '), health })
+          .catch((e) => console.error('[cron/report] held email', e?.message));
+      }
+      return res.status(200).json({
+        ok: false, held: true, number, fail: out.gate.fail,
+        dropped: out.dropped, cut: out.cut, stats: out.stats, ms: Date.now() - started
+      });
+    }
+
+    const report = out.report;
+    const cover = dry ? { url: null, kind: 'skipped' } : await makeCover({
+      number, title: report.title, topic: report.topic
+    });
+
+    if (dry) {
+      return res.status(200).json({
+        ok: true, dry: true, number, report,
+        cut: out.cut, dropped: out.dropped, stats: out.stats, health, ms: Date.now() - started
+      });
+    }
+
+    const slug = reportSlug(number, report.title);
+    await saveReport({
+      number, slug, title: report.title, topic: report.topic, status: 'published',
+      data: report, coverUrl: cover.url, coverKind: cover.kind,
+      model: out.stats.model, stats: { ...out.stats, cover: cover.kind }
+    });
+
+    // Everybody the community is open to, minus opt-outs and bounces - the
+    // same audience and the same rules as the weekly digest.
+    const [audience, opted, bounced] = await Promise.all([digestAudience(), optOuts(), bouncedEmails()]);
+    const blocked = new Set([...(opted || []), ...(bounced || [])].map((e) => String(e).toLowerCase()));
+    const to = audience.filter((m) => !blocked.has(String(m.email).toLowerCase()));
+
+    let sent = 0;
+    for (const m of to) {
+      try {
+        await sendReportPublished(m.email, {
+          name: m.name, number, slug, title: report.title, dek: report.dek,
+          sixty: report.sixty, coverUrl: cover.url
+        });
+        sent++;
+      } catch (err) {
+        console.error('[cron/report] email', m.email, err?.message || err);
+      }
+    }
+
+    return res.status(200).json({
+      ok: true, number, slug, title: report.title, items: report.items.length,
+      cover: cover.kind, emailed: sent, cut: out.cut, dropped: out.dropped,
+      stats: out.stats, ms: Date.now() - started
+    });
+  } catch (err) {
+    console.error('[cron/report]', err);
+    // A pipeline that throws is a pipeline nobody hears about. Tell somebody.
+    await sendReportHeld({ number: 0, reason: String(err.message || err).slice(0, 300), health: [] })
+      .catch(() => {});
+    return res.status(500).json({ error: 'server', message: String(err.message || err).slice(0, 300) });
+  }
+}
