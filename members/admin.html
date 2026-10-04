@@ -207,6 +207,15 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   padding:13px 16px;margin:0 0 16px;font-size:.88rem;line-height:1.6;color:var(--txt-2)}
 .rm-warn b{color:var(--accent-2)}
 
+/* what the fact check threw out */
+.rm-cut{margin:14px 0 0;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:4px 16px}
+.rm-cut summary{cursor:pointer;padding:12px 0;font-family:var(--mono);font-size:.76rem;color:var(--txt-2)}
+.rm-cut summary:hover{color:var(--accent-2)}
+.rm-crow{border-top:1px solid var(--line);padding:12px 0}
+.rm-crow b{display:block;font-size:.9rem;line-height:1.5;margin-bottom:5px}
+.rm-crow span{display:block;color:var(--txt-2);font-size:.86rem;line-height:1.6;margin-bottom:5px}
+.rm-crow a{font-family:var(--mono);font-size:.68rem;color:var(--txt-3);word-break:break-all}
+
 /* a dry run, shown rather than summarised */
 .rm-dry{margin:16px 0 0;border:1px solid rgba(255,176,32,.32);border-radius:14px;overflow:hidden}
 .rm-dry .h{display:flex;align-items:center;gap:12px;background:rgba(255,176,32,.09);padding:11px 16px}
@@ -2134,7 +2143,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
   /* ---------------- the weekly AI reports ---------------- */
 
-  var rp = { list: null, open: null, canRun: false, msg: '', dry: null };
+  var rp = { list: null, open: null, canRun: false, msg: '', dry: null, cut: [] };
 
   function loadReportsAdmin() {
     return fetch('/api/admin/reports', { credentials: 'same-origin' })
@@ -2187,6 +2196,22 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
        run is reading the thing before it goes to anybody, so it is rendered
        here with the same renderer members get, and kept across repaints until
        it is dismissed or another run replaces it. */
+    /* What the fact check threw out, and why it said so.
+       "1 cut by the fact check" is the most interesting number on this screen
+       and the least useful on its own: it is the difference between a verifier
+       catching an invented statistic and a verifier eating a good item. The
+       sentence it objected to is right here. */
+    if (rp.cut && rp.cut.length) {
+      h += '<details class="rm-cut"><summary>' + rp.cut.length +
+        ' cut by the fact check — what the source did not support</summary>' +
+        rp.cut.map(function (c) {
+          return '<div class="rm-crow"><b>' + esc(c.headline || c.url) + '</b>' +
+            '<span>' + esc(c.problem || 'not supported by the source') + '</span>' +
+            '<a href="' + esc(c.url) + '" target="_blank" rel="noopener noreferrer nofollow">' +
+              esc(String(c.url).slice(0, 70)) + '</a></div>';
+        }).join('') + '</details>';
+    }
+
     if (rp.dry) {
       h += '<div class="rm-dry"><div class="h"><b>Dry run — not stored, not sent</b>' +
         '<button data-drydrop="1">Dismiss</button></div>' +
@@ -2255,7 +2280,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
       if (b.hasAttribute('data-drydrop')) {
         e.stopPropagation();
-        rp.dry = null; rp.msg = '';
+        rp.dry = null; rp.cut = []; rp.msg = '';
         paintReports(document.getElementById('panel'));
         return;
       }
@@ -2286,6 +2311,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
               return;
             }
             if (d.skipped) { say('Nothing published: ' + d.skipped); return; }
+            // Kept whatever the outcome: a published run that cut something is
+            // exactly as worth knowing about as a dry one that did.
+            rp.cut = d.cut || [];
             if (d.held) {
               say('Held — ' + (d.fail || []).join('; '));
               // A held report was still built. It is the most useful thing to
