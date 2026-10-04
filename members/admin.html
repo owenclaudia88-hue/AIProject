@@ -56,6 +56,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .st.new{color:var(--accent-2);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.12)}
 .st.planned{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.12)}
 .st.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12)}
+/* Came back and filled the form again: the row Meta counted twice. */
+.st.back{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.1);text-transform:none}
 .st.declined{color:var(--txt-3)}
 .oc{background:var(--bg-2);border:1px solid var(--line-2);border-radius:12px;padding:16px 18px;margin:0 0 18px}
 .oc b{display:block;font-size:.95rem}
@@ -616,15 +618,39 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         '</div>';
     });
 
-    var unconverted = leads.leads.filter(function (l) { return !l.purchased; });
+    /* Somebody who filled the form again is a new lead to Meta and an old row
+       here, because the row is keyed on the address and keeps the date they
+       first arrived. Sorted by the last time they were seen, and the ones who
+       came back say so - otherwise a lead who returned this morning sits a
+       fortnight down the list and looks like a lead that never arrived. */
+    var cameBack = function (l) {
+      if (!l.lastSeen || !l.firstSeen) return null;
+      var gap = new Date(l.lastSeen) - new Date(l.firstSeen);
+      return gap > 6e4 ? l.lastSeen : null;
+    };
+
+    var unconverted = leads.leads.filter(function (l) { return !l.purchased; })
+      .sort(function (a, b) {
+        return new Date(b.lastSeen || b.firstSeen) - new Date(a.lastSeen || a.firstSeen);
+      });
+    var returners = unconverted.filter(cameBack).length;
+
     h += '<h3 class="sech">Gave details, never bought <span class="meta">' + unconverted.length + '</span></h3>';
+    h += '<p class="warn" style="margin-top:-4px">Newest activity first. ' +
+      (returners
+        ? returners + ' of these filled the form again after their first visit — each one counts as ' +
+          'another lead in Meta, and stays one row here.'
+        : 'A lead who fills the form again keeps their original date here, and counts again in Meta.') +
+      '</p>';
     if (!unconverted.length) h += '<p class="empty">Nobody in this state.</p>';
     unconverted.forEach(function (l) {
+      var back = cameBack(l);
       h += '<div class="card"><div class="hd"><b>' + esc(l.name || l.email.split('@')[0]) + '</b>' +
         '<span class="st new">no purchase</span>' +
         // Which page they came through. Worth showing now there is more than
         // one, because it decides which offer the reminders chase them with.
         badge(l) +
+        (back ? '<span class="st back">back ' + esc(stamp(back)) + '</span>' : '') +
         '<span class="meta" style="margin-left:auto">' + esc(l.email) + ' &middot; ' + esc(stamp(l.firstSeen)) + '</span></div>' +
         (addr(l) ? '<p style="font-family:var(--mono);font-size:.78rem">' + esc(addr(l)) + '</p>' : '') +
         entry(l) +
