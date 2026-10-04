@@ -701,7 +701,7 @@ a.no{display:block;width:fit-content;margin-left:auto;margin-right:auto;text-ali
 
       <ul class="gets inline">
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.8 2.8L16 9.5"/></svg><span>1,300+ prompts, plugins &amp; routines</span></li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.8 2.8L16 9.5"/></svg><span>Personal 7/30/90-day AI roadmap</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.8 2.8L16 9.5"/></svg><span>Personalised 90-day AI roadmap</span></li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.8 2.8L16 9.5"/></svg><span>Weekly trend reports &amp; founder community</span></li>
       </ul>
 
@@ -712,7 +712,7 @@ a.no{display:block;width:fit-content;margin-left:auto;margin-right:auto;text-ali
       <div class="cm-bar"><div class="dots"><i></i><i></i><i></i></div><div class="cm-title">AI Founder University · Your campus</div></div>
       <div class="cm-body">
         <div class="rm">
-          <div class="rm-h"><b>Your AI Roadmap</b><div class="rm-tabs"><span class="on" data-d="0">7 days</span><span data-d="1">30 days</span><span data-d="2">90 days</span></div></div>
+          <div class="rm-h"><b>Your AI Roadmap</b><div class="rm-tabs"><span class="on" data-d="0">Days 1-30</span><span data-d="1">31-60</span><span data-d="2">61-90</span></div></div>
           <ul id="rmList"></ul>
         </div>
         <div class="cm-row">
@@ -773,7 +773,7 @@ a.no{display:block;width:fit-content;margin-left:auto;margin-right:auto;text-ali
         <div class="lab">What the membership unlocks</div>
         <h3>The plan, the skills &amp; the updates</h3>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span><b>A roadmap</b> built for your business — what to do in the next 7, 30 and 90 days</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span><b>A roadmap</b> built for your business — week by week, across the next 90 days</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span><b>A growing training library</b> — courses, tutorials and fundamentals, new every week</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span><b>New plugins &amp; skills</b> every week, so your toolkit never goes stale</span></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg><span><b>A private community</b> of AI-first founders to compare notes with</span></li>
@@ -1020,7 +1020,7 @@ a.no{display:block;width:fit-content;margin-left:auto;margin-right:auto;text-ali
       <div class="stack rv">
         <h3>AI Founder University membership</h3>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><div>Personalised AI roadmap<small>Your next 7, 30 and 90 days, done for you</small></div></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><div>Personalised AI roadmap<small>Your next 90 days, week by week, done for you</small></div></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><div>Growing on-demand training library<small>Courses, tutorials &amp; fundamentals, new every week</small></div></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><div>1,300+ prompts, plugins, agents, routines &amp; templates<small>Copy, paste, install — added to weekly</small></div></li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><div>Weekly AI trend reports + AI news feed<small>Only what's worth your attention</small></div></li>
@@ -1158,11 +1158,12 @@ a.no{display:block;width:fit-content;margin-left:auto;margin-right:auto;text-ali
   'use strict';
   document.getElementById('yr').textContent = new Date().getFullYear();
 
-  /* Roadmap demo — example items only, cycles through the three horizons. */
+  /* Roadmap demo — example steps only, cycling through the three phases the
+     real roadmap is built in: days 1-30, 31-60 and 61-90, week by week. */
   var PLAN = [
-    [['Pick your 3 highest-value specialists', 'Day 1', 1], ['Rewrite your offer with Titan', 'Day 2', 1], ['Ship one week of content', 'Day 4', 0], ['Set up your follow-up emails', 'Day 6', 0]],
-    [['Automate your weekly reporting', 'Week 2', 1], ['Build a lead magnet + opt-in', 'Week 3', 0], ['Launch a 30-day content calendar', 'Week 3', 0], ['Turn FAQs into a support assistant', 'Week 4', 0]],
-    [['Launch a high-converting funnel', 'Month 2', 0], ['Test 3 new ad angles a week', 'Month 2', 0], ['Package a new offer', 'Month 3', 0], ['Hand repeat tasks to AI agents', 'Month 3', 0]]
+    [['Pick your 3 highest-value specialists', 'Week 1', 1], ['Rewrite your offer with Titan', 'Week 1', 1], ['Ship one week of content', 'Week 2', 0], ['Set up your follow-up emails', 'Week 3', 0]],
+    [['Automate your weekly reporting', 'Weeks 5-6', 1], ['Build a lead magnet + opt-in', 'Weeks 5-6', 0], ['Launch a content calendar', 'Weeks 7-8', 0], ['Turn FAQs into a support assistant', 'Weeks 7-8', 0]],
+    [['Launch a high-converting funnel', 'Weeks 9-12', 0], ['Test 3 new ad angles a week', 'Weeks 9-12', 0], ['Package a new offer', 'Weeks 9-12', 0], ['Review and plan the next quarter', 'Week 13', 0]]
   ];
   var list = document.getElementById('rmList');
   var tabs = document.querySelectorAll('.rm-tabs span');

@@ -11,8 +11,6 @@
  */
 import { weekInCommunity, digestAudience, optOuts, bouncedEmails, setSetting, getSettings } from '../../lib/db.js';
 import { sendCommunityDigest } from '../../lib/email.js';
-import { isTester } from '../../lib/testers.js';
-import { isAdmin } from '../../lib/admin.js';
 
 // Below this there is not enough of a week to be worth an email.
 const MIN_THREADS = 2;
@@ -20,7 +18,7 @@ const MIN_THREADS = 2;
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
-    console.error('[cron/digest] CRON_SECRET is not set — refusing to run.');
+    console.error('[cron/digest] CRON_SECRET is not set â€” refusing to run.');
     return res.status(503).json({ error: 'not configured' });
   }
   if (req.headers.authorization !== `Bearer ${secret}`) {
@@ -47,10 +45,9 @@ export default async function handler(req, res) {
     ]);
     const blocked = new Set([...(opted || []), ...(bounced || [])].map((e) => String(e).toLowerCase()));
 
-    // While the community is still the test account's, so is the digest.
-    // Taken out at the same time as the rest of the gate.
-    const to = audience.filter((m) =>
-      !blocked.has(String(m.email).toLowerCase()) && (isTester(m.email) || isAdmin(m.email)));
+    // Everybody the community is open to, minus anybody who opted out of these
+    // or whose address has bounced.
+    const to = audience.filter((m) => !blocked.has(String(m.email).toLowerCase()));
 
     if (dry) {
       return res.status(200).json({

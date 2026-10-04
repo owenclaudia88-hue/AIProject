@@ -1383,11 +1383,12 @@ button{font-family:inherit}
         // undefined no matter what the server sent.
         me.isTester = !!res.d.isTester;
         me.hasMembership = !!res.d.hasMembership;
-        // Features that are not finished yet: the test account and staff see
-        // them, nobody else does. Set here, with the rest of the fields copied
-        // off /api/me, because several gates below read it and a flag assigned
-        // after its first reader is a flag that is undefined when it matters.
-        me.canPreview = !!(me.isTester || me.isAdmin);
+        // Who gets the membership rooms rather than a lock on them. Staff are
+        // in because they have never bought anything and still have to be able
+        // to look. Set here, with the rest of the fields copied off /api/me,
+        // because several gates below read it and a flag assigned after its
+        // first reader is a flag that is undefined when it matters.
+        me.canPreview = !!(me.hasMembership || me.isAdmin);
         // A perk they are not currently paying for reads as one, rather than
         // as a menu item that turns out to be a dead end.
         var reqNav = document.querySelector('.nav[data-view="request"]');
@@ -1397,30 +1398,28 @@ button{font-family:inherit}
         var connectNav = document.getElementById('nav-connect');
         if (connectNav && !me.hasMembership) connectNav.classList.add('is-locked');
         var rmNav = document.querySelector('.nav[data-view="roadmap"]');
-        if (rmNav) rmNav.hidden = !me.canPreview;
-        if (me.canPreview) {
-          if (!me.hasMembership) rmNav.classList.add('is-locked');
-          else loadRoadmap();
+        // Both are membership perks, said the same way as the others: shown to
+        // everybody, wearing a lock for anybody not paying for them, rather
+        // than hidden from the people most worth showing them to.
+        if (rmNav) {
+          rmNav.hidden = false;
+          if (me.canPreview) loadRoadmap();
+          else rmNav.classList.add('is-locked');
         }
         var sbCommunity = document.getElementById('sb-community');
-        if (sbCommunity) sbCommunity.hidden = !me.canPreview;
+        if (sbCommunity) sbCommunity.hidden = false;
         // Nobody outside the community can have a notification waiting, so the
         // bell is shown on the same condition rather than on one of its own.
         var bell = document.getElementById('bell');
         if (bell) bell.classList.toggle('on', me.canPreview);
-        if (me.canPreview) loadNotes();
 
         if (me.canPreview) {
-          // A membership perk, said the same way as the others: the rooms stay
-          // in the sidebar wearing a lock rather than vanishing, so somebody
-          // without a subscription can see what they are missing.
-          if (!me.hasMembership) {
-            [].forEach.call(document.querySelectorAll('#sb-community .nav'), function (n) {
-              n.classList.add('is-locked');
-            });
-          } else {
-            loadSpaces();
-          }
+          loadNotes();
+          loadSpaces();
+        } else {
+          [].forEach.call(document.querySelectorAll('#sb-community .nav'), function (n) {
+            n.classList.add('is-locked');
+          });
         }
         // The account and the library load as separate requests, so whichever
         // lands second is the one that can paint this correctly. Called from
@@ -1990,6 +1989,10 @@ button{font-family:inherit}
   /* ---- one thread ---- */
 
   function renderThread(c, id) {
+    // A link to one post, followed by somebody without the membership: the
+    // server would refuse it, and "that post is no longer here" is not what
+    // happened. Same locked screen as the room it is in.
+    if (!me.canPreview) return renderSpace(c, 'all');
     c.innerHTML = '<p class="empty">Loading\u2026</p>';
     fetch('/api/community/thread?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
@@ -2449,7 +2452,8 @@ button{font-family:inherit}
         '<div class="req-card locked-perk"><span class="lock-badge">\ud83d\udd12</span>' +
           '<h2>A membership perk</h2>' +
           '<p class="sub">We build you a personalised AI roadmap from what you tell us about your ' +
-            'business \u2014 priorities, strategy and the exact tools to use in the next 7, 30 and 90 days.</p>' +
+            'business \u2014 how the next 90 days reach your goal, week by week, and the exact courses, ' +
+            'prompts and tools in here to use at each step.</p>' +
           '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">' +
             '\ud83d\udd12 Unlock with the membership</a></div>';
       return;
@@ -2743,15 +2747,13 @@ button{font-family:inherit}
     if (view === 'favorites') return renderFavorites(c);
     if (view === 'bookmarks') return renderBookmarks(c);
     if (view === 'request') return renderRequest(c);
-    if (view === 'roadmap') {
-      if (!me.canPreview) { location.hash = 'dashboard'; return; }
-      return renderRoadmap(c);
-    }
+    // Both of these draw their own locked screen for somebody without the
+    // membership, which is the point of them being in the sidebar at all.
+    if (view === 'roadmap') return renderRoadmap(c);
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
     if (view.indexOf('c-') !== 0 && view.indexOf('t-') !== 0) communityQ = '';
     if (view.indexOf('c-') === 0 || view.indexOf('t-') === 0) {
-      if (!me.canPreview) { location.hash = 'dashboard'; return; }
       return view.indexOf('c-') === 0
         ? renderSpace(c, view.slice(2))
         : renderThread(c, view.slice(2));

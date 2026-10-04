@@ -12,7 +12,6 @@ import {
   addRoadmapNote, listRoadmapNotes, displayNameFor, getCustomer
 } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
-import { isTester } from '../lib/testers.js';
 import { MEMBERSHIP_ONLY } from '../lib/products.js';
 import { formSpec, cleanAnswers, missing, FIELD_BY_KEY } from '../lib/roadmap.js';
 import { sanitizeHtml, htmlIsEmpty } from '../lib/sanitize-html.js';
@@ -23,13 +22,6 @@ export default async function handler(req, res) {
 
   try {
     const staff = isAdmin(email);
-    // Not finished yet, so it is the test account's and staff's alone. Checked
-    // before the membership rule, because telling somebody they need a
-    // subscription for something they could not have either way answers a
-    // question they did not ask. Comes out when it opens to everybody.
-    if (!staff && !isTester(email)) {
-      return res.status(403).json({ error: 'not available', message: 'The AI Roadmap is not open yet.' });
-    }
     if (!staff && !(await isActive(email))) return res.status(403).json({ error: 'not active' });
     if (!staff && !(await entitlementsFor(email)).has(MEMBERSHIP_ONLY)) {
       return res.status(403).json({ error: 'membership', message: 'The AI Roadmap is part of the membership.' });
