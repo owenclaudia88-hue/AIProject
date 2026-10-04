@@ -75,6 +75,54 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, status: b.publish ? 'published' : 'held' });
     }
 
+    /* ---- take something down ----
+
+       This is the whole reason the source list exists. A publisher who asks us
+       to stop showing their picture, or to drop an item altogether, is owed an
+       answer in hours rather than on the next deploy - so it is two buttons on
+       a screen rather than a code change and a release.
+
+       Removing the picture leaves the item, its headline and the link back to
+       them, which is usually what is actually being asked for. Removing the
+       item takes the lot. */
+    if (b.dropImage || b.dropItem) {
+      const data = row.data && typeof row.data === 'object' ? row.data : {};
+      const items = Array.isArray(data.items) ? data.items : [];
+      const url = String(b.url || '');
+      const target = items.find((i) => i && i.url === url);
+      if (!target) return res.status(404).json({ error: 'no item with that link in this report' });
+
+      const next = b.dropItem
+        ? items.filter((i) => i.url !== url)
+        : items.map((i) => (i.url === url ? { ...i, image: null } : i));
+
+      await saveReport({
+        number: row.number, slug: row.slug, title: row.title, topic: row.topic,
+        status: row.status,
+        data: {
+          ...data,
+          items: next,
+          // The source list follows the items, or it stops being a record of
+          // what is on the page.
+          sources: next.map((i) => ({ name: i.sourceName, url: i.url })),
+          // Kept so a second request about the same report can be answered
+          // with what was done and when, rather than from memory.
+          removals: [
+            ...(Array.isArray(data.removals) ? data.removals : []),
+            { url, what: b.dropItem ? 'item' : 'image', at: new Date().toISOString(), by: email }
+          ]
+        },
+        coverUrl: row.cover_url, coverKind: row.cover_kind,
+        model: row.model, stats: row.stats, fail: row.fail
+      });
+
+      return res.status(200).json({
+        ok: true,
+        removed: b.dropItem ? 'item' : 'image',
+        itemsLeft: next.length
+      });
+    }
+
     return res.status(400).json({ error: 'nothing to do' });
   } catch (err) {
     console.error('[admin/reports]', err);

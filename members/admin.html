@@ -207,6 +207,25 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   padding:13px 16px;margin:0 0 16px;font-size:.88rem;line-height:1.6;color:var(--txt-2)}
 .rm-warn b{color:var(--accent-2)}
 
+/* the source list, and the two ways to take something off the page */
+.rm-src{margin:16px 0 0;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:4px 16px}
+.rm-src summary{cursor:pointer;padding:12px 0;font-family:var(--mono);font-size:.78rem;color:var(--txt-2)}
+.rm-src summary:hover{color:var(--accent-2)}
+.rm-srow{display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;
+  border-top:1px solid var(--line);padding:13px 0}
+.rm-srow .t{min-width:min(100%,260px);flex:1}
+.rm-srow .t b{display:block;font-family:var(--mono);font-size:.72rem;color:var(--accent-2);margin-bottom:3px}
+.rm-srow .t span{display:block;font-size:.88rem;line-height:1.5;margin-bottom:4px}
+.rm-srow .t a{display:block;font-family:var(--mono);font-size:.68rem;color:var(--txt-3);word-break:break-all}
+.rm-srow .t em{display:block;margin-top:3px;font-family:var(--mono);font-size:.66rem;color:var(--txt-3);
+  font-style:normal;word-break:break-all}
+.rm-srow .b{display:flex;gap:7px;flex-wrap:wrap}
+.rm-srow button{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);border-radius:999px;
+  min-height:36px;padding:0 13px;font-family:var(--mono);font-size:.72rem;cursor:pointer;white-space:nowrap}
+.rm-srow button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-2)}
+.rm-srow button.warn:hover:not(:disabled){border-color:#f87171;color:#f87171}
+.rm-srow button:disabled{opacity:.55;cursor:default}
+
 /* ---------- community view ---------- */
 .cm-filters{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 16px}
 .cm-filters button{background:var(--bg-3);border:1px solid var(--line);color:var(--txt-2);
@@ -2229,6 +2248,45 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     });
   }
 
+  /**
+   * Every source on the page, and the two ways to take one off it.
+   *
+   * This is the answer to "can you remove that within 24 hours" — it is two
+   * buttons rather than a code change and a deploy. Dropping the picture keeps
+   * the item, its headline and the link back, which is usually what is being
+   * asked for; dropping the item takes the lot.
+   */
+  function sourceListHTML(r) {
+    var items = (r.data && r.data.items) || [];
+    if (!items.length) return '';
+    var removals = (r.data && r.data.removals) || [];
+
+    return '<details class="rm-src"><summary>Sources on this page (' + items.length + ')' +
+      (removals.length ? ' · ' + removals.length + ' already removed' : '') + '</summary>' +
+      '<p class="rm-note">Pictures are the publishers’ own and are pointed at, never copied. ' +
+      'If one asks, take the picture or the whole item off here — it is live immediately.</p>' +
+      items.map(function (it) {
+        return '<div class="rm-srow">' +
+          '<div class="t"><b>' + esc(it.sourceName || '') + '</b>' +
+            '<span>' + esc(it.headline || '') + '</span>' +
+            '<a href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer nofollow">' +
+              esc(it.url.slice(0, 68)) + '</a>' +
+            (it.image ? '<em>picture: ' + esc(String(it.image.url).slice(0, 62)) + '</em>'
+                      : '<em>no picture</em>') + '</div>' +
+          '<div class="b">' +
+            (it.image ? '<button data-dropimg="' + esc(it.url) + '" data-n="' + r.number + '">Remove picture</button>' : '') +
+            '<button class="warn" data-dropitem="' + esc(it.url) + '" data-n="' + r.number + '">Remove item</button>' +
+          '</div></div>';
+      }).join('') +
+      (removals.length
+        ? '<p class="rm-note">Removed: ' + removals.map(function (x) {
+            return esc(x.what) + ' from ' + esc(String(x.url).slice(0, 44)) + ' on ' +
+              esc(String(x.at).slice(0, 10));
+          }).join(' · ') + '</p>'
+        : '') +
+      '</details>';
+  }
+
   function openReportAdmin(n) {
     var host = document.getElementById('rp-body-' + n);
     if (!host) return;
@@ -2247,6 +2305,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
               ? '<button data-hold="' + n + '">Take it down</button>'
               : '<button class="pub" data-pub="' + n + '">Publish it</button>') +
           '</div>' +
+          sourceListHTML(r) +
           '<div class="rm-prev" id="rp-prev-' + n + '"></div>';
 
         var prev = document.getElementById('rp-prev-' + n);
@@ -2262,7 +2321,42 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
         host.addEventListener('click', function (e) {
           var b = e.target.closest('button');
-          if (!b || !(b.hasAttribute('data-pub') || b.hasAttribute('data-hold'))) return;
+          if (!b) return;
+
+          // A takedown is not undoable from this screen, so it asks, and it
+          // says which of the two it is about to do.
+          if (b.hasAttribute('data-dropimg') || b.hasAttribute('data-dropitem')) {
+            e.stopPropagation();
+            var whole = b.hasAttribute('data-dropitem');
+            var link = b.getAttribute(whole ? 'data-dropitem' : 'data-dropimg');
+            if (!window.confirm(whole
+              ? 'Remove this item from report ' + n + ' entirely? Members stop seeing it straight away.'
+              : 'Remove just the picture from this item? The headline and the link back stay.')) return;
+            b.disabled = true;
+            fetch('/api/admin/reports', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ n: n, url: link, dropItem: whole || undefined, dropImage: !whole || undefined })
+            })
+              .then(function (r) { return r.json().then(function (j) { return { status: r.status, d: j }; }); })
+              .then(function (out) {
+                if (!out.d || !out.d.ok) {
+                  b.disabled = false;
+                  window.alert('That did not remove (HTTP ' + out.status + '): ' +
+                    ((out.d && (out.d.message || out.d.error)) || 'no reason given'));
+                  return;
+                }
+                rp.list = null;
+                loadReportsAdmin().then(function () {
+                  paintReports(document.getElementById('panel'));
+                  if (rp.open) openReportAdmin(rp.open);
+                });
+              })
+              .catch(function () { b.disabled = false; });
+            return;
+          }
+
+          if (!(b.hasAttribute('data-pub') || b.hasAttribute('data-hold'))) return;
           e.stopPropagation();
           var publish = b.hasAttribute('data-pub');
           if (publish && !window.confirm('Publish report ' + n + ' to members?')) return;
