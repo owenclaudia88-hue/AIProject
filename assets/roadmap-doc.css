@@ -20,6 +20,12 @@
 
 /* ---------- the head ---------- */
 
+/* The letterhead. On paper it sits on its own dark badge, because the mark is
+   white and would otherwise print as nothing - and print-color-adjust is what
+   makes a browser honour that background without the reader finding the
+   "background graphics" tickbox. */
+.rmd-logo{display:block;width:168px;max-width:46vw;height:auto;margin:0 0 18px}
+
 .rmd-top{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin:0 0 6px}
 .rmd-top h1{margin:0;flex:1;min-width:min(100%,260px);font-size:clamp(1.5rem,3.4vw,2.1rem);
   font-weight:900;letter-spacing:-.03em;line-height:1.18}
@@ -163,6 +169,12 @@
   background:var(--bg-3);border:1px solid var(--line-2);border-radius:999px;
   padding:7px 14px;font-size:.84rem;color:var(--txt-2);text-decoration:none;min-height:38px}
 .rmd-res a:hover{border-color:var(--accent);color:var(--accent-2)}
+
+/* A tool named in a sentence is a link to that tool. Underlined rather than
+   coloured, so a paragraph with three of them still reads as a paragraph. */
+.rmd-ml{color:inherit;text-decoration:none;border-bottom:1px solid var(--line-2);
+  box-shadow:inset 0 -1px 0 0 rgba(255,122,26,.35)}
+.rmd-ml:hover{color:var(--accent-2);border-color:var(--accent)}
 .rmd-res a .k{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.09em;
   color:var(--accent-2);flex:none}
 .rmd-res a .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -231,6 +243,11 @@
   .rmd-exit{background:#f2fbf7!important;border-color:#bfe5d6!important}
   .rmd-res a{background:#fff!important;border-color:#ccc!important;color:#111!important}
   .rmd-use a{color:#111!important;border-color:#bbb!important}
+  .rmd-ml{color:#111!important;border-color:#999!important;box-shadow:none!important}
+
+  /* The mark is white, so on paper it needs the dark behind it printed. */
+  .rmd-logo{width:150px;padding:9px 13px;border-radius:9px;background:#0a0a0b!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
 
   /* A table that scrolls on screen has to print whole. */
   .rmd-tw{overflow:visible!important}

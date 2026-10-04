@@ -1815,7 +1815,14 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       '<div class="h"><b>' + esc(r.name || r.email) + '</b>' +
         '<span class="who">' + esc(r.email) + ' \u00b7 ' + esc(when.toLocaleDateString()) + '</span>' +
         '<span class="st ' + esc(r.status) + '" style="margin-left:auto">' + esc(r.status) + '</span></div>' +
-      (rmq.open === r.id ? '<div id="rm-body-' + r.id + '"><p class="empty">Loading\u2026</p></div>' : '') +
+      // The first open after a quiet spell waits for the function and the
+      // database to wake, which is about ten seconds and looks like a hang
+      // unless the screen says otherwise. Warm, it is a quarter of a second
+      // and this is never read.
+      (rmq.open === r.id
+        ? '<div id="rm-body-' + r.id + '"><p class="empty">Loading\u2026 the first one after a ' +
+          'quiet spell takes a few seconds while the server wakes up.</p></div>'
+        : '') +
       '</div>';
   }
 

@@ -139,9 +139,17 @@ function shape(r, full) {
     createdAt: r.created_at,
     generatedAt: r.generated_at,
     publishedAt: r.published_at,
-    answers: r.answers || {},
-    answersText: answersAsText(r.answers || {}),
-    ...(full ? { draft: r.draft || null, published: r.published || null } : {})
+    // The answers ride along only with the one being opened. In the list they
+    // are eighteen answers per row that nothing on screen reads, and the list
+    // is the call every tab switch makes.
+    ...(full
+      ? {
+          answers: r.answers || {},
+          answersText: answersAsText(r.answers || {}),
+          draft: r.draft || null,
+          published: r.published || null
+        }
+      : {})
   };
 }
 

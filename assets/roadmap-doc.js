@@ -54,6 +54,59 @@
     return r.kindLabel || 'Library';
   }
 
+  /**
+   * Links the words themselves.
+   *
+   * A step that says "install the Email Specialist plugin" should let somebody
+   * click those words. The mentions are worked out when the roadmap is
+   * written, against the real catalogue, so this only has to find the title in
+   * the sentence and wrap it.
+   *
+   * The text is escaped first and the anchor is spliced into the escaped
+   * string, so nothing in the roadmap can inject markup. Each mention is
+   * linked once per step - the first time it appears - because a tool named in
+   * four lines does not need four links.
+   */
+  /* Where a title appears as itself rather than inside a longer word, or -1.
+     The same rule the roadmap was written with, applied again here because
+     this text has been escaped since. */
+  function wholePhraseAt(hay, needle) {
+    var word = /[a-z0-9]/;
+    var at = hay.indexOf(needle);
+    while (at !== -1) {
+      var before = at === 0 ? '' : hay.charAt(at - 1);
+      var after = hay.charAt(at + needle.length);
+      if (!word.test(before) && !word.test(after)) return at;
+      at = hay.indexOf(needle, at + 1);
+    }
+    return -1;
+  }
+
+  function linker(mentions, base) {
+    var left = list(mentions).slice().sort(function (a, b) {
+      return String(b.title).length - String(a.title).length;
+    });
+    return function (text) {
+      var out = esc(text);
+      if (!left.length || !out) return out;
+      var marks = [];
+      for (var i = 0; i < left.length; i++) {
+        var m = left[i];
+        var needle = esc(m.title);
+        var at = wholePhraseAt(out.toLowerCase(), needle.toLowerCase());
+        if (at < 0) continue;
+        // A placeholder rather than the anchor itself, so a later, shorter
+        // title cannot match inside an href that is already there.
+        marks.push('<a class="rmd-ml" href="' + esc(hrefFor(m, base)) + '">' +
+          out.slice(at, at + needle.length) + '</a>');
+        out = out.slice(0, at) + '\u0000' + (marks.length - 1) + '\u0000' + out.slice(at + needle.length);
+        left.splice(i, 1);
+        i--;
+      }
+      return out.replace(/\u0000(\d+)\u0000/g, function (_, n) { return marks[Number(n)]; });
+    };
+  }
+
   function chips(resources, base) {
     var rs = list(resources);
     if (!rs.length) return '';
@@ -194,6 +247,10 @@
     // check it against the phases; as an H1 it reads as a sales promise
     // however plainly it is written.
     var title = o.title || ('Personalised AI Roadmap' + (o.name ? ' — ' + o.name : ''));
+    // Both pages that render this live in /members/, so one relative path
+    // serves them and the PDF carries the mark with it.
+    html += '<img class="rmd-logo" src="' + esc(o.logo || '../assets/logo.webp') +
+      '" alt="AI Founder University" width="720" height="139">';
     html += '<div class="rmd-top"><h1>' + esc(title) + '</h1>' +
       (o.interactive === false ? ''
         : '<button class="rmd-pdf" type="button" data-rmd-pdf ' +
@@ -233,8 +290,9 @@
       html += '<section><h2>' + esc(sh.heading || 'Start here') +
         (has(sh.blurb) ? '<span class="sub">' + esc(sh.blurb) + '</span>' : '') + '</h2><ol class="rmd-list">' +
         list(sh.steps).map(function (s) {
+          var link = linker(s.mentions, base);
           return '<li><b>' + esc(s.title) + '</b>' +
-            (has(s.detail) ? '<span>' + esc(s.detail) + '</span>' : '') +
+            (has(s.detail) ? '<span>' + link(s.detail) + '</span>' : '') +
             chips(s.resources, base) + '</li>';
         }).join('') + '</ol></section>';
     }
@@ -248,16 +306,17 @@
         '<h2>' + esc(p.goal || p.window) + '</h2></div>';
 
       list(p.steps).forEach(function (st, si) {
+        var link = linker(st.mentions, base);
         html += '<div class="rmd-step" data-step="' + pi + '.' + si + '">' +
           (o.interactive === false ? ''
             : '<button class="rmd-chk" type="button" aria-pressed="false" ' +
               'aria-label="Mark done: ' + esc(st.title) + '">✓</button>') +
           '<div class="rmd-sb"><h3>' + esc(st.title) +
             (has(st.time) ? '<span class="t">' + esc(st.time) + '</span>' : '') + '</h3>' +
-          (has(st.why) ? '<p class="why">' + esc(st.why) + '</p>' : '') +
+          (has(st.why) ? '<p class="why">' + link(st.why) + '</p>' : '') +
           (list(st.how).length
             ? '<ol class="how">' + list(st.how).map(function (h) {
-                return '<li>' + esc(h) + '</li>';
+                return '<li>' + link(h) + '</li>';
               }).join('') + '</ol>'
             : '') +
           chips(st.resources, base) +
