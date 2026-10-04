@@ -49,7 +49,11 @@ export default async function handler(req, res) {
       // Any of the four, so the series can be judged rather than one of it.
       const topic = ['what-changed', 'tutorial', 'tools', 'deep-dive'].includes(b.topic)
         ? b.topic : 'what-changed';
-      const title = 'A test cover for AI Founder University';
+      // A title shaped like a real one. The old test title was "A test cover
+      // for AI Founder University", which told the model the subject was a
+      // cover and handed it two proper nouns, and it duly wrote them across
+      // the top of the picture.
+      const title = 'Cheaper models, and when cheaper is wrong';
       const cover = await makeCover({ number: 0, title, topic });
       return res.status(200).json({
         ok: true, ...cover, ms: Date.now() - started, topic,
