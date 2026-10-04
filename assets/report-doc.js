@@ -43,6 +43,18 @@
     return isNaN(d) ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
+  /* "29 Sep – 5 Oct": the seven days the report covers. A weekly brief that
+     does not say which week it is cannot be filed, forwarded or come back to. */
+  function weekOf(at) {
+    var end = new Date(at);
+    if (isNaN(end)) return '';
+    var start = new Date(end.getTime() - 6 * 864e5);
+    var sameMonth = start.getMonth() === end.getMonth();
+    var o = { day: 'numeric', month: 'short' };
+    return start.toLocaleDateString(undefined, sameMonth ? { day: 'numeric' } : o) +
+      ' – ' + end.toLocaleDateString(undefined, o);
+  }
+
   /* ---------- where a recommendation goes ---------- */
 
   function hrefFor(r, base) {
@@ -156,6 +168,7 @@
 
     html += '<div class="wr-meta"><span class="wr-no">Report ' + esc(R.number) + '</span>' +
       (R.publishedAt ? '<span class="wr-when">' + esc(when(R.publishedAt)) + '</span>' : '') +
+      (R.publishedAt ? '<span class="wr-when">· week of ' + esc(weekOf(R.publishedAt)) + '</span>' : '') +
       '<span class="wr-when">· ' + esc(TOPIC[R.topic] || 'Report') + '</span>' +
       (o.interactive === false ? ''
         : '<button class="wr-pdf" type="button" data-wr-pdf ' +
@@ -179,6 +192,19 @@
     if (list(R.items).length) {
       html += '<h2 class="s">What changed</h2>';
       list(R.items).forEach(function (it) { html += item(it, base); });
+    }
+
+    /* The rest of the week, one line each. These earn a mention and not a
+       section: an announcement with no price, no availability and nothing to
+       do about it does not need three headings over it. */
+    if (list(R.alsoAnnounced).length) {
+      html += '<div class="wr-also"><h2>Also announced</h2><ul>' +
+        list(R.alsoAnnounced).map(function (a) {
+          var url = safe(a.url);
+          return '<li>' + esc(a.line) +
+            (url ? ' <a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer nofollow">' +
+              esc(a.sourceName || 'Source') + ' ↗</a>' : '') + '</li>';
+        }).join('') + '</ul></div>';
     }
 
     var t = R.tutorial || {};
@@ -206,8 +232,12 @@
         '</div>';
     }
 
+    /* "Sources". It used to say "Every claim above links to its source",
+       which is a promise made in the voice of somebody expecting to be
+       doubted - and one the page cannot keep anyway once an item is taken
+       down. The list is the evidence; it does not need announcing. */
     if (list(R.sources).length) {
-      html += '<div class="wr-sources"><h3>Every claim above links to its source</h3><ol>' +
+      html += '<div class="wr-sources"><h3>Sources</h3><ol>' +
         list(R.sources).map(function (s) {
           var url = safe(s.url);
           return '<li>' + (url
@@ -217,9 +247,7 @@
         }).join('') + '</ol></div>';
     }
 
-    html += '<p class="wr-foot">' + esc(o.foot ||
-      'Written for AI Founder University members. Nothing here is republished — every item is our own words and a link.') +
-      '</p>';
+    if (o.foot) html += '<p class="wr-foot">' + esc(o.foot) + '</p>';
     return html + '</div>';
   }
 
