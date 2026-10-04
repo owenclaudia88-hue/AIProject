@@ -78,18 +78,35 @@
 
 .wr h2.s{margin:34px 0 14px;font-size:1.18rem;font-weight:800;letter-spacing:-.02em}
 
-.wr-item{border-top:1px solid var(--line);padding:18px 0}
-.wr-item:first-of-type{border-top:0;padding-top:2px}
-.wr-item h3{margin:0 0 7px;font-size:1.02rem;font-weight:700;line-height:1.45}
-.wr-item .src{display:inline-flex;align-items:center;gap:6px;margin:0 0 8px;font-family:var(--mono);
-  font-size:.68rem;color:var(--txt-3);text-decoration:none}
-.wr-item .src:hover{color:var(--accent-2)}
-.wr-item p{margin:0 0 9px;color:var(--txt-2);font-size:.94rem;line-height:1.7;max-width:66ch}
-.wr-item .why{color:var(--txt-2)}
-.wr-item .act{display:flex;gap:10px;align-items:flex-start;background:rgba(52,211,153,.07);
-  border:1px solid rgba(52,211,153,.22);border-radius:11px;padding:11px 14px;margin:11px 0 0}
-.wr-item .act b{color:var(--green);font-weight:700;flex:none;font-size:.85rem}
-.wr-item .act span{color:var(--txt-2);font-size:.9rem;line-height:1.6}
+.wr-item{margin:0 0 30px}
+
+/* Their card. Boxed and tinted so it reads as somebody else's page quoted on
+   ours, rather than as our own writing with a picture above it. */
+.wr-src{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.wr-shot{aspect-ratio:16/9;background:var(--bg-4);overflow:hidden}
+.wr-shot img{width:100%;height:100%;object-fit:cover;display:block}
+.wr-srcb{padding:15px 18px 17px}
+.wr-srcm{display:flex;align-items:center;gap:9px;margin:0 0 7px;font-family:var(--mono);font-size:.68rem}
+.wr-srcm .nm{color:var(--accent-2)}
+.wr-srcm .dt{color:var(--txt-3)}
+.wr-src h3{margin:0 0 12px;font-size:1.06rem;font-weight:700;line-height:1.45;letter-spacing:-.01em}
+.wr-read{display:inline-flex;align-items:center;gap:7px;background:var(--bg-4);border:1px solid var(--line-2);
+  border-radius:10px;padding:8px 14px;font-size:.84rem;color:var(--txt-2);text-decoration:none;
+  transition:border-color .15s,color .15s}
+.wr-read:hover{border-color:rgba(255,122,26,.5);color:var(--txt)}
+
+/* Our writing. Indented off a rule so the eye can tell at a glance which words
+   are ours and which are the publisher's. */
+.wr-ours{padding:16px 0 0 18px;margin:0 0 0 4px;border-left:2px solid var(--line-2)}
+.wr-ours h4{margin:0 0 5px;font-family:var(--mono);font-size:.68rem;font-weight:400;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--txt-3)}
+.wr-ours h4 + p{margin-top:0}
+.wr-ours p{margin:0 0 15px;color:var(--txt-2);font-size:.94rem;line-height:1.7;max-width:66ch}
+.wr-ours p:last-child{margin-bottom:0}
+.wr-how{margin:0 0 4px;padding:0 0 0 20px;color:var(--txt-2);font-size:.93rem;line-height:1.7}
+.wr-how li{margin:0 0 6px;padding-left:3px}
+.wr-how li::marker{color:var(--accent-2);font-family:var(--mono);font-size:.82rem}
+.wr-links.wr-inline{margin-top:12px}
 
 .wr-tut{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin:30px 0 0}
 .wr-tut h2{margin:0 0 8px;font-size:1.12rem;font-weight:800;letter-spacing:-.02em}

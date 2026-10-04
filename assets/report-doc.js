@@ -84,6 +84,62 @@
     }).join('') + '</div>';
   }
 
+  /* ---------- one item: their card, then our writing ---------- */
+
+  /**
+   * The source card is theirs and is marked as theirs.
+   *
+   * Their picture, their headline, their name, their date, and a button back
+   * to them. The picture is hotlinked from their own server and is never
+   * copied here, so it is also referrerpolicy'd honestly and left to fail
+   * quietly: an item whose publisher offers no picture, or whose picture has
+   * since been taken down, is a card with no picture rather than a card with
+   * something of ours standing in for one.
+   */
+  function sourceCard(it) {
+    var url = safe(it.url);
+    var img = it.image && safe(it.image.url);
+    var name = esc(it.sourceName || 'Source');
+
+    return '<div class="wr-src">' +
+      (img
+        ? '<div class="wr-shot"><img src="' + esc(img) + '" alt="' + esc((it.image && it.image.alt) || '') +
+          '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" ' +
+          'onerror="this.closest(\'.wr-shot\').remove()"></div>'
+        : '') +
+      '<div class="wr-srcb">' +
+        '<div class="wr-srcm"><span class="nm">' + name + '</span>' +
+          (it.publishedAt ? '<span class="dt">' + esc(when(it.publishedAt)) + '</span>' : '') + '</div>' +
+        '<h3>' + esc(it.headline) + '</h3>' +
+        (url
+          ? '<a class="wr-read" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer nofollow">' +
+            'Read more at ' + name + ' ↗</a>'
+          : '') +
+      '</div></div>';
+  }
+
+  function item(it, base) {
+    var html = '<div class="wr-item">' + sourceCard(it) + '<div class="wr-ours">';
+
+    if (has(it.what)) html += '<h4>What happened</h4><p>' + esc(it.what) + '</p>';
+    if (has(it.why)) html += '<h4>Why it matters for entrepreneurs</h4><p>' + esc(it.why) + '</p>';
+
+    if (list(it.steps).length) {
+      html += '<h4>How to use it</h4><ol class="wr-how">' +
+        list(it.steps).map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>';
+    }
+
+    if (list(it.resources).length) {
+      html += '<div class="wr-links wr-inline">' + list(it.resources).map(function (r) {
+        return '<a href="' + esc(hrefFor(r, base)) + '">' +
+          '<span class="k">' + esc(typeLabel(r)) + '</span>' +
+          '<span class="n">' + esc(r.title || r.id) + '</span></a>';
+      }).join('') + '</div>';
+    }
+
+    return html + '</div></div>';
+  }
+
   /* ---------- one report ---------- */
 
   function render(R, opts) {
@@ -122,18 +178,7 @@
 
     if (list(R.items).length) {
       html += '<h2 class="s">What changed</h2>';
-      list(R.items).forEach(function (it) {
-        var url = safe(it.url);
-        html += '<div class="wr-item"><h3>' + esc(it.headline) + '</h3>' +
-          (url
-            ? '<a class="src" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer nofollow">' +
-              esc(it.sourceName || 'Source') + ' ↗</a>'
-            : '<span class="src">' + esc(it.sourceName || 'Source') + '</span>') +
-          (has(it.what) ? '<p>' + esc(it.what) + '</p>' : '') +
-          (has(it.why) ? '<p class="why">' + esc(it.why) + '</p>' : '') +
-          (has(it.act) ? '<div class="act"><b>Do this</b><span>' + esc(it.act) + '</span></div>' : '') +
-          '</div>';
-      });
+      list(R.items).forEach(function (it) { html += item(it, base); });
     }
 
     var t = R.tutorial || {};
