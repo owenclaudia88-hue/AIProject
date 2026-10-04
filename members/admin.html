@@ -2214,7 +2214,10 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     }
 
     if (rp.dry) {
-      h += '<div class="rm-dry"><div class="h"><b>Dry run — not stored, not sent</b>' +
+      // A held run is stored; only a dry one is not. Saying "not stored" over
+      // a report that is sitting in the table is how report 1 came to be a
+      // husk nobody knew was there.
+      h += '<div class="rm-dry"><div class="h"><b>' + esc(rp.dryLabel || 'Dry run — not stored, not sent') + '</b>' +
         '<button data-drydrop="1">Dismiss</button></div>' +
         '<div class="rm-prev" id="rp-dry"></div></div>';
     }
@@ -2320,14 +2323,18 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
               // A held report was still built. It is the most useful thing to
               // read, because it is the one something is wrong with.
               if (d.report) rp.dry = withMeta(d.report, d.number);
+              rp.dryLabel = dry
+                ? 'Held — nothing was stored, because this was a dry run'
+                : 'Held — stored as report ' + d.number + ', not published, not sent';
             } else if (d.dry) {
               say('Dry run built report ' + d.number + ': "' + (d.report && d.report.title) +
                 '", ' + ((d.report && d.report.items || []).length) + ' items, ' +
                 ((d.cut || []).length) + ' cut by the fact check. Nothing was stored.');
               if (d.report) rp.dry = withMeta(d.report, d.number);
+              rp.dryLabel = 'Dry run — not stored, not sent';
             } else {
               say('Published report ' + d.number + ', emailed ' + (d.emailed || 0) + '.');
-              rp.dry = null;
+              rp.dry = null; rp.dryLabel = '';
             }
             rp.list = null;
             loadReportsAdmin().then(function () { paintReports(document.getElementById('panel')); });
