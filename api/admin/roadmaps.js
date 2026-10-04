@@ -22,7 +22,8 @@ import { answersAsText } from '../../lib/roadmap.js';
 import {
   buildCatalogue, buildPrompt, callClaude, parseJson, validate, MODEL
 } from '../../lib/roadmap-generate.js';
-import { sendRoadmapReady } from '../../lib/email.js';
+import { sendRoadmapReady, sendRoadmapNote } from '../../lib/email.js';
+import { sanitizeHtml, htmlIsEmpty } from '../../lib/sanitize-html.js';
 
 export default async function handler(req, res) {
   const email = await sessionEmail(req);
@@ -107,11 +108,21 @@ export default async function handler(req, res) {
     if (typeof b.note === 'string') {
       const row = await roadmapById(id);
       if (!row) return res.status(404).json({ error: 'not found' });
-      const note = await addRoadmapNote({ roadmapId: id, email, isAdmin: true, body: b.note });
+      // Written in the same editor the member has, so sanitised the same way.
+      // Staff markup is not trusted markup: this reaches somebody's inbox.
+      const clean = sanitizeHtml(b.note, { maxLength: 4000 });
+      if (htmlIsEmpty(clean)) return res.status(400).json({ error: 'empty' });
+      const note = await addRoadmapNote({ roadmapId: id, email, isAdmin: true, body: clean });
       if (!note) return res.status(400).json({ error: 'empty' });
-      // Same bell as the roadmap itself. A reply nobody is told about is a
-      // reply nobody reads.
+      // Same bell as the roadmap itself. A comment nobody is told about is a
+      // comment nobody reads.
       await notifyRoadmapReply(row.email, row.published?.goal || row.draft?.goal || null);
+      // And an email, for the same reason the roadmap itself gets one: the
+      // bell is only seen by somebody who was coming back anyway. Never let a
+      // failed send lose the comment - it is under their roadmap either way.
+      const customer = await getCustomer(row.email);
+      sendRoadmapNote(row.email, { name: customer?.name || row.name, body: note.body })
+        .catch((err) => console.error('[admin/roadmaps] note email', err?.message || err));
       const notes = await listRoadmapNotes(id);
       return res.status(200).json({
         ok: true,

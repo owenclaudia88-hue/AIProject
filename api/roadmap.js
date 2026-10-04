@@ -15,6 +15,7 @@ import { isAdmin } from '../lib/admin.js';
 import { isTester } from '../lib/testers.js';
 import { MEMBERSHIP_ONLY } from '../lib/products.js';
 import { formSpec, cleanAnswers, missing, FIELD_BY_KEY } from '../lib/roadmap.js';
+import { sanitizeHtml, htmlIsEmpty } from '../lib/sanitize-html.js';
 
 export default async function handler(req, res) {
   const email = await sessionEmail(req);
@@ -58,8 +59,12 @@ export default async function handler(req, res) {
       if (typeof b.note === 'string') {
         const mine = await roadmapFor(email);
         if (!mine) return res.status(400).json({ error: 'no roadmap' });
-        const body = b.note.trim();
-        if (!body) return res.status(400).json({ error: 'empty' });
+        if (b.note.length > 16000) return res.status(400).json({ error: 'that is too long' });
+        // The same editor as the community, so the same sanitiser: this is
+        // member-written HTML, and it is rebuilt from its parsed nodes rather
+        // than filtered as a string.
+        const body = sanitizeHtml(b.note, { maxLength: 4000 });
+        if (htmlIsEmpty(body)) return res.status(400).json({ error: 'empty' });
         // Written against their own roadmap by definition: the id comes from
         // their session, never from the request.
         await addRoadmapNote({ roadmapId: mine.id, email, body });

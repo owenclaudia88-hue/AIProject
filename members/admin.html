@@ -177,11 +177,21 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .rm-n .w{display:flex;align-items:baseline;gap:9px;margin:0 0 5px;font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
 .rm-n.team .w b{color:var(--accent-2)}
 .rm-n p{margin:0;font-size:.9rem;line-height:1.65;color:var(--txt-2);overflow-wrap:anywhere}
-.rm-reply{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
-.rm-reply textarea{flex:1;min-width:min(100%,240px);background:var(--bg-3);border:1px solid var(--line-2);
-  color:var(--txt);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.9rem;line-height:1.6;
-  resize:vertical;min-height:70px}
-.rm-reply textarea:focus{outline:none;border-color:var(--accent)}
+.rm-n .rt-body{font-size:.9rem;line-height:1.65;color:var(--txt-2);overflow-wrap:anywhere}
+.rm-n .rt-body p{margin:0 0 9px}
+.rm-n .rt-body p:last-child{margin-bottom:0}
+.rm-n .rt-body ul,.rm-n .rt-body ol{margin:7px 0;padding-left:21px}
+.rm-n .rt-body a{color:var(--accent-2)}
+.rm-n .rt-body b,.rm-n .rt-body strong{color:var(--txt)}
+.rm-reply{margin:12px 0 0}
+/* Direct child only. As ".rm-reply button" this also styled every button in
+   the editor's own toolbar - which made each one wider than it should be and
+   pushed the emoji button out of the box on a phone. */
+.rm-reply > button{margin-top:10px;background:rgba(255,122,26,.16);border:1px solid rgba(255,122,26,.42);
+  color:#ffd9b3;border-radius:999px;min-height:40px;padding:0 18px;font-family:var(--mono);
+  font-size:.76rem;cursor:pointer}
+.rm-reply > button:hover:not(:disabled){border-color:var(--accent)}
+.rm-reply > button:disabled{opacity:.55;cursor:default}
 .rmq .nq{flex:none;font-family:var(--mono);font-size:.62rem;font-weight:700;padding:3px 9px;
   border-radius:999px;background:rgba(147,197,253,.14);border:1px solid rgba(147,197,253,.4);color:#93c5fd}
 
@@ -1933,6 +1943,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
    * asking whether twenty sales a month is realistic is quoting their own
    * revenue plan, and the person who can answer is the one looking at it.
    */
+  // One live editor per open roadmap, kept so the send handler can read it.
+  var rmEditors = {};
+
   function paintNotes(id, notes) {
     var host = document.getElementById('rm-notes-' + id);
     if (!host) return;
@@ -1943,12 +1956,19 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             return '<div class="rm-n' + (n.fromMember ? '' : ' team') + '">' +
               '<div class="w"><b>' + (n.fromMember ? 'Member' : 'You') + '</b>' +
               esc(new Date(n.createdAt).toLocaleString()) + '</div>' +
-              '<p>' + esc(n.body).replace(/\n/g, '<br>') + '</p></div>';
+              '<div class="rt-body">' + window.rtSanitize(n.body || '') + '</div></div>';
           }).join('')
-        : '<p class="rm-note">Nothing asked yet.</p>') +
-      '<div class="rm-reply"><textarea id="rm-reply-' + id + '" ' +
-        'placeholder="Answer the member. They get this in their bell and under their roadmap."></textarea>' +
-        '<button data-reply="' + id + '">Send reply</button></div>';
+        : '<p class="rm-note">Nothing here yet.</p>') +
+      '<div class="rm-reply"><div id="rm-reply-' + id + '"></div>' +
+        '<button data-reply="' + id + '">Send</button></div>' +
+      '<p class="rm-note">They get this by email, in their bell, and under their roadmap.</p>';
+
+    // The same editor the member writes in, so what is typed here and what
+    // arrives there cannot drift apart.
+    if (window.rtMount) {
+      rmEditors[id] = window.rtMount(document.getElementById('rm-reply-' + id),
+        { placeholder: 'Write to the member…' });
+    }
   }
 
   /**
@@ -1979,21 +1999,20 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       e.stopPropagation();
 
       if (b.hasAttribute('data-reply')) {
-        var box = host.querySelector('#rm-reply-' + id);
-        var text = box.value.trim();
-        if (!text) { box.focus(); return; }
+        var ed = rmEditors[id];
+        if (!ed || ed.isEmpty()) { if (ed) ed.focus(); return; }
         b.disabled = true;
         msg.textContent = 'Sending…';
         fetch('/api/admin/roadmaps', {
           method: 'POST', credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: id, note: text })
+          body: JSON.stringify({ id: id, note: ed.html() })
         })
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (j) {
             b.disabled = false;
             if (!j) { msg.textContent = 'That did not send.'; return; }
-            msg.textContent = 'Replied — the member has been notified.';
+            msg.textContent = 'Sent — the member has been emailed and it is in their bell.';
             paintNotes(id, j.notes || []);
           })
           .catch(function () { b.disabled = false; msg.textContent = 'Network error.'; });

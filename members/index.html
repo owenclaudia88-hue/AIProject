@@ -844,17 +844,27 @@ button{font-family:inherit}
 .rm-note .h b{font-size:.9rem;font-weight:700}
 .rm-note.team .h b{color:var(--accent-2)}
 .rm-note .h span{font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
-.rm-note p{margin:0;color:var(--txt-2);font-size:.94rem;line-height:1.7;overflow-wrap:anywhere}
-.rm-ask{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
-.rm-ask textarea{flex:1;min-width:min(100%,260px);background:var(--bg-3);border:1px solid var(--line-2);
-  color:var(--txt);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:.94rem;
-  line-height:1.6;resize:vertical}
-.rm-ask textarea:focus{outline:none;border-color:var(--accent)}
+/* Written in the same editor as everything else here, so it renders the same:
+   bold, lists, links, code and emoji. */
+.rt-body{color:var(--txt-2);font-size:.94rem;line-height:1.7;overflow-wrap:anywhere}
+.rt-body p{margin:0 0 10px}
+.rt-body p:last-child{margin-bottom:0}
+.rt-body ul,.rt-body ol{margin:8px 0;padding-left:22px}
+.rt-body a{color:var(--accent-2)}
+.rt-body code{background:var(--bg-4);border:1px solid var(--line);border-radius:5px;padding:1px 5px;
+  font-family:var(--mono);font-size:.86em}
+.rt-body pre{background:var(--bg-4);border:1px solid var(--line);border-radius:9px;padding:11px 13px;
+  overflow-x:auto;font-family:var(--mono);font-size:.84em}
+.rt-body b,.rt-body strong{color:var(--txt)}
+
+.rm-ask{margin:0}
+.rm-ask-go{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 0}
 .rm-send{flex:none;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;
-  border:0;border-radius:12px;min-height:46px;padding:0 22px;font-family:inherit;font-weight:800;
+  border:0;border-radius:12px;min-height:46px;padding:0 24px;font-family:inherit;font-weight:800;
   font-size:.92rem;cursor:pointer}
 .rm-send:disabled{opacity:.6;cursor:default}
-.rm-note-msg{width:100%;font-size:.84rem;color:var(--txt-3)}
+.rm-note-msg{font-size:.84rem;color:var(--txt-3)}
+@media (max-width:640px){.rm-send{width:100%}}
 @media print{.rm-notes{display:none!important}}
 
 /* The roadmap document itself is styled in assets/roadmap-doc.css, which the
@@ -2299,7 +2309,10 @@ button{font-family:inherit}
         what = '<p>Your <b>personalised AI roadmap</b> is ready' +
           (n.title ? ' — ' + esc(n.title) : '') + '</p>';
       } else if (n.kind === 'roadmap_reply') {
-        what = '<p><b>' + esc(n.actor) + '</b> answered your question about your roadmap</p>';
+        // Not "answered your question": the team writes under a roadmap
+        // unprompted as well, and this said somebody had asked one when
+        // nobody had.
+        what = '<p><b>' + esc(n.actor) + '</b> commented on your <b>AI roadmap</b></p>';
       } else {
         what = '<p><b>' + esc(n.actor) + '</b> replied' +
           (n.title ? ' to <b>' + esc(n.title) + '</b>' : ' to your post') + '</p>';
@@ -2647,35 +2660,40 @@ button{font-family:inherit}
         ? '<div class="rm-thread">' + notes.map(function (n) {
             return '<div class="rm-note' + (n.mine ? '' : ' team') + '">' +
               '<div class="h"><b>' + esc(n.author) + '</b><span>' + esc(ago(n.createdAt)) + '</span></div>' +
-              '<p>' + esc(n.body).replace(/\n/g, '<br>') + '</p></div>';
+              // Sanitised again on the way out, as everything written in the
+              // editor is: stored safe is not the same as rendered safe.
+              '<div class="rt-body">' + window.rtSanitize(n.body || '') + '</div></div>';
           }).join('') + '</div>'
         : '') +
-      '<div class="rm-ask"><textarea id="rm-note" rows="3" maxlength="4000" ' +
-        'placeholder="Ask a question, or tell us what does not fit"></textarea>' +
-        '<button class="rm-send" id="rm-note-send" type="button">Send</button>' +
-        '<span class="rm-note-msg" id="rm-note-msg"></span></div></section>';
+      '<div class="rm-ask"><div id="rm-note-rt"></div>' +
+        '<div class="rm-ask-go"><button class="rm-send" id="rm-note-send" type="button">Send</button>' +
+        '<span class="rm-note-msg" id="rm-note-msg"></span></div></div></section>';
   }
 
   function wireRoadmapNotes(host) {
-    var box = host.querySelector('#rm-note');
     var btn = host.querySelector('#rm-note-send');
     var msg = host.querySelector('#rm-note-msg');
-    if (!btn) return;
+    var mount = host.querySelector('#rm-note-rt');
+    if (!btn || !mount || !window.rtMount) return;
+
+    // The same editor as the community and the lesson comments, mounted again
+    // rather than a plain box that looks like it: bold, lists, links, emoji.
+    var rt = window.rtMount(mount, { placeholder: 'Ask a question, or tell us what does not fit' });
+
     btn.addEventListener('click', function () {
-      var body = box.value.trim();
-      if (!body) { box.focus(); return; }
+      if (rt.isEmpty()) { rt.focus(); return; }
       btn.disabled = true; msg.textContent = 'Sending…';
       fetch('/api/roadmap', {
         method: 'POST', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: body })
+        body: JSON.stringify({ note: rt.html() })
       })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
           btn.disabled = false;
           if (!d) { msg.textContent = 'That did not send. Try again.'; return; }
           rm.notes = d.notes || [];
-          box.value = '';
+          rt.clear();
           msg.textContent = '';
           // Repainted rather than appended, so the thread on screen is the
           // thread on the server.
