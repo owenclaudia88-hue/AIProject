@@ -130,8 +130,20 @@
       '</div></div>';
   }
 
+  /* What this item is, said out loud. A spotlight on a two-month-old tool and
+     a follow-up on an older story both belong in a thin week; what neither may
+     do is sit unlabelled beside a Tuesday announcement and read as one. */
+  var KIND = {
+    news: { t: 'This week’s news', c: 'k-news' },
+    spotlight: { t: 'Tool spotlight', c: 'k-spot' },
+    deeper: { t: 'Deeper look', c: 'k-deep' }
+  };
+
   function item(it, base) {
-    var html = '<div class="wr-item">' + sourceCard(it) + '<div class="wr-ours">';
+    var k = KIND[it.kind] || KIND.news;
+    var html = '<div class="wr-item">' + sourceCard(it) +
+      '<span class="wr-kind ' + k.c + '">' + esc(k.t) + '</span>' +
+      '<div class="wr-ours">';
 
     if (has(it.what)) html += '<h4>What happened</h4><p>' + esc(it.what) + '</p>';
     if (has(it.why)) html += '<h4>Why it matters for entrepreneurs</h4><p>' + esc(it.why) + '</p>';

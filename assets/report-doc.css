@@ -101,6 +101,12 @@
   transition:border-color .15s,color .15s}
 .wr-read:hover{border-color:rgba(255,122,26,.5);color:var(--txt)}
 
+.wr-kind{display:inline-block;margin:13px 0 0;font-family:var(--mono);font-size:.62rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.09em;border-radius:999px;padding:4px 11px;
+  background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-3)}
+.wr-kind.k-spot{color:var(--accent-2);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
+.wr-kind.k-deep{color:var(--green);border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.07)}
+
 /* Our writing. Indented off a rule so the eye can tell at a glance which words
    are ours and which are the publisher's. */
 .wr-ours{padding:16px 0 0 18px;margin:0 0 0 4px;border-left:2px solid var(--line-2)}
