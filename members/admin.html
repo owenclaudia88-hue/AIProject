@@ -233,6 +233,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   border-top:1px solid var(--line);padding:13px 0}
 .rm-srow .t{min-width:min(100%,260px);flex:1}
 .rm-srow .t b{display:block;font-family:var(--mono);font-size:.72rem;color:var(--accent-2);margin-bottom:3px}
+.rm-srow .t b i{color:var(--txt-3);font-style:normal}
 .rm-srow .t span{display:block;font-size:.88rem;line-height:1.5;margin-bottom:4px}
 .rm-srow .t a{display:block;font-family:var(--mono);font-size:.68rem;color:var(--txt-3);word-break:break-all}
 .rm-srow .t em{display:block;margin-top:3px;font-family:var(--mono);font-size:.66rem;color:var(--txt-3);
@@ -2358,7 +2359,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       'If one asks, take the picture or the whole item off here — it is live immediately.</p>' +
       items.map(function (it) {
         return '<div class="rm-srow">' +
-          '<div class="t"><b>' + esc(it.sourceName || '') + '</b>' +
+          '<div class="t"><b>' + esc(it.sourceName || '') +
+            (it.via ? ' <i>found via ' + esc(it.via) + '</i>' : '') + '</b>' +
             '<span>' + esc(it.headline || '') + '</span>' +
             '<a href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer nofollow">' +
               esc(it.url.slice(0, 68)) + '</a>' +
