@@ -14,7 +14,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
 import { listReports, reportByNumber, saveReport } from '../../lib/db.js';
-import { makeCover, coverPrompt } from '../../lib/report-cover.js';
+import { makeCover } from '../../lib/report-cover.js';
 import { SOURCES } from '../../lib/report-sources.js';
 
 export default async function handler(req, res) {
@@ -35,7 +35,6 @@ export default async function handler(req, res) {
         reports: rows.map((r) => shape(r, false)),
         // So the screen can say why a button will not work before it is pressed.
         canRun: !!process.env.ANTHROPIC_API_KEY && !!process.env.CRON_SECRET,
-        hasImageKey: !!(process.env.HIGGSFIELD_API_KEY || process.env.HIGGSFIELD_KEY_ID),
         sources: SOURCES.map((s) => ({ key: s.key, name: s.name }))
       });
     }
@@ -43,33 +42,10 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'GET or POST' });
     const b = typeof req.body === 'string' ? safeJson(req.body) : (req.body ?? {});
 
-    /* ---- one cover, to prove the key ---- */
-    if (b.testCover) {
-      const started = Date.now();
-      // Any of the four, so the series can be judged rather than one of it.
-      const topic = ['what-changed', 'tutorial', 'tools', 'deep-dive'].includes(b.topic)
-        ? b.topic : 'what-changed';
-      // A title shaped like a real one. The old test title was "A test cover
-      // for AI Founder University", which told the model the subject was a
-      // cover and handed it two proper nouns, and it duly wrote them across
-      // the top of the picture.
-      const title = 'Cheaper models, and when cheaper is wrong';
-      const cover = await makeCover({ number: 0, title, topic });
-      return res.status(200).json({
-        ok: true, ...cover, ms: Date.now() - started, topic,
-        // What Soul was actually asked. A cover that comes back wrong is a
-        // prompt problem nine times in ten, and guessing at the prompt from
-        // the picture is how the last one took three attempts.
-        prompt: coverPrompt(title, topic),
-        // "drawn" when there is no usable key, or when generation did not
-        // finish - either way the report would still have gone out.
-        note: cover.kind === 'higgsfield'
-          ? 'Higgsfield answered and the image is in your blob store.'
-          : cover.kind === 'drawn'
-            ? 'Fell back to the drawn cover. ' + (cover.reason || 'Higgsfield did not answer.')
-            : 'Neither cover could be stored at all — that is the blob store, not Higgsfield. ' + (cover.reason || '')
-      });
-    }
+    /* The test-cover button lived here. It existed to prove an image key
+       worked; there is no image service any more, so there is no key to
+       prove. The shelf cover is drawn in-process and cannot fail in a way a
+       button would discover. */
 
     /* ---- run the pipeline now ---- */
     if (b.run) {
