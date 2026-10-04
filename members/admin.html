@@ -2151,6 +2151,16 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       '<button class="go" data-run="1"' + (rp.canRun ? '' : ' disabled') + '>▶ Run this week’s report now</button>' +
       '<button data-dry="1"' + (rp.canRun ? '' : ' disabled') + '>Dry run — build it, store nothing</button>' +
       '<button data-cover="1">🖼 Test the cover image</button>' +
+      // Four subjects, one per topic, so the series can be judged rather than
+      // one corner of it. Each press is a real generation and a real credit.
+      '<select id="rp-topic" title="Which subject to test" ' +
+        'style="background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);' +
+        'border-radius:9px;padding:0 10px;font:inherit;font-size:.82rem">' +
+        '<option value="what-changed">What changed</option>' +
+        '<option value="tutorial">Tutorial</option>' +
+        '<option value="tools">Tools</option>' +
+        '<option value="deep-dive">Deep dive</option>' +
+      '</select>' +
       '</div>' +
       '<p class="rm-note" id="rp-msg">' + esc(rp.msg || (rp.hasImageKey
         ? 'Higgsfield key is set. Covers are generated; the drawn one is the fallback.'
@@ -2194,9 +2204,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       if (b.hasAttribute('data-cover')) {
         e.stopPropagation();
         b.disabled = true; msg.textContent = 'Asking for one cover… this can take a minute.';
+        var topicSel = p.querySelector('#rp-topic');
         fetch('/api/admin/reports', {
           method: 'POST', credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' }, body: '{"testCover":true}'
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ testCover: true, topic: topicSel ? topicSel.value : 'what-changed' })
         })
           .then(function (r) { return r.json().then(function (j) { return { status: r.status, d: j }; }); })
           .then(function (out) {
@@ -2210,9 +2222,21 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
               return;
             }
             msg.innerHTML = esc(d.note || '') + ' <span style="opacity:.7">(' + esc(d.kind || '?') + ', ' +
-              Math.round((d.ms || 0) / 100) / 10 + 's)</span>' +
+              esc(d.topic || '') + ', ' + Math.round((d.ms || 0) / 100) / 10 + 's)</span>' +
               '<br><img src="' + esc(d.url) + '" alt="" style="margin-top:10px;max-width:420px;' +
-                'width:100%;border-radius:10px;border:1px solid var(--line)">';
+                'width:100%;border-radius:10px;border:1px solid var(--line)">' +
+              // The cover is cropped to this on the shelf and above the report,
+              // so it is worth seeing what survives before judging the picture.
+              '<br><span style="display:inline-block;margin-top:4px;font-size:.72rem;opacity:.6">' +
+                'Below: the same image cropped the way the shelf crops it.</span>' +
+              '<br><span style="display:inline-block;margin-top:6px;width:100%;max-width:420px;' +
+                'aspect-ratio:1200/480;border-radius:10px;border:1px solid var(--line);overflow:hidden">' +
+                '<img src="' + esc(d.url) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block"></span>' +
+              (d.prompt
+                ? '<details style="margin-top:10px"><summary style="cursor:pointer;font-size:.78rem;opacity:.7">' +
+                  'What Soul was asked for</summary><pre style="white-space:pre-wrap;font-size:.74rem;' +
+                  'line-height:1.6;opacity:.8;margin:8px 0 0">' + esc(d.prompt) + '</pre></details>'
+                : '');
           })
           .catch(function (err) {
             b.disabled = false;

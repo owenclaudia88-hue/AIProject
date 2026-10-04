@@ -14,7 +14,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
 import { listReports, reportByNumber, saveReport } from '../../lib/db.js';
-import { makeCover } from '../../lib/report-cover.js';
+import { makeCover, coverPrompt } from '../../lib/report-cover.js';
 import { SOURCES } from '../../lib/report-sources.js';
 
 export default async function handler(req, res) {
@@ -46,11 +46,17 @@ export default async function handler(req, res) {
     /* ---- one cover, to prove the key ---- */
     if (b.testCover) {
       const started = Date.now();
-      const cover = await makeCover({
-        number: 0, title: 'A test cover for AI Founder University', topic: 'what-changed'
-      });
+      // Any of the four, so the series can be judged rather than one of it.
+      const topic = ['what-changed', 'tutorial', 'tools', 'deep-dive'].includes(b.topic)
+        ? b.topic : 'what-changed';
+      const title = 'A test cover for AI Founder University';
+      const cover = await makeCover({ number: 0, title, topic });
       return res.status(200).json({
-        ok: true, ...cover, ms: Date.now() - started,
+        ok: true, ...cover, ms: Date.now() - started, topic,
+        // What Soul was actually asked. A cover that comes back wrong is a
+        // prompt problem nine times in ten, and guessing at the prompt from
+        // the picture is how the last one took three attempts.
+        prompt: coverPrompt(title, topic),
         // "drawn" when there is no usable key, or when generation did not
         // finish - either way the report would still have gone out.
         note: cover.kind === 'higgsfield'
