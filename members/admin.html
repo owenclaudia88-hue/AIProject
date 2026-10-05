@@ -398,6 +398,29 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 #staff-signin button.quiet:hover{border-color:var(--accent);color:var(--accent-2)}
 #staff-signin .note{margin-top:14px;font-size:.85rem;color:var(--txt-2);line-height:1.5}
 
+/* ---------- what the weekly writer made ---------- */
+.dr-note{margin:0 0 16px;color:var(--txt-2);font-size:.88rem;line-height:1.6;max-width:70ch}
+.dr-sec{display:flex;align-items:baseline;gap:9px;margin:24px 0 12px}
+.dr-sec h2{margin:0;font-size:1.02rem;font-weight:800;letter-spacing:-.02em}
+.dr-sec span{font-family:var(--mono);font-size:.72rem;color:var(--txt-3)}
+.dr-row{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 12px}
+.dr-row.held{border-color:rgba(255,176,32,.4)}
+.dr-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dr-h b{font-size:1rem}
+.dr-meta{font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
+.dr-desc{margin:8px 0 0;color:var(--txt-2);font-size:.9rem;line-height:1.6}
+.dr-why{margin:10px 0 0;padding:9px 12px;background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.3);
+  border-radius:9px;color:var(--accent-2);font-size:.84rem;line-height:1.5}
+.dr-acts{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0 0}
+.dr-acts button{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);border-radius:9px;
+  min-height:38px;padding:0 15px;font-family:inherit;font-size:.85rem;cursor:pointer}
+.dr-acts button.go{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;
+  border:0;font-weight:800}
+.dr-acts button:hover{border-color:var(--accent)}
+.dr-acts button.bin:hover{border-color:#d4504a;color:#ff8a84}
+.dr-body{margin:16px 0 0;padding:16px 0 0;border-top:1px solid var(--line);max-height:70vh;overflow:auto}
+@media(max-width:640px){ .dr-acts button{flex:1 1 auto} }
+
 /* ---------- the staff password panel ---------- */
 .pw-card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;
   padding:20px 22px;max-width:520px}
@@ -425,6 +448,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 <link rel="stylesheet" href="../assets/richtext.css">
 <link rel="stylesheet" href="../assets/roadmap-doc.css">
 <link rel="stylesheet" href="../assets/report-doc.css">
+<link rel="stylesheet" href="../assets/guide-doc.css">
 <script src="../assets/emoji.js"></script>
 <script src="../assets/richtext.js"></script>
 <script src="../assets/roadmap-doc.js"></script>
@@ -464,6 +488,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
       <button class="tab" data-tab="roadmaps">Roadmaps<span class="n" id="n-rm"></span></button>
       <button class="tab" data-tab="reports">AI Reports<span class="n" id="n-rp"></span></button>
+      <button class="tab" data-tab="drafts">New tutorials<span class="n" id="n-dr"></span></button>
       <button class="tab" data-tab="community">Community<span class="n" id="n-cm"></span></button>
       <button class="tab" data-tab="projects">Projects<span class="n" id="n-proj"></span></button>
       <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
@@ -608,6 +633,157 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         btn.disabled = false;
       });
   });
+
+  /* ---------------- what the weekly writer made ----------------
+
+     The queue of pieces the Tuesday run wrote, and the only screen in the
+     product where one of them can reach a member. Reading the whole thing
+     before publishing is the entire point, so the body opens in place rather
+     than behind a link somebody will not follow. */
+  var dr = { list: null, recent: [], canRun: false, open: {}, busy: false };
+
+  function drWhen(iso) {
+    var t = iso ? new Date(iso).getTime() : 0;
+    return t ? new Date(t).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+  }
+
+  function drRow(d) {
+    var held = (d.meta && d.meta.held) || [];
+    var body = dr.open[d.id];
+    return '<div class="dr-row' + (held.length ? ' held' : '') + '" data-dr="' + esc(d.id) + '">' +
+      '<div class="dr-h"><b>' + esc(d.title) + '</b>' +
+        '<span class="dr-meta">' + esc(d.category || '') + ' · ' + Math.round((d.size || 0) / 1024) + ' KB · ' +
+        esc(drWhen(d.written_at)) + '</span></div>' +
+      (d.description ? '<p class="dr-desc">' + esc(d.description) + '</p>' : '') +
+      (held.length
+        ? '<p class="dr-why"><b>Held:</b> ' + esc(held.join('; ')) + '. Read it and decide.</p>' : '') +
+      '<div class="dr-acts">' +
+        '<button data-read="' + esc(d.id) + '">' + (body ? 'Close' : 'Read it') + '</button>' +
+        '<button class="go" data-pub="' + esc(d.id) + '">Publish to the library</button>' +
+        '<button class="bin" data-bin="' + esc(d.id) + '">Bin it</button>' +
+      '</div>' +
+      (body ? '<div class="dr-body"><div class="guide">' + body + '</div></div>' : '') +
+    '</div>';
+  }
+
+  function paintDrafts(p) {
+    if (!dr.list) {
+      p.innerHTML = '<p class="empty">Loading…</p>';
+      fetch('/api/admin/drafts', { credentials: 'same-origin' })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          dr.list = res.ok ? (res.d.drafts || []) : [];
+          dr.recent = res.ok ? (res.d.recent || []) : [];
+          dr.canRun = !!(res.ok && res.d.canRun);
+          var n = document.getElementById('n-dr');
+          if (n) n.textContent = dr.list.length || '';
+          if (tab === 'drafts') paintDrafts(document.getElementById('panel'));
+        })
+        .catch(function () { dr.list = []; if (tab === 'drafts') paintDrafts(document.getElementById('panel')); });
+      return;
+    }
+
+    p.innerHTML =
+      (dr.canRun ? '' : '<div class="rm-warn"><b>The writer cannot run.</b> It needs ANTHROPIC_API_KEY and '
+        + 'CRON_SECRET on this deployment. Reading and publishing what is already here works without them.</div>') +
+      '<div class="rm-acts">' +
+        '<button class="go" id="dr-run"' + (dr.canRun ? '' : ' disabled') + '>▶ Write this week’s now</button>' +
+        '<button id="dr-dry"' + (dr.canRun ? '' : ' disabled') + '>Dry run — write nothing down</button>' +
+      '</div>' +
+      '<p class="dr-note">Written on a Tuesday from the week’s news. Nothing here is visible to a member ' +
+        'until you publish it, and a week where none of it is good enough is a week with no new tutorials — ' +
+        'which is a fine outcome. Held pieces are kept rather than thrown away: a near miss is worth editing.</p>' +
+      '<p class="rm-note" id="dr-msg"></p>' +
+      (dr.list.length
+        ? '<div class="dr-sec"><h2>Waiting to be read</h2><span>' + dr.list.length + '</span></div>' +
+          dr.list.map(drRow).join('')
+        : '<p class="empty">Nothing waiting. Press the button above to write this week’s.</p>') +
+      (dr.recent.length
+        ? '<div class="dr-sec"><h2>Published in the last fortnight</h2><span>' + dr.recent.length + '</span></div>' +
+          dr.recent.map(function (r) {
+            return '<div class="dr-row"><div class="dr-h"><b>' + esc(r.title) + '</b>' +
+              '<span class="dr-meta">' + esc(r.category || '') + '</span></div></div>';
+          }).join('')
+        : '');
+
+    function say(t) { var m = document.getElementById('dr-msg'); if (m) m.textContent = t; }
+
+    function act(payload, busyText, then) {
+      if (dr.busy) return;
+      dr.busy = true; say(busyText);
+      fetch('/api/admin/drafts', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) { dr.busy = false; then(res); })
+        .catch(function () { dr.busy = false; say('Could not reach the server.'); });
+    }
+
+    [].forEach.call(p.querySelectorAll('[data-read]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-read');
+        if (dr.open[id]) { delete dr.open[id]; paintDrafts(p); return; }
+        say('Opening…');
+        fetch('/api/admin/drafts?id=' + encodeURIComponent(id), { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            if (d && d.draft) dr.open[id] = d.draft.body_html || '(no body stored)';
+            say('');
+            paintDrafts(p);
+          })
+          .catch(function () { say('Could not open that one.'); });
+      });
+    });
+
+    [].forEach.call(p.querySelectorAll('[data-pub]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-pub');
+        var row = dr.list.filter(function (x) { return x.id === id; })[0];
+        if (!confirm('Publish "' + (row ? row.title : id) + '" to the library?\n\n'
+          + 'Every member with a subscription will see it.')) return;
+        act({ id: id, publish: true }, 'Publishing…', function (res) {
+          if (!res.ok) { say(res.d.error || 'Could not publish that.'); return; }
+          dr.list = null; dr.recent = []; paintDrafts(p);
+        });
+      });
+    });
+
+    [].forEach.call(p.querySelectorAll('[data-bin]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-bin');
+        var row = dr.list.filter(function (x) { return x.id === id; })[0];
+        if (!confirm('Bin "' + (row ? row.title : id) + '"? This cannot be undone.')) return;
+        act({ id: id, discard: true }, 'Binning…', function (res) {
+          if (!res.ok) { say(res.d.error || 'Could not bin that.'); return; }
+          dr.list = null; paintDrafts(p);
+        });
+      });
+    });
+
+    var run = document.getElementById('dr-run');
+    var dry = document.getElementById('dr-dry');
+    function doRun(isDry) {
+      return function () {
+        if (!confirm(isDry
+          ? 'Write this week’s and store nothing? Costs about $0.60 in API usage.'
+          : 'Write this week’s tutorials? Costs about $0.60, and they land here as drafts.')) return;
+        say('Writing… this takes three or four minutes.');
+        act({ run: true, dry: isDry, want: 4 }, 'Writing… this takes three or four minutes.', function (res) {
+          if (!res.ok || res.d.error) { say(res.d.error || res.d.message || 'The run failed.'); return; }
+          var c = res.d.cost || (res.d.stats && res.d.stats.cost) || {};
+          say((isDry ? 'Dry run: ' : '') + 'considered ' + (res.d.considered || (res.d.stats && res.d.stats.considered) || 0)
+            + ', picked ' + (res.d.picked || (res.d.stats && res.d.stats.picked) || 0)
+            + (isDry ? '' : ', written ' + (res.d.written || 0))
+            + ' · $' + Number(c.usd || 0).toFixed(2));
+          if (!isDry) { dr.list = null; paintDrafts(p); }
+        });
+      };
+    }
+    if (run) run.addEventListener('click', doRun(false));
+    if (dry) dry.addEventListener('click', doRun(true));
+  }
 
   /* ---------------- the staff password ----------------
 
@@ -2733,6 +2909,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   function paint() {
     var p = document.getElementById('panel');
     if (tab === 'signin') { paintSignin(p); return; }
+    if (tab === 'drafts') { paintDrafts(p); return; }
     if (tab === 'reports') { paintReports(p); return; }
     if (tab === 'members') { paintMembers(p); return; }
     if (tab === 'leads') { paintLeads(p); return; }
