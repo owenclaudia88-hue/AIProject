@@ -2445,6 +2445,19 @@ button{font-family:inherit}
     window.reportDoc.wire(c, { onOpen: function (n) { location.hash = 'report-' + n; } });
   }
 
+  /**
+   * Which report the view is on, or 0.
+   *
+   * The hash is "report-1" from the shelf and "report-1-the-full-slug" from an
+   * email, and both mean report 1. Comparing the whole string against
+   * "report-" + n was true for one of them and false for the other, so every
+   * link sent by email fetched its report, discarded it as stale, and left
+   * "Loading…" on the screen for ever.
+   */
+  function viewReportNumber() {
+    return view.indexOf('report-') === 0 ? (parseInt(view.slice('report-'.length), 10) || 0) : 0;
+  }
+
   function renderReport(c, n) {
     var cached = rpState.cache[n];
     if (cached) return paintReport(c, cached);
@@ -2452,7 +2465,7 @@ button{font-family:inherit}
     fetch('/api/reports?n=' + encodeURIComponent(n), { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
-        if (view !== 'report-' + n) return;
+        if (viewReportNumber() !== n) return;
         if (!d || !d.report) { c.innerHTML = '<p class="empty">That report is not here.</p>'; return; }
         rpState.cache[n] = d.report;
         paintReport(c, d.report);
