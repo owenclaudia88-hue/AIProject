@@ -2252,6 +2252,15 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       '</div>';
   }
 
+  /* What that run cost at the API, which is the question after a bill arrives.
+     A held run costs the same as a published one, so it is shown either way. */
+  function spend(d) {
+    var c = d && d.stats && d.stats.cost;
+    if (!c || !c.calls) return '';
+    return ' Cost $' + (c.usd || 0).toFixed(2) + ' over ' + c.calls + ' model call' +
+      (c.calls === 1 ? '' : 's') + '.';
+  }
+
   /* Survives a repaint, because the run ends in one. */
   function say(text) {
     rp.msg = text;
@@ -2319,7 +2328,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             // exactly as worth knowing about as a dry one that did.
             rp.cut = d.cut || [];
             if (d.held) {
-              say('Held — ' + (d.fail || []).join('; '));
+              say('Held — ' + (d.fail || []).join('; ') + spend(d));
               // A held report was still built. It is the most useful thing to
               // read, because it is the one something is wrong with.
               if (d.report) rp.dry = withMeta(d.report, d.number);
@@ -2329,11 +2338,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             } else if (d.dry) {
               say('Dry run built report ' + d.number + ': "' + (d.report && d.report.title) +
                 '", ' + ((d.report && d.report.items || []).length) + ' items, ' +
-                ((d.cut || []).length) + ' cut by the fact check. Nothing was stored.');
+                ((d.cut || []).length) + ' cut by the fact check. Nothing was stored.' + spend(d));
               if (d.report) rp.dry = withMeta(d.report, d.number);
               rp.dryLabel = 'Dry run — not stored, not sent';
             } else {
-              say('Published report ' + d.number + ', emailed ' + (d.emailed || 0) + '.');
+              say('Published report ' + d.number + ', emailed ' + (d.emailed || 0) + '.' + spend(d));
               rp.dry = null; rp.dryLabel = '';
             }
             rp.list = null;
@@ -2399,7 +2408,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           (r.fail ? '<div class="rm-warn"><b>Held because:</b> ' + esc((r.fail || []).join('; ')) + '</div>' : '') +
           '<p class="rm-note">' + esc(r.model || '') +
             (r.stats && r.stats.candidates ? ' · ' + r.stats.candidates + ' candidates, ' +
-              (r.stats.picked || '?') + ' picked, ' + (r.stats.published || '?') + ' published' : '') + '</p>' +
+              (r.stats.picked || '?') + ' picked, ' + (r.stats.published || '?') + ' published' : '') +
+            (r.stats && r.stats.cost && r.stats.cost.calls
+              ? ' · cost $' + (r.stats.cost.usd || 0).toFixed(2) + ' over ' +
+                r.stats.cost.calls + ' call' + (r.stats.cost.calls === 1 ? '' : 's')
+              : '') + '</p>' +
           '<div class="rm-acts">' +
             (r.status === 'published'
               ? '<button data-hold="' + n + '">Take it down</button>'
