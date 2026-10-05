@@ -1,6 +1,7 @@
 import { currentSession, createSessionCookie } from '../../lib/session.js';
 import { isActive, setPasswordHash, clearPasswordHash, passwordHashFor, bumpSessionEpoch } from '../../lib/db.js';
 import { hashPassword, verifyPassword, passwordProblem } from '../../lib/passwords.js';
+import { isAdmin } from '../../lib/admin.js';
 
 /**
  * POST /api/auth/set-password  { password }  |  { remove: true }
@@ -16,14 +17,32 @@ import { hashPassword, verifyPassword, passwordProblem } from '../../lib/passwor
  *     borrowed laptop is enough to take the account over.
  */
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+  if (req.method !== 'POST' && req.method !== 'GET') {
+    res.setHeader('Allow', 'GET, POST');
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const session = await currentSession(req);
   if (!session) return res.status(401).json({ error: 'Sign in first.' });
   const { email, method } = session;
+
+  /* GET is the panel asking about itself: is there a password already, and was
+     this session started by a link or by that password - which is what decides
+     whether the old one has to be given. The member area reads the same two
+     facts off /api/me; staff have no member area to read them from, and a
+     second endpoint telling them would be a second place to get it wrong. */
+  if (req.method === 'GET') {
+    try {
+      return res.status(200).json({
+        email, signedInWith: method,
+        hasPassword: !!(await passwordHashFor(email)),
+        isStaff: isAdmin(email)
+      });
+    } catch (err) {
+      console.error('[set-password] status', err);
+      return res.status(500).json({ error: 'Could not read your sign-in settings.' });
+    }
+  }
 
   /* Changing the password signs out everywhere else. The epoch on the customer
      row moves on, which stops every cookie already issued — including the one
@@ -35,7 +54,12 @@ export default async function handler(req, res) {
   };
 
   try {
-    if (!(await isActive(email))) {
+    /* Staff are not customers and never have been, so "is this account active"
+       is a question about a row they do not have. It was answering no and
+       refusing them a password - the one group who most needs to get in
+       without waiting on an inbox. isAdmin is their equivalent of being
+       active: it is the whole of what makes them staff. */
+    if (!isAdmin(email) && !(await isActive(email))) {
       return res.status(403).json({ error: 'This account is not active.' });
     }
 

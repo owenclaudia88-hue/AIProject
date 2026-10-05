@@ -389,7 +389,38 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   color:#1a0d00;border:0;border-radius:10px;padding:13px 16px;font-size:.95rem;font-weight:800;
   font-family:inherit;cursor:pointer}
 #staff-signin button:disabled{opacity:.6;cursor:default}
+#staff-signin input + input{margin-top:10px}
+/* The link is the way in before a password exists, and the way back when one
+   is forgotten, so it stays on the page rather than behind a "trouble signing
+   in?" - but it is not the thing to reach for twice a day. */
+#staff-signin button.quiet{background:none;border:1px solid var(--line);color:var(--txt-2);
+  font-weight:600}
+#staff-signin button.quiet:hover{border-color:var(--accent);color:var(--accent-2)}
 #staff-signin .note{margin-top:14px;font-size:.85rem;color:var(--txt-2);line-height:1.5}
+
+/* ---------- the staff password panel ---------- */
+.pw-card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;
+  padding:20px 22px;max-width:520px}
+.pw-card h2{margin:0 0 6px;font-size:1.05rem}
+.pw-card .sub{margin:0 0 18px;color:var(--txt-2);font-size:.9rem;line-height:1.6}
+.pw-card label{display:block;margin:0 0 6px;font-size:.84rem;color:var(--txt-2)}
+.pw-card input{width:100%;background:var(--bg-3);border:1px solid var(--line);color:var(--txt);
+  border-radius:10px;padding:12px 13px;font-size:.93rem;font-family:inherit;margin:0 0 13px}
+.pw-card input:focus{outline:none;border-color:var(--accent)}
+.pw-card button{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;
+  border:0;border-radius:10px;padding:12px 18px;font-size:.92rem;font-weight:800;
+  font-family:inherit;cursor:pointer;min-height:42px}
+.pw-card button.quiet{background:none;border:1px solid var(--line);color:var(--txt-2);font-weight:600;
+  margin-left:9px}
+.pw-card button.quiet:hover{border-color:#d4504a;color:#ff8a84}
+.pw-card button:disabled{opacity:.6;cursor:default}
+.pw-card .note{margin:15px 0 0;font-size:.87rem;line-height:1.55}
+.pw-card .note.ok{color:var(--green)}
+.pw-card .note.err{color:#ff8a84}
+@media(max-width:640px){
+  .pw-card button{width:100%}
+  .pw-card button.quiet{margin:10px 0 0}
+}
 </style>
 <link rel="stylesheet" href="../assets/richtext.css">
 <link rel="stylesheet" href="../assets/roadmap-doc.css">
@@ -408,10 +439,14 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     <form id="staff-signin" hidden autocomplete="on">
       <img class="brand-logo" src="../assets/logo.webp" alt="AI Founder University" width="720" height="139" style="margin:0 auto 22px">
       <h2 style="margin:0 0 6px;font-size:1.2rem">Staff sign-in</h2>
-      <p style="margin:0 0 18px">Enter your staff address and we'll email you a sign-in link.</p>
+      <p style="margin:0 0 18px">Your staff address and password. No password yet? Use the emailed
+        link, then set one under Sign-in.</p>
       <input type="email" id="staff-email" name="email" required placeholder="you@aifounderuniversity.com"
              autocomplete="username" spellcheck="false">
-      <button type="submit" id="staff-go">Email me a link</button>
+      <input type="password" id="staff-pw" name="password" placeholder="Password"
+             autocomplete="current-password">
+      <button type="submit" id="staff-go">Sign in</button>
+      <button type="button" class="quiet" id="staff-link">Email me a sign-in link instead</button>
       <p class="note" id="staff-note" hidden></p>
     </form>
   </div></div>
@@ -434,6 +469,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       <button class="tab" data-tab="members">Members<span class="n" id="n-mem">0</span></button>
       <button class="tab" data-tab="leads">Leads &amp; buyers<span class="n" id="n-leads"></span></button>
       <button class="tab" data-tab="traffic">Traffic</button>
+      <button class="tab" data-tab="signin">Sign-in</button>
     </div>
 
     <div id="panel"></div>
@@ -501,13 +537,56 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
   reloadOverview(true);
 
-  /* ---------------- staff sign-in ---------------- */
+  /* ---------------- staff sign-in ----------------
+
+     Two ways in, and the emailed link is the one that cannot be locked out of:
+     it is how the first password gets set and how a forgotten one is replaced,
+     which is why there is no separate reset flow to go wrong. */
+  function staffNote(text) {
+    var note = document.getElementById('staff-note');
+    note.textContent = text;
+    note.hidden = false;
+  }
+
   document.getElementById('staff-signin').addEventListener('submit', function (e) {
     e.preventDefault();
     var btn = document.getElementById('staff-go');
-    var note = document.getElementById('staff-note');
     var email = document.getElementById('staff-email').value.trim();
+    var pw = document.getElementById('staff-pw').value;
     if (!email) return;
+    if (!pw) { staffNote('Enter your password, or use the emailed link below.'); return; }
+
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    fetch('/api/auth/password-login', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: pw })
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; })
+        .then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (res.ok) {
+          // Straight into the admin rather than following the redirect the
+          // endpoint suggests: this page is already the destination.
+          location.reload();
+          return;
+        }
+        staffNote(res.d.error || 'That email and password do not match an account.');
+        btn.textContent = 'Sign in';
+        btn.disabled = false;
+        document.getElementById('staff-pw').value = '';
+      })
+      .catch(function () {
+        staffNote('Could not sign you in. Please try again.');
+        btn.textContent = 'Sign in';
+        btn.disabled = false;
+      });
+  });
+
+  document.getElementById('staff-link').addEventListener('click', function () {
+    var btn = document.getElementById('staff-link');
+    var email = document.getElementById('staff-email').value.trim();
+    if (!email) { staffNote('Enter your staff address first.'); return; }
 
     btn.disabled = true; btn.textContent = 'Sending…';
     fetch('/api/auth/request-link', {
@@ -519,18 +598,144 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       .then(function (d) {
         // The reply is the same whether or not the address is known, so that
         // this cannot be used to find out who has an account.
-        note.textContent = d.message || 'If that address has access, a sign-in link is on its way.';
-        note.hidden = false;
-        btn.textContent = 'Email me a link';
+        staffNote(d.message || 'If that address has access, a sign-in link is on its way.');
+        btn.textContent = 'Email me a sign-in link instead';
         btn.disabled = false;
       })
       .catch(function () {
-        note.textContent = 'Could not send the link. Please try again.';
-        note.hidden = false;
-        btn.textContent = 'Email me a link';
+        staffNote('Could not send the link. Please try again.');
+        btn.textContent = 'Email me a sign-in link instead';
         btn.disabled = false;
       });
   });
+
+  /* ---------------- the staff password ----------------
+
+     Set from inside a signed-in session, never from a form anybody can reach,
+     so holding the staff inbox still comes first. The emailed link doubles as
+     the reset: signed in that way, the old password is not asked for, because
+     somebody who has forgotten it would otherwise have nowhere to go.
+
+     The member area has the same panel on its account page. Staff have no
+     member area to open - they never bought anything - so it is here. */
+  var pw = { loaded: false, hasPassword: false, signedInWith: 'link', email: '' };
+
+  function signinHTML() {
+    if (!pw.loaded) return '<p class="empty">Loading…</p>';
+    // A link session already proved they hold the inbox, which is the stronger
+    // claim of the two, so it is also the reset.
+    var byLink = pw.signedInWith === 'link';
+    var needsCurrent = pw.hasPassword && !byLink;
+    return '<div class="pw-card">' +
+      '<h2>' + (pw.hasPassword ? 'Change your password' : 'Set a password') + '</h2>' +
+      '<p class="sub">' + (pw.hasPassword
+        ? (byLink
+            ? 'You signed in with an emailed link, so you can set a new password here without the old one.'
+            : 'Forgotten it? Sign out, use the emailed link, and set a new one here without the old.')
+        : 'Optional. Set one and you can sign in to the admin without waiting for an email. '
+          + 'The emailed link keeps working either way, and stays the way back in if you forget this.')
+      + '</p>' +
+      '<form id="pw-form" autocomplete="on">' +
+        '<input type="email" name="email" value="' + esc(pw.email) + '" autocomplete="username"' +
+          ' style="display:none" readonly tabindex="-1">' +
+        (needsCurrent
+          ? '<label for="pw-cur">Current password</label>' +
+            '<input type="password" id="pw-cur" autocomplete="current-password" required>'
+          : '') +
+        '<label for="pw-new">New password</label>' +
+        '<input type="password" id="pw-new" autocomplete="new-password" minlength="10" required' +
+          ' placeholder="At least 10 characters">' +
+        '<label for="pw-new2">Confirm new password</label>' +
+        '<input type="password" id="pw-new2" autocomplete="new-password" required>' +
+        '<button type="submit" id="pw-save">' +
+          (pw.hasPassword ? 'Change password' : 'Set password') + '</button>' +
+        (pw.hasPassword
+          ? '<button type="button" class="quiet" id="pw-remove">Remove my password</button>' : '') +
+      '</form>' +
+      '<p class="note" id="pw-note" hidden></p>' +
+    '</div>';
+  }
+
+  function paintSignin(p) {
+    if (!pw.loaded) {
+      p.innerHTML = signinHTML();
+      fetch('/api/auth/set-password', { credentials: 'same-origin' })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (res.ok) {
+            pw.hasPassword = !!res.d.hasPassword;
+            pw.signedInWith = res.d.signedInWith === 'pw' ? 'pw' : 'link';
+            pw.email = res.d.email || '';
+          }
+          pw.loaded = true;
+          if (tab === 'signin') paintSignin(document.getElementById('panel'));
+        })
+        .catch(function () {
+          pw.loaded = true;
+          if (tab === 'signin') {
+            document.getElementById('panel').innerHTML =
+              '<p class="empty">Could not load your sign-in settings.</p>';
+          }
+        });
+      return;
+    }
+
+    p.innerHTML = signinHTML();
+
+    function say(kind, text) {
+      var n = document.getElementById('pw-note');
+      n.className = 'note ' + kind;
+      n.textContent = text;
+      n.hidden = false;
+    }
+
+    function post(payload, busy, button) {
+      var restore = button.textContent;
+      button.disabled = true; button.textContent = busy;
+      fetch('/api/auth/set-password', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          if (res.ok) {
+            pw.hasPassword = !!res.d.hasPassword;
+            // Setting a password rotates the cookie, and the one this page is
+            // holding was replaced in that response. The session it came back
+            // with is a link session until they next sign in with the password.
+            paintSignin(document.getElementById('panel'));
+            say('ok', res.d.message || 'Saved.');
+          } else {
+            say('err', res.d.error || 'Could not save that.');
+            button.disabled = false; button.textContent = restore;
+          }
+        })
+        .catch(function () {
+          say('err', 'Network error. Please try again.');
+          button.disabled = false; button.textContent = restore;
+        });
+    }
+
+    document.getElementById('pw-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var a = document.getElementById('pw-new').value;
+      var b = document.getElementById('pw-new2').value;
+      if (a !== b) { say('err', 'Those two passwords are not the same.'); return; }
+      var cur = document.getElementById('pw-cur');
+      post({ password: a, currentPassword: cur ? cur.value : '' },
+        'Saving…', document.getElementById('pw-save'));
+    });
+
+    var rm = document.getElementById('pw-remove');
+    if (rm) {
+      rm.addEventListener('click', function () {
+        if (!confirm('Remove the password? You will sign in with the emailed link from then on.')) return;
+        var cur = document.getElementById('pw-cur');
+        post({ remove: true, currentPassword: cur ? cur.value : '' }, 'Removing…', rm);
+      });
+    }
+  }
 
   /* ---------------- members ---------------- */
 
@@ -2527,6 +2732,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 
   function paint() {
     var p = document.getElementById('panel');
+    if (tab === 'signin') { paintSignin(p); return; }
     if (tab === 'reports') { paintReports(p); return; }
     if (tab === 'members') { paintMembers(p); return; }
     if (tab === 'leads') { paintLeads(p); return; }
