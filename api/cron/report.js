@@ -20,7 +20,7 @@ import { makeCover } from '../../lib/report-cover.js';
 import {
   nextReportNumber, recentReportTitles, coveredUrls, saveReport,
   lastReportWrittenAt, lastPublishedReportAt,
-  digestAudience, optOuts, bouncedEmails
+  digestAudience, optOuts, bouncedEmails, notifyReport
 } from '../../lib/db.js';
 import { MEMBERSHIP_UNLOCKS } from '../../lib/products.js';
 import { audienceFor } from '../../lib/report-access.js';
@@ -174,12 +174,21 @@ export default async function handler(req, res) {
       model: out.stats.model, stats: { ...out.stats, cover: cover.kind }
     });
 
-    // Minus opt-outs and bounces, and minus anybody the reports are not open
-    // to yet: telling a member their report is ready when they cannot open it
-    // is worse than not telling them at all.
+    /* The bell, before the email.
+
+       Everybody the report is open to gets one, including the people who have
+       unsubscribed from email or whose address has bounced: those are
+       decisions about their inbox, not about their member area, and somebody
+       who asked us to stop writing to them has not asked to stop being told
+       inside the product they pay for. */
     const [audience, opted, bounced] = await Promise.all([digestAudience(), optOuts(), bouncedEmails()]);
+    const everyone = audienceFor(audience);
+    const rang = await notifyReport(everyone.map((m) => m.email), number, report.title)
+      .catch((e) => { console.error('[cron/report] bell', e?.message); return 0; });
+
+    // The email is the narrower list: minus opt-outs, minus bounces.
     const blocked = new Set([...(opted || []), ...(bounced || [])].map((e) => String(e).toLowerCase()));
-    const to = audienceFor(audience.filter((m) => !blocked.has(String(m.email).toLowerCase())));
+    const to = everyone.filter((m) => !blocked.has(String(m.email).toLowerCase()));
 
     let sent = 0;
     for (const m of to) {
@@ -196,7 +205,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true, number, slug, title: report.title, items: report.items.length,
-      cover: cover.kind, emailed: sent, cut: out.cut, dropped: out.dropped,
+      cover: cover.kind, emailed: sent, notified: rang, cut: out.cut, dropped: out.dropped,
       stats: out.stats, ms: Date.now() - started
     });
   } catch (err) {

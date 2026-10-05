@@ -2325,7 +2325,11 @@ button{font-family:inherit}
       // Three kinds now, and they do not read alike: a reply is about a post,
       // a roadmap is a thing that has arrived.
       var what;
-      if (n.kind === 'roadmap') {
+      if (n.kind === 'report') {
+        // The headline, not "a new report is available": the headline is the
+        // reason to open it and the rest is packaging.
+        what = '<p>This week\'s <b>AI report</b>' + (n.title ? ': ' + esc(n.title) : ' is out') + '</p>';
+      } else if (n.kind === 'roadmap') {
         what = '<p>Your <b>personalised AI roadmap</b> is ready' +
           (n.title ? ' — ' + esc(n.title) : '') + '</p>';
       } else if (n.kind === 'roadmap_reply') {
@@ -2339,7 +2343,8 @@ button{font-family:inherit}
       }
       return '<button class="nb-i' + (n.read ? '' : ' unread') + '" type="button" ' +
         'data-id="' + n.id + '" data-thread="' + (n.threadId || '') + '" ' +
-        'data-go="' + (n.kind === 'roadmap' || n.kind === 'roadmap_reply' ? 'roadmap' : '') + '">' +
+        'data-go="' + (n.kind === 'report' ? 'reports'
+          : (n.kind === 'roadmap' || n.kind === 'roadmap_reply' ? 'roadmap' : '')) + '">' +
         '<span class="d"></span><span class="w">' + what +
           '<span class="t">' + esc(ago(n.createdAt)) + '</span>' +
         '</span></button>';
@@ -2416,13 +2421,48 @@ button{font-family:inherit}
 
   var rpState = { list: null, open: null, cache: {} };
 
+  /**
+   * How many reports have arrived since they last looked.
+   *
+   * The badge used to carry the total, which never changed and so never said
+   * anything: "1" on a shelf of one report is a fact about the shelf, not a
+   * reason to open it. It counts the unread ones now and goes quiet at zero,
+   * the way an inbox does.
+   *
+   * The high-water mark is the highest report number seen, kept per browser
+   * beside the roadmap's. Per browser rather than on the server because this
+   * is "have I looked at this", which is a property of the person in front of
+   * the screen; being told again on a different device is the harmless side of
+   * that trade.
+   */
+  function reportsSeen() {
+    try { return parseInt(localStorage.getItem('afu_rp_seen') || '0', 10) || 0; }
+    catch (e) { return 0; }
+  }
+  function unreadReports() {
+    var seen = reportsSeen();
+    return (rpState.list || []).filter(function (r) { return Number(r.number) > seen; }).length;
+  }
+  function paintReportsBadge() {
+    var c = document.getElementById('cnt-reports');
+    if (!c) return;
+    var n = unreadReports();
+    c.textContent = n ? String(n) : '';
+    c.classList.toggle('is-new', n > 0);
+  }
+  function markReportsSeen() {
+    var top = (rpState.list || []).reduce(function (m, r) { return Math.max(m, Number(r.number) || 0); }, 0);
+    if (!top) return;
+    try { localStorage.setItem('afu_rp_seen', String(top)); } catch (e) {}
+    paintReportsBadge();
+  }
+
   function loadReports() {
     return fetch('/api/reports', { credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         rpState.list = d ? (d.reports || []) : [];
-        var c = document.getElementById('cnt-reports');
-        if (c) c.textContent = rpState.list.length || '';
+        paintReportsBadge();
         return rpState.list;
       })
       .catch(function () { rpState.list = []; return []; });
@@ -2434,6 +2474,10 @@ button{font-family:inherit}
       loadReports().then(function () { if (view === 'reports') renderReports(document.getElementById('content')); });
       return;
     }
+    // Opening the shelf is what counts as having looked. Done here rather than
+    // on the nav button, so arriving from the bell or from an emailed link
+    // clears it too.
+    markReportsSeen();
     c.innerHTML =
       '<div class="rp-head"><h1>AI Reports</h1>' +
         (rpState.list.length ? '<span class="rp-count">' + rpState.list.length +
@@ -2474,6 +2518,8 @@ button{font-family:inherit}
   }
 
   function paintReport(c, R) {
+    // Reading one from the email counts as having seen everything up to it.
+    markReportsSeen();
     c.innerHTML = window.reportDoc.render(R, {
       // Absolute, so a link still works from a saved PDF, and with the query
       // string so a member who arrived with one does not get a page reload.
