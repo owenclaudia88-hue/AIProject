@@ -1414,13 +1414,16 @@ button{font-family:inherit}
           if (me.canPreview) loadRoadmap();
           else rmNav.classList.add('is-locked');
         }
-        // Not open yet: shown to the test account and staff, hidden from
-        // everybody else rather than locked, because a lock advertises
-        // something that cannot be bought yet.
+        // The reports are a membership perk now, so they read like the other
+        // two: in the sidebar for everybody, wearing a lock for anybody not
+        // subscribing. Only the people who can actually open one fetch the
+        // list — for the rest the request would be refused, and an unread
+        // badge over a locked door counts something they cannot go and read.
         var rpNav = document.getElementById('nav-reports');
         if (rpNav) {
           rpNav.hidden = !me.canSeeReports;
-          if (me.canSeeReports) loadReports();
+          if (me.canSeeReports && me.canPreview) loadReports();
+          else if (me.canSeeReports) rpNav.classList.add('is-locked');
         }
         var sbCommunity = document.getElementById('sb-community');
         if (sbCommunity) sbCommunity.hidden = false;
@@ -2470,7 +2473,29 @@ button{font-family:inherit}
       .catch(function () { rpState.list = []; return []; });
   }
 
+  /**
+   * The reports, to somebody not subscribing.
+   *
+   * Said the same way as the roadmap's: what it is, in enough detail to be
+   * worth wanting, and one way to get it. Drawn rather than redirected —
+   * bouncing them to the dashboard answers a question they did not ask and
+   * leaves the sidebar item looking broken.
+   */
+  function renderReportsLocked(c) {
+    c.innerHTML = '<h1 class="page-h">AI Reports</h1>' +
+      '<p class="page-sub">What changed in AI this week, and what to do about it.</p>' +
+      '<div class="req-card locked-perk"><span class="lock-badge">🔒</span>' +
+        '<h2>A membership perk</h2>' +
+        '<p class="sub">Every Monday we read the week’s announcements so you do not have to, ' +
+          'and write up the handful that change something for a business like yours — what was ' +
+          'announced, why it matters, and the steps to act on it. Every claim links to the ' +
+          'announcement it came from.</p>' +
+        '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">' +
+          '🔒 Unlock with the membership</a></div>';
+  }
+
   function renderReports(c) {
+    if (!me.canPreview) return renderReportsLocked(c);
     if (!rpState.list) {
       c.innerHTML = '<p class="empty">Loading…</p>';
       loadReports().then(function () { if (view === 'reports') renderReports(document.getElementById('content')); });
@@ -2505,6 +2530,8 @@ button{font-family:inherit}
   }
 
   function renderReport(c, n) {
+    // An emailed link forwarded to somebody who does not subscribe lands here.
+    if (!me.canPreview) return renderReportsLocked(c);
     var cached = rpState.cache[n];
     if (cached) return paintReport(c, cached);
     c.innerHTML = '<p class="empty">Loading…</p>';
@@ -2883,8 +2910,10 @@ button{font-family:inherit}
     if (view === 'favorites') return renderFavorites(c);
     if (view === 'bookmarks') return renderBookmarks(c);
     if (view === 'request') return renderRequest(c);
-    // Both of these draw their own locked screen for somebody without the
-    // membership, which is the point of them being in the sidebar at all.
+    // These draw their own locked screen for somebody without the membership,
+    // which is the point of them being in the sidebar at all. The bounce to
+    // the dashboard below is not that lock: it only fires if the reports have
+    // been switched off for everybody, when there is no page to show at all.
     if (view === 'roadmap') return renderRoadmap(c);
     if (view === 'reports') {
       if (!me.canSeeReports) { location.hash = 'dashboard'; return; }

@@ -37,9 +37,9 @@ export default async function handler(req, res) {
       // Course features still being built show only for this account. Every
       // other member sees the member area exactly as it was.
       isTester: isTester(email),
-      // The weekly reports, which are not open yet. One flag rather than the
-      // sidebar working it out from isTester, so opening them is a change in
-      // one file.
+      // Whether the weekly reports exist for this member at all. Not whether
+      // they can read one - that is hasMembership below, and somebody without
+      // it gets the section with a lock on it rather than no section.
       canSeeReports: reportsOpenTo(email),
       // Their own picture, for the account card in the sidebar. The path rather
       // than the storage address: the photo is private and served through us.
