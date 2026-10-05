@@ -83,13 +83,13 @@
       return '<button class="wr-card" type="button" data-report="' + esc(r.number) + '">' +
         '<span class="wr-cover">' +
           (cover ? '<img src="' + esc(cover) + '" alt="" loading="lazy">' : '') +
-          '<span class="n">Report ' + esc(r.number) + '</span>' +
           (i === 0 && o.markNewest !== false ? '<span class="new">New</span>' : '') +
         '</span>' +
         '<span class="b">' +
           '<h3>' + esc(r.title) + '</h3>' +
           '<p>' + esc(r.dek || '') + '</p>' +
-          '<span class="f"><span class="tag">' + esc(TOPIC[r.topic] || 'Report') + '</span>' +
+          '<span class="f"><span class="n">Report ' + esc(r.number) + '</span>' +
+            '<span class="tag">' + esc(TOPIC[r.topic] || 'Report') + '</span>' +
             (r.items ? '<span>' + esc(r.items) + ' items</span>' : '') +
             '<span class="go">Read →</span></span>' +
         '</span></button>';
@@ -199,8 +199,8 @@
 
     html += '<div class="wr-meta"><span class="wr-no">Report ' + esc(R.number) + '</span>' +
       (R.publishedAt ? '<span class="wr-when">' + esc(when(R.publishedAt)) + '</span>' : '') +
-      (R.publishedAt ? '<span class="wr-when">· week of ' + esc(weekOf(R.publishedAt)) + '</span>' : '') +
-      '<span class="wr-when">· ' + esc(TOPIC[R.topic] || 'Report') + '</span>' +
+      (R.publishedAt ? '<span class="wr-when"><i>·</i> week of ' + esc(weekOf(R.publishedAt)) + '</span>' : '') +
+      '<span class="wr-when"><i>·</i> ' + esc(TOPIC[R.topic] || 'Report') + '</span>' +
       (o.interactive === false ? ''
         : '<button class="wr-pdf" type="button" data-wr-pdf ' +
           'title="Opens your browser\'s print dialog — choose Save as PDF">↓ Download PDF</button>') +
