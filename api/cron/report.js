@@ -18,7 +18,7 @@ import { makeReport } from '../../lib/report-generate.js';
 import { reportSlug } from '../../lib/reports.js';
 import { makeCover } from '../../lib/report-cover.js';
 import {
-  nextReportNumber, recentReportTitles, coveredUrls, saveReport,
+  nextReportNumber, recentReportTitles, coveredUrls, saveReport, lastReportWrittenAt,
   digestAudience, optOuts, bouncedEmails
 } from '../../lib/db.js';
 import { MEMBERSHIP_UNLOCKS } from '../../lib/products.js';
@@ -43,9 +43,28 @@ export default async function handler(req, res) {
   const started = Date.now();
 
   try {
-    const [number, recentTitles, covered] = await Promise.all([
-      nextReportNumber(), recentReportTitles(8), coveredUrls(120)
+    const [number, recentTitles, covered, recent] = await Promise.all([
+      nextReportNumber(), recentReportTitles(8), coveredUrls(120), lastReportWrittenAt()
     ]);
+
+    /* Two runs at once both take max+1, because that is what max+1 does. The
+       first published and emailed; the second was held and wrote itself over
+       the top, and the report named in the email stopped existing.
+
+       The database now refuses that overwrite, which is the part that matters.
+       This is the other half: a second run started within a couple of minutes
+       of the last one is almost always a double press, and a Monday report is
+       not something anybody needs twice in two minutes. */
+    const SINCE_LAST = 120000;
+    if (!dry && recent && Date.now() - new Date(recent).getTime() < SINCE_LAST) {
+      const ago = Math.round((Date.now() - new Date(recent).getTime()) / 1000);
+      return res.status(200).json({
+        ok: true,
+        skipped: `a report was written ${ago} seconds ago; waiting a couple of minutes avoids two `
+          + 'runs taking the same number',
+        ms: Date.now() - started
+      });
+    }
 
     /* Two windows, one collection.
        The report is about the last eight days, but a quiet week should produce
