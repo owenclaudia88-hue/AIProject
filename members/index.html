@@ -1669,6 +1669,18 @@ button{font-family:inherit}
     [].forEach.call(document.querySelectorAll('.nav'), function (n) {
       n.classList.toggle('active', n.getAttribute('data-view') === navKey);
     });
+    /* Going somewhere ends the search. render() asks whether there is a search
+       term before it asks which view this is, so text left in the box kept the
+       results on screen no matter what you clicked - the hash changed, the
+       page did not. It never showed while results were library cards, which
+       open a reader over the top rather than navigating; now that a result can
+       be a course, a room or a report, clicking one has to actually go there.
+       Typing does not touch the hash, so this only runs on a real move. */
+    if (q) {
+      q = '';
+      var box = document.getElementById('search');
+      if (box) box.value = '';
+    }
     document.querySelector('.content').scrollTop = 0;
     window.scrollTo(0, 0);
     render();
@@ -1754,7 +1766,12 @@ button{font-family:inherit}
   function favBtn(it){ return '<button class="fav ' + (favs.has(it.id)?'on':'') + '" data-fav="' + esc(it.id) + '" aria-label="Favorite">' + (favs.has(it.id)?'♥':'♡') + '</button>'; }
 
   function bindCards(scope) {
-    [].forEach.call(scope.querySelectorAll('.card'), function (c) {
+    /* Only cards that are a library item. A download card and a locked card
+       wear the same class and carry no id, and opening one asked the library
+       for the item "null" - harmless until the search results put all three
+       kinds in one grid, where a community card would both follow its link
+       and fire a lookup for nothing. */
+    [].forEach.call(scope.querySelectorAll('.card[data-id]'), function (c) {
       c.addEventListener('click', function (e) {
         if (e.target.closest('.fav')) return;
         openItem(c.getAttribute('data-id'));
@@ -4509,16 +4526,179 @@ button{font-family:inherit}
     });
   }
 
-  function renderSearch(c) {
+  /* ---------------- search across everything ----------------
+
+     The box says "across everything" and meant the library alone: the eight
+     content kinds, and none of the courses, downloads, rooms, reports or news
+     a member would reasonably expect it to find. Somebody searching "stripe"
+     got prompts and not the course lesson about it.
+
+     Four of the six were already in memory at boot and cost nothing to look
+     through. The other two have their own search on the server and are asked
+     for it - so the local sections paint at once and those two fill in
+     underneath, rather than making every result wait on a round trip. */
+  var gs = { token: 0, news: null, threads: null };
+
+  function gsHit(hay) {
+    return String(hay || '').toLowerCase().indexOf(q) >= 0;
+  }
+
+  function gsHead(title, n) {
+    return '<div class="sec-h"><h2>' + esc(title) + '</h2><span class="c">' + n + '</span></div>';
+  }
+
+  /* Everything that is already in memory. Returns the html and the count, so
+     the line under the heading can say how many results there are without
+     counting them a second time somewhere else. */
+  function gsLocal() {
+    var out = '';
+    var n = 0;
+
     var items = all.filter(function (it) {
-      var hay = (it.title + ' ' + (it.description || '') + ' ' + (it.category || '') + ' ' + it.kind).toLowerCase();
-      return hay.indexOf(q) >= 0;
+      return gsHit(it.title + ' ' + (it.description || '') + ' ' + (it.category || '') + ' ' + it.kind);
     });
+    if (items.length) { n += items.length; out += gsHead('Content library', items.length) + gridOf(items); }
+
+    var cos = courses.filter(function (co) {
+      return gsHit(co.title + ' ' + (co.description || co.summary || ''));
+    });
+    if (cos.length) {
+      n += cos.length;
+      out += gsHead('Courses', cos.length) + '<div class="course-grid">' + cos.map(function (co) {
+        var total = co.lessonCount || (co.stats && co.stats.lessons) || 0;
+        var meta = total + ' lesson' + (total === 1 ? '' : 's');
+        if (co.locked) {
+          return '<a class="course-card locked" href="join.html" title="Unlock with the membership">' +
+            '<span class="lock-badge">🔒</span><div class="cc-top"><span class="g">🎓</span></div>' +
+            '<div class="cc-body"><h3>' + esc(co.title) + '</h3><div class="cc-meta">' + esc(meta) + '</div>' +
+            '<span class="cc-unlock">Unlock with the membership →</span></div></a>';
+        }
+        return '<div class="course-card" data-slug="' + esc(co.slug) + '">' +
+          '<div class="cc-top"><span class="g">🎓</span></div>' +
+          '<div class="cc-body"><h3>' + esc(co.title) + '</h3>' +
+          '<div class="cc-meta">' + esc(meta) + '</div></div></div>';
+      }).join('') + '</div>';
+    }
+
+    var dls = [];
+    Object.keys(downloads).forEach(function (kind) {
+      (downloads[kind] || []).forEach(function (it) {
+        var m = DL_META[kind] || { label: kind, glyph: '📦' };
+        if (gsHit(it.title + ' ' + (it.filename || '') + ' ' + m.label)) dls.push({ it: it, m: m });
+      });
+    });
+    if (dls.length) {
+      n += dls.length;
+      out += gsHead('Specialists & Plugins', dls.length) + '<div class="grid">' + dls.map(function (d) {
+        return '<div class="card' + (d.it.locked ? ' locked' : '') + '" style="cursor:default">' +
+          (d.it.locked ? '<span class="lock-badge">🔒</span>' : '') +
+          '<div class="head" style="background:linear-gradient(135deg,#2a1a08,#161016)">' +
+            '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>' +
+            '<span class="glyph">' + d.m.glyph + '</span></div>' +
+          '<div class="body"><div class="cat">' + esc(d.m.label) + '</div><h3>' + esc(d.it.title) + '</h3>' +
+          '<p>' + esc(d.it.filename || '') + (d.it.sizeBytes ? ' · ' + kb(d.it.sizeBytes) : '') + '</p>' +
+          '<div class="foot">' + (d.it.locked
+            ? '<a class="dl locked" href="join.html">🔒 Unlock</a>'
+            : '<a class="dl" href="/api/content/download?key=' + encodeURIComponent(d.it.key) + '">Download</a>') +
+          '</div></div></div>';
+      }).join('') + '</div>';
+    }
+
+    // Only what this member can actually open: the shelf is fetched for them
+    // or it is not, and searching a list they were never sent finds nothing
+    // rather than something they cannot read.
+    var reps = (rpState.list || []).filter(function (r) {
+      return gsHit(r.title + ' ' + (r.dek || '') + ' Report ' + r.number);
+    });
+    if (reps.length) {
+      n += reps.length;
+      out += gsHead('AI Reports', reps.length) + window.reportDoc.cards(reps, { markNewest: false });
+    }
+
+    return { html: out, n: n };
+  }
+
+  function gsRemote() {
+    var out = '';
+    var n = 0;
+
+    if (gs.news && gs.news.length) {
+      n += gs.news.length;
+      out += gsHead('AI News Feed', gs.news.length) +
+        '<div class="nf-grid">' + gs.news.map(nfCard).join('') + '</div>';
+    }
+    if (gs.threads && gs.threads.length) {
+      n += gs.threads.length;
+      out += gsHead('Community', gs.threads.length) + '<div class="grid">' + gs.threads.map(function (t) {
+        var sp = spaceMeta(t.space);
+        return '<a class="card" href="#t-' + esc(t.id) + '" style="text-decoration:none">' +
+          '<div class="head hglyph" style="background:linear-gradient(135deg,#1d2430,#13161c)">' +
+            '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>' +
+            '<span class="glyph">' + (sp.glyph || '💬') + '</span></div>' +
+          '<div class="body"><div class="cat">' + esc(sp.label || t.space) + '</div>' +
+          '<h3>' + esc(t.title || 'A post') + '</h3>' +
+          '<p>' + esc(t.author || '') + (t.replies ? ' · ' + t.replies + ' repl' + (t.replies === 1 ? 'y' : 'ies') : '') + '</p>' +
+          '</div></a>';
+      }).join('') + '</div>';
+    }
+    return { html: out, n: n };
+  }
+
+  function gsPaint(c, waiting) {
+    var local = gsLocal();
+    var remote = gsRemote();
+    var total = local.n + remote.n;
+
     var html = '<h1 class="page-h">Search</h1>' +
-      '<p class="page-sub">' + items.length + ' result' + (items.length === 1 ? '' : 's') + ' for “' + esc(q) + '”.</p>';
-    html += items.length ? gridOf(items) : '<p class="empty">Nothing matches “' + esc(q) + '”.</p>';
+      '<p class="page-sub">' + total + ' result' + (total === 1 ? '' : 's') + ' for “' + esc(q) + '”' +
+        (waiting ? ' · still looking through the news and the community…' : '') + '.</p>';
+
+    html += local.html + remote.html;
+    if (!total && !waiting) html += '<p class="empty">Nothing matches “' + esc(q) + '”.</p>';
+
     c.innerHTML = html;
     bindCards(c);
+    // Course cards in the results open the course, the same as they do on the
+    // courses page.
+    [].forEach.call(c.querySelectorAll('.course-card[data-slug]'), function (el) {
+      el.addEventListener('click', function () { location.hash = 'course-' + el.getAttribute('data-slug'); });
+    });
+    if (local.n && window.reportDoc) {
+      window.reportDoc.wire(c, { onOpen: function (num) { location.hash = 'report-' + num; } });
+    }
+  }
+
+  function renderSearch(c) {
+    /* Each keystroke starts a search and the slowest answer must not land on
+       top of a newer one. The token is checked when a fetch returns; an older
+       search finds its number has moved on and throws its own result away. */
+    var mine = ++gs.token;
+    var term = q;
+    gs.news = null;
+    gs.threads = null;
+
+    var asks = [];
+    if (me.canSeeNews) {
+      asks.push(fetch('/api/news?page=1&q=' + encodeURIComponent(term), { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { if (gs.token === mine) gs.news = (d && d.items) || []; })
+        .catch(function () { if (gs.token === mine) gs.news = []; }));
+    }
+    if (me.canPreview) {
+      asks.push(fetch('/api/community/list?q=' + encodeURIComponent(term), { credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { if (gs.token === mine) gs.threads = (d && d.threads) || []; })
+        .catch(function () { if (gs.token === mine) gs.threads = []; }));
+    }
+
+    gsPaint(c, asks.length > 0);
+    if (!asks.length) return;
+
+    Promise.all(asks).then(function () {
+      // Still the current search, and still on the search view.
+      if (gs.token !== mine || q !== term) return;
+      gsPaint(document.getElementById('content'), false);
+    });
   }
 
   function kb(n) { if (!n) return ''; return n > 1048576 ? (n/1048576).toFixed(1)+' MB' : Math.round(n/1024)+' KB'; }
