@@ -1132,6 +1132,7 @@ button{font-family:inherit}
 <link rel="stylesheet" href="../assets/richtext.css">
 <link rel="stylesheet" href="../assets/roadmap-doc.css">
 <link rel="stylesheet" href="../assets/report-doc.css">
+<link rel="stylesheet" href="../assets/news-feed.css">
 <script src="../assets/emoji.js"></script>
 <script src="../assets/richtext.js"></script>
 <script src="../assets/roadmap-doc.js"></script>
@@ -1185,6 +1186,7 @@ button{font-family:inherit}
           <!-- Hidden until the reports open to everybody; the test account and
                staff see it in the meantime. -->
           <button class="nav" data-view="reports" id="nav-reports" hidden><span class="nic">📰</span>AI Reports<span class="n-count" id="cnt-reports"></span></button>
+          <button class="nav" data-view="news" id="nav-news" hidden><span class="nic">📈</span>AI News Feed</button>
           <a class="nav" id="nav-connect" href="connect.html"><span class="nic">🔌</span>Connect to Claude<span class="pill-beta">Beta</span></a>
           <button class="nav" data-view="favorites"><span class="nic">❤️</span>Favorites<span class="n-count" id="cnt-fav">0</span></button>
           <button class="nav" data-view="bookmarks"><span class="nic">🔖</span>Bookmarks<span class="n-count" id="cnt-bookmarks">0</span></button>
@@ -1390,6 +1392,7 @@ button{font-family:inherit}
         // undefined no matter what the server sent.
         me.isTester = !!res.d.isTester;
         me.canSeeReports = !!res.d.canSeeReports;
+        me.canSeeNews = !!res.d.canSeeNews;
         me.hasMembership = !!res.d.hasMembership;
         // Who gets the membership rooms rather than a lock on them. Staff are
         // in because they have never bought anything and still have to be able
@@ -1425,6 +1428,11 @@ button{font-family:inherit}
           if (me.canSeeReports && me.canPreview) loadReports();
           else if (me.canSeeReports) rpNav.classList.add('is-locked');
         }
+        // Not open yet: shown to the test account and staff, hidden from
+        // everybody else rather than locked, because a lock advertises
+        // something that cannot be bought yet.
+        var nfNav = document.getElementById('nav-news');
+        if (nfNav) nfNav.hidden = !me.canSeeNews;
         var sbCommunity = document.getElementById('sb-community');
         if (sbCommunity) sbCommunity.hidden = false;
         // Nobody outside the community can have a notification waiting, so the
@@ -1655,7 +1663,7 @@ button{font-family:inherit}
     }
     else if (raw.indexOf('c-') === 0) { view = raw; navKey = raw; }
     else {
-      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && raw !== 'reports' && !KINDS[raw]) raw = 'dashboard';
+      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && raw !== 'reports' && raw !== 'news' && !KINDS[raw]) raw = 'dashboard';
       view = raw; navKey = raw;
     }
     [].forEach.call(document.querySelectorAll('.nav'), function (n) {
@@ -2473,6 +2481,148 @@ button{font-family:inherit}
       .catch(function () { rpState.list = []; return []; });
   }
 
+  /* ---------------- the AI news feed ----------------
+
+     Everything on these cards was written by somebody else. The headline, the
+     summary and the categories are the publisher's, and the picture is a link
+     to their server rather than a copy on ours - so the source name sits under
+     every headline and the credit sits on every picture, and the button says
+     where it is sending you.
+
+     Held in one object rather than re-fetched on every repaint: the member
+     area repaints the whole view on any hash change, and a feed that refetched
+     three months of headlines each time would be both slow and rude to the
+     database. */
+  var nf = { items: [], total: 0, page: 1, pages: 1, q: '', loaded: false, busy: false, windowDays: 90 };
+
+  function nfAgo(iso) {
+    var t = iso ? new Date(iso).getTime() : 0;
+    if (!t) return '';
+    var mins = Math.max(0, Math.round((Date.now() - t) / 60000));
+    if (mins < 60) return mins <= 1 ? 'just now' : mins + 'm ago';
+    var hrs = Math.round(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    var days = Math.round(hrs / 24);
+    if (days < 30) return days + 'd ago';
+    return new Date(t).toLocaleDateString();
+  }
+
+  function nfCard(a) {
+    var tags = (a.tags || []).slice(0, 3).map(function (t) {
+      return '<span>' + esc(t) + '</span>';
+    }).join('');
+    return '<article class="nf-card">' +
+      (a.image
+        ? '<figure class="nf-shot">' +
+            '<img src="' + esc(a.image.url) + '" alt="' + esc(a.image.alt || '') + '" loading="lazy" ' +
+              'referrerpolicy="no-referrer-when-downgrade" ' +
+              // A picture that has since been taken down must not leave a
+              // broken box on the card; the figure goes instead.
+              'onerror="var f=this.closest(\'.nf-shot\'); if(f) f.remove();">' +
+            '<figcaption>Image via ' + esc(a.sourceName) + '</figcaption>' +
+          '</figure>'
+        : '') +
+      '<div class="nf-body">' +
+        '<h3>' + esc(a.title) + '</h3>' +
+        (a.summary ? '<p class="sum">' + esc(a.summary) + '</p>' : '') +
+        '<div class="nf-meta"><span>⏱ ' + esc(nfAgo(a.publishedAt)) + '</span>' +
+          '<span class="src">' + esc(a.sourceName) + '</span></div>' +
+        (tags ? '<div class="nf-tags">' + tags + '</div>' : '') +
+        '<a class="nf-go" href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer">' +
+          '↗ Read Full Article</a>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function nfPaint(c) {
+    var showing = nf.q
+      ? nf.total + ' article' + (nf.total === 1 ? '' : 's') + ' matching “' + nf.q + '”'
+      : 'Showing ' + nf.total + ' article' + (nf.total === 1 ? '' : 's')
+        + ' from the last ' + Math.round(nf.windowDays / 30) + ' months';
+
+    c.innerHTML =
+      '<div class="nf-head"><span class="nf-mark">📈</span><h1>AI News Feed</h1></div>' +
+      '<p class="nf-sub">Latest AI news and updates from trusted sources.</p>' +
+      '<div class="nf-search"><span class="ic">🔍</span>' +
+        '<input type="search" id="nf-q" placeholder="Search news by title, summary, source, or tags…" ' +
+          'value="' + esc(nf.q) + '" autocomplete="off"></div>' +
+      '<p class="nf-count">' + esc(showing) + '</p>' +
+      (nf.items.length
+        ? '<div class="nf-grid">' + nf.items.map(nfCard).join('') + '</div>'
+        : '<p class="empty">' + (nf.q ? 'Nothing matches that yet.'
+            : 'The feed fills itself through the day. Nothing collected so far.') + '</p>') +
+      (nf.page < nf.pages
+        ? '<button class="nf-more" id="nf-more">Load more</button>' : '');
+
+    var box = document.getElementById('nf-q');
+    if (box) {
+      // Typing waits for a pause rather than asking on every keystroke.
+      var timer = null;
+      box.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          if (box.value === nf.q) return;
+          nf.q = box.value;
+          nf.page = 1;
+          loadNews(false).then(function () {
+            if (view === 'news') {
+              nfPaint(document.getElementById('content'));
+              // The box is rebuilt by the repaint, so the caret has to be put
+              // back or searching feels like it keeps interrupting you.
+              var again = document.getElementById('nf-q');
+              if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
+            }
+          });
+        }, 320);
+      });
+    }
+
+    var more = document.getElementById('nf-more');
+    if (more) {
+      more.addEventListener('click', function () {
+        more.disabled = true;
+        more.textContent = 'Loading…';
+        nf.page += 1;
+        loadNews(true).then(function () {
+          if (view === 'news') nfPaint(document.getElementById('content'));
+        });
+      });
+    }
+  }
+
+  function loadNews(append) {
+    if (nf.busy) return Promise.resolve();
+    nf.busy = true;
+    return fetch('/api/news?page=' + nf.page + '&q=' + encodeURIComponent(nf.q), { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d) {
+          nf.items = append ? nf.items.concat(d.items || []) : (d.items || []);
+          nf.total = d.total || 0;
+          nf.pages = d.pages || 1;
+          nf.page = d.page || 1;
+          nf.windowDays = d.windowDays || nf.windowDays;
+        } else if (!append) {
+          nf.items = [];
+          nf.total = 0;
+        }
+        nf.loaded = true;
+        nf.busy = false;
+      })
+      .catch(function () { nf.busy = false; nf.loaded = true; });
+  }
+
+  function renderNews(c) {
+    if (!nf.loaded) {
+      c.innerHTML = '<p class="empty">Loading…</p>';
+      loadNews(false).then(function () {
+        if (view === 'news') nfPaint(document.getElementById('content'));
+      });
+      return;
+    }
+    nfPaint(c);
+  }
+
   /**
    * The reports, to somebody not subscribing.
    *
@@ -2918,6 +3068,10 @@ button{font-family:inherit}
     if (view === 'reports') {
       if (!me.canSeeReports) { location.hash = 'dashboard'; return; }
       return renderReports(c);
+    }
+    if (view === 'news') {
+      if (!me.canSeeNews) { location.hash = 'dashboard'; return; }
+      return renderNews(c);
     }
     if (view.indexOf('report-') === 0) {
       if (!me.canSeeReports) { location.hash = 'dashboard'; return; }

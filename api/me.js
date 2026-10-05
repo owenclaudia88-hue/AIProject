@@ -3,6 +3,7 @@ import { getCustomer, displayNameFor, entitlementsFor } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
 import { isTester } from '../lib/testers.js';
 import { reportsOpenTo } from '../lib/report-access.js';
+import { newsOpenTo } from '../lib/news-access.js';
 import { MEMBERSHIP_ONLY } from '../lib/products.js';
 
 /**
@@ -41,6 +42,9 @@ export default async function handler(req, res) {
       // they can read one - that is hasMembership below, and somebody without
       // it gets the section with a lock on it rather than no section.
       canSeeReports: reportsOpenTo(email),
+      // The news feed, which is not open yet. Same flag shape as the reports,
+      // so opening it is a change in one file.
+      canSeeNews: newsOpenTo(email),
       // Their own picture, for the account card in the sidebar. The path rather
       // than the storage address: the photo is private and served through us.
       photoUrl: customer.photo_url ? '/api/account/photo' : null,

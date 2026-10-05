@@ -1,0 +1,74 @@
+/**
+ * The AI news feed.
+ *
+ * A wall of other people's stories: their headline, their words, their
+ * picture, and a button that sends the reader to their page. Nothing here is
+ * ours except the order and the search box, and the card is built to say so -
+ * the source name sits under every headline and the credit sits on every
+ * picture.
+ *
+ * Uses the member area's own variables rather than carrying a palette.
+ */
+
+.nf-head{display:flex;align-items:center;gap:14px;margin:0 0 6px}
+.nf-head h1{margin:0;font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:900;letter-spacing:-.03em;line-height:1.18}
+.nf-mark{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));font-size:1.25rem}
+.nf-sub{margin:0 0 20px;color:var(--txt-2);font-size:.98rem;line-height:1.7}
+
+.nf-search{position:relative;margin:0 0 14px}
+.nf-search input{width:100%;background:var(--bg-2);border:1px solid var(--line-2);color:var(--txt);
+  border-radius:12px;padding:14px 16px 14px 44px;font-family:inherit;font-size:.95rem}
+.nf-search input:focus{outline:none;border-color:var(--accent)}
+.nf-search .ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);opacity:.65;
+  font-size:.95rem;pointer-events:none}
+.nf-count{margin:0 0 20px;color:var(--txt-3);font-family:var(--mono);font-size:.78rem}
+
+.nf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:18px}
+
+.nf-card{display:flex;flex-direction:column;background:var(--bg-2);border:1px solid var(--line);
+  border-radius:16px;overflow:hidden;transition:border-color .15s,transform .15s}
+.nf-card:hover{border-color:rgba(255,122,26,.42);transform:translateY(-2px)}
+
+/* The picture is on the publisher's server and can vanish without warning, so
+   the card has to look finished without it: the figure keeps no height of its
+   own and a card with no picture simply starts at the headline. */
+.nf-shot{margin:0;position:relative;background:var(--bg-4);border-bottom:1px solid var(--line)}
+.nf-shot img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.nf-shot figcaption{position:absolute;right:0;bottom:0;background:rgba(0,0,0,.62);color:var(--txt-2);
+  font-family:var(--mono);font-size:.58rem;padding:4px 9px;border-top-left-radius:8px;
+  max-width:72%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.nf-body{display:flex;flex-direction:column;flex:1;padding:16px 18px 18px}
+.nf-card h3{margin:0 0 8px;font-size:1.02rem;font-weight:700;line-height:1.42;letter-spacing:-.01em}
+.nf-card .sum{margin:0 0 14px;color:var(--txt-2);font-size:.88rem;line-height:1.6;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+.nf-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 10px;
+  font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
+.nf-meta .src{color:var(--accent-2)}
+
+.nf-tags{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.nf-tags span{font-family:var(--mono);font-size:.63rem;color:var(--txt-3);background:var(--bg-3);
+  border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+
+/* Pushed to the bottom so cards in a row end on the same line however long
+   the headline above them ran. */
+.nf-go{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:9px;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;
+  border-radius:11px;min-height:44px;padding:0 16px;font-size:.88rem;font-weight:800;
+  text-decoration:none}
+.nf-go:hover{filter:brightness(1.07)}
+
+.nf-more{display:block;width:100%;margin:22px 0 0;background:var(--bg-3);border:1px solid var(--line-2);
+  color:var(--txt-2);border-radius:12px;min-height:46px;font-family:inherit;font-size:.9rem;
+  font-weight:700;cursor:pointer}
+.nf-more:hover{border-color:var(--accent);color:var(--accent-2)}
+.nf-more:disabled{opacity:.6;cursor:default}
+
+@media (max-width:640px){
+  .nf-grid{gap:14px}
+  .nf-body{padding:14px 15px 16px}
+  .nf-head h1{font-size:1.45rem}
+  .nf-mark{width:36px;height:36px;font-size:1.05rem}
+}

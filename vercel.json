@@ -62,6 +62,10 @@
     {
       "path": "/api/cron/report",
       "schedule": "0 7 * * 1"
+    },
+    {
+      "path": "/api/cron/news",
+      "schedule": "0 */4 * * *"
     }
   ]
 }
