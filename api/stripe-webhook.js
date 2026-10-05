@@ -511,6 +511,56 @@ export default async function handler(req, res) {
         break;
       }
 
+      /* A subscription that starts on a trial never produces a paid invoice,
+         so nothing opened the member area for it: two people subscribed and
+         could see none of the courses they had just signed up for.
+
+         The old rule was that a trial is not a payment and should not buy
+         access. That is defensible for a trial somebody might abandon, but it
+         is not what this membership offers - the trial exists so they can use
+         the thing - and ALL_ACCESS has always been documented as "held by
+         anyone on an active or trialing membership". The code disagreed with
+         its own definition.
+
+         So the subscription's status decides, which is the fact that actually
+         answers the question. Granted when it is live, taken back when it is
+         not, and the payment events below still grant too, because a
+         subscription that converts should not depend on this one firing. */
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated': {
+        const sub = event.data.object;
+        const live = sub.status === 'trialing' || sub.status === 'active';
+        const over = ['canceled', 'unpaid', 'incomplete_expired'].includes(sub.status);
+        if (!live && !over) break;
+
+        const who = sub.customer
+          ? (await stripe.customers.retrieve(sub.customer).catch(() => null))?.email
+          : null;
+        if (!who) {
+          console.error('[stripe-webhook] subscription', sub.status, 'with no email:', sub.id);
+          break;
+        }
+
+        if (live) {
+          await grantEntitlement(who, ALL_ACCESS);
+          console.log('[stripe-webhook] All-access granted to', who, `(subscription ${sub.status})`);
+          break;
+        }
+
+        // Ending is handled where cancellation already is, so that the "is this
+        // their last subscription" question is asked in exactly one place.
+        const others = await stripe.subscriptions
+          .list({ customer: sub.customer, status: 'all', limit: 20 })
+          .then((r) => r.data.filter((s) => s.id !== sub.id
+            && ['active', 'trialing', 'past_due'].includes(s.status)))
+          .catch(() => []);
+        if (!others.length) {
+          await revokeEntitlement(who, ALL_ACCESS);
+          console.log('[stripe-webhook] All-access revoked from', who, `(subscription ${sub.status})`);
+        }
+        break;
+      }
+
       case 'customer.subscription.deleted': {
         const sub = event.data.object;
         const subEmail = (await stripe.customers.retrieve(sub.customer).catch(() => null))?.email || null;
