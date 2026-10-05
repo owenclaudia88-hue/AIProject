@@ -51,7 +51,10 @@ export default async function handler(req, res) {
     if (b.run) {
       if (!process.env.CRON_SECRET) return res.status(503).json({ error: 'CRON_SECRET is not set' });
       const site = (process.env.SITE_URL || `https://${req.headers.host}`).replace(/\/+$/, '');
-      const r = await fetch(`${site}/api/cron/report${b.dry ? '?dry=1' : ''}`, {
+      /* force=1, because this one was pressed. The schedule stands down when a
+         report has already gone out this week; a person asking for another has
+         a reason the clock does not have. */
+      const r = await fetch(`${site}/api/cron/report?force=1${b.dry ? '&dry=1' : ''}`, {
         method: 'POST',
         headers: { authorization: `Bearer ${process.env.CRON_SECRET}` }
       });

@@ -18,7 +18,8 @@ import { makeReport } from '../../lib/report-generate.js';
 import { reportSlug } from '../../lib/reports.js';
 import { makeCover } from '../../lib/report-cover.js';
 import {
-  nextReportNumber, recentReportTitles, coveredUrls, saveReport, lastReportWrittenAt,
+  nextReportNumber, recentReportTitles, coveredUrls, saveReport,
+  lastReportWrittenAt, lastPublishedReportAt,
   digestAudience, optOuts, bouncedEmails
 } from '../../lib/db.js';
 import { MEMBERSHIP_UNLOCKS } from '../../lib/products.js';
@@ -40,11 +41,15 @@ export default async function handler(req, res) {
 
   const url = new URL(req.url, 'http://localhost');
   const dry = url.searchParams.get('dry') === '1';
+  // Pressed by an admin rather than fired by the schedule. A person asking for
+  // a second report this week has a reason; the clock does not.
+  const force = url.searchParams.get('force') === '1';
   const started = Date.now();
 
   try {
-    const [number, recentTitles, covered, recent] = await Promise.all([
-      nextReportNumber(), recentReportTitles(8), coveredUrls(120), lastReportWrittenAt()
+    const [number, recentTitles, covered, recent, published] = await Promise.all([
+      nextReportNumber(), recentReportTitles(8), coveredUrls(120),
+      lastReportWrittenAt(), lastPublishedReportAt()
     ]);
 
     /* Two runs at once both take max+1, because that is what max+1 does. The
@@ -55,8 +60,31 @@ export default async function handler(req, res) {
        This is the other half: a second run started within a couple of minutes
        of the last one is almost always a double press, and a Monday report is
        not something anybody needs twice in two minutes. */
+    /* One report a week, and the week is counted from the last one published
+       rather than from the calendar.
+
+       This Monday's schedule fired at seven and built a second report hours
+       after one had already gone out by hand. It was correctly held - the
+       first report had claimed the week's news, so only two items were left
+       for the second - but it should never have run, and somebody got an email
+       about a report being held on a morning when a report had been sent.
+
+       Not applied to a dry run, which stores nothing, nor to a run somebody
+       pressed: a person asking for a second report this week has a reason, and
+       the clock does not. */
+    const WEEK = 6 * 864e5;
+    if (!dry && !force && published && Date.now() - new Date(published).getTime() < WEEK) {
+      const days = Math.floor((Date.now() - new Date(published).getTime()) / 864e5);
+      return res.status(200).json({
+        ok: true,
+        skipped: `a report was published ${days === 0 ? 'today' : `${days} day(s) ago`}; `
+          + 'one a week, so this run stands down',
+        ms: Date.now() - started
+      });
+    }
+
     const SINCE_LAST = 120000;
-    if (!dry && recent && Date.now() - new Date(recent).getTime() < SINCE_LAST) {
+    if (!dry && !force && recent && Date.now() - new Date(recent).getTime() < SINCE_LAST) {
       const ago = Math.round((Date.now() - new Date(recent).getTime()) / 1000);
       return res.status(200).json({
         ok: true,
