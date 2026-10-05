@@ -13,9 +13,10 @@
  */
 import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
-import { listReports, reportByNumber, saveReport } from '../../lib/db.js';
+import { listReports, reportByNumber, saveReport, deleteReport } from '../../lib/db.js';
 import { makeCover } from '../../lib/report-cover.js';
 import { SOURCES } from '../../lib/report-sources.js';
+import { del } from '@vercel/blob';
 
 export default async function handler(req, res) {
   const email = await sessionEmail(req);
@@ -76,6 +77,38 @@ export default async function handler(req, res) {
         model: row.model, stats: row.stats, fail: b.publish ? null : row.fail
       });
       return res.status(200).json({ ok: true, status: b.publish ? 'published' : 'held' });
+    }
+
+    /* ---- throw a test run away ----
+
+       A run made for testing claims the week's news: every item it publishes
+       is recorded as covered so next week does not repeat it. Delete the
+       report and leave those behind and the real Monday run starves on the
+       leftovers - which is exactly what happened, and why a scheduled report
+       was held with two items hours after a test one went out.
+
+       So removing a report releases what it claimed, in the same breath. The
+       cover blob goes too; nothing points at it once the row is gone. */
+    if (b.remove) {
+      const removed = await deleteReport(n);
+      if (!removed) return res.status(404).json({ error: 'not found' });
+
+      if (row.cover_url) {
+        try {
+          const key = new URL(row.cover_url).searchParams.get('key');
+          if (key) await del(key, { token: process.env.BLOB_READ_WRITE_TOKEN });
+        } catch (err) {
+          // An orphaned blob is litter, not a failure; the report is gone.
+          console.error('[admin/reports] cover blob not removed:', err?.message);
+        }
+      }
+
+      return res.status(200).json({
+        ok: true,
+        removed: n,
+        released: removed.released,
+        wasPublished: row.status === 'published'
+      });
     }
 
     /* ---- take something down ----

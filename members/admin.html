@@ -2404,6 +2404,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             (r.status === 'published'
               ? '<button data-hold="' + n + '">Take it down</button>'
               : '<button class="pub" data-pub="' + n + '">Publish it</button>') +
+            // A test run claims the week's news. Deleting it hands those links
+            // back, which is the whole reason this button exists rather than a
+            // row quietly left in the table.
+            '<button data-delrep="' + n + '" title="Deletes it and releases the links it claimed, ' +
+              'so the next run can use that news">Delete this run</button>' +
           '</div>' +
           sourceListHTML(r) +
           '<div class="rm-prev" id="rp-prev-' + n + '"></div>';
@@ -2451,6 +2456,35 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
                   paintReports(document.getElementById('panel'));
                   if (rp.open) openReportAdmin(rp.open);
                 });
+              })
+              .catch(function () { b.disabled = false; });
+            return;
+          }
+
+          if (b.hasAttribute('data-delrep')) {
+            e.stopPropagation();
+            // Says what it costs, because the part people forget is the links.
+            if (!window.confirm('Delete report ' + n + ' and release the news it used?\n\n' +
+              'The items in it become available to the next run again. ' +
+              (r.status === 'published' ? 'It is published, so members lose it.' : ''))) return;
+            b.disabled = true;
+            fetch('/api/admin/reports', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ n: n, remove: true })
+            })
+              .then(function (r2) { return r2.json().then(function (j) { return { status: r2.status, d: j }; }); })
+              .then(function (out) {
+                if (!out.d || !out.d.ok) {
+                  b.disabled = false;
+                  window.alert('Did not delete (HTTP ' + out.status + '): ' +
+                    ((out.d && (out.d.message || out.d.error)) || 'no reason given'));
+                  return;
+                }
+                rp.open = null; rp.list = null;
+                say('Deleted report ' + out.d.removed + ' and released ' +
+                  out.d.released + ' link(s) back to the next run.');
+                loadReportsAdmin().then(function () { paintReports(document.getElementById('panel')); });
               })
               .catch(function () { b.disabled = false; });
             return;
