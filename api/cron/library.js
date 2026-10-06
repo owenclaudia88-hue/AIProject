@@ -14,7 +14,7 @@
  * it. `?want=N` changes how many to attempt.
  */
 import { writeTheWeek } from '../../lib/library-generate.js';
-import { illustrate } from '../../lib/library-figures.js';
+import { illustrate, makeCover } from '../../lib/library-figures.js';
 import { listNews, saveDraftItem, draftItems } from '../../lib/db.js';
 import { neon } from '@neondatabase/serverless';
 
@@ -107,9 +107,12 @@ export default async function handler(req, res) {
           failed: [{ n: 0, why: String(err.message || err).slice(0, 120) }] };
       }
 
+      // The picture on the library card. Every tutorial already there has one.
+      const thumbKey = await makeCover({ id, itemId: id, title: piece.title, category: piece.category });
+
       await saveDraftItem({
         id, kind: 'video', category: piece.category, title: piece.title,
-        description: piece.description, bodyHtml: art.html,
+        description: piece.description, bodyHtml: art.html, thumbKey,
         tags: (piece.tags || []).slice(0, 5), sourceStory: story.url,
         meta: {
           level: piece.difficulty, readTime: `${piece.readMinutes} min read`,
