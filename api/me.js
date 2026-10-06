@@ -42,8 +42,8 @@ export default async function handler(req, res) {
       // they can read one - that is hasMembership below, and somebody without
       // it gets the section with a lock on it rather than no section.
       canSeeReports: reportsOpenTo(email),
-      // The news feed, which is not open yet. Same flag shape as the reports,
-      // so opening it is a change in one file.
+      // The news feed. Same flag shape and same meaning as the reports above:
+      // whether it exists for this member, not whether they can read one.
       canSeeNews: newsOpenTo(email),
       // Their own picture, for the account card in the sidebar. The path rather
       // than the storage address: the photo is private and served through us.

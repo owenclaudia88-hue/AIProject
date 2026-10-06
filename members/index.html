@@ -1371,11 +1371,13 @@ button{font-family:inherit}
           if (me.canSeeReports && me.canPreview) loadReports();
           else if (me.canSeeReports) rpNav.classList.add('is-locked');
         }
-        // Not open yet: shown to the test account and staff, hidden from
-        // everybody else rather than locked, because a lock advertises
-        // something that cannot be bought yet.
+        // Open to the membership now, so it reads like the reports: in the
+        // sidebar for everybody, wearing a lock for anybody not subscribing.
         var nfNav = document.getElementById('nav-news');
-        if (nfNav) nfNav.hidden = !me.canSeeNews;
+        if (nfNav) {
+          nfNav.hidden = !me.canSeeNews;
+          if (me.canSeeNews && !me.canPreview) nfNav.classList.add('is-locked');
+        }
         var sbCommunity = document.getElementById('sb-community');
         if (sbCommunity) sbCommunity.hidden = false;
         // Nobody outside the community can have a notification waiting, so the
@@ -2572,7 +2574,24 @@ button{font-family:inherit}
       .catch(function () { nf.busy = false; nf.loaded = true; });
   }
 
+  /* Shown to somebody without the membership, the same way the reports and the
+     roadmap read. Without it they would land on an empty feed, because a 403
+     and a quiet week look identical to loadNews. */
+  function renderNewsLocked(c) {
+    c.innerHTML = '<h1 class="page-h">AI News Feed</h1>' +
+      '<p class="page-sub">Latest AI news and updates from trusted sources.</p>' +
+      '<div class="req-card locked-perk"><span class="lock-badge">🔒</span>' +
+        '<h2>A membership perk</h2>' +
+        '<p class="sub">Every few hours we read what the AI companies and the press have ' +
+          'published and keep the ones worth knowing about, with the source on each. ' +
+          'Search it, filter it by category, and see what broke this morning without ' +
+          'going looking for it.</p>' +
+        '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">' +
+          '🔒 Unlock with the membership</a></div>';
+  }
+
   function renderNews(c) {
+    if (!me.canPreview) return renderNewsLocked(c);
     if (!nf.loaded) {
       c.innerHTML = '<p class="empty">Loading…</p>';
       loadNews(false).then(function () {
@@ -4621,7 +4640,10 @@ button{font-family:inherit}
     gs.threads = null;
 
     var asks = [];
-    if (me.canSeeNews) {
+    // Only the people who can actually read the feed ask it anything. For the
+    // rest the request would be refused, and searching on their behalf spends a
+    // round trip to find nothing they were allowed to see.
+    if (me.canSeeNews && me.canPreview) {
       asks.push(fetch('/api/news?page=1&q=' + encodeURIComponent(term), { credentials: 'same-origin' })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) { if (gs.token === mine) gs.news = (d && d.items) || []; })
