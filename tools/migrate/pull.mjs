@@ -220,10 +220,13 @@ for (const c of captured) {
   const m = c.method === 'GET' && c.url.match(/\/rest\/v1\/([a-zA-Z0-9_]+)\?/);
   if (!m) continue;
   restTables.add(m[1]);
-  if (!originalSelect.has(m[1])) {
-    const q = new URL(c.url).searchParams.get('select');
-    if (q) originalSelect.set(m[1], q);
-  }
+  // Keep the richest select the app was seen to make, not the first. A table
+  // is usually read several times - a six-row teaser on the dashboard, then the
+  // full list on its own page - and the teaser asks for a fraction of the
+  // columns. Falling back to that one costs the very fields worth having, which
+  // is how a tutorial arrives with no body and no thumbnail.
+  const q = new URL(c.url).searchParams.get('select');
+  if (q && q.length > (originalSelect.get(m[1])?.length ?? 0)) originalSelect.set(m[1], q);
 }
 const SKIP = /^(profiles|user_roles|favorites|favorites_counts|user_notification_reads|notification_broadcasts|user_)/;
 const contentTables = [...restTables].filter(t => !SKIP.test(t));
@@ -250,10 +253,23 @@ for (const table of contentTables) {
     return { status: 200, rows: all };
   };
 
-  // all columns first; if the row-level rules block that, fall back to the
-  // exact columns the app itself requested (at least gets the full list)
+  // All columns first; if the row-level rules block that, fall back to the
+  // exact columns the app itself requested (at least gets the full list).
+  //
+  // The empty case matters as much as the error case. `select=*` can return 200
+  // with nothing in it: where one column is unreadable by this role, the rule
+  // takes the whole row rather than the column, and PostgREST filters instead
+  // of failing. From here that is indistinguishable from an empty table, so a
+  // silent zero is treated as a block and retried - the tutorials table did
+  // exactly this, wrote an empty file, and reported success.
   let res = await tryFetch('*');
-  if (res.status >= 400 && originalSelect.has(table)) res = await tryFetch(originalSelect.get(table));
+  if ((res.status >= 400 || res.rows.length === 0) && originalSelect.has(table)) {
+    const narrowed = await tryFetch(originalSelect.get(table));
+    if (narrowed.rows.length) {
+      console.log(`    (select=* gave nothing — using the app's own columns)`);
+      res = narrowed;
+    }
+  }
 
   const rows = res.rows;
   allRows[table] = rows;
