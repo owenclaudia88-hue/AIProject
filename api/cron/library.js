@@ -128,6 +128,13 @@ export default async function handler(req, res) {
       written: saved.length,
       clean: saved.filter((s) => !s.held.length).length,
       held: saved.filter((s) => s.held.length).map((s) => ({ title: s.title, why: s.held })),
+      /* Why a chosen piece produced nothing. Without this the run answered
+         "picked 1, written 0" and said no more, which is the least useful
+         thing a report can do: the reason was that the writer had been given
+         too small a token budget for the length it was asked for, and nothing
+         on the screen could have told anybody that. */
+      failedToWrite: out.pieces.filter((p) => !p.piece)
+        .map((p) => ({ title: p.pick.title, why: p.fail })),
       waitingForReview: waiting.length,
       passed: out.passed,
       cost: out.stats.cost,
