@@ -66,6 +66,16 @@
 .guide .gallery-index{font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
 .guide .tutorial-img{margin:16px 0}
 
+/* A picture and the line under it. Neither was styled, so a figure picked up
+   the browser's default 40px side margin and its caption rendered at body size
+   in bold - which read as a heading sitting under the image rather than a
+   caption. This applies to the 42 migrated tutorials as much as to anything
+   written since. */
+.guide figure{margin:18px 0}
+.guide figure img{margin:0}
+.guide figcaption{margin:10px 2px 0;font-size:.86rem;line-height:1.6;color:var(--txt-3)}
+.guide figcaption strong{color:var(--txt-2);font-weight:700}
+
 /* The citations at the foot of a tutorial, and the line about how current it
    is. Named publications and document titles, as text rather than links: the
    library's own tutorials carry 24 links across 42 pieces, and every one of
