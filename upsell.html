@@ -1224,7 +1224,9 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
     if (left <= 0) {
       clearInterval(timer);
       clocks.forEach(function (c) { c.classList.add('done'); });
-      document.querySelector('.bar').textContent = 'This one-time offer has expired';
+      // The bar is left saying what it always says. A page that announces its
+      // own offer has expired tells somebody who is still reading it that there
+      // is no longer any point, and the offer is in fact still there to take.
     }
   }
   var timer = setInterval(tick, 1000);
