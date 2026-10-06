@@ -67,7 +67,12 @@ let matched = 0, ambiguous = 0, unmatched = 0, weak = 0;
 const takenBy = new Map();   // video guid -> lesson title (a video belongs to one lesson)
 
 for (const c of await listCourses()) {
+  // getCourse gates on entitlements and this runs with none, so a course behind
+  // an add-on comes back null. Those are the paid ones, which already carry
+  // their video ids; skipping them keeps this to the courses that need it
+  // rather than crashing the run half way through.
   const course = await getCourse(c.slug);
+  if (!course?.data) { console.log(`\n=== ${c.slug} — skipped (not readable without its entitlement)`); continue; }
   const data = course.data;
   let touched = 0;
   console.log(`\n=== ${course.title}`);
