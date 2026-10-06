@@ -1,6 +1,7 @@
 import { get } from '@vercel/blob';
 import { sessionEmail } from '../../lib/session.js';
 import { isActive, getAsset } from '../../lib/db.js';
+import { isAdmin } from '../../lib/admin.js';
 
 /**
  * GET /api/library/asset?key=…  — serves a library image (lesson diagram, card
@@ -10,7 +11,13 @@ export default async function handler(req, res) {
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
-    if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
+    /* Staff too. They have no customer row, so isActive is false for them, and
+       that quietly broke the one screen where it matters most: an admin
+       reading a draft before publishing it saw every picture in it as a broken
+       box. Reviewing a tutorial without its illustrations is not reviewing it. */
+    if (!isAdmin(email) && !(await isActive(email))) {
+      return res.status(403).json({ error: 'not active' });
+    }
 
     const params = new URL(req.url, 'http://localhost').searchParams;
     const key = params.get('key');
