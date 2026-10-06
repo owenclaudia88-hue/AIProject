@@ -1,8 +1,8 @@
-/**
+﻿/**
  * The news feed's collector, a few times a day.
  *
- *   read the sources → drop what we already have → fetch each new page once
- *   for its picture and its real headline → store → prune what fell out of
+ *   read the sources â†’ drop what we already have â†’ fetch each new page once
+ *   for its picture and its real headline â†’ store â†’ prune what fell out of
  *   the window.
  *
  * It calls no model. Every word on a news card is the publisher's own - their
@@ -15,7 +15,7 @@
  * run would do.
  */
 import { collectWeek, cardFor, clearPageCache } from '../../lib/report-sources.js';
-import { saveNewsItems, knownNewsUrls, pruneNews, countNews, NEWS_WINDOW_DAYS } from '../../lib/db.js';
+import { saveNewsItems, knownNewsUrls, pruneNews, countNews, refreshNewsClusters, NEWS_WINDOW_DAYS } from '../../lib/db.js';
 
 /* Each new item costs a page fetch and a HEAD on its picture. Capped per run
    so a quiet morning finishes in seconds and a backlog is worked through over
@@ -91,6 +91,13 @@ export default async function handler(req, res) {
     }
 
     const stored = await saveNewsItems(cards);
+    /* Stories we already had learn who else covered them. Only a first sighting
+       writes a row, so without this the items collected before the cluster was
+       kept would never gain one. */
+    const clustered = await refreshNewsClusters(items.map((it) => ({
+      url: it.url,
+      also: (it.also || []).map((a) => ({ url: a.url, sourceName: a.sourceName, source: a.source }))
+    })));
     const pruned = await pruneNews(NEWS_WINDOW_DAYS);
     const total = await countNews();
 
@@ -112,3 +119,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'server', message: String(err.message || err).slice(0, 300) });
   }
 }
+
