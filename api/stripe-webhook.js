@@ -337,7 +337,7 @@ export default async function handler(req, res) {
               console.log('[stripe-webhook] Already subscribed (', existing.status, existing.id,
                 ') - not enrolling', email, 'again');
             } else {
-              const trialDays = Math.max(0, Number.parseInt(process.env.SUBSCRIPTION_TRIAL_DAYS ?? '7', 10) || 0);
+              const trialDays = Math.max(0, Number.parseInt(process.env.SUBSCRIPTION_TRIAL_DAYS ?? '3', 10) || 0);
               await stripe.subscriptions.create({
                 customer: customerId,
                 items: [{ price: monthlyPrice }],
