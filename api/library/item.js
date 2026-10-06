@@ -1,5 +1,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { isActive, getLibraryItem, getGallery, relatedLibraryItems, getGuide, entitlementsFor } from '../../lib/db.js';
+import { isTester } from '../../lib/testers.js';
+import { isAdmin } from '../../lib/admin.js';
 
 const assetUrl = (key) => (key ? `/api/library/asset?key=${encodeURIComponent(key)}` : null);
 
@@ -18,13 +20,16 @@ export default async function handler(req, res) {
     const id = new URL(req.url, 'http://localhost').searchParams.get('id');
     if (!id) return res.status(400).json({ error: 'missing id' });
 
-    const item = await getLibraryItem(id, await entitlementsFor(email));
+    // See api/library/list.js: a written tutorial is open to the test account
+    // and staff before it is open to the membership.
+    const preview = isTester(email) || isAdmin(email);
+    const item = await getLibraryItem(id, await entitlementsFor(email), { preview });
     if (!item) return res.status(404).json({ error: 'not found' });
 
     const meta = item.meta || {};
     const [tiles, related, guideHtml] = await Promise.all([
       item.kind === 'image_prompt' ? getGallery(id) : Promise.resolve([]),
-      relatedLibraryItems(id, item.kind, item.category, 4),
+      relatedLibraryItems(id, item.kind, item.category, 4, { preview }),
       getGuide(id)
     ]);
 

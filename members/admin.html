@@ -640,7 +640,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
      product where one of them can reach a member. Reading the whole thing
      before publishing is the entire point, so the body opens in place rather
      than behind a link somebody will not follow. */
-  var dr = { list: null, recent: [], canRun: false, open: {}, busy: false };
+  var dr = { list: null, onTest: [], recent: [], canRun: false, open: {}, busy: false };
 
   function drWhen(iso) {
     var t = iso ? new Date(iso).getTime() : 0;
@@ -659,7 +659,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         ? '<p class="dr-why"><b>Held:</b> ' + esc(held.join('; ')) + '. Read it and decide.</p>' : '') +
       '<div class="dr-acts">' +
         '<button data-read="' + esc(d.id) + '">' + (body ? 'Close' : 'Read it') + '</button>' +
-        '<button class="go" data-pub="' + esc(d.id) + '">Publish to the library</button>' +
+        '<button class="go" data-pub="' + esc(d.id) + '">Put it on the test account</button>' +
         '<button class="bin" data-bin="' + esc(d.id) + '">Bin it</button>' +
       '</div>' +
       (body ? '<div class="dr-body"><div class="guide">' + body + '</div></div>' : '') +
@@ -673,6 +673,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
         .then(function (res) {
           dr.list = res.ok ? (res.d.drafts || []) : [];
+          dr.onTest = res.ok ? (res.d.onTest || []) : [];
           dr.recent = res.ok ? (res.d.recent || []) : [];
           dr.canRun = !!(res.ok && res.d.canRun);
           var n = document.getElementById('n-dr');
@@ -698,8 +699,21 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         ? '<div class="dr-sec"><h2>Waiting to be read</h2><span>' + dr.list.length + '</span></div>' +
           dr.list.map(drRow).join('')
         : '<p class="empty">Nothing waiting. Press the button above to write this week’s.</p>') +
+      (dr.onTest.length
+        ? '<div class="dr-sec"><h2>Live on the test account only</h2><span>' + dr.onTest.length + '</span></div>' +
+          '<p class="dr-note">In the member area for owenclaudia88 and staff. No subscriber can see these. ' +
+            'Read one there, then open it to everyone when you are happy.</p>' +
+          dr.onTest.map(function (t) {
+            return '<div class="dr-row"><div class="dr-h"><b>' + esc(t.title) + '</b>' +
+              '<span class="dr-meta">' + esc(t.category || '') + '</span></div>' +
+              (t.description ? '<p class="dr-desc">' + esc(t.description) + '</p>' : '') +
+              '<div class="dr-acts">' +
+                '<button class="go" data-open="' + esc(t.id) + '">Open to every member</button>' +
+              '</div></div>';
+          }).join('')
+        : '') +
       (dr.recent.length
-        ? '<div class="dr-sec"><h2>Published in the last fortnight</h2><span>' + dr.recent.length + '</span></div>' +
+        ? '<div class="dr-sec"><h2>Open to everyone, last fortnight</h2><span>' + dr.recent.length + '</span></div>' +
           dr.recent.map(function (r) {
             return '<div class="dr-row"><div class="dr-h"><b>' + esc(r.title) + '</b>' +
               '<span class="dr-meta">' + esc(r.category || '') + '</span></div></div>';
@@ -741,11 +755,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       b.addEventListener('click', function () {
         var id = b.getAttribute('data-pub');
         var row = dr.list.filter(function (x) { return x.id === id; })[0];
-        if (!confirm('Publish "' + (row ? row.title : id) + '" to the library?\n\n'
-          + 'Every member with a subscription will see it.')) return;
-        act({ id: id, publish: true }, 'Publishing…', function (res) {
+        if (!confirm('Put "' + (row ? row.title : id) + '" on the test account?\n\n'
+          + 'It goes live in the member area for owenclaudia88 and staff only. '
+          + 'No subscriber sees it until you open it to everyone.')) return;
+        act({ id: id, publish: true }, 'Publishing to the test account…', function (res) {
           if (!res.ok) { say(res.d.error || 'Could not publish that.'); return; }
-          dr.list = null; dr.recent = []; paintDrafts(p);
+          dr.list = null; dr.onTest = []; dr.recent = []; paintDrafts(p);
         });
       });
     });
@@ -758,6 +773,20 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         act({ id: id, discard: true }, 'Binning…', function (res) {
           if (!res.ok) { say(res.d.error || 'Could not bin that.'); return; }
           dr.list = null; paintDrafts(p);
+        });
+      });
+    });
+
+    [].forEach.call(p.querySelectorAll('[data-open]'), function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-open');
+        var row = dr.onTest.filter(function (x) { return x.id === id; })[0];
+        if (!confirm('Open "' + (row ? row.title : id) + '" to every member?\n\n'
+          + 'This is the one that is not reversible from here: all 18 subscribers '
+          + 'will see it in their library.')) return;
+        act({ id: id, openToEveryone: true }, 'Opening…', function (res) {
+          if (!res.ok) { say(res.d.error || 'Could not open that.'); return; }
+          dr.list = null; dr.onTest = []; dr.recent = []; paintDrafts(p);
         });
       });
     });

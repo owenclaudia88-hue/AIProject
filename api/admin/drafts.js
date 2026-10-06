@@ -17,7 +17,8 @@
  */
 import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
-import { draftItems, draftItem, publishDraft, discardDraft, publishedSince } from '../../lib/db.js';
+import { draftItems, draftItem, publishDraft, discardDraft, publishedSince,
+  openToEveryone, testerOnlyItems } from '../../lib/db.js';
 
 export default async function handler(req, res) {
   const email = await sessionEmail(req);
@@ -32,9 +33,14 @@ export default async function handler(req, res) {
         if (!row) return res.status(404).json({ error: 'not found' });
         return res.status(200).json({ draft: row });
       }
-      const [waiting, recent] = await Promise.all([draftItems(), publishedSince(14)]);
+      const [waiting, onTest, recent] = await Promise.all([
+        draftItems(), testerOnlyItems(), publishedSince(14)
+      ]);
       return res.status(200).json({
         drafts: waiting,
+        // Live, but only for the test account and staff. The step between a
+        // draft nobody sees and a tutorial every subscriber sees.
+        onTest,
         // What the writer has already got past this screen, so the admin can
         // see the cadence rather than only the queue.
         recent,
@@ -64,11 +70,23 @@ export default async function handler(req, res) {
     const id = String(b.id || '');
     if (!id) return res.status(400).json({ error: 'which draft?' });
 
+    /* Publishing puts it in front of the test account and staff, not the
+       membership. Everything the writer produces goes there first: the whole
+       point of reading a draft is to catch what is wrong with it, and some of
+       that only shows up in the real member area rather than in a preview. */
     if (b.publish) {
-      const row = await publishDraft(id);
+      const row = await publishDraft(id, { testersOnly: true });
       if (!row) return res.status(404).json({ error: 'not found, or already published' });
-      console.log(`[drafts] ${email} published "${row.title}"`);
-      return res.status(200).json({ ok: true, published: row });
+      console.log(`[drafts] ${email} published "${row.title}" to the test account`);
+      return res.status(200).json({ ok: true, published: row, audience: 'testers' });
+    }
+
+    // The separate, deliberate second step.
+    if (b.openToEveryone) {
+      const row = await openToEveryone(id);
+      if (!row) return res.status(404).json({ error: 'not found, or already open to everyone' });
+      console.log(`[drafts] ${email} opened "${row.title}" to every member`);
+      return res.status(200).json({ ok: true, opened: row, audience: 'everyone' });
     }
 
     if (b.discard) {
@@ -78,7 +96,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, discarded: id });
     }
 
-    return res.status(400).json({ error: 'publish, discard or run?' });
+    return res.status(400).json({ error: 'publish, openToEveryone, discard or run?' });
   } catch (err) {
     console.error('[admin/drafts]', err);
     return res.status(500).json({ error: 'server', message: String(err.message || err).slice(0, 200) });

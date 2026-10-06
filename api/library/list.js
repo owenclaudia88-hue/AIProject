@@ -1,5 +1,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { isActive, listLibrary, entitlementsFor } from '../../lib/db.js';
+import { isTester } from '../../lib/testers.js';
+import { isAdmin } from '../../lib/admin.js';
 
 /**
  * GET /api/library/list[?kind=]  — the browsable catalog (titles/metadata only,
@@ -14,7 +16,10 @@ export default async function handler(req, res) {
     const kind = new URL(req.url, 'http://localhost').searchParams.get('kind') || undefined;
     // Add-ons the member owns. Anything sold separately stays out of the
     // catalogue until they have bought it.
-    const rows = await listLibrary(kind, await entitlementsFor(email));
+    // A written tutorial goes live to the test account and staff first, so
+    // somebody can read it in the real member area before 18 subscribers do.
+    const preview = isTester(email) || isAdmin(email);
+    const rows = await listLibrary(kind, await entitlementsFor(email), { preview });
     const groups = {};
     for (const r of rows) {
       (groups[r.kind] ||= []).push({
