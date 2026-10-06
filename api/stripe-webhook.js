@@ -544,6 +544,28 @@ export default async function handler(req, res) {
         if (live) {
           await grantEntitlement(who, ALL_ACCESS);
           console.log('[stripe-webhook] All-access granted to', who, `(subscription ${sub.status})`);
+
+          // The yearly plan replaces the monthly trial rather than joining it.
+          //
+          // /api/membership/upgrade-annual does this itself when it charges the
+          // saved card, but it cannot when the card needs the bank and the buyer
+          // finishes on Stripe's own page instead: that subscription is created
+          // by Stripe, our code never runs, and without this the member would
+          // pay for the year and then be charged $39 again when the trial ended.
+          // Keyed on the metadata the upsell sets, so no other subscription can
+          // cancel anything by arriving.
+          if (sub.metadata?.source === 'post-purchase-upsell') {
+            const others = await stripe.subscriptions
+              .list({ customer: sub.customer, status: 'all', limit: 20 })
+              .then((r) => r.data.filter((s) => s.id !== sub.id
+                && (s.status === 'trialing' || s.status === 'active')))
+              .catch(() => []);
+            for (const o of others) {
+              await stripe.subscriptions.cancel(o.id)
+                .then(() => console.log('[stripe-webhook] cancelled', o.status, o.id, 'replaced by the yearly plan'))
+                .catch((err) => console.error('[stripe-webhook] could not cancel', o.id, '-', err.message));
+            }
+          }
           break;
         }
 
