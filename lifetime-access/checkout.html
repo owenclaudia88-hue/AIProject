@@ -377,7 +377,11 @@ footer a{color:var(--ink-2)}
   var $ = function (id) { return document.getElementById(id); };
   var nameEl = $('name'), emailEl = $('email'), btn = $('paybtn'), label = $('paylabel'), note = $('note');
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  var SUCCESS = '/lifetime-access/success.html';
+  // The membership offer sits between paying and the confirmation. It reads the
+  // payment intent off the query, makes its own call if the year is taken, and
+  // then sends the buyer on to /lifetime-access/success.html either way - so the
+  // confirmation page is still where every purchase ends up.
+  var UPSELL = '/upsell.html';
 
   /* ---------- step 1 carried over from the landing page ---------- */
   var buyer = {};
@@ -670,7 +674,7 @@ footer a{color:var(--ink-2)}
         if (!syncOk) { ev.paymentFailed && ev.paymentFailed({ reason: 'fail' }); return; }
         stripe.confirmPayment({
           elements: elements, clientSecret: clientSecret, redirect: 'if_required',
-          confirmParams: { return_url: new URL(SUCCESS, location.href).href }
+          confirmParams: { return_url: new URL(UPSELL, location.href).href }
         }).then(function (res) { done(res, name, email); });
       });
     });
@@ -701,7 +705,12 @@ footer a{color:var(--ink-2)}
     }
     var pi = res.paymentIntent;
     try { sessionStorage.setItem('lp_paid', JSON.stringify({ id: pi.id, name: name, email: email, addons: BONUS ? BONUS.addons.slice() : chosen.slice(), total: total, bonus: !!BONUS })); } catch (e) {}
-    location.href = SUCCESS + '?payment_intent=' + encodeURIComponent(pi.id) + '&redirect_status=' + encodeURIComponent(pi.status);
+    // The client secret goes too. Stripe appends it itself when it redirects,
+    // but this is the in-page path, and the offer page needs it to prove to our
+    // own endpoint that this browser is the one that made the payment.
+    location.href = UPSELL + '?payment_intent=' + encodeURIComponent(pi.id)
+      + '&payment_intent_client_secret=' + encodeURIComponent(pi.client_secret || '')
+      + '&redirect_status=' + encodeURIComponent(pi.status);
   }
 
   $('payform').addEventListener('submit', function (e) {
@@ -717,7 +726,7 @@ footer a{color:var(--ink-2)}
       elements: elements,
       redirect: 'if_required',
       confirmParams: {
-        return_url: new URL(SUCCESS, location.href).href,
+        return_url: new URL(UPSELL, location.href).href,
         // No receipt_email. Setting it makes Stripe email its own receipt
         // "regardless of your email settings" — so the Customer emails toggle
         // being off does not stop it, and the buyer gets two receipts: ours
