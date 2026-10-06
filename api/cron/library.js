@@ -18,6 +18,11 @@ import { illustrate } from '../../lib/library-figures.js';
 import { listNews, saveDraftItem, draftItems } from '../../lib/db.js';
 import { neon } from '@neondatabase/serverless';
 
+/* Writing one piece is about two minutes and drawing its pictures another one,
+   so this does not fit in the default 300 seconds - the first run with figures
+   timed out and stored nothing at all. */
+export const config = { maxDuration: 800 };
+
 const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-')
   .replace(/^-|-$/g, '').slice(0, 60);
 
