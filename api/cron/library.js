@@ -14,6 +14,7 @@
  * it. `?want=N` changes how many to attempt.
  */
 import { writeTheWeek } from '../../lib/library-generate.js';
+import { illustrate } from '../../lib/library-figures.js';
 import { listNews, saveDraftItem, draftItems } from '../../lib/db.js';
 import { neon } from '@neondatabase/serverless';
 
@@ -86,17 +87,31 @@ export default async function handler(req, res) {
          is worth ten minutes of editing; deleting it makes that impossible and
          hides from the admin that the writer is drifting. */
       const id = `w-${slug(piece.title)}-${Date.now().toString(36).slice(-4)}`;
+
+      /* The pictures, drawn after the words because they are described by them.
+         A figure that cannot be drawn takes its marker out of the text with
+         it, so a published tutorial never shows "[[FIGURE 3]]". */
+      let art = { html: piece.bodyHtml, made: [], failed: [{ n: 0, why: 'not attempted' }] };
+      try {
+        art = await illustrate({ piece, itemId: id, subject: pick.title, story });
+      } catch (err) {
+        console.error('[cron/library] figures', err?.message);
+        art = { html: piece.bodyHtml.replace(/\[\[FIGURE\s*\d+\]\]/gi, ''), made: [],
+          failed: [{ n: 0, why: String(err.message || err).slice(0, 120) }] };
+      }
+
       await saveDraftItem({
         id, kind: 'video', category: piece.category, title: piece.title,
-        description: piece.description, bodyHtml: piece.bodyHtml,
+        description: piece.description, bodyHtml: art.html,
         tags: (piece.tags || []).slice(0, 5), sourceStory: story.url,
         meta: {
           level: piece.difficulty, readTime: `${piece.readMinutes} min read`,
           heroText: piece.heroText, shape: pick.shape,
-          sources: piece.sources || [], held: fail
+          sources: piece.sources || [], held: fail,
+          figures: art.made.length, figuresFailed: art.failed
         }
       });
-      saved.push({ id, title: piece.title, held: fail });
+      saved.push({ id, title: piece.title, held: fail, figures: art.made.length });
     }
 
     const waiting = await draftItems();
