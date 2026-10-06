@@ -65,3 +65,12 @@
 .guide .gallery-label{font-family:var(--mono);font-size:.74rem;color:var(--txt-2);margin-top:6px}
 .guide .gallery-index{font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
 .guide .tutorial-img{margin:16px 0}
+
+/* The citations at the foot of a tutorial, and the line about how current it
+   is. Named publications and document titles, as text rather than links: the
+   library's own tutorials carry 24 links across 42 pieces, and every one of
+   those points at a resource somebody is meant to go and use rather than at a
+   citation. */
+.guide .sources{margin:10px 0 0;padding-left:20px;font-size:.9rem;color:var(--txt-2)}
+.guide .sources li{margin:0 0 6px;line-height:1.6}
+.guide .small-note{margin:16px 0 0;font-size:.86rem;line-height:1.6;color:var(--txt-3)}
