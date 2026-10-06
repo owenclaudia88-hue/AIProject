@@ -69,6 +69,9 @@ export default async function handler(req, res) {
             imageUrl: card.image?.url || null,
             imageAlt: card.image?.alt || null,
             tags: it.tags || [],
+            // Who else ran the same announcement, kept so a tutorial can be
+            // written from all of it rather than from one outlet's blurb.
+            also: (it.also || []).map((a) => ({ url: a.url, sourceName: a.sourceName, source: a.source })),
             publishedAt: card.publishedAt || it.publishedAt || null
           };
         } catch (err) {

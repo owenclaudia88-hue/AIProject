@@ -46,8 +46,10 @@ export default async function handler(req, res) {
 
     // Eight days, so a Tuesday run still has the previous week's Friday in it.
     const stories = (await listNews({ limit: 60, offset: 0 })).map((r) => ({
-      title: r.title, sourceName: r.source_name, url: r.url,
-      summary: r.summary, publishedAt: r.published_at
+      title: r.title, sourceName: r.source_name, url: r.url, source: r.source,
+      summary: r.summary, publishedAt: r.published_at,
+      // Who else covered the same announcement, so the writer can read all of it.
+      also: r.also || []
     }));
 
     if (stories.length < 8) {
@@ -86,7 +88,7 @@ export default async function handler(req, res) {
     }
 
     const saved = [];
-    for (const { pick, story, piece, fail } of out.pieces) {
+    for (const { pick, story, piece, fail, sources } of out.pieces) {
       if (!piece) continue;
       /* Held pieces are stored too, marked with what stopped them. A near miss
          is worth ten minutes of editing; deleting it makes that impossible and
@@ -113,10 +115,14 @@ export default async function handler(req, res) {
           level: piece.difficulty, readTime: `${piece.readMinutes} min read`,
           heroText: piece.heroText, shape: pick.shape,
           sources: piece.sources || [], held: fail,
+          // What it was actually written from, so the admin can see whether a
+          // thin piece was thin because the material was.
+          readFrom: sources || [],
           figures: art.made.length, figuresFailed: art.failed
         }
       });
-      saved.push({ id, title: piece.title, held: fail, figures: art.made.length });
+      saved.push({ id, title: piece.title, held: fail, figures: art.made.length,
+        readFrom: (sources || []).length });
     }
 
     const waiting = await draftItems();
