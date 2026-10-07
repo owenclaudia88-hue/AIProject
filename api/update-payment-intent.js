@@ -59,10 +59,21 @@ export default async function handler(req, res) {
     const hadBonus = pi.metadata?.bonus === '1';
     const isBonus = hadBonus && bonusActive(pi.metadata?.bonus_expires);
     const bonusEnded = hadBonus && !isBonus;
-    if (!isBonus && !ADDON_SOURCES.has(pi.metadata?.source)) return res.status(409).json({ error: 'Add-ons are not available for this order.' });
-    if (!EDITABLE.has(pi.status)) return res.status(409).json({ error: 'This order can no longer be changed.' });
-
     const addons = isBonus ? BONUS_ADDONS.slice() : parseAddons(body.addons);
+
+    // Refuse add-ons this order cannot have — but only when some are actually
+    // being asked for.
+    //
+    // The checkout calls this on every change of the email field with an empty
+    // list, purely to record the address, and refusing that refused the order
+    // itself: the submit handler will not confirm a payment whose last update
+    // failed. So anybody whose visit began somewhere other than the lifetime
+    // lander — the home page, a link, anywhere — could not pay at all, and the
+    // message they were shown talked about add-ons they had never chosen.
+    if (addons.length && !isBonus && !ADDON_SOURCES.has(pi.metadata?.source)) {
+      return res.status(409).json({ error: 'Add-ons are not available for this order.' });
+    }
+    if (!EDITABLE.has(pi.status)) return res.status(409).json({ error: 'This order can no longer be changed.' });
     const amount = isBonus
       ? BASE_AMOUNT
       : BASE_AMOUNT + addons.reduce((sum, k) => sum + ADDONS[k].priceAmount(), 0);
