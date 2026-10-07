@@ -85,6 +85,24 @@ li b{color:var(--ink)}
   var q = new URLSearchParams(location.search);
   var id = q.get('payment_intent') || '';
   var status = q.get('redirect_status') || '';
+
+  /* Reaching this page is the end of the funnel, whatever route they took and
+     however long it took them — so every choice the welcome email needs to
+     describe has now been made. Asking here is what makes the email complete;
+     the cron's sweep exists only for people who never arrive.
+     Not waited on and nothing on this page depends on it. */
+  (function () {
+    var secret = q.get('payment_intent_client_secret') || '';
+    if (!id || !secret) return;
+    try {
+      fetch('/api/membership/welcome', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId: id, clientSecret: secret }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  })();
   var paid = {};
   try { paid = JSON.parse(sessionStorage.getItem('lp_paid') || '{}') || {}; } catch (e) {}
   var ADDON_TEXT = {

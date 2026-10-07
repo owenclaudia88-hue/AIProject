@@ -11,9 +11,34 @@
  * sends email is a gift to anyone who finds it.
  */
 import {
-  pendingNotifications, markNotificationsEmailed, optOuts, bouncedEmails
+  pendingNotifications, markNotificationsEmailed, optOuts, bouncedEmails, overdueWelcomes
 } from '../../lib/db.js';
 import { sendReplyNotification } from '../../lib/email.js';
+import { sendWelcomeFor } from '../../lib/welcome.js';
+
+/**
+ * The welcomes nobody came back for.
+ *
+ * One failure must not stop the rest: each is its own try, and sendWelcomeFor
+ * hands a failed one back to the queue rather than marking it sent, so it is
+ * picked up again on the next run instead of being lost.
+ */
+async function sweepWelcomes() {
+  let sent = 0, failed = 0;
+  try {
+    const due = await overdueWelcomes();
+    for (const row of due) {
+      try {
+        const out = await sendWelcomeFor(row.email, { reason: 'abandoned, swept' });
+        if (out.sent) sent += 1;
+      } catch { failed += 1; }
+    }
+  } catch (err) {
+    console.error('[cron/notify] welcome sweep failed:', err.message);
+  }
+  if (sent || failed) console.log(`[cron/notify] welcomes swept: ${sent} sent, ${failed} failed`);
+  return { sent, failed };
+}
 
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
@@ -26,8 +51,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // The welcomes of people who paid and then closed the tab without reaching
+    // their confirmation page. Everybody who gets that far has theirs sent on
+    // arrival; this is only the ones who never arrive, so on most runs it finds
+    // nothing. Done before the early return below, because a quiet community
+    // must not mean an unsent welcome.
+    const welcomes = await sweepWelcomes();
+
     const pending = await pendingNotifications();
-    if (!pending.length) return res.status(200).json({ sent: 0, skipped: 0 });
+    if (!pending.length) return res.status(200).json({ sent: 0, skipped: 0, welcomes });
 
     // The same suppression the reminders respect. These go out on the domain
     // that also sends receipts and sign-in links, so anything that would hurt

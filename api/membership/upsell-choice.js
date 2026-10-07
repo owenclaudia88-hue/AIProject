@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { recordUpsellChoice } from '../../lib/db.js';
+import { recordUpsellChoice, recordDownsellChoice } from '../../lib/db.js';
 
 /**
  * POST /api/membership/upsell-choice — note what a buyer did with the offer
@@ -20,7 +20,15 @@ import { recordUpsellChoice } from '../../lib/db.js';
  * to the confirmation page, and nothing they see should depend on it.
  */
 
-const ALLOWED = new Set(['seen', 'trial', 'declined']);
+/**
+ * Two offers, asked in order, so which one is being answered has to be said.
+ * Buying is recorded where the money moves, not from here: 'year' by
+ * upgrade-annual and 'bought' by the webhook that grants the course.
+ */
+const OFFERS = {
+  membership: { allowed: new Set(['seen', 'trial', 'declined']), record: recordUpsellChoice },
+  course: { allowed: new Set(['seen', 'declined']), record: recordDownsellChoice }
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -32,8 +40,13 @@ export default async function handler(req, res) {
   const paymentIntentId = String(body.paymentIntentId || '').trim();
   const clientSecret = String(body.clientSecret || '').trim();
   const choice = String(body.choice || '').trim();
+  // The membership offer came first and is what an older page would be asking
+  // about, so it is what an unnamed offer means.
+  const offer = OFFERS[String(body.offer || 'membership').trim()];
 
-  if (!paymentIntentId || !clientSecret || !ALLOWED.has(choice)) return res.status(204).end();
+  if (!paymentIntentId || !clientSecret || !offer || !offer.allowed.has(choice)) {
+    return res.status(204).end();
+  }
 
   try {
     const key = process.env.STRIPE_SECRET_KEY;
@@ -54,8 +67,8 @@ export default async function handler(req, res) {
       : null;
     if (!email) return res.status(204).end();
 
-    await recordUpsellChoice(email, choice);
-    console.log('[upsell-choice]', email, choice);
+    await offer.record(email, choice);
+    console.log('[upsell-choice]', email, String(body.offer || 'membership'), choice);
     return res.status(204).end();
   } catch (err) {
     // Never the buyer's problem: they are mid-way to their confirmation page.

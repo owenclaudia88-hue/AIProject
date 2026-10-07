@@ -144,6 +144,12 @@ export default async function handler(req, res) {
         // A label only - nothing acts on it, and declining took nothing away.
         upsellChoice: c.upsell_choice || null,
         upsellChoiceAt: c.upsell_choice_at || null,
+        // And the course offered to whoever turned the membership down:
+        // 'bought', 'declined', 'seen', or nothing if they never got that far —
+        // which includes everybody who took the membership, since only a
+        // decline leads to it.
+        downsellChoice: c.downsell_choice || null,
+        downsellChoiceAt: c.downsell_choice_at || null,
         viaReminder: won
           ? {
             count: won.reminderCount,

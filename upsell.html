@@ -1398,6 +1398,10 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
       var u = '/lifetime-access/success.html';
       var q = [];
       if (piId) q.push('payment_intent=' + encodeURIComponent(piId));
+      // Carried so the confirmation page can prove whose order it is and ask
+      // for the welcome to go out. Stripe puts the same value in the same place
+      // on its own redirects, so this is no more exposed than the ordinary path.
+      if (secret) q.push('payment_intent_client_secret=' + encodeURIComponent(secret));
       if (status) q.push('redirect_status=' + encodeURIComponent(status));
       if (extra) q.push(extra);
       window.location.assign(q.length ? u + '?' + q.join('&') : u);
@@ -1478,8 +1482,20 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
       if (!b.dataset.wired) b.addEventListener('click', function () { note('trial'); onwards(); });
     });
 
+    /* Turning the membership down is the one path that gets a second offer: the
+       course, which is a one-off and not a subscription, so it is worth asking
+       somebody who has just said no to a monthly commitment. Keeping the trial
+       and taking the year both go straight to the confirmation - they have
+       already said yes to something. */
     document.querySelectorAll('[data-decline]').forEach(function (b) {
-      b.addEventListener('click', function () { note('declined'); onwards(); });
+      b.addEventListener('click', function () {
+        note('declined');
+        if (!piId || !secret) { onwards(); return; }
+        window.location.assign('/oto-business-builder.html'
+          + '?payment_intent=' + encodeURIComponent(piId)
+          + '&payment_intent_client_secret=' + encodeURIComponent(secret)
+          + (status ? '&redirect_status=' + encodeURIComponent(status) : ''));
+      });
     });
   })();
 

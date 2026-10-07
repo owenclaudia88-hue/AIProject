@@ -1,12 +1,12 @@
 import Stripe from 'stripe';
 import {
   grantAccess, revokeAccess, createLoginToken,
-  grantEntitlement, revokeEntitlement
+  grantEntitlement, revokeEntitlement, recordDownsellChoice, queueWelcome
 } from '../lib/db.js';
 import { sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt } from '../lib/email.js';
 import { sendPurchase } from '../lib/meta-capi.js';
 import { sendMsPurchase } from '../lib/ms-capi.js';
-import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS }
+import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS, COURSES }
   from '../lib/products.js';
 
 /**
@@ -136,6 +136,33 @@ export default async function handler(req, res) {
           break;
         }
 
+        // A course taken from the offer shown after the membership page. It is a
+        // purchase, but not THAT purchase: they already have their specialists,
+        // their welcome email and their trial from the $1 that came before it.
+        // Everything below would send a second welcome and try to enrol them
+        // again, so this grants the one thing the course needs and stops.
+        //
+        // Granted here rather than in the endpoint that takes the money, so the
+        // one-click charge and the hosted checkout somebody is sent to when
+        // their bank wants a word both end in the same place.
+        if (pi.metadata?.course) {
+          const course = COURSES[pi.metadata.course];
+          const buyer = pi.customer
+            ? (await stripe.customers.retrieve(pi.customer).catch(() => null))?.email
+            : null;
+          if (!course) console.error('[stripe-webhook] unknown course on', pi.id, pi.metadata.course);
+          else if (!buyer) console.error('[stripe-webhook] course purchase with no email:', pi.id);
+          else {
+            await grantEntitlement(buyer, course.entitlement);
+            console.log('[stripe-webhook] Course granted:', course.short, 'to', buyer);
+            // Noted for the admin list, here rather than from the page, because
+            // this is where the payment is known to have gone through.
+            await recordDownsellChoice(buyer, 'bought')
+              .catch((err) => console.error('[stripe-webhook] could not note the course:', err.message));
+          }
+          break;
+        }
+
         // Checkout puts the address on the intent's metadata as well, so a
         // failed charge fetch above cannot cost someone their access.
         // receipt_email is no longer set (that is what made Stripe send its
@@ -191,35 +218,33 @@ export default async function handler(req, res) {
           console.log('[stripe-webhook] Add-on granted:', key, email);
         }
 
-        // Fulfilment IS the member area: email a one-time link that signs them in.
+        // Fulfilment IS the member area, and the welcome carrying the sign-in
+        // link is how they get there — but not yet.
+        //
+        // At this moment the buyer has not seen the membership offer or the
+        // course after it, so an email sent now could not say what they chose,
+        // and sending one per product is what produced three near-identical
+        // welcomes in the same second. It is queued instead: the confirmation
+        // page sends it the moment they arrive, however long they take, and the
+        // cron sweeps it if they close the tab and never get there.
+        //
+        // The Engine has its own funnel and its own page; a buyer who came
+        // through that one is not in this flow and still gets the Engine
+        // welcome directly.
         try {
-          const token = await createLoginToken(email);
-          const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
-          const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
-          // An Engine buyer gets the Engine welcome even when they already had
-          // an account — `created` is false for an existing member buying the
-          // add-on, and sending them nothing would leave them with a charge and
-          // no idea where the thing they bought went.
-          if (engine) await sendEngineWelcome(email, loginUrl, { name, existingMember: !created });
-          else if (created) await sendPurchaseConfirmation(email, loginUrl, { name });
-
-          // One welcome per add-on, each with its own sign-in link — the links
-          // are single-use, so two emails cannot share one. Separate try blocks
-          // so one failed send does not swallow the other.
-          for (const key of addons) {
-            try {
-              const t = await createLoginToken(email);
-              const url = `${site}/api/auth/verify?token=${encodeURIComponent(t)}`;
-              if (key === 'engine') await sendEngineWelcome(email, url, { name, existingMember: true });
-              if (key === 'carousel') await sendCarouselWelcome(email, url, { name });
-            } catch (addonMailErr) {
-              console.error('[stripe-webhook] Add-on welcome failed:', key, addonMailErr.message);
-            }
+          if (engine) {
+            const token = await createLoginToken(email);
+            const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
+            const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
+            await sendEngineWelcome(email, loginUrl, { name, existingMember: !created });
+          } else {
+            await queueWelcome(email);
+            console.log('[stripe-webhook] Welcome queued for', email);
           }
         } catch (mailErr) {
           // Don't fail the webhook over email — access is already granted and
           // they can request a fresh link from the login page.
-          console.error('[stripe-webhook] Welcome email failed:', mailErr.message);
+          console.error('[stripe-webhook] Welcome queue/send failed:', mailErr.message);
         }
 
         // The receipt, which Stripe used to send. Kept separate from the

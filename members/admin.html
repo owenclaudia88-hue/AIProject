@@ -1364,7 +1364,17 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       var ch = CHOICE[m.upsellChoice];
       var choice = ch ? '<span class="st ' + ch[0] + '" title="On the post-purchase offer' +
         (m.upsellChoiceAt ? ', ' + esc(stamp(m.upsellChoiceAt)) : '') + '">' + ch[1] + '</span>' : '';
-      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + via + plan + choice + ending +
+      // The course shown only to somebody who turned the membership down, so a
+      // badge here always sits beside "said no thanks".
+      var COURSE_CHOICE = {
+        bought:   ['done',     'bought the course'],
+        declined: ['declined', 'passed on the course'],
+        seen:     ['',         'saw the course']
+      };
+      var dh = COURSE_CHOICE[m.downsellChoice];
+      var course = dh ? '<span class="st ' + dh[0] + '" title="On the course offer' +
+        (m.downsellChoiceAt ? ', ' + esc(stamp(m.downsellChoiceAt)) : '') + '">' + dh[1] + '</span>' : '';
+      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + via + plan + choice + course + ending +
         '<span class="st ' + (active ? 'done' : 'declined') + '">' + esc(m.status) + '</span>' +
         '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(stamp(m.joinedAt)) + '</span></div>' +
         '<div class="acts">' +
