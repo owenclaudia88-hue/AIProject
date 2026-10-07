@@ -3,7 +3,21 @@ import { sessionEmail } from '../../lib/session.js';
 import { getCustomer, entitlementsFor } from '../../lib/db.js';
 import { ALL_ACCESS } from '../../lib/products.js';
 
-const LIVE = new Set(['active', 'trialing', 'past_due', 'unpaid']);
+/**
+ * What counts as already paying, for the only question this file asks: would
+ * sending them to checkout charge them a second time for something they have?
+ *
+ * `past_due` belongs here. A card that failed this morning still has access, so
+ * taking another payment would be billing them twice for the same month.
+ *
+ * `unpaid` does not, and having it here was a trap. Stripe is set to mark a
+ * subscription unpaid once its retries are exhausted, and that is one of the
+ * statuses the webhook revokes all-access on - so by the time somebody is
+ * unpaid they have already lost the membership. Counting it as live told that
+ * member they were already subscribed, refused them a checkout, and left them
+ * no way to start paying again short of emailing support.
+ */
+const LIVE = new Set(['active', 'trialing', 'past_due']);
 
 /**
  * POST /api/membership/subscribe — start the $39/month membership.
