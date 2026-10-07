@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { recordUpsellChoice } from '../../lib/db.js';
 
 /**
  * POST /api/membership/upgrade-annual — take the yearly offer shown straight
@@ -131,6 +132,15 @@ export default async function handler(req, res) {
       await stripe.subscriptions.cancel(t.id).catch((err) =>
         console.error('[upgrade-annual] could not cancel', t.id, '-', err.message));
       console.log('[upgrade-annual] cancelled', t.status, t.id, 'after the yearly plan started');
+    }
+
+    // Noted here rather than from the browser, because this is the point at
+    // which the money actually moved. A failure to write it down must not look
+    // to the buyer like a failure to take their payment.
+    const who = (await stripe.customers.retrieve(customerId).catch(() => null))?.email;
+    if (who) {
+      await recordUpsellChoice(who, 'year')
+        .catch((err) => console.error('[upgrade-annual] could not note the choice:', err.message));
     }
 
     return res.status(200).json({ ok: true, subscription: created.id, replaced: trials.length });

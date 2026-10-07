@@ -1371,6 +1371,26 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
     // before the separator in "pi_123_secret_abc".
     var piId = params.get('payment_intent') || secret.split('_secret_')[0] || '';
 
+    /* Tell our own side what was chosen here, for the admin list.
+       A note and nothing more: declining or keeping the trial changes no
+       subscription and takes nothing away - both of those buyers walk out of
+       here on the same running trial they walked in with. Taking the year is
+       recorded where the charge happens instead, not from this page.
+       Deliberately not waited on, so a slow or blocked request cannot hold
+       somebody up on their way to their own order. */
+    function note(choice) {
+      if (!piId || !secret) return;
+      try {
+        fetch('/api/membership/upsell-choice', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ paymentIntentId: piId, clientSecret: secret, choice: choice }),
+          keepalive: true
+        }).catch(function () {});
+      } catch (e) {}
+    }
+    note('seen');
+
     /* The order confirmation this page sits in front of. It reads the id and
        the status off the query and the rest out of sessionStorage, which
        survives the hop through here because it is the same origin. */
@@ -1442,7 +1462,7 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
       if (!btn) return;
       btn.addEventListener('click', function () {
         var picked = g.querySelector('input:checked');
-        if (!picked || picked.value !== 'year') { onwards(); return; }
+        if (!picked || picked.value !== 'year') { note('trial'); onwards(); return; }
         // Charging needs the secret Stripe gave this browser. Without it, say
         // so rather than quietly moving them on as though they had not chosen
         // the year at all.
@@ -1455,11 +1475,11 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
     /* Every other accept button offers the trial by its own wording, and the
        trial is already running - so they are all simply "continue". */
     document.querySelectorAll('[data-accept]').forEach(function (b) {
-      if (!b.dataset.wired) b.addEventListener('click', function () { onwards(); });
+      if (!b.dataset.wired) b.addEventListener('click', function () { note('trial'); onwards(); });
     });
 
     document.querySelectorAll('[data-decline]').forEach(function (b) {
-      b.addEventListener('click', function () { onwards(); });
+      b.addEventListener('click', function () { note('declined'); onwards(); });
     });
   })();
 

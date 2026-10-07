@@ -1347,7 +1347,24 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       var ending = m.endingAt
         ? '<span class="st new">ends ' + esc(stamp(m.endingAt * 1000)) + '</span>'
         : '';
-      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + via + ending +
+      // On the yearly plan, read off the live subscription. Blue rather than
+      // green: the status pill on the right is already green, and three green
+      // pills in a row stop telling you anything apart.
+      var plan = m.plan === 'year' ? '<span class="st planned">yearly $199</span>' : '';
+      // What they did with the offer after checkout. Everybody who buys is put
+      // on the trial, so this is about the choice, not about having one — and
+      // it is a label only. Declining changed nothing: those members are still
+      // on their trial exactly as before.
+      var CHOICE = {
+        year:     ['done',     'took the year'],
+        trial:    ['new',      'kept the trial'],
+        declined: ['declined', 'said no thanks'],
+        seen:     ['',         'saw the offer']
+      };
+      var ch = CHOICE[m.upsellChoice];
+      var choice = ch ? '<span class="st ' + ch[0] + '" title="On the post-purchase offer' +
+        (m.upsellChoiceAt ? ', ' + esc(stamp(m.upsellChoiceAt)) : '') + '">' + ch[1] + '</span>' : '';
+      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + via + plan + choice + ending +
         '<span class="st ' + (active ? 'done' : 'declined') + '">' + esc(m.status) + '</span>' +
         '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(stamp(m.joinedAt)) + '</span></div>' +
         '<div class="acts">' +

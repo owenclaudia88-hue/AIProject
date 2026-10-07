@@ -43,6 +43,11 @@ export default async function handler(req, res) {
     // the button - losing the page would be the worse failure.
     const subscribed = new Set();
     const endingAt = new Map();
+    // Monthly or yearly, read off the subscription itself rather than from
+    // anything we wrote down. That makes it true for the people who took the
+    // year before there was any record of the choice, and it stays true if
+    // somebody is moved between plans in Stripe by hand.
+    const planOf = new Map();
     try {
       const Stripe = (await import('stripe')).default;
       const sk = process.env.STRIPE_SECRET_KEY;
@@ -56,6 +61,10 @@ export default async function handler(req, res) {
           if (!addr) continue;
           const at = String(addr).trim().toLowerCase();
           subscribed.add(at);
+          // A yearly plan outranks a monthly one where somebody has both mid
+          // swap, so the row says what they are actually on now.
+          const interval = sub.items?.data?.[0]?.price?.recurring?.interval || null;
+          if (interval === 'year' || !planOf.has(at)) planOf.set(at, interval);
           // Scheduled to end but not ended. Worth saying, because it can be
           // undone and nothing else on the page would show it.
           if (sub.cancel_at_period_end) endingAt.set(at, sub.cancel_at || sub.current_period_end || null);
@@ -128,6 +137,13 @@ export default async function handler(req, res) {
         viaSubscription: subscribed.has(String(c.email).toLowerCase()),
         // Set to end, not ended. The admin offers to undo it.
         endingAt: endingAt.get(String(c.email).toLowerCase()) || null,
+        // 'year' or 'month', from the live subscription.
+        plan: planOf.get(String(c.email).toLowerCase()) || null,
+        // What they did with the offer after checkout: 'year', 'trial',
+        // 'declined', 'seen', or nothing at all if they never reached it.
+        // A label only - nothing acts on it, and declining took nothing away.
+        upsellChoice: c.upsell_choice || null,
+        upsellChoiceAt: c.upsell_choice_at || null,
         viaReminder: won
           ? {
             count: won.reminderCount,
