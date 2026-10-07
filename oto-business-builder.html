@@ -120,7 +120,10 @@ mark{background:linear-gradient(transparent 58%,#ffd3b8 58%);color:inherit;paddi
 .split{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
 .split>*{min-width:0}
 .flow{display:grid;gap:12px}
-.flow div{display:flex;gap:14px;align-items:flex-start;background:var(--night-2);border:1px solid var(--night-3);border-radius:14px;padding:16px}
+/* Direct children only. Unqualified, this also caught the inner div holding
+   the heading and its paragraph, laying those two out side by side — which on
+   a phone left the heading in a 51px column and the text in 161px. */
+.flow>div{display:flex;gap:14px;align-items:flex-start;background:var(--night-2);border:1px solid var(--night-3);border-radius:14px;padding:16px}
 .flow b{flex:none;font-family:var(--disp);font-size:1.4rem;color:var(--hot-2);width:28px}
 .flow h4{font-size:1.05rem}
 .flow p{color:#b9ada0;font-size:.92rem;margin-top:4px}
@@ -208,6 +211,19 @@ footer p{max-width:760px;margin:8px auto 0;color:#7d7268;font-size:.74rem}
   .mod .d{display:none}
   .sticky .dk{display:none}.sticky .mb{display:inline}
   footer img{height:30px}
+  /* Thumbs, not cursors. The FAQ rows were 26px tall and the decline 36px,
+     which is a fiddly tap on a phone — and the decline is the second most
+     important thing on the page. Padding rather than font size, so nothing
+     about how it reads changes. */
+  .faq summary{padding-block:10px}
+  .no{padding:12px 16px;min-height:44px}
+}
+@media(max-width:380px){
+  /* On the narrowest phones the bar's second line squeezed the button down to
+     one word per line — "Own / it / for / $37". The price and the button are
+     what the bar is for; the subtitle repeats what the page already says. */
+  .sticky .p span{display:none}
+  .sticky .btn{flex:0 0 auto;white-space:nowrap;padding:14px 18px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.js .rv:not(.in){opacity:1;transform:none}}
 </style>
