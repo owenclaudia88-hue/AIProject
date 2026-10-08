@@ -481,10 +481,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       <h1>Admin</h1>
       <span class="who" id="who"></span>
     </div>
-    <p class="sub">Members, content requests, and every comment left on a course.</p>
+    <p class="sub">Members, content requests, and every comment left on a course. Nothing a member writes
+      appears in the community until it is approved here.</p>
 
     <div class="tabs">
       <button class="tab on" data-tab="requests">Content requests<span class="n" id="n-req">0</span></button>
+      <button class="tab" data-tab="pending">Waiting approval<span class="n" id="n-pend">0</span></button>
       <button class="tab" data-tab="comments">Course comments<span class="n" id="n-com">0</span></button>
       <button class="tab" data-tab="roadmaps">Roadmaps<span class="n" id="n-rm"></span></button>
       <button class="tab" data-tab="reports">AI Reports<span class="n" id="n-rp"></span></button>
@@ -504,7 +506,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 <script>
 (function () {
   var STATUSES = ['new', 'planned', 'done', 'declined'];
-  var data = { requests: [], comments: [] };
+  var data = { requests: [], comments: [], pending: [] };
   var members = null;          // loaded the first time the tab is opened
   var membersError = '';
   var leads = null;            // loaded when the tab is first opened
@@ -1872,6 +1874,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     var open = data.requests.filter(function (r) { return r.status === 'new'; }).length;
     document.getElementById('n-req').textContent = open ? open + ' new' : data.requests.length;
     document.getElementById('n-com').textContent = data.comments.filter(function (c) { return !c.removed; }).length;
+    // Worth seeing without opening the tab: every one of these is a member
+    // waiting for their post to appear.
+    var waiting = (data.pending || []).length;
+    var pend = document.getElementById('n-pend');
+    if (pend) pend.textContent = waiting ? waiting + ' waiting' : '0';
   }
 
   function wire() {
@@ -2266,6 +2273,77 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           }
         });
       });
+  }
+
+  /* ---------------- the approval queue ---------------- */
+
+  /*
+   * Everything a member has written that nobody has read yet, oldest first.
+   *
+   * Approve puts it on the site and sends the reply notification that was held
+   * back when it was written. Reject keeps the row and leaves it hidden, so a
+   * decision can be looked at again — neither button deletes anything.
+   */
+  function paintPending(p) {
+    var q = data.pending || [];
+    if (!q.length) {
+      p.innerHTML = '<p class="empty">Nothing waiting. Everything members have written is live.</p>';
+      return;
+    }
+    p.innerHTML = '<p class="sub">Oldest first — whoever has been waiting longest is at the top. ' +
+      'Staff posts are never held here.</p>' +
+      q.map(function (c) {
+        var where = c.space ? ('community · ' + esc(c.space))
+          : (esc(c.course || 'course') + (c.lesson ? ' · ' + esc(c.lesson) : ''));
+        return '<div class="card' + (c.isReply ? ' reply' : '') + '" data-pend="' + c.id + '">' +
+          '<div class="hd"><b>' + esc(c.author) + '</b>' +
+            '<span class="meta" style="margin-left:auto">' + esc(c.email) + ' · ' + esc(when(c.createdAt)) + '</span>' +
+          '</div>' +
+          '<span class="meta">' + (c.isReply ? 'reply · ' : '') + where + '</span>' +
+          // The question above the answer, cut short: enough to judge the
+          // reply against, not so much that the queue becomes a thread.
+          (c.isReply && (c.parentTitle || c.parentBody)
+            ? '<div class="ctext" style="opacity:.6;border-left:3px solid currentColor;padding-left:10px">' +
+                '<span class="meta">In reply to</span><br>' +
+                esc(strip(c.parentTitle || c.parentBody).slice(0, 240)) + '</div>'
+            : '') +
+          (c.title ? '<div class="ctext"><b>' + esc(c.title) + '</b></div>' : '') +
+          '<div class="ctext">' + (c.body ? window.rtSanitize(c.body) : '') + '</div>' +
+          '<div class="acts">' +
+            '<button data-ok="' + c.id + '">Approve</button>' +
+            '<button class="danger" data-no="' + c.id + '">Reject</button>' +
+          '</div></div>';
+      }).join('');
+
+    [].forEach.call(p.querySelectorAll('[data-ok],[data-no]'), function (b) {
+      b.addEventListener('click', function () {
+        var ok = b.hasAttribute('data-ok');
+        var id = Number(b.getAttribute(ok ? 'data-ok' : 'data-no'));
+        if (!ok && !window.confirm('Reject this? It stays hidden and the member is not told.')) return;
+        b.disabled = true;
+        fetch('/api/community/act', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ok ? { id: id, approve: true } : { id: id, reject: true })
+        }).then(function (r) {
+          if (!r.ok) { b.disabled = false; return; }
+          // Taken off the queue here rather than refetching the whole
+          // overview: working through twenty of these should not be twenty
+          // round trips and twenty redraws of the page.
+          data.pending = (data.pending || []).filter(function (x) { return x.id !== id; });
+          data.comments.forEach(function (x) {
+            if (x.id === id) { x.pending = false; x.rejected = !ok; }
+          });
+          counts(); paint();
+        }).catch(function () { b.disabled = false; });
+      });
+    });
+  }
+
+  /* Markup out, for the quoted parent — a blockquote in a queue entry would
+     fight with the one wrapping it. */
+  function strip(s) {
+    return String(s == null ? '' : s).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
   }
 
   /* The tab says how many questions are waiting, without opening it. */
@@ -2973,6 +3051,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     if (tab === 'projects') { paintProjects(p); return; }
     if (tab === 'community') { paintCommunity(p); return; }
     if (tab === 'roadmaps') { paintRoadmaps(p); return; }
+    if (tab === 'pending') { paintPending(p); return; }
     p.innerHTML = tab === 'requests' ? requestsHTML() : commentsHTML();
     if (tab === 'requests') {
       [].forEach.call(p.querySelectorAll('[data-set]'), function (b) {
@@ -3092,6 +3171,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       return '<div class="card' + (c.isReply ? ' reply' : '') + '"><div class="hd">' +
         '<b>' + esc(c.author) + '</b>' +
         (c.isAdmin ? '<span class="badge">Admin</span>' : '') +
+        // Said here too, not only in the queue: this list is where you come to
+        // find one comment, and it should not show something as live when it
+        // is not on the site.
+        (c.pending ? '<span class="badge">Waiting</span>' : '') +
+        (c.rejected ? '<span class="badge">Rejected</span>' : '') +
         '<span class="meta" style="margin-left:auto">' + esc(c.email) + ' · ' + esc(when(c.createdAt)) + '</span>' +
         '</div>' +
         '<span class="meta">' + (c.isReply ? 'reply · ' : '') + esc(c.course || '') +

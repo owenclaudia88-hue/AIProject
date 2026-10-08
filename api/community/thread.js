@@ -13,10 +13,10 @@ export default async function handler(req, res) {
     const id = Number(new URL(req.url, 'http://localhost').searchParams.get('id'));
     if (!id) return res.status(400).json({ error: 'missing id' });
 
-    const t = await getThread(id, { email: who.email });
+    const t = await getThread(id, { email: who.email, isAdmin: who.isAdmin });
     if (!t) return res.status(404).json({ error: 'not found' });
 
-    const replies = await listReplies(id, { email: who.email });
+    const replies = await listReplies(id, { email: who.email, isAdmin: who.isAdmin });
     const space = spaceFor(t.space);
 
     return res.status(200).json({
@@ -38,6 +38,7 @@ export default async function handler(req, res) {
         liked: !!t.liked,
         pinned: !!t.pinned_at,
         resolved: !!t.resolved_at,
+        pending: !t.approved_at,
         resolvedReplyId: t.resolved_reply_id == null ? null : Number(t.resolved_reply_id),
         lesson: t.lesson_title || null,
         courseSlug: t.course_slug || null,
@@ -53,6 +54,7 @@ export default async function handler(req, res) {
         author: r.deleted_at ? null : authorName(r.name, r.is_admin),
         isAdmin: !!r.is_admin,
         mine: !!r.mine,
+        pending: !r.deleted_at && !r.approved_at,
         canDelete: !r.deleted_at && (!!r.mine || !!who.isAdmin),
         likes: r.likes ?? 0,
         liked: !!r.liked,

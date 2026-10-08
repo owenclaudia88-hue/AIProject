@@ -54,14 +54,19 @@ export default async function handler(req, res) {
       // The person who asked, and the person being answered if that is
       // somebody else. notifyReply drops duplicates and never tells the writer
       // about their own reply, so both can be handed over without checking.
-      const told = await notifyReply({
+      //
+      // Only once it is live, though. Telling somebody they have an answer and
+      // then showing them a thread with nothing new in it is worse than
+      // telling them a few minutes later: the notification is sent on approval
+      // instead, which is the moment it becomes true.
+      const told = row.approved_at ? await notifyReply({
         to: [row.threadAuthor, row.repliedTo],
         actorEmail: who.email,
         actorName: author,
         threadId: row.threadId,
         commentId: row.id,
         title: row.threadTitle
-      }).catch(function (err) { console.error('[community/post] notify', err); return 0; });
+      }).catch(function (err) { console.error('[community/post] notify', err); return 0; }) : 0;
 
       return res.status(200).json({
         reply: {
@@ -70,6 +75,7 @@ export default async function handler(req, res) {
           author,
           isAdmin: !!who.isAdmin,
           mine: true, canDelete: true, removed: false,
+          pending: !row.approved_at,
           likes: 0, liked: false,
           createdAt: row.created_at
         },
@@ -98,6 +104,11 @@ export default async function handler(req, res) {
     // A question nobody has seen is the one thing staff need telling about:
     // there is no reply yet, so notifyReply would never fire, and an unanswered
     // question is the only thing in here with a clock on it.
+    //
+    // Sent whether or not it has been approved, unlike the reply above. This
+    // one goes to staff, and a question waiting for approval is precisely what
+    // staff need to hear about - holding it back until approval would mean
+    // waiting to be told about the thing being waited on.
     if (space === 'help' && !who.isAdmin) {
       await notifyStaffQuestion({
         staff: adminEmails(),
@@ -117,6 +128,7 @@ export default async function handler(req, res) {
         author: name,
         isAdmin: !!who.isAdmin,
         mine: true, canDelete: true,
+        pending: !row.approved_at,
         replies: 0, likes: 0, liked: false,
         pinned: false, resolved: false,
         lesson: null,

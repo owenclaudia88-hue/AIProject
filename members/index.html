@@ -208,6 +208,15 @@ button{font-family:inherit}
 .tag.staff{color:var(--accent-2);border-color:rgba(255,122,26,.4);background:rgba(255,122,26,.12)}
 .tag.les{color:#93c5fd;border-color:rgba(147,197,253,.35);background:rgba(147,197,253,.1);
   text-transform:none;letter-spacing:.02em;font-size:.64rem}
+/* Waiting for approval. Deliberately the quietest tag of the set: it is only
+   ever shown to the person who wrote the post, and it is a status, not a
+   warning. */
+.tag.wait{color:var(--txt-3);border-color:var(--line-2);background:rgba(148,163,184,.12);
+  text-transform:none;letter-spacing:.02em;font-size:.64rem}
+.th.pending,.rp.pending{opacity:.72}
+.th.pending .th-main,.rp.pending .rp-main{border-left:2px dashed var(--line-2);padding-left:10px}
+.tv-wait{font-size:.82rem;line-height:1.5;color:var(--txt-3);margin:10px 0 0;padding:10px 12px;
+  border:1px dashed var(--line-2);border-radius:10px;background:rgba(148,163,184,.07)}
 
 /* one thread */
 .tv-back{display:inline-flex;align-items:center;gap:8px;color:var(--txt-2);font-family:var(--mono);
@@ -661,6 +670,13 @@ button{font-family:inherit}
 .cmt .ctext li{margin:3px 0}
 /* the composer toolbar */
 .cmt.removed .ctext{color:var(--txt-3);font-style:italic}
+/* Waiting for approval: the reader's own, and only ever their own. Dimmed and
+   dashed so it reads as not-yet-posted at a glance, without hiding what they
+   wrote. */
+.cmt.pending{opacity:.72}
+.cmt.pending .cb{border-left:2px dashed var(--line-2);padding-left:10px;margin-left:-2px}
+.cmt .badge.pend{background:rgba(148,163,184,.14);color:var(--txt-3);
+  border-color:var(--line-2);text-transform:none;letter-spacing:.02em}
 .cmt .ca{display:flex;gap:14px;margin-top:6px}
 .cmt .ca button{background:none;border:0;padding:0;color:var(--txt-3);font-family:var(--mono);font-size:.72rem;cursor:pointer}
 .cmt .ca button:hover{color:var(--accent-2)}
@@ -1959,11 +1975,15 @@ button{font-family:inherit}
 
   function threadCard(t, showSpace) {
     var sp = spaceMeta(t.space);
-    return '<article class="th' + (t.pinned ? ' pinned' : '') + '" data-id="' + t.id + '">' +
+    return '<article class="th' + (t.pinned ? ' pinned' : '') + (t.pending ? ' pending' : '') + '" data-id="' + t.id + '">' +
       avatar(t.author) +
       '<div class="th-main">' +
         '<div class="th-t"><b>' + esc(t.title || excerpt(t.body).slice(0, 80)) + '</b>' +
           (showSpace ? '<span class="tag">' + esc(sp.label || t.space) + '</span>' : '') +
+          // Only ever the reader's own post — the feed query returns nobody
+          // else's unapproved threads — so this says "yours is waiting",
+          // never "somebody is being moderated".
+          (t.pending ? '<span class="tag wait">Waiting for approval</span>' : '') +
           (t.pinned ? '<span class="tag pin">Pinned</span>' : '') +
           (t.resolved ? '<span class="tag ok">Answered</span>' : '') +
           (t.isAdmin ? '<span class="tag staff">Team</span>' : '') +
@@ -2015,10 +2035,17 @@ button{font-family:inherit}
             '<span>\u00b7</span><span>' + esc(ago(t.createdAt)) + '</span>' +
             (t.resolved ? '<span class="tag ok">Answered</span>' : '') +
             (t.pinned ? '<span class="tag pin">Pinned</span>' : '') +
+            (t.pending ? '<span class="tag wait">Waiting for approval</span>' : '') +
             (t.lesson ? '<span class="tag les">on ' + esc(t.lesson) + '</span>' : '') +
           '</div>' +
         '</div>' +
       '</div>' +
+      // Said in full here rather than as a tag alone: this is the page the
+      // writer lands on after posting, and it is where the question "has
+      // anyone seen this?" actually gets asked.
+      (t.pending
+        ? '<p class="tv-wait">Waiting to be approved. Only you can see this — it will appear in ' +
+          esc(t.spaceLabel || 'the community') + ' once we have read it.</p>' : '') +
       '<div class="tv-body">' + window.rtSanitize(t.body) + '</div>' +
       '<div class="tv-acts">' +
         '<button type="button" id="tv-like" class="' + (t.liked ? 'on' : '') + '">' +
@@ -2054,12 +2081,13 @@ button{font-family:inherit}
       return '<div class="rp gone"><span class="av" style="opacity:.4">\u00b7</span>' +
         '<div class="rp-main"><p class="rp-b">This reply was removed.</p></div></div>';
     }
-    return '<div class="rp' + (isAnswer ? ' answer' : '') + '" data-id="' + r.id + '">' +
+    return '<div class="rp' + (isAnswer ? ' answer' : '') + (r.pending ? ' pending' : '') + '" data-id="' + r.id + '">' +
       avatar(r.author) +
       '<div class="rp-main">' +
         '<div class="rp-h"><b>' + esc(r.author) + '</b>' +
           (r.isAdmin ? '<span class="tag staff">Team</span>' : '') +
           (isAnswer ? '<span class="tag ok">Answer</span>' : '') +
+          (r.pending ? '<span class="tag wait">Waiting for approval</span>' : '') +
           '<span class="t">' + esc(ago(r.createdAt)) + '</span></div>' +
         '<div class="rp-b">' + window.rtSanitize(r.body) + '</div>' +
         '<div class="rp-a">' +
@@ -4360,11 +4388,16 @@ button{font-family:inherit}
     }
     var h = hue(c.author || 'member');
     var initial = String(c.author || '?').trim().charAt(0).toUpperCase();
-    return '<div class="cmt" data-id="' + c.id + '">' +
+    return '<div class="cmt' + (c.pending ? ' pending' : '') + '" data-id="' + c.id + '">' +
       '<span class="av" style="background:linear-gradient(140deg,hsl(' + h + ',72%,64%),hsl(' + ((h + 40) % 360) + ',72%,50%))">' + esc(initial) + '</span>' +
       '<div class="cb">' +
         '<div class="ch"><span class="cn">' + esc(c.author) + '</span>' +
         (c.isAdmin ? '<span class="badge">Admin</span>' : '') +
+        // Only ever on a comment the reader wrote themselves — nobody else's
+        // unapproved comment is in the response at all. Said plainly, because
+        // a comment that looks posted and draws no reply reads as being
+        // ignored, which is worse than being told it is in a queue.
+        (c.pending ? '<span class="badge pend">Waiting for approval</span>' : '') +
         '<span class="ct">' + esc(when(c.createdAt)) + '</span></div>' +
         (c.lessonTitle ? '<div class="cl">on ' + esc(c.lessonTitle) + '</div>' : '') +
         '<div class="ctext">' + (c.body ? window.rtSanitize(c.body) : '') + '</div>' +

@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     // Everything, newest activity first. The default view, because four rooms
     // to check is three too many when you only want to know what is new.
     if (asked === 'all') {
-      const rows = await listAllThreads({ email: who.email });
+      const rows = await listAllThreads({ email: who.email, isAdmin: who.isAdmin });
       return res.status(200).json({ ...base, space: 'all', threads: rows.map((r) => shape(r, who)) });
     }
 
@@ -56,6 +56,7 @@ export default async function handler(req, res) {
 
     const rows = await listThreads(space, {
       email: who.email,
+      isAdmin: who.isAdmin,
       before: url.searchParams.get('before') || null
     });
 
@@ -91,6 +92,10 @@ export function shape(r, who) {
     liked: !!r.liked,
     pinned: !!r.pinned_at,
     resolved: !!r.resolved_at,
+    // Waiting to be let through. Present on the writer's own posts, and on
+    // anything when staff are reading — the queries above return nobody
+    // else's, so this cannot leak one member's draft to another.
+    pending: !r.approved_at,
     // Present only on a question that came in through a lesson, so the feed
     // can say where it was asked.
     lesson: r.lesson_title || null,

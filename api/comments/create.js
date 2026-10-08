@@ -61,6 +61,9 @@ export default async function handler(req, res) {
         isAdmin: row.is_admin,
         body: row.body,
         removed: false,
+        // Told plainly, so the page can say it is waiting rather than show it
+        // as live and leave the writer wondering why nobody answered.
+        pending: !row.approved_at,
         mine: true,
         canDelete: true,
         createdAt: row.created_at

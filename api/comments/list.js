@@ -23,7 +23,9 @@ export default async function handler(req, res) {
 
     const me = String(email).toLowerCase();
     const admin = isAdmin(email);
-    const rows = await listComments(course);
+    // The caller's own address goes in so they can be shown their own comment
+    // while it waits; nobody else's view of the course includes it.
+    const rows = await listComments(course, { email, isAdmin: admin });
 
     const comments = rows.map((r) => ({
       id: Number(r.id),
@@ -34,6 +36,9 @@ export default async function handler(req, res) {
       isAdmin: r.deleted_at ? false : r.is_admin,
       body: r.deleted_at ? '' : r.body,
       removed: !!r.deleted_at,
+      // Still waiting to be let through. Only ever true on a comment the
+      // caller wrote themselves, or on anything at all when staff are reading.
+      pending: !r.deleted_at && !r.approved_at,
       mine: !r.deleted_at && String(r.email).toLowerCase() === me,
       canDelete: !r.deleted_at && (admin || String(r.email).toLowerCase() === me),
       createdAt: r.created_at
