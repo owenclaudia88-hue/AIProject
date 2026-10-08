@@ -48,8 +48,15 @@ export default async function handler(req, res) {
     // The page the visit started on, sent by the checkout from the tracker.
     // The source is derived from it here rather than trusted from the body:
     // it decides which funnel a sale is credited to.
-    const landingUrl = typeof body.landingUrl === 'string' ? body.landingUrl.slice(0, 500) : '';
-    let landingSource = sourceFromUrl(landingUrl || req.headers.referer || '');
+    // Falling back to the Referer is not belt and braces: a deferred tracker
+    // once left every one of these empty for a day, and because each has its
+    // own '' fallback on the page nothing threw and no order failed — the
+    // attribution simply stopped arriving. The source survived precisely
+    // because it already read the Referer, so the landing URL reads it too.
+    // Same origin, so the browser sends the full lander URL with its query.
+    const sentLanding = typeof body.landingUrl === 'string' ? body.landingUrl.slice(0, 500) : '';
+    const landingUrl = sentLanding || String(req.headers.referer || '').slice(0, 500);
+    let landingSource = sourceFromUrl(landingUrl);
     // This endpoint sells the $1 Specialists, never the Engine — the Engine
     // has its own endpoint at its own price. The webhook grants the routines
     // entitlement purely on this tag, so somebody who wandered through the

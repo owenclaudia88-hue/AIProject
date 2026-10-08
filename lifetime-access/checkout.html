@@ -603,10 +603,34 @@ footer a{color:var(--ink-2)}
      failure path instead of two. */
   var stripe, elements, clientSecret;
 
+  /* The tracker was deferred alongside Stripe, and almost everything the order
+     below carries comes from what it parks on window.aifu* — the click id Meta
+     matches the sale on, where the visit started, which reminder brought them
+     back.
+
+     This script is inline, so it runs while the page is still being parsed,
+     and that is BEFORE any deferred script has executed. Every one of those
+     functions was undefined here and each fell through to its own '' fallback:
+     the order was still created, the buyer saw nothing wrong, and the
+     attribution was simply gone. Nothing threw, which is why it went unnoticed
+     for a day.
+
+     Deferred scripts are guaranteed to have run by DOMContentLoaded, so the
+     order waits for that instead — a few milliseconds after parsing ends, and
+     still long before anyone could have typed a card number. */
+  function trackReady() {
+    return new Promise(function (resolve) {
+      if (document.readyState !== 'loading') resolve();
+      else document.addEventListener('DOMContentLoaded', function () { resolve(); });
+    });
+  }
+
   // The publishable key comes back with the client secret rather than living
   // in config.js, so there is only ever one place holding Stripe settings and
   // no key to keep in sync across pages.
-  fetch('/api/create-payment-intent', {
+  trackReady()
+  .then(function () {
+  return fetch('/api/create-payment-intent', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -626,6 +650,7 @@ footer a{color:var(--ink-2)}
           // everybody who arrived any other way.
           reminder: window.aifuReminder ? window.aifuReminder() : ''
     })
+  });
   })
   .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'error'); return j; }); })
   // Stripe is deferred so it cannot hold up the first paint, which means it may
