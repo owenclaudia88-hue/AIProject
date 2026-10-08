@@ -11,8 +11,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://js.stripe.com">
 <script src="/lifetime-access/config.js"></script>
-<script src="https://js.stripe.com/v3/"></script>
-<script src="/assets/track.js"></script>
+<!-- Stripe is the heaviest thing this page loads and nothing can be painted
+     until a blocking script has downloaded, parsed and run — on mobile data
+     that was most of the wait before anybody saw the form. It is not needed
+     until the order comes back from our own API, so it loads alongside the
+     page instead of in front of it. The call site waits for it rather than
+     assuming it has arrived. Same for the tracker, which no buyer is waiting
+     to see. -->
+<script src="https://js.stripe.com/v3/" defer></script>
+<script src="/assets/track.js" defer></script>
 <style>
 :root{
   --paper:#fbf7f1;--paper-2:#f4ede3;--card:#fff;
@@ -375,6 +382,26 @@ footer a{color:var(--ink-2)}
 (function () {
   var cfg = window.LP || {};
   var $ = function (id) { return document.getElementById(id); };
+
+  /* Resolves once Stripe.js has run. It is loaded with defer so it cannot stand
+     between the buyer and the first paint, so anything needing it has to ask
+     rather than assume. Resolves immediately in the ordinary case; gives up
+     after ten seconds so a blocked script surfaces as an error the buyer can
+     act on instead of a form that never appears. */
+  function stripeReady() {
+    if (window.Stripe) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var waited = 0;
+      var t = setInterval(function () {
+        if (window.Stripe) { clearInterval(t); resolve(); return; }
+        waited += 40;
+        if (waited >= 10000) {
+          clearInterval(t);
+          reject(new Error('The payment form could not load. Please refresh and try again.'));
+        }
+      }, 40);
+    });
+  }
   var nameEl = $('name'), emailEl = $('email'), btn = $('paybtn'), label = $('paylabel'), note = $('note');
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   // The membership offer sits between paying and the confirmation. It reads the
@@ -566,12 +593,14 @@ footer a{color:var(--ink-2)}
   // second, the same intent. Firing both would report one visitor twice and
   // make the funnel look like it has a step that it does not.
 
-  /* ---------- Stripe ---------- */
-  if (!window.Stripe) {
-    $('payment').innerHTML = '';
-    showNote('Could not load Stripe. Check your connection and refresh.');
-    return;
-  }
+  /* ---------- Stripe ----------
+     No check for window.Stripe here any more. It used to be safe because the
+     script blocked the page until it had run; now that it loads alongside, it
+     is simply not here yet when this line is reached, and the check fired on
+     every single load. stripeReady() below waits for it and gives up after ten
+     seconds, and that rejection lands in the same catch at the end of this
+     chain — which already clears the form and names the support address. One
+     failure path instead of two. */
   var stripe, elements, clientSecret;
 
   // The publishable key comes back with the client secret rather than living
@@ -599,6 +628,12 @@ footer a{color:var(--ink-2)}
     })
   })
   .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'error'); return j; }); })
+  // Stripe is deferred so it cannot hold up the first paint, which means it may
+  // still be arriving when the order comes back. Nearly always it is here
+  // already — the order is a round trip to our own API — but on a slow phone it
+  // might not be, and a checkout that threw because a script was two hundred
+  // milliseconds late would be the worst possible trade.
+  .then(function (j) { return stripeReady().then(function () { return j; }); })
   .then(function (j) {
     if (!j.clientSecret || !j.publishableKey) throw new Error('Incomplete response from server.');
     stripe = Stripe(j.publishableKey);

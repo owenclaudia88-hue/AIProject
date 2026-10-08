@@ -13,7 +13,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="/lifetime-access/config.js"></script>
-<script src="/assets/track.js"></script>
+<!-- Nothing can be painted while a blocking script is downloading, and nobody
+     arrives on this page to see the tracker. It still runs well before anyone
+     can click anything: deferred scripts execute before DOMContentLoaded, and
+     the first thing a visitor does here takes seconds. config.js stays where it
+     is — it is a kilobyte and the page reads it as it parses. -->
+<script src="/assets/track.js" defer></script>
 
 <style>
 :root{
