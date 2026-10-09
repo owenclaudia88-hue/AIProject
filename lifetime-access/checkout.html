@@ -80,6 +80,9 @@ p{margin:0}
 @keyframes sh{to{background-position:-200% 0}}
 .note{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:.9rem;background:#fff1f1;color:#b4232a;border:1px solid #f7caca}
 .note.show{display:block}
+#payment.flag{border-radius:14px;box-shadow:0 0 0 3px rgba(229,72,77,.55);animation:payflag 1.2s ease 2}
+@keyframes payflag{50%{box-shadow:0 0 0 7px rgba(229,72,77,.25)}}
+.iab-hint b{color:var(--ink)}
 
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:18px;border:0;cursor:pointer;font:700 1.12rem/1.2 Inter,sans-serif;color:#fff;background:var(--hot);border-radius:14px;padding:19px 20px;box-shadow:0 6px 0 #c53d0c,0 14px 30px -8px rgba(255,90,31,.6);transition:transform .1s,box-shadow .1s,filter .15s}
 .btn:hover{filter:brightness(1.05)}
@@ -135,7 +138,7 @@ p{margin:0}
 
 .mobile-sum{display:none}
 /* ---------- order bumps ---------- */
-.bumps{display:grid;gap:12px;margin-top:20px}
+.bumps{display:grid;gap:12px;margin:20px 0 6px}
 .bumps-h{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--hot);display:flex;align-items:center;gap:8px}
 .bumps-h::before{content:"";width:18px;height:2px;background:var(--hot);border-radius:2px}
 .bump{position:relative;display:block;border:2px dashed #f2b48f;background:#fff8ef;border-radius:16px;padding:0;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
@@ -256,19 +259,13 @@ footer a{color:var(--ink-2)}
           </div>
         </div>
         <div class="bonus-gone" id="bonusGone" hidden>The 24-hour bonus has ended — but the $1 offer for all 70 Specialists is still here.</div>
+        <div class="iab-hint" id="iabHint" hidden>📱 <b>Paying from Facebook or Instagram?</b> Tap <b>⋯</b> (top right) → <b>Open in browser</b> to pay in one tap with Apple Pay or Google Pay.</div>
         <div class="lab">Your details <span class="n" id="edit" hidden>✓ saved</span></div>
         <div class="row">
           <div class="field"><input id="name" type="text" autocomplete="given-name" placeholder="First name" aria-label="First name"><p class="err">Enter your first name.</p></div>
           <div class="field"><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="Email for your access" aria-label="Email"><p class="err">Enter a valid email — your access goes here.</p></div>
         </div>
 
-        <div class="sep"></div>
-        <div class="lab">Payment</div>
-        <div id="express"></div>
-        <div class="iab-hint" id="iabHint" hidden>📱 Prefer Apple Pay or Google Pay? Tap <b>⋯</b> (top right) → <b>Open in browser</b>.</div>
-        <div class="or" id="or" hidden>or pay with card</div>
-        <div id="payment"><div class="skel"></div></div>
-        <div class="note" id="note" role="alert"></div>
 
         <div class="bumps" id="bumps">
           <div class="bumps-h">Add to your order — one-time price</div>
@@ -313,6 +310,13 @@ footer a{color:var(--ink-2)}
             </div>
           </label>
         </div>
+
+        <div class="sep"></div>
+        <div class="lab">Payment</div>
+        <div id="express"></div>
+        <div class="or" id="or" hidden>or pay with card</div>
+        <div id="payment"><div class="skel"></div></div>
+        <div class="note" id="note" role="alert"></div>
 
         <button class="btn" id="paybtn" type="submit" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
@@ -404,6 +408,10 @@ footer a{color:var(--ink-2)}
   }
   var nameEl = $('name'), emailEl = $('email'), btn = $('paybtn'), label = $('paylabel'), note = $('note');
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  // Inside the Facebook / Instagram app there is no Apple Pay or Google Pay and
+  // card autofill rarely works - the recordings showed buyers stuck typing card
+  // numbers for minutes. Everybody in the app sees the way out, at the top.
+  if (/FBAN|FBAV|FB_IAB|Instagram/i.test(navigator.userAgent || '')) $('iabHint').hidden = false;
   // The membership offer sits between paying and the confirmation. It reads the
   // payment intent off the query, makes its own call if the year is taken, and
   // then sends the buyer on to /lifetime-access/success.html either way - so the
@@ -434,6 +442,17 @@ footer a{color:var(--ink-2)}
     return { name: nameEl.value.trim(), email: emailEl.value.trim().toLowerCase() };
   }
   function showNote(msg) { note.textContent = msg; note.classList.add('show'); }
+  // A card error used to leave the buyer staring at a message below the fold
+  // while the field that needed fixing was off-screen. Scroll it back, outline
+  // it, and put the cursor in it.
+  function cardAttention() {
+    var box = $('payment');
+    if (!box) return;
+    box.classList.remove('flag'); void box.offsetWidth; box.classList.add('flag');
+    var y = box.getBoundingClientRect().top + window.scrollY - 90;
+    window.scrollTo({ top: y < 0 ? 0 : y, behavior: 'smooth' });
+    try { var pe = elements && elements.getElement('payment'); if (pe && pe.focus) setTimeout(function () { pe.focus(); }, 450); } catch (e) {}
+  }
   function hideNote() { note.classList.remove('show'); }
   function busy(on) {
     btn.disabled = on;
@@ -705,9 +724,7 @@ footer a{color:var(--ink-2)}
       // Inside the Facebook / Instagram app the wallet sheet often can't open.
       // Only then, and only when neither Apple Pay nor Google Pay loaded,
       // point people to their real browser. Everyone else never sees it.
-      var inApp = /FBAN|FBAV|FB_IAB|Instagram/i.test(navigator.userAgent || '');
-      var pm = ev.availablePaymentMethods || {};
-      $('iabHint').hidden = !(inApp && !pm.applePay && !pm.googlePay);
+      // Shown up front by the check at the top of the script; nothing to do here.
     });
     // Tapping Apple Pay / Google Pay while a ticked box is still being priced
     // would open the sheet on the old total. Not resolving the click cancels
@@ -761,6 +778,7 @@ footer a{color:var(--ink-2)}
     if (res.error) {
       busy(false);
       showNote(res.error.message || 'Your payment didn’t go through. Please try again or use another card.');
+      cardAttention();
       return;
     }
     var pi = res.paymentIntent;
