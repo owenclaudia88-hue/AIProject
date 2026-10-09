@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Join AI Founder University — Secure Checkout</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#14110f">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://js.stripe.com">
+<script src="https://js.stripe.com/v3/" defer></script>
+<script src="/assets/track.js" defer></script>
+<style>
+:root{
+  --paper:#fbf7f1;--paper-2:#f4ede3;--card:#fff;
+  --ink:#14110f;--ink-2:#4a433c;--ink-3:#8a8177;
+  --line:#e7ded2;--line-2:#d8ccbc;
+  --hot:#ff5a1f;--hot-soft:#ffe9dc;--ok:#10a36c;--ok-soft:#e1f5ec;--bad:#e5484d;
+  --night:#14110f;--r:18px;
+  --shadow:0 1px 0 rgba(20,17,15,.04),0 12px 40px -12px rgba(20,17,15,.18);
+  --display:'Bricolage Grotesque',Inter,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;line-height:1.1}
+p{margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:18px}
+
+.head{background:var(--night);color:#fff}
+.head .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:68px}
+.head img{height:36px;width:auto;display:block}
+.head .sec{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:#cfe9dd}
+.head .sec svg{width:15px;height:15px}
+
+/* progress */
+.prog{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 0 4px;font-size:.8rem;font-weight:600;color:var(--ink-3)}
+.prog .s{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.prog .d{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.74rem;border:1.5px solid var(--line-2);background:var(--card)}
+.prog .done .d{background:var(--ok);border-color:var(--ok);color:#fff}
+.prog .done{color:var(--ok)}
+.prog .now .d{background:var(--hot);border-color:var(--hot);color:#fff}
+.prog .now{color:var(--ink)}
+.prog .bar{width:28px;height:2px;background:var(--line-2);border-radius:2px}
+.prog .bar.ok{background:var(--ok)}
+
+.grid{display:grid;grid-template-columns:1.12fr .88fr;gap:26px;align-items:start;padding:20px 0 60px}
+.hello h1{font-size:clamp(1.6rem,3.6vw,2.2rem);font-weight:800}
+.hello h1 .hot{color:var(--hot)}
+.hello p{color:var(--ink-2);margin-top:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.pay{margin-top:18px}
+.lab{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.lab .n{color:var(--hot)}
+.row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.field input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line-2);border-radius:12px;padding:13px 14px;outline:none}
+.field input:focus{border-color:var(--ink);background:#fff}
+.field input.bad{border-color:var(--bad);background:#fff5f5}
+.field .err{display:none;color:var(--bad);font-size:.8rem;margin-top:4px}
+.field input.bad + .err{display:block}
+.sep{height:1px;background:var(--line);margin:20px 0}
+
+#express{min-height:0}
+/* fallback tip: only inside the Facebook/Instagram app when no Apple Pay / Google Pay button loaded */
+.iab-hint{font-size:.84rem;line-height:1.4;color:var(--ink-2);background:var(--paper);border:1px dashed var(--line-2);border-radius:12px;padding:10px 12px;margin:0 0 12px}
+.methods span{pointer-events:none}
+.or{display:flex;align-items:center;gap:12px;color:var(--ink-3);font-size:.8rem;margin:16px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.skel{height:180px;border-radius:12px;background:linear-gradient(90deg,#f3ece2 25%,#faf5ee 50%,#f3ece2 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.note{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:.9rem;background:#fff1f1;color:#b4232a;border:1px solid #f7caca}
+.note.show{display:block}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:18px;border:0;cursor:pointer;font:700 1.12rem/1.2 Inter,sans-serif;color:#fff;background:var(--hot);border-radius:14px;padding:19px 20px;box-shadow:0 6px 0 #c53d0c,0 14px 30px -8px rgba(255,90,31,.6);transition:transform .1s,box-shadow .1s,filter .15s}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c53d0c}
+.btn[disabled]{opacity:.7;cursor:progress}
+.btn svg{width:19px;height:19px}
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rt .7s linear infinite}
+@keyframes rt{to{transform:rotate(360deg)}}
+.under{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-top:14px;font-size:.8rem;color:var(--ink-2)}
+.under span{display:inline-flex;align-items:center;gap:5px}
+.under svg{width:14px;height:14px;color:var(--ok)}
+.methods{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
+.methods span{font-size:.7rem;font-weight:700;border:1px solid var(--line-2);border-radius:6px;padding:3px 7px;color:var(--ink-2);background:#fff}
+.terms{font-size:.74rem;color:var(--ink-3);text-align:center;margin-top:12px}
+.terms a{color:var(--ink-2)}
+
+/* summary */
+.side{display:grid;gap:14px;position:sticky;top:16px}
+.sum h3{font-size:1.1rem}
+.prod{display:flex;gap:14px;align-items:center;margin-top:14px}
+.box{flex:none;width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#ff5a1f,#ff9a3c);display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:800;line-height:.95;text-align:center;font-size:1.3rem;box-shadow:0 8px 20px -8px rgba(255,90,31,.7)}
+.box small{display:block;font-size:.5rem;font-family:Inter,sans-serif;font-weight:700;letter-spacing:.06em}
+.prod b{display:block;font-size:.98rem;line-height:1.25}
+.prod span{font-size:.82rem;color:var(--ink-3)}
+.prod .pr{margin-left:auto;font-weight:700}
+.items{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:7px;font-size:.88rem}
+.items li{display:flex;gap:8px;align-items:flex-start}
+.items li::before{content:"✓";color:var(--ok);font-weight:800}
+.items .bn{color:var(--ink-2)}
+.items .free{margin-left:auto;font-size:.72rem;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:2px 7px;border-radius:999px;white-space:nowrap}
+.tot{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line-2);margin-top:14px;padding-top:14px}
+.tot span{font-weight:600}
+.tot b{font-family:var(--display);font-size:1.8rem}
+.tot small{display:block;text-align:right;font-size:.74rem;color:var(--ink-3)}
+
+.guar{display:flex;gap:14px;align-items:center}
+.seal{flex:none;width:58px;height:58px;border-radius:50%;background:var(--ok-soft);border:2px dashed var(--ok);display:grid;place-items:center;color:var(--ok);font-family:var(--display);font-weight:800;font-size:1.3rem;line-height:1;text-align:center}
+.seal small{display:block;font:700 .46rem Inter,sans-serif;letter-spacing:.05em}
+.guar b{font-size:.95rem}
+.guar p{font-size:.84rem;color:var(--ink-2);margin-top:3px}
+
+.quote .stars{color:#f5a300;letter-spacing:2px}
+.quote p{font-size:.9rem;margin-top:8px;color:var(--ink)}
+.quote .who{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:.84rem}
+.quote .who i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-style:normal;font-weight:700;font-size:.78rem}
+.quote .who span{color:var(--ink-3);display:block;font-size:.76rem}
+
+.next h3{font-size:1rem}
+.next ol{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:n}
+.next li{display:flex;gap:10px;font-size:.88rem;color:var(--ink-2)}
+.next li::before{counter-increment:n;content:counter(n);flex:none;width:22px;height:22px;border-radius:50%;background:var(--hot-soft);color:var(--hot);font-weight:800;font-size:.74rem;display:grid;place-items:center}
+.next b{color:var(--ink)}
+
+.mobile-sum{display:none}
+/* ---------- order bumps ---------- */
+.bumps{display:grid;gap:12px;margin-top:20px}
+.bumps-h{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--hot);display:flex;align-items:center;gap:8px}
+.bumps-h::before{content:"";width:18px;height:2px;background:var(--hot);border-radius:2px}
+.bump{position:relative;display:block;border:2px dashed #f2b48f;background:#fff8ef;border-radius:16px;padding:0;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
+.bump:hover{border-color:var(--hot)}
+.bump.on{border-style:solid;border-color:var(--ok);background:#f2fbf6;box-shadow:0 0 0 4px rgba(16,163,108,.1)}
+.bump input{position:absolute;opacity:0;pointer-events:none}
+.bump-top{display:flex;align-items:center;gap:12px;padding:13px 14px;background:#ffe9dc;border-radius:14px 14px 0 0;font-weight:700;font-size:.97rem;line-height:1.3}
+.bump.on .bump-top{background:#dff4e9}
+.bump-box{flex:none;width:26px;height:26px;border-radius:7px;border:2px solid var(--hot);background:#fff;display:grid;place-items:center;transition:all .15s}
+.bump-box svg{width:16px;height:16px;color:#fff;opacity:0;transform:scale(.4);transition:all .15s}
+.bump.on .bump-box{background:var(--ok);border-color:var(--ok)}
+.bump.on .bump-box svg{opacity:1;transform:none}
+.bump input:focus-visible + .bump-top .bump-box{outline:3px solid rgba(255,90,31,.35);outline-offset:2px}
+.arrow-nudge{color:var(--hot);animation:nudge 1.1s ease-in-out infinite}
+.bump.on .arrow-nudge{display:none}
+@keyframes nudge{50%{transform:translateX(4px)}}
+.bump-top .yes{flex:1}
+.bump-top .pr{flex:none;font-family:var(--display);font-size:1.15rem;color:var(--hot)}
+.bump.on .bump-top .pr{color:var(--ok)}
+.bump-body{padding:12px 14px 14px;font-size:.88rem;color:var(--ink-2);line-height:1.5}
+.bump-body b{color:var(--ink)}
+.bump-body ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px}
+.bump-body li{display:flex;gap:7px}
+.bump-body li::before{content:"✓";color:var(--ok);font-weight:800}
+.bump-more{display:block;margin-top:8px;font-weight:600;color:var(--ink)}
+.bump-tag{display:block;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin-top:8px}
+.addon-line{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-2)}
+.addon-line b{font-weight:600}
+.addon-line span{flex:none;font-weight:700}
+.tot.updating b{opacity:.45}
+/* ---------- 24-hour bonus (from the first reminder email) ---------- */
+.bonus-banner{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(135deg,#e1f5ec,#f2fbf6);border:2px solid var(--ok);border-radius:16px;padding:14px 16px;margin:0 0 18px}
+.bonus-banner .gift{flex:none;font-size:1.6rem;line-height:1}
+.bonus-banner b{display:block;font-size:1rem;color:var(--ink)}
+.bonus-banner p{font-size:.88rem;color:var(--ink-2);margin-top:3px}
+.bonus-banner .clock{display:inline-block;margin-top:8px;font-weight:700;font-size:.82rem;color:#b4232a;background:#fff1f1;border:1px solid #f7caca;border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
+.addon-line s{color:var(--ink-3);font-weight:500;margin-right:6px}
+.addon-line .fr{color:var(--ok);font-weight:800}
+.bonus-gone{background:#fff8e6;border:1px solid #f3dc9b;color:#7a5b00;border-radius:12px;padding:10px 14px;font-size:.88rem;margin:0 0 16px}
+footer{text-align:center;color:var(--ink-3);font-size:.74rem;padding:0 18px 40px}
+footer a{color:var(--ink-2)}
+
+@media (max-width:880px){
+  .grid{grid-template-columns:1fr;gap:16px;padding-top:10px}
+  .side{position:static}
+  .side .sum{display:none}
+  .mobile-sum{display:block;margin-top:16px}
+  .prog .t{display:none}
+  .prog .now .t{display:inline}
+}
+@media (max-width:420px){
+  .bump-top{font-size:.92rem;gap:10px;padding:12px}
+  .bump-body{font-size:.85rem}
+  .wrap{padding-inline:14px}
+  .card{padding:18px}
+  .row{grid-template-columns:1fr}
+}
+</style>
+<style>
+/* membership-only pieces, on top of the shared checkout styles */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:2px 0 4px}
+.plan{position:relative;display:block;cursor:pointer;border:1.5px solid #d8ccbc;border-radius:14px;padding:14px 14px 13px;background:#fff;transition:border-color .15s,box-shadow .15s}
+.plan input{position:absolute;opacity:0;pointer-events:none}
+.plan .pn{display:block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#7a7067}
+.plan b{display:block;font-size:1.35rem;font-weight:800;color:#14110f;margin-top:4px;font-family:'Bricolage Grotesque',Inter,sans-serif}
+.plan b small{font-size:.8rem;font-weight:600;color:#7a7067;font-family:Inter,sans-serif}
+.plan .ps{display:block;font-size:.8rem;color:#4a433c;margin-top:3px}
+.plan .ps s{color:#9a8f84}
+.plan em{position:absolute;top:-10px;right:10px;font-style:normal;font-size:.62rem;font-weight:800;letter-spacing:.04em;color:#fff;background:linear-gradient(90deg,#ff5a1f,#ff8a3d);padding:3px 8px;border-radius:999px}
+.plan.on{border-color:#14110f;box-shadow:0 0 0 3px rgba(255,90,31,.18)}
+.plan.year.on{border-color:#ff5a1f}
+.done-card{text-align:center;padding:34px 24px}
+.done-card .tick{width:64px;height:64px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;background:#0e9f6e;color:#fff;font-size:30px}
+.done-card h2{font-family:'Bricolage Grotesque',Inter,sans-serif;font-size:1.7rem;margin:0 0 8px}
+.done-card p{color:#4a433c;margin:0 auto 6px;max-width:420px}
+.done-card .btn{margin-top:16px;display:inline-flex;width:auto;padding:14px 22px;text-decoration:none}
+.legal{max-width:760px;margin:6px auto 0;opacity:.8}
+@media (max-width:420px){.plans{grid-template-columns:1fr}}
+</style>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "ynteh1taus");
+</script>
+</head>
+<body>
+
+<header class="head">
+  <div class="wrap">
+    <a href="/"><img src="/assets/logo.webp" alt="AI Founder University" width="720" height="139"></a>
+    <div class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Secure checkout</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="prog" aria-label="Checkout progress">
+    <div class="s now" id="st1"><span class="d">1</span><span class="t">Your plan</span></div>
+    <div class="bar" id="bar1"></div>
+    <div class="s" id="st2"><span class="d">2</span><span class="t">Payment</span></div>
+    <div class="bar" id="bar2"></div>
+    <div class="s" id="st3"><span class="d">3</span><span class="t">Access</span></div>
+  </div>
+
+  <div class="grid">
+    <!-- ============ LEFT: payment ============ -->
+    <main>
+      <div class="hello" id="helloBox">
+        <h1 id="hello">Join <span class="hot">AI Founder University.</span></h1>
+        <p>Founding-member price, locked for as long as you stay. Your access is sent to your inbox the moment you join.</p>
+      </div>
+
+      <!-- compact summary for phones -->
+      <div class="card mobile-sum">
+        <div class="prod">
+          <div class="box">AFU<small>MEMBERSHIP</small></div>
+          <div><b>AI Founder University</b><span class="plan-name">Monthly membership</span></div>
+          <div class="pr tot-val">$39.00</div>
+        </div>
+      </div>
+
+      <form class="card pay" id="payform" novalidate>
+        <div class="lab">Choose your plan</div>
+        <div class="plans" role="radiogroup" aria-label="Choose your plan">
+          <label class="plan on" data-plan="month"><input type="radio" name="plan" value="month" checked><span class="pn">Monthly</span><b>$39<small>/month</small></b><span class="ps"><s>$129</s> · cancel any time</span></label>
+          <label class="plan year" data-plan="year"><input type="radio" name="plan" value="year"><em>★ BEST VALUE · SAVE 57%</em><span class="pn">Yearly</span><b>$199<small>/year</small></b><span class="ps">Just $16.58/mo · 12 months for the price of 5</span></label>
+        </div>
+
+        <div class="sep"></div>
+        <div class="lab">Your details</div>
+        <div class="row">
+          <div class="field"><input id="name" type="text" autocomplete="given-name" placeholder="First name" aria-label="First name"><p class="err">Enter your first name.</p></div>
+          <div class="field"><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="Email for your access" aria-label="Email"><p class="err">Enter a valid email — your access goes here.</p></div>
+        </div>
+
+        <div class="sep"></div>
+        <div class="lab">Payment</div>
+        <div id="express"></div>
+        <div class="iab-hint" id="iabHint" hidden>📱 Prefer Apple Pay or Google Pay? Tap <b>⋯</b> (top right) → <b>Open in browser</b>.</div>
+        <div class="or" id="or" hidden>or pay with card</div>
+        <div id="payment"><div class="skel"></div></div>
+        <div class="note" id="note" role="alert"></div>
+
+        <button class="btn" id="paybtn" type="submit" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span id="paylabel">Join now — $39/month</span>
+        </button>
+        <div class="under">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Instant access</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Cancel any time</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>Price locked for life</span>
+        </div>
+        <div class="methods" aria-hidden="true"><span>VISA</span><span>Mastercard</span><span>AMEX</span></div>
+        <p class="terms" id="planTerms">You'll be charged <b>$39 today</b> and $39 every month after that until you cancel. Cancel any time in two clicks from your account page.</p>
+        <p class="terms">Payments are encrypted and processed by Stripe. We never see or store your card details. By joining you agree to our <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+      </form>
+
+      <div class="card done-card" id="doneCard" hidden>
+        <div class="tick">✓</div>
+        <h2>Welcome to AI Founder University!</h2>
+        <p>Your membership is active. We've emailed your sign-in link to <b id="doneEmail"></b> — it arrives within a few minutes.</p>
+        <p style="color:#7a7067;font-size:.9rem">Can't find it? Check your spam folder, or sign in with your email below.</p>
+        <a class="btn" href="/members/login.html">Go to the member area →</a>
+      </div>
+    </main>
+
+    <!-- ============ RIGHT: reassurance ============ -->
+    <aside class="side">
+      <div class="card sum">
+        <h3>Order summary</h3>
+        <div class="prod">
+          <div class="box">AFU<small>MEMBERSHIP</small></div>
+          <div><b>AI Founder University</b><span class="plan-name">Monthly membership</span></div>
+          <div class="pr tot-val">$39.00</div>
+        </div>
+        <ul class="items">
+          <li>Personal 7 / 30 / 90-day AI roadmap</li>
+          <li>Growing library of lessons &amp; tutorials</li>
+          <li>1,300+ prompts, skills, agents &amp; routines</li>
+          <li>Weekly AI trend reports + news feed</li>
+          <li>Private founder community</li>
+          <li class="bn">Founding price locked for life <span class="free">70% OFF</span></li>
+        </ul>
+        <div class="tot"><span>Total today</span><div><b class="tot-val">$39.00</b><small class="tot-sub">then $39/month · USD</small></div></div>
+      </div>
+
+      <div class="card quote">
+        <div class="stars">★★★★★</div>
+        <p>"In one afternoon I tightened my offer, improved my onboarding emails, and mapped out a month of content. The outputs actually feel usable right away."</p>
+        <div class="who"><i style="background:#7c5cff">RJ</i><div><b>Richard Jones</b><span>Agency owner</span></div></div>
+      </div>
+
+      <div class="card next">
+        <h3>What happens next</h3>
+        <ol>
+          <li><span><b>Instant access</b> — your sign-in link lands in your inbox within minutes.</span></li>
+          <li><span><b>Get your roadmap</b> — tell us about your business, get your 7/30/90-day plan.</span></li>
+          <li><span><b>Start building</b> — follow the plan with the library and the community.</span></li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  © <span id="yr">2026</span> All rights reserved Pure Collective Ltd. · <a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a><br>
+  <span class="legal">Claude is a trademark of Anthropic. This site is independent and not affiliated with or endorsed by Anthropic. This site is not part of the Facebook website or Facebook Inc. Additionally, this site is NOT endorsed by Facebook in any way. FACEBOOK is a registered trademark of FACEBOOK, Inc.</span>
+</footer>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  $('yr').textContent = new Date().getFullYear();
+
+  /* Display only. The server picks the real price from its own config for the
+     plan named, and the amount Stripe charges comes from that subscription. */
+  var PLANS = {
+    month: { cents: 3900, name: 'Monthly membership', btn: 'Join now — $39/month', sub: 'then $39/month · USD',
+             terms: "You'll be charged <b>$39 today</b> and $39 every month after that until you cancel. Cancel any time in two clicks from your account page." },
+    year:  { cents: 19900, name: 'Yearly membership', btn: 'Join now — $199/year', sub: 'for 12 months · USD',
+             terms: "You'll be charged <b>$199 today</b> for 12 months of full access — $269 less than paying monthly. It renews yearly until you cancel. Not for you? Full refund within 14 days." }
+  };
+  var plan = 'month';
+  try { var q = new URLSearchParams(location.search).get('plan'); if (q === 'year' || q === 'month') plan = q; } catch (e) {}
+
+  var nameEl = $('name'), emailEl = $('email'), btn = $('paybtn'), label = $('paylabel'), note = $('note');
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  [nameEl, emailEl].forEach(function (el) { el.addEventListener('input', function () { el.classList.remove('bad'); }); });
+
+  /* Capture the lead the moment both fields are filled in - no extra step.
+     As soon as there is a name and a valid email (on leaving either field),
+     they are filed as a lead and a Lead goes to Meta through /api/track, so
+     somebody who stops at the card form is still somebody we can write to.
+     Re-sent only if the email changes. */
+  var leadSent = '';
+  function captureLead() {
+    var name = nameEl.value.trim(), email = emailEl.value.trim().toLowerCase();
+    if (name.length < 2 || !EMAIL_RE.test(email) || email === leadSent) return;
+    leadSent = email;
+    var parts = name.split(/\s+/);
+    try {
+      if (window.aifuTrackOnce) window.aifuTrackOnce('Lead', { email: email, firstName: parts[0] || undefined,
+        lastName: parts.length > 1 ? parts[parts.length - 1] : undefined });
+    } catch (e) {}
+  }
+  [nameEl, emailEl].forEach(function (el) { el.addEventListener('blur', captureLead); el.addEventListener('change', captureLead); });
+
+  function money(c) { return '$' + (c / 100).toFixed(2); }
+  function showNote(m) { note.textContent = m; note.classList.add('show'); }
+  function hideNote() { note.classList.remove('show'); }
+  function details(focus) {
+    var ok = true;
+    if (nameEl.value.trim().length < 2) { nameEl.classList.add('bad'); ok = false; }
+    if (!EMAIL_RE.test(emailEl.value.trim())) { emailEl.classList.add('bad'); ok = false; }
+    if (!ok && focus) (nameEl.classList.contains('bad') ? nameEl : emailEl).focus();
+    return ok;
+  }
+  function busy(on) {
+    btn.disabled = on;
+    label.textContent = on ? 'Processing…' : PLANS[plan].btn;
+    var s = btn.querySelector('.spin');
+    if (on && !s) { s = document.createElement('span'); s.className = 'spin'; btn.insertBefore(s, label); btn.querySelector('svg').style.display = 'none'; }
+    if (!on && s) { s.remove(); btn.querySelector('svg').style.display = ''; }
+  }
+  function step(n) {
+    $('st1').className = 's ' + (n > 1 ? 'done' : 'now'); $('st1').querySelector('.d').textContent = n > 1 ? '✓' : '1';
+    $('bar1').className = 'bar' + (n > 1 ? ' ok' : '');
+    $('st2').className = 's ' + (n > 2 ? 'done' : n === 2 ? 'now' : ''); $('st2').querySelector('.d').textContent = n > 2 ? '✓' : '2';
+    $('bar2').className = 'bar' + (n > 2 ? ' ok' : '');
+    $('st3').className = 's ' + (n === 3 ? 'done' : ''); $('st3').querySelector('.d').textContent = n === 3 ? '✓' : '3';
+  }
+
+  function paint() {
+    var p = PLANS[plan];
+    document.querySelectorAll('.plan').forEach(function (el) {
+      var on = el.dataset.plan === plan;
+      el.classList.toggle('on', on); el.querySelector('input').checked = on;
+    });
+    document.querySelectorAll('.tot-val').forEach(function (el) { el.textContent = money(p.cents); });
+    document.querySelectorAll('.plan-name').forEach(function (el) { el.textContent = p.name; });
+    document.querySelectorAll('.tot-sub').forEach(function (el) { el.textContent = p.sub; });
+    $('planTerms').innerHTML = p.terms;
+    if (!btn.querySelector('.spin')) label.textContent = p.btn;
+    if (elements) elements.update({ amount: p.cents });
+  }
+  document.querySelectorAll('.plan input').forEach(function (r) {
+    r.addEventListener('change', function () { plan = r.value; hideNote(); paint(); });
+  });
+
+  function stripeReady() {
+    if (window.Stripe) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var waited = 0, t = setInterval(function () {
+        if (window.Stripe) { clearInterval(t); resolve(); return; }
+        if ((waited += 40) >= 10000) { clearInterval(t); reject(new Error('load')); }
+      }, 40);
+    });
+  }
+  function pageReady() {
+    return new Promise(function (r) {
+      if (document.readyState !== 'loading') r(); else document.addEventListener('DOMContentLoaded', function () { r(); });
+    });
+  }
+
+  /* Creates the customer + subscription for the chosen plan and returns the
+     client secret of its first payment. Called only once the card details
+     have passed Stripe's own checks, so an abandoned form leaves nothing behind. */
+  function startJoin(name, email) {
+    return fetch('/api/membership/join', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name, email: email, plan: plan,
+        fbclid: window.aifuFbclid ? window.aifuFbclid() : '',
+        fbclidAt: window.aifuFbclidAt ? window.aifuFbclidAt() : 0,
+        fbp: window.aifuFbp ? window.aifuFbp() : '',
+        vid: window.aifuVid ? window.aifuVid() : '',
+        landingUrl: window.aifuLandingUrl ? window.aifuLandingUrl() : ''
+      })
+    }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Could not start the payment.'); return j; }); });
+  }
+
+  function finished(email, pi) {
+    step(3);
+    $('payform').hidden = true; $('helloBox').hidden = true;
+    document.querySelector('.mobile-sum').hidden = true;
+    $('doneEmail').textContent = email;
+    $('doneCard').hidden = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Ask for the welcome now rather than waiting for the sweep. Fire and forget:
+    // nothing on this screen depends on it.
+    if (pi && pi.id && pi.client_secret) {
+      fetch('/api/membership/welcome', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId: pi.id, clientSecret: pi.client_secret }), keepalive: true
+      }).catch(function () {});
+    }
+  }
+
+  function pay(name, email, ev) {
+    // 1. Stripe checks the card / wallet locally. 2. We create the subscription.
+    // 3. Stripe confirms its first payment (3-D Secure if the bank asks).
+    return elements.submit().then(function (r) {
+      if (r.error) throw r.error;
+      return startJoin(name, email);
+    }).then(function (j) {
+      if (j.already) {
+        var e = new Error('This email already has an active membership. Sign in at the member area instead.');
+        e.already = true; throw e;
+      }
+      return stripe.confirmPayment({
+        elements: elements, clientSecret: j.clientSecret, redirect: 'if_required',
+        confirmParams: {
+          return_url: location.origin + '/join.html?joined=1&email=' + encodeURIComponent(email),
+          payment_method_data: { billing_details: { name: name, email: email } }
+        }
+      });
+    }).then(function (res) {
+      if (res.error) throw res.error;
+      finished(email, res.paymentIntent);
+    }).catch(function (err) {
+      if (ev && ev.paymentFailed) ev.paymentFailed({ reason: 'fail' });
+      busy(false);
+      showNote((err && err.message) || 'Your payment didn’t go through. Please try again or use another card.');
+    });
+  }
+
+  // Back from a bank redirect (3-D Secure in a new page).
+  try {
+    var sp = new URLSearchParams(location.search);
+    if (sp.get('joined') === '1' && sp.get('redirect_status') === 'succeeded') {
+      finished(sp.get('email') || 'your inbox', { id: sp.get('payment_intent'), client_secret: sp.get('payment_intent_client_secret') });
+      return;
+    }
+  } catch (e) {}
+
+  var stripe, elements;
+  paint();
+  pageReady().then(function () {
+    return fetch('/api/stripe-key').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; });
+  }).then(function (k) {
+    return stripeReady().then(function () { return k; });
+  }).then(function (k) {
+    if (!k.publishableKey) throw new Error('key');
+    stripe = Stripe(k.publishableKey);
+    elements = stripe.elements({
+      mode: 'subscription', amount: PLANS[plan].cents, currency: 'usd',
+      fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' }],
+      appearance: {
+        theme: 'stripe',
+        variables: { colorPrimary: '#ff5a1f', colorText: '#14110f', colorTextSecondary: '#4a433c',
+          colorBackground: '#fbf7f1', colorDanger: '#e5484d', borderRadius: '12px',
+          fontFamily: 'Inter, system-ui, sans-serif', fontSizeBase: '16px', spacingUnit: '4px' },
+        rules: {
+          '.Input': { border: '1.5px solid #d8ccbc', boxShadow: 'none', padding: '13px 14px' },
+          '.Input:focus': { borderColor: '#14110f', boxShadow: 'none', backgroundColor: '#ffffff' },
+          '.Tab': { border: '1.5px solid #d8ccbc', boxShadow: 'none' },
+          '.Tab--selected': { borderColor: '#14110f', boxShadow: 'none' },
+          '.Label': { fontWeight: '600', fontSize: '13px' }
+        }
+      }
+    });
+
+    var express = elements.create('expressCheckout', { buttonHeight: 52, emailRequired: true });
+    express.on('ready', function (ev) {
+      var pm = ev.availablePaymentMethods || {};
+      var any = Object.keys(pm).some(function (x) { return pm[x]; });
+      $('or').hidden = !any;
+      var inApp = /FBAN|FBAV|FB_IAB|Instagram/i.test(navigator.userAgent || '');
+      $('iabHint').hidden = !(inApp && !pm.applePay && !pm.googlePay);
+    });
+    express.on('click', function (ev) {
+      hideNote();
+      if (nameEl.value.trim().length < 2 && !EMAIL_RE.test(emailEl.value.trim())) { /* the wallet supplies them */ }
+      ev.resolve();
+    });
+    express.on('confirm', function (ev) {
+      hideNote();
+      var bd = ev.billingDetails || {};
+      var email = (bd.email || emailEl.value || '').trim().toLowerCase();
+      var name = (bd.name || nameEl.value || '').trim();
+      if (!EMAIL_RE.test(email)) { ev.paymentFailed && ev.paymentFailed({ reason: 'invalid_payer_email' }); showNote('Enter a valid email — your access goes here.'); return; }
+      if (name.length < 2) name = email.split('@')[0];
+      emailEl.value = email; if (!nameEl.value) nameEl.value = name;
+      step(2); busy(true);
+      pay(name, email, ev);
+    });
+    express.mount('#express');
+
+    var payment = elements.create('payment', {
+      layout: { type: 'tabs', defaultCollapsed: false },
+      wallets: { applePay: 'never', googlePay: 'never' },
+      fields: { billingDetails: { name: 'never', email: 'never' } },
+      terms: { card: 'never' }
+    });
+    $('payment').innerHTML = '';
+    payment.mount('#payment');
+    payment.on('ready', function () { btn.disabled = false; });
+    payment.on('focus', function () { step(2); });
+  }).catch(function () {
+    $('payment').innerHTML = '';
+    showNote('We couldn’t load the payment form. Please refresh the page, or email support@aifounderuniversity.com.');
+  });
+
+  $('payform').addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideNote();
+    if (!elements || !details(true)) return;
+    step(2); busy(true);
+    pay(nameEl.value.trim(), emailEl.value.trim().toLowerCase());
+  });
+})();
+</script>
+</body>
+</html>

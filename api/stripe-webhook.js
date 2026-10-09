@@ -4,9 +4,9 @@ import {
   grantEntitlement, revokeEntitlement, recordDownsellChoice, queueWelcome
 } from '../lib/db.js';
 import { sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt } from '../lib/email.js';
-import { sendPurchase } from '../lib/meta-capi.js';
+import { sendPurchase, sendMembershipPurchase } from '../lib/meta-capi.js';
 import { sendMsPurchase } from '../lib/ms-capi.js';
-import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS, COURSES }
+import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS, COURSES, MEMBER_SOURCE }
   from '../lib/products.js';
 
 /**
@@ -533,6 +533,62 @@ export default async function handler(req, res) {
         await grantEntitlement(payerEmail, ALL_ACCESS);
         console.log('[stripe-webhook] All-access granted to', payerEmail,
           '(invoice', invoice.id, invoice.billing_reason + ')');
+
+        /* Report the sale, but only ever the first one, and only for a
+           membership bought from the homepage.
+
+           Those two gates matter more than they look. The payment_intent
+           branch above deliberately refuses every invoice-backed payment so a
+           renewal is never mistaken for a purchase - which is right, and which
+           also means a homepage membership reached Meta as nothing at all: a
+           stranger could pay $199 and the campaign that sold it would show no
+           conversion. This is the only place that payment can be reported.
+
+           `subscription_create` is what makes it the first one. A $1 buyer's
+           membership can never arrive here: their subscription starts on a
+           trial, so its subscription_create invoice is zero and was already
+           dropped above, and the $39 that follows comes in as
+           subscription_cycle. The source check is belt and braces on top of
+           that - nothing in the $1 funnel carries it. */
+        try {
+          if (invoice.billing_reason === 'subscription_create') {
+            const sub = await stripe.subscriptions.retrieve(subId).catch(() => null);
+            if (sub?.metadata?.source === MEMBER_SOURCE) {
+              const m = sub.metadata;
+              const addr = invoice.customer_address || {};
+              const parts = String(invoice.customer_name || m.name || '').trim().split(/\s+/);
+              const who = {
+                sourceUrl: m.landing_url
+                  || `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/join.html`,
+                email: payerEmail,
+                firstName: parts[0] || null,
+                lastName: parts.length > 1 ? parts[parts.length - 1] : null,
+                city: addr.city || null,
+                zip: addr.postal_code || null,
+                country: addr.country || null,
+                // Kept on the subscription when they joined, because by now the
+                // browser that knew them is long gone.
+                fbclid: m.fbclid || null,
+                fbclidAt: Number(m.fbclid_at) || null,
+                fbp: m.fbp || null,
+                ip: m.client_ip || null,
+                ua: m.client_ua || null
+              };
+              // Keyed on the invoice: a webhook retry is de-duplicated, and
+              // next year's renewal has an id of its own.
+              const money = { amount: invoice.amount_paid, currency: invoice.currency, eventId: invoice.id };
+              await sendMembershipPurchase(who, money)
+                .catch((e) => console.error('[stripe-webhook] Meta membership Purchase failed:', e.message));
+              await sendMsPurchase(who, money)
+                .catch((e) => console.error('[stripe-webhook] Microsoft membership Purchase failed:', e.message));
+              console.log('[stripe-webhook] membership sale reported:', payerEmail, m.plan || '', invoice.id);
+            }
+          }
+        } catch (repErr) {
+          // A sale that is fulfilled must never fail because it could not be
+          // counted.
+          console.error('[stripe-webhook] could not report the membership sale:', repErr.message);
+        }
         break;
       }
 
@@ -569,6 +625,25 @@ export default async function handler(req, res) {
         if (live) {
           await grantEntitlement(who, ALL_ACCESS);
           console.log('[stripe-webhook] All-access granted to', who, `(subscription ${sub.status})`);
+
+          // Joined straight from the homepage checkout (/join.html), with no $1
+          // order before it. Nothing else has made them a customer, so the
+          // customers row - which is what lets them sign in - is created here,
+          // and the one welcome is queued. Only on the first live event: a
+          // returning buyer already has a row and already had their welcome.
+          if (sub.metadata?.source === 'home-join') {
+            const cust = await stripe.customers.retrieve(sub.customer).catch(() => null);
+            const isNew = await grantAccess(who, {
+              stripeCustomerId: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id,
+              name: cust?.name || sub.metadata?.name || null,
+              source: 'home-join',
+              landingUrl: sub.metadata?.landing_url || null
+            });
+            if (isNew) {
+              await queueWelcome(who, 5);
+              console.log('[stripe-webhook] new member from the homepage:', who, sub.metadata?.plan || '');
+            }
+          }
 
           // The yearly plan replaces the monthly trial rather than joining it.
           //

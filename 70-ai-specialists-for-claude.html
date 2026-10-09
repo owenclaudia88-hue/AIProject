@@ -1,0 +1,1949 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>70 AI Specialists For Claude — Turn Claude Into a High-Performing AI Team</title>
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="description" content="70 pre-built AI Specialists for Claude. One specialist for every part of your business. One payment. No monthly fees. Results from day one.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0b;
+  --bg-2:#111113;
+  --bg-3:#18181b;
+  --line:#26262b;
+  --line-2:#333338;
+  --txt:#f4f4f5;
+  --txt-2:#a1a1aa;
+  --txt-3:#71717a;
+  --accent:#ff7a1a;
+  --accent-2:#ffb020;
+  --accent-soft:rgba(255,122,26,.12);
+  --green:#34d399;
+  --red:#f87171;
+  --violet:#a855f7;
+  --violet-dim:#7c3aed;
+  --neutral-series:#9a9aa3;
+  --radius:16px;
+  --maxw:1680px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--txt);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+[hidden]{display:none!important}
+
+/* ---------- layout ---------- */
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding-inline:clamp(18px,8vw,100px)}
+section{padding-block:104px;position:relative}
+.narrow{max-width:880px;margin-inline:auto}
+.center{text-align:center}
+
+/* ---------- type ---------- */
+/* Reference sets large, LIGHT headings (h1 57px/400, h2 48px/400) rather than
+   heavy condensed ones - that weight is most of how the page reads. */
+h1,h2,h3,h4{margin:0;letter-spacing:-.015em;font-weight:400}
+h1{font-size:clamp(2rem,3.7vw,3.3rem);font-weight:400;line-height:1.24;letter-spacing:-.02em}
+h2{font-size:clamp(1.8rem,3.5vw,3rem);font-weight:400;line-height:1.26;letter-spacing:-.02em}
+h3{font-size:1.15rem;font-weight:600;line-height:1.35;letter-spacing:-.01em}
+p{margin:0}
+.lead{font-size:clamp(1.05rem,1.5vw,1.35rem);color:#cacaca;line-height:1.55}
+.h1-sub{font-size:clamp(1.25rem,2.1vw,1.85rem);color:#fff;line-height:1.45;font-weight:400}
+.muted{color:var(--txt-2)}
+.dim{color:var(--txt-3);font-size:.88rem}
+.amber{color:var(--accent-2)}
+.stack>*+*{margin-top:18px}
+.stack-sm>*+*{margin-top:10px}
+
+/* ---------- eyebrow / pills ---------- */
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent-2);background:var(--accent-soft);
+  border:1px solid rgba(255,122,26,.28);
+  padding:7px 14px;border-radius:999px;
+}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));
+  color:#1a0d00;font-weight:800;font-size:1.02rem;letter-spacing:-.01em;
+  padding:16px 34px;border-radius:999px;border:0;cursor:pointer;
+  box-shadow:0 8px 28px rgba(255,122,26,.28);
+  transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  text-align:center;position:relative;overflow:hidden;isolation:isolate;
+}
+.btn::after{
+  content:"";position:absolute;top:0;bottom:0;left:-150%;width:55%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:skewX(-18deg);pointer-events:none;z-index:-1;
+  animation:btn-sheen 3.4s cubic-bezier(.4,0,.2,1) infinite;
+}
+@keyframes btn-sheen{0%,62%{left:-150%}100%{left:170%}}
+.btn-ghost::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.14),transparent)}
+@media (prefers-reduced-motion:reduce){
+  .btn::after{animation:none;opacity:0}
+  .btn:hover{transform:none}
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(255,122,26,.38);filter:brightness(1.05)}
+.btn:active{transform:translateY(0)}
+.btn-sm{padding:11px 22px;font-size:.9rem;box-shadow:0 4px 16px rgba(255,122,26,.25)}
+.btn-block{display:flex;width:100%}
+.btn-lg{padding:13px 28px 13px 13px;font-size:1.06rem;gap:20px}
+.btn-ico{
+  width:46px;height:46px;border-radius:9px;flex:none;
+  background:linear-gradient(180deg,#242424,#1a1a1a);color:#fff;
+  display:grid;place-items:center;box-shadow:0 2px 4px rgba(0,0,0,.35);
+}
+.btn-ico svg{width:19px;height:19px;display:block}
+.btn-ghost{
+  background:transparent;color:var(--txt);border:1px solid var(--line-2);
+  box-shadow:none;font-weight:700;
+}
+.btn-ghost:hover{background:var(--bg-3);box-shadow:none}
+.cta-block{display:flex;flex-direction:column;align-items:center;gap:16px}
+.guarantee{font-size:.86rem;color:var(--txt-3);display:flex;align-items:center;gap:7px}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--bg-2);border:1px solid var(--line);
+  border-radius:var(--radius);padding:26px;
+}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* ---------- header ---------- */
+header.top{
+  position:sticky;top:0;z-index:50;
+  padding-top:env(safe-area-inset-top,0px);
+  background:rgba(10,10,11,.86);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.top-inner{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-block:12px;
+}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.mark{
+  width:36px;height:36px;border-radius:10px;flex:none;
+  background:linear-gradient(140deg,var(--accent-2),var(--accent));
+  display:grid;place-items:center;color:#1a0d00;font-weight:900;font-size:.82rem;
+}
+.brand-name{font-weight:800;letter-spacing:-.02em;font-size:.98rem;line-height:1.2}
+.product-tag{
+  font-size:.82rem;font-weight:600;color:var(--txt-2);white-space:nowrap;
+  padding-right:16px;border-right:1px solid var(--line-2);line-height:1.2;
+}
+.top-right{display:flex;align-items:center;gap:14px}
+.price-tag{display:flex;align-items:baseline;gap:8px;font-weight:800}
+.price-tag .now{font-size:1.15rem;color:var(--accent-2)}
+.price-tag .was{font-size:.9rem;color:var(--txt-3);text-decoration:line-through;font-weight:600}
+
+/* ---------- announcement ---------- */
+.announce{
+  background:linear-gradient(90deg,var(--accent),var(--accent-2) 48%,var(--accent));
+  color:#1a0d00;overflow:hidden;position:relative;
+  box-shadow:inset 0 -1px 0 rgba(0,0,0,.16);
+}
+.announce-track{display:flex;width:max-content;animation:announce-scroll 42s linear infinite}
+.announce-seq{display:flex;align-items:center;gap:24px;padding-right:24px;flex:none}
+.ann-item{
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  padding-block:9px;font-size:.76rem;font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.ann-pill{
+  display:inline-flex;align-items:center;white-space:nowrap;
+  padding:5px 13px;border-radius:999px;
+  font-size:.7rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+}
+.ann-pill.dark{background:#140d06;color:var(--accent-2);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.ann-pill.light{background:rgba(255,255,255,.94);color:#a04100}
+@keyframes announce-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.announce-track{animation:none}}
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+
+/* ---------- trust row ---------- */
+.trust{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;color:var(--txt-2);font-size:.9rem}
+.stars{color:var(--accent-2);letter-spacing:2px;font-size:.95rem}
+.sep{color:var(--line-2)}
+
+/* ---------- hero ---------- */
+.hero{padding-top:34px;padding-bottom:70px;position:relative;overflow:hidden}
+.hero_wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:0 16px;position:relative;
+  grid-template-areas:"content visual" "cta visual";
+  align-content:center;
+}
+.hero_content{grid-area:content;align-self:end}
+.hero_cta{grid-area:cta;align-self:start;margin-top:36px}
+.hero_visual{grid-area:visual;align-self:center}
+.hero_content{
+  display:flex;flex-direction:column;align-items:flex-start;gap:36px;
+  max-width:600px;text-align:left;position:relative;z-index:2;
+}
+.hero_cta .cta-block{align-items:flex-start}
+.included-card{
+  display:flex;gap:16px;align-items:flex-start;text-align:left;
+  background:var(--bg-3);border:1px solid var(--line);border-radius:16px;
+  padding:20px 24px;margin-top:40px;max-width:1010px;
+}
+.inc-ico{width:32px;height:32px;flex:none;color:var(--accent-2);display:block}
+.inc-ico svg{width:100%;height:100%;display:block}
+.inc-head{line-height:1.45}
+.inc-title{display:block;font-size:1rem;font-weight:800;letter-spacing:.02em;color:#fff}
+.inc-list{font-size:1rem;font-weight:600;color:#fff}
+.inc-sub{margin-top:10px;font-size:.92rem;color:var(--txt-2);line-height:1.5}
+@media (min-width:821px){
+  /* reference runs the label and the list on one line, with a compact
+     sub-line under it, so the card stays two lines tall */
+  .included-card{padding:18px 24px;align-items:center;gap:18px}
+  .inc-title{display:inline}
+  .inc-head{font-size:.96rem}
+  .inc-list{font-size:.96rem}
+  .inc-sub{margin-top:5px;font-size:.86rem}
+}
+.hero_content .cta-block{align-items:flex-start}
+.hero_rating{
+  display:inline-flex;align-items:center;gap:10px;white-space:nowrap;
+  border:1px solid #585858;border-radius:2.5rem;padding:5px 15px;font-size:.82rem;color:#fff;
+}
+.hero_rating .bar{color:#585858}
+.hero_eyebrow{font-size:clamp(1rem,1.6vw,1.25rem);color:#cacaca}
+.hero_visual{position:relative;height:620px;display:grid;place-items:center;overflow:visible;z-index:1}
+.hero_visual .boxstage{transform:scale(.97);transform-origin:center}
+.hero::before{
+  content:"";position:absolute;inset:-30% 0 auto 50%;
+  width:900px;height:700px;transform:translateX(-50%);
+  background:radial-gradient(closest-side,rgba(255,122,26,.16),transparent 70%);
+  pointer-events:none;
+}
+.hero .wrap{position:relative}
+
+/* ---------- mock UI ---------- */
+.mock{
+  border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  background:var(--bg-2);box-shadow:0 28px 70px rgba(0,0,0,.55);
+}
+.mock-bar{
+  display:flex;align-items:center;gap:7px;padding:11px 14px;
+  background:var(--bg-3);border-bottom:1px solid var(--line);
+}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--line-2)}
+.mock-bar .label{margin-left:10px;font-size:.76rem;color:var(--txt-3)}
+.mock-body{padding:18px;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.spec-chip{
+  border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:var(--bg-3);
+  display:flex;flex-direction:column;gap:5px;
+}
+.spec-chip .n{font-size:.83rem;font-weight:700;letter-spacing:-.01em}
+.spec-chip .r{font-size:.71rem;color:var(--txt-3)}
+.spec-chip .bar{height:3px;border-radius:3px;background:linear-gradient(90deg,var(--accent),rgba(255,122,26,.12));margin-top:3px}
+
+/* ---------- comparison table ---------- */
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg-2)}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{padding:16px 18px;text-align:left;font-size:.92rem;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{
+  font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3);
+  font-weight:700;background:var(--bg-3);
+}
+tbody tr:last-child td{border-bottom:0}
+td:first-child,th:first-child{font-weight:700;color:var(--txt)}
+.col-win{background:rgba(255,122,26,.05)}
+thead th.col-win{color:var(--accent-2);background:rgba(255,122,26,.09)}
+td.col-win{color:var(--txt);font-weight:600}
+td.col-lose{color:var(--txt-3)}
+
+.benefit-acc{display:grid;gap:12px;align-content:center}
+.bacc{background:var(--bg-3);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.bacc-q{
+  width:100%;background:none;border:0;color:var(--txt);cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:14px;padding:16px 18px;
+  font-size:1.02rem;font-weight:500;letter-spacing:-.01em;text-align:left;
+}
+.bacc-ico{width:22px;height:22px;flex:none;color:var(--accent-2);display:block}
+.bacc-ico svg{width:100%;height:100%;display:block}
+.bacc-t{flex:1;min-width:0}
+.bacc-chev{flex:none;color:var(--txt-3);font-size:1.15rem;line-height:1;transition:transform .2s ease}
+.bacc.open .bacc-chev{transform:rotate(180deg)}
+.bacc-a{padding:0 18px 18px 54px;color:var(--txt-2);font-size:.94rem;line-height:1.55}
+
+/* ---------- feature list ---------- */
+.feature{display:flex;gap:16px;align-items:flex-start}
+.ico{
+  width:42px;height:42px;border-radius:11px;flex:none;display:grid;place-items:center;
+  background:var(--accent-soft);border:1px solid rgba(255,122,26,.25);
+  font-size:1.15rem;
+}
+.feature h3{margin-bottom:5px}
+.feature p{color:var(--txt-2);font-size:.94rem}
+
+/* ---------- capability cards ---------- */
+.capswrap-bg{
+  position:relative;
+  background:radial-gradient(ellipse 60% 45% at 50% 100%,rgba(255,122,26,.10),transparent 70%);
+}
+.caps-wrap{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.caps-card{
+  background:var(--bg-3);border:1px solid var(--line);border-radius:22px;
+  padding:46px 40px;display:flex;justify-content:center;
+}
+.caps-card ul{
+  list-style:none;margin:0;padding:0;
+  display:grid;gap:20px;width:max-content;max-width:100%;
+}
+.caps-card li{
+  display:flex;gap:15px;align-items:center;
+  font-size:1rem;line-height:1.45;color:var(--txt-2);
+}
+.cap-tick{width:22px;height:22px;flex:none;color:var(--accent-2);display:block}
+.cap-tick svg{width:100%;height:100%;display:block}
+
+/* ---------- testimonials ---------- */
+.quote{display:flex;flex-direction:column;gap:14px;height:100%}
+.quote p{color:var(--txt);font-size:.95rem}
+.who{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:6px}
+.avatar{
+  width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;
+  font-weight:800;color:#1a0d00;font-size:.95rem;
+  background:linear-gradient(140deg,var(--accent-2),var(--accent));
+}
+.who .n{font-weight:700;font-size:.92rem;line-height:1.3}
+.who .t{font-size:.8rem;color:var(--txt-3);line-height:1.3}
+
+/* ---------- vs columns ---------- */
+.vs{display:grid;gap:18px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.vs-col{border-radius:var(--radius);border:1px solid var(--line);padding:26px;background:var(--bg-2)}
+.vs-col.good{border-color:rgba(255,122,26,.35);background:linear-gradient(180deg,rgba(255,122,26,.06),var(--bg-2))}
+.vs-col h3{margin-bottom:16px;font-size:1rem;letter-spacing:.01em}
+.vs-item{display:flex;gap:11px;align-items:flex-start;font-size:.93rem;padding-block:9px;border-top:1px solid var(--line)}
+.vs-item:first-of-type{border-top:0}
+.x{color:var(--red);font-weight:900;flex:none}
+.c{color:var(--green);font-weight:900;flex:none}
+.vs-col.bad .vs-item{color:var(--txt-3)}
+
+/* ---------- stats ---------- */
+.stat{text-align:center;padding:30px 22px}
+.stat .num{
+  font-size:clamp(2.4rem,6vw,3.4rem);font-weight:900;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.stat p{margin-top:10px;color:var(--txt-2);font-size:.93rem}
+
+/* ---------- reviews grid ---------- */
+.reviews{columns:3;column-gap:16px}
+.review{
+  break-inside:avoid;margin-bottom:16px;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:18px;
+}
+.review .stars{font-size:.85rem;letter-spacing:1px}
+.review p{font-size:.9rem;color:var(--txt-2);margin:8px 0 10px}
+.review .n{font-size:.85rem;font-weight:700}
+.rwho{display:flex;align-items:center;gap:10px}
+.ravatar{
+  position:relative;width:34px;height:34px;border-radius:50%;flex:none;overflow:hidden;
+  background:linear-gradient(140deg,var(--accent-2),var(--accent));
+  display:grid;place-items:center;color:#1a0d00;font-weight:800;font-size:.8rem;
+}
+.ravatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ---------- steps ---------- */
+.step{position:relative;padding-top:8px}
+.step .num{
+  width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  background:var(--accent-soft);border:1px solid rgba(255,122,26,.3);
+  color:var(--accent-2);font-weight:900;margin-bottom:14px;
+}
+.step p{font-size:.97rem;color:var(--txt-2)}
+
+/* ---------- pricing ---------- */
+.plans{display:grid;gap:22px;grid-template-columns:minmax(0,1fr);max-width:620px;margin-inline:auto;align-items:start}
+.plan{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:20px;padding:30px;
+  display:flex;flex-direction:column;gap:20px;position:relative;
+}
+.plan.best{
+  border-color:var(--accent);
+  background:linear-gradient(180deg,rgba(255,122,26,.09),var(--bg-2));
+  box-shadow:0 18px 60px rgba(255,122,26,.13);
+}
+.plan-badge{
+  position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#1a0d00;
+  font-size:.7rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 16px;border-radius:999px;white-space:nowrap;
+}
+.plan h3{font-size:1.25rem}
+.plan .prices{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.plan .now{font-size:3rem;font-weight:900;letter-spacing:-.04em;line-height:1}
+.plan .was{font-size:1.15rem;color:var(--txt-3);text-decoration:line-through;font-weight:600}
+.save{
+  display:inline-block;font-size:.76rem;font-weight:800;letter-spacing:.05em;
+  color:var(--accent-2);background:var(--accent-soft);border:1px solid rgba(255,122,26,.25);
+  padding:5px 11px;border-radius:999px;
+}
+.plan ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.plan li{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:var(--txt-2)}
+.plan li .tick{color:var(--accent-2)}
+.bonus{border-top:1px dashed var(--line-2);padding-top:18px}
+.bonus-title{font-size:.88rem;font-weight:800;color:var(--accent-2);margin-bottom:11px}
+
+/* ---------- faq ---------- */
+.faq-wrap{max-width:1060px;margin-inline:auto}
+.faq-item{border:1px solid var(--line);border-radius:14px;background:var(--bg-2);overflow:hidden}
+.faq-item+.faq-item{margin-top:11px}
+.faq-q{
+  width:100%;background:none;border:0;color:var(--txt);cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:19px 21px;font-size:1rem;font-weight:700;text-align:left;
+  font-family:inherit;letter-spacing:-.01em;
+}
+.faq-q .chev{color:var(--accent-2);font-size:1.3rem;line-height:1;transition:transform .2s ease;flex:none}
+.faq-item.open .faq-q .chev{transform:rotate(45deg)}
+.faq-a{padding:0 21px 21px;color:var(--txt-2);font-size:.93rem}
+.faq-a p+p{margin-top:11px}
+
+.cta-box{
+  border:1px solid rgba(255,122,26,.45);border-radius:26px;
+  background:radial-gradient(ellipse 70% 65% at 50% 118%,rgba(255,122,26,.11),transparent 70%),var(--bg-2);
+  padding:clamp(34px,4.6vw,64px) clamp(20px,3.6vw,56px);
+  box-shadow:0 0 70px rgba(255,122,26,.07);
+}
+.cta-box .inner{max-width:900px;margin-inline:auto}
+
+/* ---------- final ---------- */
+.final{
+  background:linear-gradient(180deg,rgba(255,122,26,.09),transparent 65%);
+  border-top:1px solid var(--line);
+}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);background:var(--bg-2);padding-block:46px}
+footer .links{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;font-size:.86rem}
+footer .links a{color:var(--txt-2)}
+footer .links a:hover{color:var(--accent-2)}
+footer .fine{font-size:.78rem;color:var(--txt-3);line-height:1.65;max-width:760px;margin-inline:auto;text-align:center}
+
+/* ---------- hero product box (3D) ---------- */
+.boxstage{position:relative;width:660px;height:620px;flex:none}
+.ring{
+  position:absolute;left:14px;top:132px;width:450px;height:450px;border-radius:50%;
+  border:2px solid var(--accent);opacity:.75;pointer-events:none;
+  box-shadow:0 0 60px rgba(255,122,26,.25), inset 0 0 60px rgba(255,122,26,.08);
+}
+.box3d{
+  position:absolute;top:52px;right:102px;width:262px;height:322px;z-index:2;
+  transform-style:preserve-3d;
+  transform:perspective(1700px) rotateY(-27deg) rotateX(-2.5deg);
+}
+.box-front,.box-side{position:absolute;background:linear-gradient(150deg,#26262a,#141416 55%,#0f0f11)}
+.box-front{
+  inset:0;transform:translateZ(34px);
+  border-radius:4px 2px 2px 4px;overflow:hidden;
+  padding:19px 19px 0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07), inset -1px 0 0 rgba(255,122,26,.35), 0 40px 70px rgba(0,0,0,.75);
+}
+.box-side{
+  top:0;left:100%;width:68px;height:100%;
+  transform-origin:left center;transform:translateZ(34px) rotateY(90deg);
+  background:linear-gradient(90deg,#1c1c1f,#0d0d0f);
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:18px 0;box-shadow:inset 1px 0 0 rgba(255,255,255,.05), 0 40px 60px rgba(0,0,0,.7);
+}
+.box-top{
+  position:absolute;left:0;top:0;width:100%;height:68px;
+  transform-origin:center top;transform:translateZ(34px) rotateX(-90deg);
+  background:linear-gradient(180deg,#3a3a3f,#1a1a1d);
+  box-shadow:0 0 22px rgba(255,122,26,.35);
+}
+.box-rating{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#000;border:1px solid var(--line-2);border-radius:999px;
+  padding:4px 10px;font-size:.62rem;color:var(--accent-2);letter-spacing:1px;
+}
+.box-rating b{color:#fff;letter-spacing:0;font-size:.76rem}
+.box-title{
+  margin-top:16px;font-size:1.62rem;font-weight:700;line-height:1.14;
+  letter-spacing:-.025em;color:#fff;
+}
+.box-arc{
+  position:absolute;left:-18%;bottom:-62%;width:136%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 8%,rgba(255,122,26,.55),rgba(255,122,26,.05) 42%,transparent 60%);
+  border-top:2px solid rgba(255,140,50,.85);
+}
+.box-arc::after{
+  content:"";position:absolute;left:8%;top:8%;width:84%;height:84%;border-radius:50%;
+  border-top:1px solid rgba(255,140,50,.35);
+}
+.box-side-text{
+  writing-mode:vertical-rl;font-size:.6rem;font-weight:600;color:#e8e8ea;
+  letter-spacing:.01em;white-space:nowrap;
+}
+.claude-mark{width:17px;height:17px;flex:none;color:var(--accent)}
+.box-chip{
+  position:absolute;width:176px;z-index:4;
+  background:linear-gradient(160deg,rgba(255,122,26,.14),rgba(20,20,22,.94));
+  border:1px solid rgba(255,122,26,.55);border-radius:14px;padding:11px 13px;
+  font-size:.77rem;line-height:1.32;color:#f0f0f2;
+  box-shadow:0 0 30px rgba(255,122,26,.16);
+  backdrop-filter:blur(4px);
+}
+.box-chip svg{width:20px;height:20px;color:var(--accent);margin-bottom:7px;display:block}
+.chip-1{left:0;top:12px}
+.chip-2{left:0;top:158px}
+.chip-3{right:0;top:292px}
+.chip-4{right:0;top:428px}
+.tenx{position:absolute;left:10px;bottom:22px;max-width:300px;z-index:3}
+.tenx .big{
+  font-size:4rem;font-weight:900;line-height:.9;letter-spacing:-.05em;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.tenx p{margin-top:8px;font-size:.92rem;color:#e4e4e7;line-height:1.4}
+.tenx .logo{display:flex;align-items:center;gap:10px;margin-top:16px}
+.tenx .logo svg{width:28px;height:28px;color:var(--accent)}
+.tenx .logo span{font-size:1.1rem;font-weight:500;color:#fff}
+
+/* ---------- testimonial carousel ---------- */
+.tcarousel{position:relative;max-width:900px;margin-inline:auto}
+.tstage{
+  position:relative;background:var(--bg-3);border:1px solid var(--line);
+  border-radius:20px;padding:38px 42px 46px;overflow:hidden;min-height:330px;
+}
+.tstage::after{
+  content:"\201D";position:absolute;right:26px;bottom:-70px;
+  font-size:19rem;line-height:1;color:rgba(255,255,255,.028);
+  font-family:Georgia,serif;pointer-events:none;
+}
+.tslide{display:none;position:relative;z-index:1}
+.tslide.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.thead{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.tavatar{
+  position:relative;width:74px;height:74px;border-radius:50%;flex:none;overflow:hidden;
+  background:linear-gradient(140deg,var(--accent-2),var(--accent));
+  display:grid;place-items:center;color:#1a0d00;font-weight:800;font-size:1.3rem;
+}
+.tavatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.thead .n{font-size:1.32rem;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.thead .t{font-size:.88rem;color:var(--txt-3);margin-top:2px}
+.thead .stars{font-size:1.15rem;letter-spacing:3px}
+.tquote{
+  margin-top:34px;text-align:center;font-size:clamp(1.05rem,2.1vw,1.45rem);
+  line-height:1.5;color:#e9e9ec;letter-spacing:-.015em;
+}
+.tnav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  width:42px;height:42px;border-radius:50%;cursor:pointer;
+  background:rgba(10,10,11,.7);border:1px solid var(--accent);color:var(--accent-2);
+  display:grid;place-items:center;font-size:1.1rem;line-height:1;
+  transition:background .15s ease,color .15s ease;
+}
+.tnav:hover{background:var(--accent);color:#1a0d00}
+.tprev{left:-21px}
+.tnext{right:-21px}
+.tdots{display:flex;gap:9px;justify-content:center;margin-top:20px}
+.tdot{
+  width:9px;height:9px;border-radius:50%;border:0;padding:0;cursor:pointer;
+  background:var(--line-2);transition:background .15s ease,transform .15s ease;
+}
+.tdot.active{background:#fff;transform:scale(1.15)}
+
+/* ---------- charts ---------- */
+.chartcard{
+  background:var(--bg-3);border:1px solid var(--line);border-radius:20px;
+  padding:30px 26px 22px;
+}
+.chart-scroll{overflow-x:auto}
+.chart-scroll svg{display:block;min-width:600px;width:100%;height:auto}
+.grid-line{stroke:rgba(255,255,255,.07);stroke-width:1}
+.axis-text{fill:var(--txt-3);font-size:13px;font-family:inherit}
+.series-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.series-a{stroke:var(--violet)}
+.series-b{stroke:var(--neutral-series)}
+.series-dot{stroke:var(--bg-3);stroke-width:2}
+.chart-tag{
+  fill:#3a3a40;stroke:rgba(255,255,255,.08);
+}
+.chart-tag-text{fill:#f2f2f4;font-size:14px;font-weight:600;font-family:inherit}
+.donutrow{display:grid;grid-template-columns:.85fr 1.15fr;gap:36px;align-items:center}
+.donut-center{fill:#fff;font-size:22px;font-weight:600;font-family:inherit;text-anchor:middle}
+.donut-label{fill:#e9e9ec;font-size:12.5px;font-family:inherit}
+.donut-label-dim{fill:var(--txt-2);font-size:12.5px;font-family:inherit}
+.leader{stroke:var(--violet);stroke-width:1;fill:none}
+.leader-dim{stroke:#4a4a52}
+.donut-legend{display:none;list-style:none;margin:16px 0 0;padding:0}
+.donut-legend li{display:flex;gap:10px;font-size:.9rem;color:var(--txt-2);line-height:1.5}
+.donut-legend strong{color:#fff;font-weight:600}
+.sw{width:12px;height:12px;border-radius:3px;flex:none;margin-top:5px}
+.sw-violet{background:var(--violet)}
+.sw-dim{background:#3a3a40}
+
+/* ---------- mockup scenes (laptop / phone) ---------- */
+.laptopwrap{
+  position:relative;padding:30px 0 10px;
+  background:radial-gradient(ellipse 66% 58% at 50% 45%,rgba(255,122,26,.20),transparent 68%);
+}
+.laptop{width:min(760px,100%);margin-inline:auto;position:relative;z-index:2}
+.mockup-img{width:100%;height:auto;display:block}
+.pills{position:absolute;inset:0;pointer-events:none;z-index:3}
+.pill{
+  position:absolute;max-width:235px;width:max-content;
+  background:#0d0d0f;border:1px solid #2a2a30;border-radius:999px;
+  padding:12px 19px;font-size:.84rem;font-weight:600;line-height:1.35;
+  box-shadow:0 10px 32px rgba(0,0,0,.65);
+  display:flex;gap:9px;align-items:flex-start;
+}
+.pill i{font-style:normal;flex:none}
+.p1{left:-24%;top:18%}
+.p2{left:-19%;top:43%}
+.p3{left:-26%;bottom:2%}
+.p4{right:-24%;top:14%}
+.p5{right:-26%;top:40%}
+.p6{right:-20%;bottom:8%}
+
+.inside-stack{display:grid;gap:16px}
+.inside-h{font-size:clamp(1.25rem,1.9vw,1.6rem);font-weight:500;letter-spacing:-.015em}
+
+/* reference's repeated two-column text/image block */
+.gpt_layout{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+.heading_wrap_gpt{display:flex;flex-direction:column;gap:22px;max-width:557px}
+.pad-scene,.phone-scene{
+  display:grid;place-items:center;position:relative;
+  background:
+    radial-gradient(ellipse 36% 38% at 52% 46%,rgba(255,170,85,.55),transparent 62%),
+    radial-gradient(ellipse 60% 62% at 52% 48%,rgba(255,122,26,.30),transparent 70%),
+    radial-gradient(ellipse 90% 88% at 52% 50%,rgba(255,122,26,.13),transparent 76%);
+}
+.pad-scene img{width:min(560px,100%);height:auto;border-radius:10px;filter:drop-shadow(0 30px 60px rgba(0,0,0,.65))}
+.phone-scene img{width:min(370px,88%);height:auto;filter:drop-shadow(0 30px 60px rgba(0,0,0,.6))}
+.phone-scene img,.pad-scene img{position:relative;z-index:1}
+.phone-scene .float-pill{
+  position:absolute;left:12%;top:14%;max-width:250px;z-index:3;
+  background:#0d0d0f;border:1px solid rgba(255,122,26,.6);border-radius:14px;
+  padding:14px 17px;font-size:.88rem;font-weight:600;line-height:1.4;
+  box-shadow:0 12px 34px rgba(0,0,0,.7);
+}
+
+/* ---------- scroll reveal ---------- */
+.reveal{
+  opacity:0;transform:translateY(22px);
+  transition:opacity .75s cubic-bezier(.22,.61,.24,1), transform .75s cubic-bezier(.22,.61,.24,1);
+  transition-delay:var(--rd,0ms);
+  will-change:opacity,transform;
+}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+}
+
+/* ---------- mobile bottom checkout bar ---------- */
+.mobile-checkout{
+  display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;
+  align-items:center;justify-content:space-between;gap:12px;
+  background:rgba(12,12,14,.97);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+  padding:10px 14px;
+  padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  transform:translateY(130%);transition:transform .28s ease;
+}
+.mobile-checkout.show{transform:none}
+.mc-info{flex:1 1 auto;min-width:0}
+.mc-name{font-size:.78rem;font-weight:600;color:var(--txt-2);line-height:1.25;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-price{display:flex;align-items:baseline;gap:6px;line-height:1.2}
+.mc-price strong{font-size:1.25rem;font-weight:900;color:#fff;letter-spacing:-.02em}
+.mc-price s{font-size:.8rem;color:var(--txt-3)}
+/* must beat the <=420px `.btn{width:100%}` rule */
+.mobile-checkout .mc-btn{
+  flex:0 0 auto;width:auto;padding:12px 15px;font-size:.86rem;gap:7px;
+  box-shadow:0 4px 18px rgba(255,122,26,.3);
+}
+.mc-ico{
+  width:23px;height:23px;border-radius:6px;background:rgba(0,0,0,.28);
+  display:grid;place-items:center;font-size:.72rem;flex:none;
+}
+@media (max-width:360px){
+  .mc-price s{display:none}
+  .mobile-checkout .mc-btn{padding:11px 13px;font-size:.82rem}
+  .mc-ico{display:none}
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:1000px){
+  .reviews{columns:2}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .box-chip{width:180px;font-size:.79rem;padding:12px}
+  .ring{width:420px;height:420px;left:0}
+  .donutrow{grid-template-columns:1fr;gap:30px}
+  .pill{font-size:.76rem;padding:10px 15px;max-width:200px}
+  .p1,.p2,.p3{left:-15%}
+  .p4,.p5,.p6{right:-15%}
+}
+@media (max-width:820px) and (min-width:701px){
+  .hero_visual{height:520px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.82)}
+}
+@media (max-width:700px){
+  .hero_visual{height:484px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.78)}
+}
+@media (max-width:620px){
+  .hero_visual{height:434px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.70)}
+}
+@media (max-width:520px){
+  .hero_visual{height:360px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.58)}
+}
+@media (max-width:440px){
+  .hero_visual{height:310px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.50)}
+}
+@media (max-width:380px){
+  .hero_visual{height:285px}
+  .hero_visual .boxstage{transform:translateX(-50%) scale(.46)}
+}
+@media (max-width:820px){
+  section{padding-block:64px}
+  .g2,.g3,.g4,.plans,.vs,.caps-wrap{grid-template-columns:1fr}
+  .reviews{columns:1}
+  .top-right .price-tag{display:none}
+  .product-tag{display:none}
+  /* the reference uses a bottom checkout bar on phones, not a pinned header */
+  header.top{position:static}
+  .mobile-checkout{display:flex}
+  body{padding-bottom:78px}
+  .hero{padding-top:26px}
+  /* text -> image -> button, the way the reference orders it on a phone */
+  .hero_wrap{grid-template-columns:1fr;grid-template-areas:"content" "visual" "cta";gap:0}
+  .hero_content{max-width:100%;align-items:center;text-align:center;gap:18px}
+  .hero_cta{margin-top:0}
+  .hero_cta .cta-block{align-items:center}
+  /* nowrap here forced the 1fr track to ~466px and clipped the hero */
+  .hero_rating{white-space:normal;flex-wrap:wrap;justify-content:center;
+               font-size:.76rem;line-height:1.5;text-align:center;gap:8px}
+  .hero_rating .bar{display:none}
+
+  /* Keep the whole composition - box, all four chips, ring, 10x - and scale it
+     down as one piece, rather than taking it apart into a stacked list. The
+     stage stays 660x620 internally; .hero_visual is sized to the scaled result. */
+  .hero_visual{overflow:hidden;display:block;position:relative;margin:24px 0 10px}
+  .hero_visual .boxstage{
+    position:absolute;left:50%;top:0;width:660px;height:620px;
+    transform-origin:top center;
+  }
+
+  /* carousel: hide the side arrows outright; the row below the card is the
+     mobile control. Making them static left them stacked vertically. */
+  .tstage{padding:26px 22px 34px}
+  .tcarousel > .tnav{display:none}
+  .tnav-row .tnav{position:static;transform:none}
+  .tnav-row{display:flex;justify-content:center;gap:14px;margin-top:18px}
+  .tquote{margin-top:24px;text-align:left}
+  .tstage::after{display:none}
+
+  /* Laptop: the reference keeps the screen readable - three pills sit above
+     the laptop and three below, overlapping only its top and bottom edges.
+     So the image goes IN the stack (order:4) rather than behind it, with
+     negative margins pulling the neighbouring pills over its edges. */
+  .laptopwrap{position:relative;padding:20px 0}
+  .laptop{position:relative;width:100%;margin:0;display:flex;flex-direction:column;gap:14px}
+  .laptop .mockup-img{order:4;position:relative;z-index:1;width:100%;margin:-28px 0}
+  .pills{display:contents}
+  .pill{position:relative;z-index:3;left:auto;right:auto;top:auto;bottom:auto;
+        width:auto;max-width:82%}
+  .p1{order:1;align-self:flex-start}
+  .p4{order:2;align-self:flex-end}
+  .p5{order:3;align-self:flex-start}
+  .p3{order:5;align-self:flex-end}
+  .p6{order:6;align-self:flex-start}
+  .p2{order:7;align-self:flex-end}
+  .gpt_layout{grid-template-columns:1fr;gap:34px}
+  .heading_wrap_gpt{max-width:100%}
+  .phone-scene .float-pill{left:-2%;top:12%;max-width:62%;font-size:.79rem;padding:11px 13px}
+}
+@media (max-width:560px){
+  section{padding-block:52px}
+  .wrap{padding-inline:18px}
+
+  /* less sideways scrolling inside the two scroll panes */
+  table{min-width:600px}
+  .chart-scroll svg{min-width:520px}
+  .chartcard{padding:20px 14px 14px}
+
+  /* hero */
+  .hero_eyebrow{font-size:1rem}
+
+  /* carousel */
+  .tstage{padding:22px 18px 30px;min-height:0}
+  .thead{gap:12px}
+  .tavatar{width:58px;height:58px;font-size:1.05rem}
+  .thead .n{font-size:1.1rem}
+  .tquote{font-size:1rem;margin-top:20px}
+
+  /* cards + pricing */
+  .caps-card{padding:26px 20px}
+  .caps-card ul{gap:16px;width:auto}
+  .caps-card li{font-size:.94rem;align-items:flex-start}
+  .cap-tick{margin-top:1px}
+  .card{padding:20px}
+  .plan{padding:22px}
+  .plan .now{font-size:2.4rem}
+  .plan .was{font-size:1rem}
+  .plan-badge{font-size:.62rem;padding:5px 12px;width:max-content;max-width:92%}
+  .faq-q{padding:16px 16px;font-size:.94rem}
+  .faq-a{padding:0 16px 18px}
+
+  /* header */
+  .top-inner{padding-block:10px;gap:10px}
+  .brand-name{font-size:.8rem;white-space:nowrap}
+  .mark{width:32px;height:32px;font-size:.76rem}
+  .top-inner .btn-sm{padding:9px 14px;font-size:.78rem;white-space:nowrap}
+  .ann-item{font-size:.68rem;padding-block:8px;letter-spacing:.08em}
+  .ann-pill{font-size:.63rem;padding:4px 10px}
+  .announce-seq{gap:18px;padding-right:18px}
+
+  /* the gap table scrolled its payoff column off-screen; stack it as cards */
+  .table-scroll{overflow-x:visible;background:transparent;border:0;border-radius:0}
+  table{min-width:0;display:block}
+  thead{display:none}
+  tbody,tr,td{display:block;width:auto}
+  tr{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;
+     padding:6px 0 10px;margin-bottom:12px}
+  td{border:0;padding:7px 16px;display:flex;justify-content:space-between;
+     align-items:baseline;gap:14px;text-align:right}
+  td:first-child{display:block;text-align:left;font-size:1.02rem;
+     padding:12px 16px 10px;border-bottom:1px solid var(--line);margin-bottom:4px}
+  td[data-label]::before{
+    content:attr(data-label);color:var(--txt-3);font-size:.68rem;font-weight:700;
+    text-transform:uppercase;letter-spacing:.07em;text-align:left;flex:0 0 42%;
+  }
+  td.col-win{background:rgba(255,122,26,.08);border-radius:9px;margin:4px 10px 0;padding:9px 12px}
+  td.col-win::before{color:var(--accent-2)}
+
+  /* Fit the whole Jan-Jun span instead of scrolling past the payoff. The
+     y-axis numbers are an illustrative index, not real units, so drop them
+     and spend the width on labels that stay legible when scaled down. */
+  .chart-scroll svg{min-width:0}
+  .axis-y{display:none}
+  .axis-text{font-size:24px}
+  .chart-tag-text{font-size:20px}
+  .tag-a{width:290px;x:595px}
+  .tag-b{width:260px;x:240px}
+
+  /* donut callouts scale to ~7px here; use an HTML legend instead */
+  .donut-callout{display:none}
+  .donut-legend{display:grid;gap:12px}
+  .donut-center{font-size:34px}
+
+  /* mockups */
+  .pill{font-size:.8rem}
+  .phone-scene img{width:min(300px,82%)}
+  .laptopwrap{padding-top:16px}
+}
+@media (min-width:821px){
+  .tnav-row{display:none}
+}
+@media (max-width:420px){
+  .btn{width:100%;padding-inline:20px}
+  .top-inner{gap:10px}
+}
+
+/* the brand lockup — one image, so it cannot drift between pages */
+/* Sized by width, not height. A fixed height plus the global img{max-width:100%}
+   let a narrow header clamp the width while the height stayed put, which
+   stretched the lockup out of shape at 320px. */
+.brand-logo{width:176px;max-width:44vw;height:auto;display:block;flex:none}
+@media(max-width:600px){.brand-logo{width:150px}}
+
+/* ---------- v2 polish ---------- */
+.hl{background:linear-gradient(100deg,#ffb020 0%,#ff7a1a 55%,#ff5a3c 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+h2{letter-spacing:-.025em}
+.card{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.card:hover{transform:translateY(-3px);border-color:rgba(255,122,26,.35);box-shadow:0 18px 40px -24px rgba(255,122,26,.45)}
+.laptop .mockup-img,.phone-scene .mockup-img{filter:drop-shadow(0 30px 60px rgba(255,122,26,.18)) drop-shadow(0 12px 24px rgba(0,0,0,.5))}
+.phone-scene img.mockup-img{width:min(420px,90%)}
+.phone-scene .float-pill{top:auto;bottom:10%;left:0;z-index:2}
+@media (max-width:820px){.phone-scene img.mockup-img{width:min(320px,84%)}.phone-scene .float-pill{bottom:6%;top:auto;left:-2%}}
+.bacc.open{border-color:rgba(255,122,26,.4)}
+/* mobile polish */
+.tdots{gap:14px}
+.tdot{position:relative}
+.tdot::after{content:"";position:absolute;inset:-10px -7px}
+@media (max-width:600px){
+  .hero_visual .box-chip{font-size:1.3rem;width:230px;line-height:1.28;padding:14px 16px}
+  .hero_visual .box-chip svg{width:26px;height:26px}
+  .hero_visual .tenx p{font-size:1.35rem;max-width:340px}
+  .plan-badge{font-size:.7rem}
+  footer .links{gap:0 18px}
+  footer .links a{display:inline-block;padding-block:11px}
+}
+@media (max-width:380px){.hero_visual .boxstage{transform:translateX(-50%) scale(.43)}.hero_visual{height:272px}}
+@media (min-width:601px) and (max-width:820px){footer .links a{display:inline-block;padding-block:11px}}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+</style>
+<script src="/assets/track.js"></script>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "ynteh1taus");
+</script>
+</head>
+<body>
+
+<div class="announce">
+  <p class="sr-only">Launch sale: 70 AI Specialists for Claude is $1 today, normally $285. Lifetime access, no monthly fees.</p>
+  <div class="announce-track" aria-hidden="true">
+      <div class="announce-seq"><span class="ann-item">🚀 Launch sale</span><span class="ann-pill dark">$1 today</span><span class="ann-item">70 AI Specialists for Claude</span><span class="ann-pill light">Lifetime access — no monthly fees</span><span class="ann-item">🚀 Launch sale</span><span class="ann-pill dark">$1 today</span><span class="ann-item">70 AI Specialists for Claude</span><span class="ann-pill light">Lifetime access — no monthly fees</span><span class="ann-item">🚀 Launch sale</span><span class="ann-pill dark">$1 today</span><span class="ann-item">70 AI Specialists for Claude</span><span class="ann-pill light">Lifetime access — no monthly fees</span></div>
+      <div class="announce-seq"><span class="ann-item">🚀 Launch sale</span><span class="ann-pill dark">$1 today</span><span class="ann-item">70 AI Specialists for Claude</span><span class="ann-pill light">Lifetime access — no monthly fees</span><span class="ann-item">🚀 Launch sale</span><span class="ann-pill dark">$1 today</span><span class="ann-item">70 AI Specialists for Claude</span><span class="ann-pill light">Lifetime access — no monthly fees</span><span class="ann-item">🚀 Launch sale</span><span class="ann-pill dark">$1 today</span><span class="ann-item">70 AI Specialists for Claude</span><span class="ann-pill light">Lifetime access — no monthly fees</span></div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" src="assets/logo.webp" alt="AI Founder University" width="720" height="139">
+    </a>
+    <div class="top-right">
+      <a class="product-tag" href="/members/" style="text-decoration:none">Members</a>
+      <div class="product-tag">70 AI Specialists for Claude</div>
+      <div class="price-tag"><span class="now">$1</span><span class="was">$285</span></div>
+      <a href="#pricing" class="btn btn-sm">Get Instant Access</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+   <div class="hero_wrap">
+
+    <div class="hero_content">
+      <div class="hero_rating">
+        <span class="stars">★★★★★</span>
+        <strong>4.7</strong>
+        <span class="bar">|</span>
+        <span>Used by 70,000+ founders and marketers</span>
+      </div>
+      <p class="hero_eyebrow">Just moved to Claude and not sure where to start?</p>
+      <h1>Give Claude a Job Description. <span class="hl">Then Give It 69 More.</span></h1>
+      <p class="h1-sub"><em>70 ready-made experts for the work you keep putting off</em></p>
+      <p class="lead">A marketer, a copywriter, a strategist, a closer, an analyst, an HR lead &mdash; and 64 more. Each one already knows the job, so you skip the blank page and go straight to the finished work.</p>
+      <p class="lead"><strong>One payment of <span class="amber">$1</span> today. Nothing monthly, ever. Put them to work this afternoon.</strong></p>
+    </div>
+
+    <div class="hero_cta">
+      <div class="cta-block">
+        <a href="#pricing" class="btn btn-lg">
+          <span class="btn-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/>
+            </svg>
+          </span>
+          Get Instant Access For $1
+        </a>
+        <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+      </div>
+
+    </div>
+
+    <div class="hero_visual">
+    <div class="boxstage">
+      <div class="ring" aria-hidden="true"></div>
+
+      <div class="box3d" role="img" aria-label="Product box: 70 AI Specialists for Claude, rated 4.7 out of 5">
+        <div class="box-top" aria-hidden="true"></div>
+        <div class="box-side" aria-hidden="true">
+          <span class="box-side-text">70 AI Specialists for Claude</span>
+          <svg class="claude-mark" viewBox="-12 -12 24 24" fill="currentColor" aria-hidden="true">
+            <g>
+              <rect x="-1" y="-11" width="2" height="9" rx="1"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(30)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(60)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(90)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(120)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(150)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(180)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(210)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(240)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(270)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(300)"/>
+              <rect x="-1" y="-11" width="2" height="9" rx="1" transform="rotate(330)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="box-front">
+          <div class="box-rating"><span>★★★★★</span><b>4.7</b></div>
+          <div class="box-title">70 AI Specialists for Claude</div>
+          <div class="box-arc" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="box-chips-wrap">
+        <div class="box-chip chip-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="m8.5 10.5 7 4"/></svg>
+          10,000+ battle-tested prompts
+        </div>
+        <div class="box-chip chip-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>
+          4 AI Masterclasses for Claude
+        </div>
+        <div class="box-chip chip-3">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg>
+          70 pre-built AI Specialists
+        </div>
+        <div class="box-chip chip-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="13" height="13" rx="2"/><path d="M16 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h3"/></svg>
+          Connects to email, Slack &amp; 1,000s of tools
+        </div>
+      </div>
+
+      <div class="tenx">
+        <div class="big">10x</div>
+        <p>your productivity and stay ahead in the AI revolution.</p>
+        <div class="logo">
+          <svg viewBox="-12 -12 24 24" fill="currentColor" aria-hidden="true">
+            <g>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(30)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(60)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(90)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(120)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(150)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(180)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(210)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(240)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(270)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(300)"/>
+              <rect x="-1.1" y="-11" width="2.2" height="9" rx="1.1" transform="rotate(330)"/>
+            </g>
+          </svg>
+          <span>Claude</span>
+        </div>
+      </div>
+    </div>
+
+    </div>
+   </div>
+
+   <div class="included-card">
+     <span class="inc-ico" aria-hidden="true">
+       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+         <rect x="3" y="11" width="18" height="11" rx="2"/>
+         <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+       </svg>
+     </span>
+     <div>
+       <p class="inc-head"><span class="inc-title">INCLUDED TODAY:</span> <span class="inc-list">Master Claude Cowork · Claude Skills · Claude MCPs · Claude Code · and More</span></p>
+       <p class="inc-sub">Short, no-fluff walkthroughs that get each tool running in your business the same day.</p>
+     </div>
+   </div>
+  </div>
+</section>
+
+<!-- GAP TABLE -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>Same Claude. <span class="hl">Very Different Results.</span></h2>
+      <p class="lead">Two people, same tool, same monthly bill. One opens a blank box and hopes. The other opens a Specialist that already knows what good looks like.</p>
+    </div>
+    <div class="table-scroll" style="margin-top:34px">
+      <table>
+        <thead>
+          <tr>
+            <th>The task</th>
+            <th>Without Claude</th>
+            <th>Casual Claude user</th>
+            <th class="col-win">With 70 AI Specialists</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Managing social media</td>
+            <td data-label="Without Claude" class="col-lose">6–8 hours a week, by hand</td>
+            <td data-label="Casual Claude user" class="col-lose">2 hours, and the tone wanders</td>
+            <td data-label="With 70 AI Specialists" class="col-win">20 minutes, on-brand, done for the week</td>
+          </tr>
+          <tr>
+            <td>Writing and sending emails</td>
+            <td data-label="Without Claude" class="col-lose">Half a day per campaign</td>
+            <td data-label="Casual Claude user" class="col-lose">A few hours, and it reads like a robot</td>
+            <td data-label="With 70 AI Specialists" class="col-win">One hour, in your voice, ready to send</td>
+          </tr>
+          <tr>
+            <td>Responding to customer messages</td>
+            <td data-label="Without Claude" class="col-lose">Hours of back-and-forth, every day</td>
+            <td data-label="Casual Claude user" class="col-lose">Still you, only a little quicker</td>
+            <td data-label="With 70 AI Specialists" class="col-win">Replies drafted and waiting when you log in</td>
+          </tr>
+          <tr>
+            <td>Researching competitors and markets</td>
+            <td data-label="Without Claude" class="col-lose">Half a day, and still patchy</td>
+            <td data-label="Casual Claude user" class="col-lose">An hour, and only skin-deep</td>
+            <td data-label="With 70 AI Specialists" class="col-win">15 minutes, with the openings already circled</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- VALUE PROP + BENEFITS -->
+<section>
+  <div class="wrap">
+    <div class="gpt_layout">
+      <div class="heading_wrap_gpt">
+        <h2>Picture Next Week With <span class="hl">the Dreaded Work Already Handled.</span></h2>
+        <p class="lead">Each Specialist comes briefed on its role, your business and what a finished piece looks like &mdash; so the whole operation stops running through you.</p>
+        <div class="cta-block" style="align-items:flex-start">
+          <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
+          <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+        </div>
+      </div>
+
+      <div class="benefit-acc">
+        <div class="bacc open">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="bacc-t">The work gets done when you step away</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Marketing, sales, ops, finance, HR &mdash; each area has a Specialist that already knows the job, so the plates keep spinning on the days you are busy elsewhere.</p></div>
+        </div>
+        <div class="bacc">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg></span><span class="bacc-t">It writes the way you would</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Give it your voice and context once. After that, drafts come back sounding like you wrote them &mdash; not like something you now have to rewrite for 40 minutes.</p></div>
+        </div>
+        <div class="bacc">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20V10"/><path d="M12 20V4"/><path d="M18 20v-6"/></svg></span><span class="bacc-t">More output, same hours</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Take on more clients, publish more, follow up on more deals &mdash; without hiring anyone or pushing your day past dinner.</p></div>
+        </div>
+        <div class="bacc">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg></span><span class="bacc-t">Works inside the tools you already use</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Hook Claude up to Gmail, Slack, Drive, Notion, HubSpot and the rest. It reads, writes and updates across all of them, so you stop living in twelve open tabs.</p></div>
+        </div>
+        <div class="bacc">
+          <button class="bacc-q" type="button"><span class="bacc-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span><span class="bacc-t">A team&rsquo;s output, without the payroll</span><span class="bacc-chev" aria-hidden="true">⌄</span></button>
+          <div class="bacc-a"><p>Operate like a ten-person shop as a team of one &mdash; from a laptop, from anywhere, on your own schedule.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>From People <span class="hl">Putting Them to Work.</span></h2>
+      <p class="lead">Owners and operators using the Specialists in their businesses every week.</p>
+    </div>
+    <div class="tcarousel" style="margin-top:38px">
+      <button class="tnav tprev" type="button" aria-label="Previous testimonial">‹</button>
+      <button class="tnav tnext" type="button" aria-label="Next testimonial">›</button>
+
+      <div class="tstage">
+        <div class="tslide active">
+          <div class="thead">
+            <div class="tavatar">RJ<img src="https://i.pravatar.cc/200?img=12" alt="" loading="lazy" onerror="this.remove()"></div>
+            <div>
+              <div class="n">Richard Jones</div>
+              <div class="t">Agency owner with $100M+ in sales</div>
+            </div>
+            <div class="stars">★★★★★</div>
+          </div>
+          <p class="tquote">"I had already tried using AI for content and customer messaging, but the results were always inconsistent. These Specialists completely changed that. In one afternoon I tightened my offer, improved my onboarding emails, and mapped out a month of content. The biggest difference is that the outputs actually feel usable right away — not like rough AI drafts that still need hours of fixing."</p>
+        </div>
+
+        <div class="tslide">
+          <div class="thead">
+            <div class="tavatar">SP<img src="https://i.pravatar.cc/200?img=33" alt="" loading="lazy" onerror="this.remove()"></div>
+            <div>
+              <div class="n">Santiago Phoenix</div>
+              <div class="t">Copywriter for 7-figure brands</div>
+            </div>
+            <div class="stars">★★★★★</div>
+          </div>
+          <p class="tquote">"We move fast and produce a huge amount of campaign work every week, so I needed AI to actually reduce workload — not create more review time. These AI Specialists do exactly that. They help me get to strong angles, better hooks, and clearer copy much faster. It honestly feels less like using software and more like having an extra operator on the team who already understands direct response."</p>
+        </div>
+
+        <div class="tslide">
+          <div class="thead">
+            <div class="tavatar">CW<img src="https://i.pravatar.cc/200?img=45" alt="" loading="lazy" onerror="this.remove()"></div>
+            <div>
+              <div class="n">Catherine Williams</div>
+              <div class="t">SaaS entrepreneur</div>
+            </div>
+            <div class="stars">★★★★★</div>
+          </div>
+          <p class="tquote">"Most AI tools promise productivity, but usually the output is generic and forgettable. This was different. The Specialists gave us structure, speed, and much better first drafts across strategy, copy, and client work. We've cut down a lot of wasted time and the quality is noticeably better. It's one of the few AI products we started using immediately across the business."</p>
+        </div>
+      </div>
+
+      <div class="tnav-row">
+        <button class="tnav tprev" type="button" aria-label="Previous testimonial">‹</button>
+        <button class="tnav tnext" type="button" aria-label="Next testimonial">›</button>
+      </div>
+
+      <div class="tdots">
+        <button class="tdot active" type="button" aria-label="Testimonial 1"></button>
+        <button class="tdot" type="button" aria-label="Testimonial 2"></button>
+        <button class="tdot" type="button" aria-label="Testimonial 3"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM OVERVIEW -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>When Claude Stops Being a Chatbot <span class="hl">and Starts Being Staff.</span></h2>
+      <p class="lead">The difference shows up in the first week &mdash; and grows every week the system keeps running.</p>
+    </div>
+
+    <div class="chartcard" style="margin-top:34px">
+      <div class="chart-scroll">
+        <svg viewBox="0 0 900 400" role="img" aria-label="Output over six months. With 70 AI Specialists, output climbs from 11 in January to 91 in June. A casual Claude user climbs from 2 to 61 over the same period.">
+          <g aria-hidden="true">
+            <line class="grid-line" x1="90" y1="350" x2="870" y2="350"/>
+            <line class="grid-line" x1="90" y1="322" x2="870" y2="322"/>
+            <line class="grid-line" x1="90" y1="294" x2="870" y2="294"/>
+            <line class="grid-line" x1="90" y1="266" x2="870" y2="266"/>
+            <line class="grid-line" x1="90" y1="238" x2="870" y2="238"/>
+            <line class="grid-line" x1="90" y1="210" x2="870" y2="210"/>
+            <line class="grid-line" x1="90" y1="182" x2="870" y2="182"/>
+            <line class="grid-line" x1="90" y1="154" x2="870" y2="154"/>
+            <line class="grid-line" x1="90" y1="126" x2="870" y2="126"/>
+            <line class="grid-line" x1="90" y1="98"  x2="870" y2="98"/>
+            <line class="grid-line" x1="90" y1="70"  x2="870" y2="70"/>
+          </g>
+          <g class="axis-text axis-y" text-anchor="end" aria-hidden="true">
+            <text x="70" y="355">0</text>
+            <text x="70" y="327">10</text>
+            <text x="70" y="299">20</text>
+            <text x="70" y="271">30</text>
+            <text x="70" y="243">40</text>
+            <text x="70" y="215">50</text>
+            <text x="70" y="187">60</text>
+            <text x="70" y="159">70</text>
+            <text x="70" y="131">80</text>
+            <text x="70" y="103">90</text>
+            <text x="70" y="75">100</text>
+          </g>
+          <g class="axis-text" text-anchor="middle" aria-hidden="true">
+            <text x="90"  y="382">Jan</text>
+            <text x="244" y="382">Feb</text>
+            <text x="398" y="382">Mar</text>
+            <text x="552" y="382">Apr</text>
+            <text x="706" y="382">May</text>
+            <text x="860" y="382">Jun</text>
+          </g>
+
+          <polyline class="series-line series-b" points="90,344.4 244,266 398,243.6 552,285.6 706,212.8 860,179.2"/>
+          <polyline class="series-line series-a" points="90,319.2 244,226.8 398,190.4 552,254.8 706,142.8 860,95.2"/>
+
+          <g fill="var(--neutral-series)" class="series-dot">
+            <circle cx="90" cy="344.4" r="4"><title>Casual Claude user — Jan: 2</title></circle>
+            <circle cx="244" cy="266" r="4"><title>Casual Claude user — Feb: 30</title></circle>
+            <circle cx="398" cy="243.6" r="4"><title>Casual Claude user — Mar: 38</title></circle>
+            <circle cx="552" cy="285.6" r="4"><title>Casual Claude user — Apr: 23</title></circle>
+            <circle cx="706" cy="212.8" r="4"><title>Casual Claude user — May: 49</title></circle>
+            <circle cx="860" cy="179.2" r="4"><title>Casual Claude user — Jun: 61</title></circle>
+          </g>
+          <g fill="var(--violet)" class="series-dot">
+            <circle cx="90" cy="319.2" r="4"><title>With 70 AI Specialists — Jan: 11</title></circle>
+            <circle cx="244" cy="226.8" r="4"><title>With 70 AI Specialists — Feb: 44</title></circle>
+            <circle cx="398" cy="190.4" r="4"><title>With 70 AI Specialists — Mar: 57</title></circle>
+            <circle cx="552" cy="254.8" r="4"><title>With 70 AI Specialists — Apr: 34</title></circle>
+            <circle cx="706" cy="142.8" r="4"><title>With 70 AI Specialists — May: 74</title></circle>
+            <circle cx="860" cy="95.2" r="4"><title>With 70 AI Specialists — Jun: 91</title></circle>
+          </g>
+
+          <g aria-hidden="true">
+            <rect class="chart-tag tag-a" x="640" y="24" width="200" height="42" rx="9"/>
+            <text class="chart-tag-text" x="740" y="51" text-anchor="middle">With 70 AI Specialists</text>
+          </g>
+          <g aria-hidden="true">
+            <rect class="chart-tag tag-b" x="280" y="296" width="180" height="42" rx="9"/>
+            <text class="chart-tag-text" x="370" y="323" text-anchor="middle">Casual Claude user</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="cta-block" style="margin-top:34px">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section class="capswrap-bg" style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>Most People Use <span class="hl">About a Fifth</span> of What Claude Can Do.</h2>
+      <p class="lead">Here&rsquo;s what opens up the moment your Specialists are installed.</p>
+    </div>
+    <div class="caps-wrap" style="margin-top:38px">
+      <div class="caps-card">
+        <ul>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Plan and write a full month of social posts in one sitting</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Map out a product launch from teaser to last-call email</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Draft and order a complete email funnel, personalised to your list</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Turn how you do things into written SOPs for every role</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Get sales scripts built around your offer, not a template</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Fill a 90-day content plan with ideas worth posting</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Produce proposals, agreements and NDAs you can send today</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Batch YouTube scripts, openings and descriptions</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Size up competitors and spot the gaps they have left open</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Write every page of your website in one session</span></li>
+        </ul>
+      </div>
+      <div class="caps-card">
+        <ul>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Have customer replies drafted straight into Gmail</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Keep your CRM and calendar current without logging in</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Get a plain-English money summary every week</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Publish to Notion, Drive and Slack in one go</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Set up repeatable workflows that run on their own</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Get a solid read on any market or audience in 15 minutes</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Produce ad variations to test, dozens at a time</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Adapt your content for new languages and markets</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Build assistants that prep your calls and handle follow-ups</span></li>
+          <li><span class="cap-tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.4 12.3 2.4 2.4 4.8-5.1"/></svg></span><span>Run the whole thing from a laptop, wherever you are</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="lead center narrow" style="margin-top:30px">None of this requires prompting from scratch. Every Specialist arrives set up. Open it, say what you need, get work you can use. <strong>That&rsquo;s it.</strong></p>
+  </div>
+</section>
+
+<!-- URGENCY -->
+<section>
+  <div class="wrap">
+    <div class="cta-box">
+      <div class="inner center stack">
+        <h2>The Real Risk Isn&rsquo;t Trying This. <span class="hl">It&rsquo;s Being Last.</span></h2>
+        <p class="lead">Claude climbed to #1 on the App Store in February 2026, and 2.5 million people switched from ChatGPT within weeks. The owners who set up properly early are pulling further ahead every week.</p>
+        <p class="lead">No secret tool. They just got organised sooner.</p>
+        <div class="cta-block">
+          <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
+          <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY ONE -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center"><h2>What Changes <span class="hl">From the First Day</span></h2></div>
+    <div class="grid g3" style="margin-top:34px">
+      <div class="card"><div class="ico" style="margin-bottom:14px">⚡</div><h3>Faster</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Ideas turn into finished work in hours instead of weeks. Every Specialist is ready from the first message.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">💸</div><h3>Cheaper</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Fewer freelancers and one-trick subscriptions. Your Specialists have no monthly fee and never send an invoice.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">✍️</div><h3>In Your Voice</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Drafts that read like you on a good day, not like something you have to spend 40 minutes fixing.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">📦</div><h3>Better Work</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Sharper output in marketing, sales, ops, finance and HR &mdash; not just more of it.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">🧩</div><h3>Built on Systems</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Each area has a Specialist and each Specialist has a workflow, so the business no longer depends on your memory.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:14px">⏳</div><h3>Time Back</h3><p class="muted" style="font-size:.93rem;margin-top:6px">Hand over the work a Specialist does well and keep the work only you can do.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- AI WORKING PARTNER (phone mockup) -->
+<section>
+  <div class="wrap">
+    <div class="gpt_layout">
+      <div class="heading_wrap_gpt">
+        <h2>An AI Colleague <span class="hl">That Shows Up Every Day.</span></h2>
+        <p class="lead">Most people open Claude when they happen to remember. The four hands-on sessions show you how to make it part of the daily routine, working next to you instead of waiting for a spare hour.</p>
+        <p class="lead">Link it to Gmail, Slack, Drive, Notion, HubSpot and thousands more, and it works right inside the tools you already rely on.</p>
+      </div>
+      <div class="pad-scene">
+        <img src="assets/ipad-mockup-v2.webp" width="1200" height="900" loading="lazy"
+             alt="A tablet showing an AI workspace connected to Gmail, Calendar, Google Drive, Slack, Notion, HubSpot, Zoom, Stripe and Asana, with Marketing Plan and Automation Ideas prompts ready to use."
+             class="mockup-img">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPRINTS -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <span class="eyebrow">Included free today</span>
+      <h2 style="margin-top:14px">4 Hands-On Sprints So Claude Keeps <span class="hl">Working When You Don&rsquo;t.</span></h2>
+      <p class="lead">Watch, build, switch it on &mdash; all in one sitting. Every Sprint ends with something live in your business, not another folder of notes.</p>
+    </div>
+    <div class="grid g2" style="margin-top:34px">
+      <div class="card stack-sm">
+        <span class="eyebrow">Sprint 01</span>
+        <h3 style="margin-top:12px">Claude Cowork</h3>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Tired of your inbox, calendar and documents eating your mornings?</p>
+        <p class="muted" style="font-size:.93rem">Cowork turns Claude into a hands-on assistant: it drafts documents, sorts files, sums up meetings and works through your inbox from one place.</p>
+      </div>
+      <div class="card stack-sm">
+        <span class="eyebrow">Sprint 02</span>
+        <h3 style="margin-top:12px">Claude Skills</h3>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Explain your style once and never repeat yourself again.</p>
+        <p class="muted" style="font-size:.93rem">Skills let you package a way of working &mdash; tone, structure, checklist &mdash; so Claude does it the same way every time you ask.</p>
+      </div>
+      <div class="card stack-sm">
+        <span class="eyebrow">Sprint 03</span>
+        <h3 style="margin-top:12px">Claude MCP</h3>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Get Claude talking to the apps you already run on.</p>
+        <p class="muted" style="font-size:.93rem">MCP connects Claude to Gmail, Drive, Notion, your calendar and thousands of other apps, so it can book, send, update and post on your behalf.</p>
+      </div>
+      <div class="card stack-sm">
+        <span class="eyebrow">Sprint 04</span>
+        <h3 style="margin-top:12px">Build-to-Sell Bootcamp</h3>
+        <p class="amber" style="font-size:.93rem;font-weight:600">Turn what you learn into something you can sell.</p>
+        <p class="muted" style="font-size:.93rem">Build an AI assistant for another business in about an hour &mdash; a sales helper, a content engine &mdash; packaged and priced, ready to offer.</p>
+      </div>
+    </div>
+    <div class="cta-block" style="margin-top:34px">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM / SOLUTION -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap">
+    <div class="donutrow">
+      <div class="stack">
+        <h2>Made the Switch to Claude <span class="hl">but Still Waiting for the Magic?</span></h2>
+        <p class="lead">Most people stall at the same place. Claude can do far more than answer questions &mdash; the big wins come from <em>setting it up</em> to do real jobs, not from writing cleverer prompts. The 70 Specialists are that setup, done for you.</p>
+      </div>
+
+      <div>
+        <svg class="donut-svg" viewBox="0 0 640 515" role="img" aria-label="Donut chart of AI potential: 7 percent of business owners unlock full AI value through full business automation across marketing, sales and ops. The other 93 percent use AI only for generic tasks, summarization, translation and text functions.">
+          <circle cx="220" cy="250" r="155" fill="none" stroke="#212125" stroke-width="88"/>
+          <circle cx="220" cy="250" r="155" fill="none" stroke="var(--violet)" stroke-width="88"
+                  stroke-dasharray="64.2 909.7" stroke-dashoffset="-2"
+                  transform="rotate(-90 220 250)"/>
+
+          <text class="donut-center" x="220" y="258">AI Potential</text>
+
+          <path class="leader donut-callout" d="M264.1 52.9 L264.1 26 L320 26"/>
+          <g class="donut-callout" aria-hidden="true">
+            <text class="donut-label" x="326" y="18" font-weight="700">7% unlock full AI value</text>
+            <text class="donut-label-dim" x="326" y="36">Full business automation —</text>
+            <text class="donut-label-dim" x="326" y="52">marketing, sales, ops and more</text>
+          </g>
+
+          <g class="donut-callout" text-anchor="middle" aria-hidden="true">
+            <text class="donut-label-dim" x="220" y="400">What 93% of business owners</text>
+            <text class="donut-label-dim" x="220" y="416">use AI for</text>
+          </g>
+
+          <path class="leader leader-dim donut-callout" d="M321 425 L388 476 L394 476"/>
+          <g class="donut-callout" aria-hidden="true">
+            <text class="donut-label-dim" x="400" y="472">Generic tasks, summarization,</text>
+            <text class="donut-label-dim" x="400" y="488">translation, and text functions.</text>
+          </g>
+        </svg>
+        <ul class="donut-legend">
+          <li><span class="sw sw-violet" aria-hidden="true"></span><span><strong>7% unlock full AI value</strong> — full business automation: marketing, sales, ops and more.</span></li>
+          <li><span class="sw sw-dim" aria-hidden="true"></span><span><strong>The other 93%</strong> use AI for generic tasks, summarization, translation and text functions.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTOMATE -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center"><h2>A Taste of the Work <span class="hl">You Can Hand Off</span></h2></div>
+    <div class="laptopwrap">
+      <div class="laptop">
+        <img src="assets/laptop-mockup-v2.webp" width="1400" height="876" loading="lazy"
+             alt="A laptop showing the Campaign Planner Specialist: prompt templates for launch emails, webinar funnels, ad rewrites and landing pages, next to a five-step campaign plan."
+             class="mockup-img">
+
+        <div class="pills" aria-hidden="true">
+          <div class="pill p1"><i>✍️</i><span>Copywriter: ads, emails and sales pages in your voice</span></div>
+          <div class="pill p2"><i>📊</i><span>Strategist: growth plans, market reads and launch roadmaps</span></div>
+          <div class="pill p3"><i>📧</i><span>Email Specialist: sequences, follow-ups and nurture campaigns</span></div>
+          <div class="pill p4"><i>🔍</i><span>Researcher: competitors, markets and the blind spots in between</span></div>
+          <div class="pill p5"><i>📋</i><span>Ops Specialist: SOPs, workflows and process docs</span></div>
+          <div class="pill p6"><i>🤝</i><span>Sales Specialist: scripts, objection handling and closing</span></div>
+        </div>
+      </div>
+
+    </div>
+    <p class="lead center" style="margin-top:26px"><strong>Plus 64 more &mdash; one for every corner of the business, all for one payment.</strong></p>
+  </div>
+</section>
+
+<!-- VS -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>Blank Box vs. <span class="hl">Ready-Made Specialist</span></h2>
+    </div>
+    <div class="vs" style="margin-top:34px">
+      <div class="vs-col bad">
+        <h3 class="dim" style="color:var(--txt-3)">THE USUAL WAY</h3>
+        <div class="vs-item"><span class="x">✕</span><span>Stare at an empty chat and guess at a prompt.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Get something generic back and spend 40 minutes fixing it.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Re-explain your business every time you start.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Lose the thread whenever you open a new chat.</span></div>
+        <div class="vs-item"><span class="x">✕</span><span>Pay for a top-tier AI and use a sliver of it.</span></div>
+      </div>
+      <div class="vs-col good">
+        <h3 class="amber">WITH 70 AI SPECIALISTS</h3>
+        <div class="vs-item"><span class="c">✓</span><span>Pick the Specialist for the job &mdash; it already knows the brief.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Usable work from the first reply, in your voice.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Your business context is already loaded.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>Each session builds on the last, so it keeps getting better.</span></div>
+        <div class="vs-item"><span class="c">✓</span><span>You get the results most Claude users never see.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S INSIDE -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center"><h2>Everything in the Box. <span class="hl">One Payment, Yours to Keep.</span></h2></div>
+    <div class="gpt_layout" style="margin-top:44px">
+      <div class="inside-stack">
+        <div class="card">
+          <h3 class="inside-h">70 Pre-built AI Specialists</h3>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">A ready-to-work expert for each part of the business.</p>
+        </div>
+        <div class="card">
+          <h3 class="inside-h">10,000+ Claude prompts</h3>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">The instructions behind every Specialist, so the blank page is gone for good.</p>
+        </div>
+        <div class="card">
+          <h3 class="inside-h">4 Hands-on Claude Sprints</h3>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">Cowork, Skills, MCP and Build-to-Sell &mdash; each one live in your business the day you watch it.</p>
+        </div>
+        <div class="card">
+          <h3 class="inside-h">$0/month</h3>
+          <p class="muted" style="font-size:.95rem;margin-top:10px">Pay once. No subscription, no renewals, no surprise charges.</p>
+        </div>
+      </div>
+
+      <div class="phone-scene">
+        <div class="float-pill">Your competitors are setting this up. Get there first.</div>
+        <img src="assets/phone-mockup-v2.webp" width="900" height="1125" loading="lazy"
+             alt="A phone showing the Content Strategy Specialist drafting a 30-day content plan, with shortcuts for SEO, Email, Research, Analytics, Brand Voice, Planning and Copywriting."
+             class="mockup-img">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>70 Specialists, <span class="hl">Eight Departments.</span></h2>
+      <p class="lead">Each one ships with expert-level instructions, so you ask in plain words and get work back that reads like yours.</p>
+    </div>
+    <div class="grid g4" style="margin-top:34px">
+      <div class="card"><div class="ico" style="margin-bottom:12px">📣</div><h3>Marketing &amp; Content</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Ads, content calendars, campaigns, SEO, email and social &mdash; ready from the first message.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">💰</div><h3>Sales &amp; Revenue</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Scripts, objection handling, proposals and follow-ups, shaped around your offer.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🛠️</div><h3>Operations &amp; Systems</h3><p class="muted" style="font-size:.9rem;margin-top:6px">SOPs, workflows, team processes and reporting &mdash; written down instead of stuck in your head.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">📊</div><h3>Finance &amp; Strategy</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Budgets, forecasts and pricing decisions, with a senior-level second opinion any hour of the day.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">👥</div><h3>HR &amp; Team</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Job posts, interviews, onboarding and reviews &mdash; every people process with a playbook.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🎬</div><h3>Content &amp; Video</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Video scripts, podcast outlines, blogs and courses &mdash; one idea, turned into every format.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🤝</div><h3>Customer Success</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Onboarding, feedback, retention and client messages, ready to use.</p></div>
+      <div class="card"><div class="ico" style="margin-bottom:12px">🌐</div><h3>Websites &amp; Build</h3><p class="muted" style="font-size:.9rem;margin-top:6px">Go from idea to a live site that sells in one session &mdash; no developer, no agency.</p></div>
+    </div>
+    <div class="cta-block" style="margin-top:34px">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET TIMING -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>Claude&rsquo;s Big Moment <span class="hl">Is Happening Now.</span></h2>
+      <p class="lead">In February 2026 Claude grew 42.3% while other AI apps lost users, reached #1 on the App Store, and pulled 2.5 million people away from ChatGPT in a matter of weeks.</p>
+    </div>
+    <div class="grid g2" style="margin-top:34px">
+      <div class="card stat"><div class="num">42.3%</div><p>Growth in Claude users in February 2026, as ChatGPT dropped 14.8%</p></div>
+      <div class="card stat"><div class="num">2.5M</div><p>People who moved to Claude during this year&rsquo;s #QuitGPT wave</p></div>
+    </div>
+    <p class="lead center narrow" style="margin-top:30px">The owners pulling ahead this year have one habit in common: they stopped doing the work AI does well. The Specialists take that work off your plate while others are still guessing at prompts.</p>
+    <div class="cta-block" style="margin-top:28px">
+      <a href="#pricing" class="btn">Get Instant Access</a>
+      <div class="guarantee">🛡️ Zero risk with our 14-day money-back guarantee.</div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <h2>What Buyers <span class="hl">Are Saying</span></h2>
+      <p class="lead">Straight from people who have the Specialists running.</p>
+    </div>
+    <div class="reviews" style="margin-top:34px">
+      <div class="review"><div class="stars">★★★★★</div><p>"Been going through the Specialists all weekend — generating content, rewriting email templates, building strategies I'd been putting off for months. Mind blown. 🤯"</p><div class="rwho"><div class="ravatar">S<img src="https://i.pravatar.cc/120?img=5" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Stephanie</div></div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"Really solid Specialists in here — a lot of inspiration and some I never would have set up myself. Worth it."</p><div class="rwho"><div class="ravatar">S<img src="https://i.pravatar.cc/120?img=8" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Sebastien</div></div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Very helpful and very comprehensive. Every business function covered. 😃"</p><div class="rwho"><div class="ravatar">L<img src="https://i.pravatar.cc/120?img=11" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Leon</div></div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"This takes away the struggle of knowing what to ask and how to ask it. Recorded a voice note on the way home, ran it through the content Specialist — polished script in minutes. It's still my content, just better."</p><div class="rwho"><div class="ravatar">S<img src="https://i.pravatar.cc/120?img=14" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Sally</div></div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Bought it today. Genuinely impressed — there are Specialists in here I never would have thought to use. Worth every penny."</p><div class="rwho"><div class="ravatar">F<img src="https://i.pravatar.cc/120?img=16" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Flaco</div></div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"What a complete resource. Takes away the struggle of knowing the right questions to ask. I keep finding new Specialists I hadn't tried yet."</p><div class="rwho"><div class="ravatar">K<img src="https://i.pravatar.cc/120?img=20" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Kellie</div></div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"Bought this. Worth every penny."</p><div class="rwho"><div class="ravatar">J<img src="https://i.pravatar.cc/120?img=28" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Josh</div></div></div>
+      <div class="review"><div class="stars">★★★★★</div><p>"Just got access — looks amazing. Worth ten times the cost."</p><div class="rwho"><div class="ravatar">T<img src="https://i.pravatar.cc/120?img=31" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">Thomas</div></div></div>
+      <div class="review"><div class="stars">★★★★☆</div><p>"The prompts and ideas are valuable. 💪 Great product."</p><div class="rwho"><div class="ravatar">D<img src="https://i.pravatar.cc/120?img=52" alt="" loading="lazy" onerror="this.remove()"></div><div class="n">DB</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section>
+  <div class="wrap stack">
+    <div class="narrow center"><h2>Three Steps. <span class="hl">That&rsquo;s the Setup.</span></h2></div>
+    <div class="grid g3" style="margin-top:34px">
+      <div class="card step"><div class="num">1</div><p>Install the Specialists &mdash; about ten minutes, start to finish.</p></div>
+      <div class="card step"><div class="num">2</div><p>Pick the Specialist that fits the task in front of you.</p></div>
+      <div class="card step"><div class="num">3</div><p>Get work back in your voice, and a business that runs like a team.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="background:var(--bg-2);border-block:1px solid var(--line)">
+  <div class="wrap stack">
+    <div class="narrow center stack-sm">
+      <span class="eyebrow">$1 launch price — limited time</span>
+      <h2 style="margin-top:14px">Your Whole AI Team <span class="hl">for $1.</span></h2>
+      <p class="lead" style="margin-top:14px">A single package with everything in it. No tiers to compare, no upsell maze.</p>
+    </div>
+    <div class="plans" style="margin-top:40px">
+
+      <div class="plan best">
+        <div class="plan-badge">Launch offer — $1 today</div>
+        <div>
+          <h3>70 AI Specialists + Business Growth System</h3>
+          <p class="dim" style="margin-top:4px">All 70 Specialists plus the four Sprints.</p>
+        </div>
+        <div>
+          <div class="prices"><span class="now">$1</span><span class="was">$285</span></div>
+          <div style="margin-top:10px"><span class="save">LAUNCH PRICE — SAVE $284</span></div>
+        </div>
+        <ul>
+          <li><span class="tick">✓</span>20 Marketing &amp; Campaign Specialists</li>
+          <li><span class="tick">✓</span>9 Social Media Specialists</li>
+          <li><span class="tick">✓</span>8 Sales &amp; Revenue Specialists</li>
+          <li><span class="tick">✓</span>8 Writing Specialists</li>
+          <li><span class="tick">✓</span>8 Operations &amp; Systems Specialists</li>
+          <li><span class="tick">✓</span>6 Strategy &amp; Growth Specialists</li>
+          <li><span class="tick">✓</span>3 Customer Success Specialists</li>
+          <li><span class="tick">✓</span>3 E-commerce Specialists</li>
+          <li><span class="tick">✓</span>3 Daily AI Assistant Specialists</li>
+          <li><span class="tick">✓</span>10,000 battle-tested prompts — the fuel behind every Specialist</li>
+          <li><span class="tick">✓</span>One payment. No subscriptions.</li>
+        </ul>
+        <div class="bonus">
+          <div class="bonus-title">🎁 4 FREE Claude Sprints (worth $388) included today only:</div>
+          <ul>
+            <li><span class="tick">✓</span><span><strong>Master Claude Cowork</strong> (worth $97) — Claude handles your docs, emails, files and research</span></li>
+            <li><span class="tick">✓</span><span><strong>Claude Skills</strong> (worth $97) — Build workflows once, run them in your voice forever</span></li>
+            <li><span class="tick">✓</span><span><strong>Claude MCP</strong> (worth $97) — Connect Claude to Gmail, Notion, HubSpot and more</span></li>
+            <li><span class="tick">✓</span><span><strong>Build-to-Sell Bootcamp</strong> (worth $97) — Build and sell AI assistants in 60 minutes</span></li>
+          </ul>
+        </div>
+        <div style="margin-top:auto">
+          <a href="checkout.html" class="btn btn-block">Get Instant Access For $1</a>
+          <p class="dim center" style="margin-top:11px">Risk-free 14-day money-back guarantee</p>
+        </div>
+      </div>
+
+    </div>
+    <p class="center amber" style="margin-top:30px;font-weight:600;font-size:.95rem">⚠️ The $1 launch price ends soon. After that it returns to $285.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="wrap faq-wrap stack">
+    <div class="center" style="margin-bottom:12px"><h2>Have more questions?</h2></div>
+
+    <div class="faq-item open">
+      <button class="faq-q" type="button">What exactly are the 70 AI Specialists?<span class="chev">+</span></button>
+      <div class="faq-a">
+        <p>They're 70 pre-built Claude Skills packaged and delivered as one single Claude Plugin that you install into your Claude app in a few clicks. Each Skill is configured with expert-level instructions for a specific business function or objective.</p>
+        <p>Rather than starting each chat from nothing, you open the Specialist for the job and it already knows its role, your context and the kind of output you want. Think of it as 70 trained hires with no salary and no days off.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">How do I install and use the 70 AI Specialists?<span class="chev">+</span></button>
+      <div class="faq-a"><p>Add the ZIP file we send you to the Claude desktop app, paste in the short setup prompt that comes with it, and follow along. A video guide walks you through each step.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">Do I need a paid Claude account?<span class="chev">+</span></button>
+      <div class="faq-a"><p>Yes. The 70 AI Specialists help you start using Claude in your business without figuring everything out from scratch. You'll need the Claude desktop app and Claude Workspace / Cowork to install and use them. Claude Pro is recommended. These are ready-made Claude skills/plugins that work inside Claude — not a separate app or software.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">Do I get a video guide or instructions?<span class="chev">+</span></button>
+      <div class="faq-a"><p>Yes &mdash; a step-by-step video, written instructions, worked examples and screenshots.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">What's included in the Business Growth System for Claude?<span class="chev">+</span></button>
+      <div class="faq-a">
+        <p>Four hands-on Claude Sprints that put your entire business on autopilot:</p>
+        <p><strong>Master Claude Cowork</strong> — Claude handles your docs, emails, files and research, all from one session.<br>
+        <strong>Claude Skills</strong> — Build workflows once, run them in your voice forever across Notion, Drive and Slack.<br>
+        <strong>Claude MCP</strong> — Connect Claude to Gmail, Notion, HubSpot and more. It books meetings, sends emails and updates your CRM without you touching it.<br>
+        <strong>Build-to-Sell Bootcamp</strong> — Design and sell AI assistants to other businesses in 60 minutes. Sales copilots, content engines, real use cases.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">What are the four live sessions in the Full System?<span class="chev">+</span></button>
+      <div class="faq-a">
+        <p><strong>Your Daily AI Partner</strong> shows you how to build a daily operating rhythm with Claude so it becomes indispensable, not occasional.</p>
+        <p><strong>Reusable AI Workflows</strong> teaches you how to build processes once that run forever.</p>
+        <p><strong>Full Business Automation</strong> shows you how to connect Claude to your tools and let it handle workflows without you.</p>
+        <p><strong>Build a Website in One Session</strong> takes you from idea to live income-generating website in a single Claude session — no developer, no agency, no waiting.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">Is there a guarantee? How do I get a refund?<span class="chev">+</span></button>
+      <div class="faq-a">
+        <p><strong>14 days, full refund, no questions asked.</strong> To get one, email
+        <a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a> and ask.
+        That's the whole process — no forms, no support tickets, and you don't have to give a reason.
+        Include the email address you used at checkout so we can find your order. We aim to reply within
+        2 business days.</p>
+        <p><strong>On a membership or subscription?</strong> Email the same address and we'll cancel it.
+        You keep access until the end of the period you've already paid for, and you're never charged
+        again. Cancel within 14 days of your first payment and we refund that payment in full. If a
+        renewal ever catches you by surprise, tell us within 14 days and we'll refund that too.</p>
+        <p>Full detail in our <a href="terms.html#refunds">refunds &amp; cancellations policy</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="wrap">
+    <div class="cta-box">
+      <div class="inner center stack">
+        <h2>Set It Up Today. <span class="hl">Thank Yourself Next Week.</span></h2>
+        <p class="lead">70 Specialists, four Sprints, one payment. Your AI team is ready to start this afternoon.</p>
+        <div class="cta-block">
+          <a href="#pricing" class="btn btn-lg"><span class="btn-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg></span>Get Instant Access</a>
+          <div class="guarantee">🔒 Secure checkout · 14-day money-back guarantee · Instant delivery</div>
+        </div>
+        <p class="amber" style="font-weight:600;font-size:1rem">The $1 launch price ends soon.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap stack center">
+    <a class="brand" href="index.html" style="justify-content:center">
+      <img class="brand-logo" src="assets/logo.webp" alt="AI Founder University" width="720" height="139">
+    </a>
+    <div class="links">
+      <a href="terms.html#refunds">Refunds &amp; Cancellations</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="earnings.html">Earnings &amp; Products Disclaimer</a>
+      <a href="#pricing">Get Access</a>
+    </div>
+    <p class="fine">Claude is a trademark of Anthropic. This product is independently created and is not affiliated with or endorsed by Anthropic.</p>
+    <p class="fine">DISCLAIMER: Getting rich quickly doesn't exist. However, hard work, creating value and serving others does. As stated by law, we cannot and do not make any guarantees about your ability to get results or earn any money with our ideas, information, programs or strategies. Please read our Earnings &amp; Products Disclaimer before purchasing.</p>
+    <p class="fine">© 2026 AI Founder University. All rights reserved. This site is not a part of the Facebook website or Facebook Inc.</p>
+  </div>
+</footer>
+
+<div class="mobile-checkout" aria-label="Checkout">
+  <div class="mc-info">
+    <div class="mc-name">70 AI Specialists</div>
+    <div class="mc-price"><strong>$1</strong><s>$285</s></div>
+  </div>
+  <a href="#pricing" class="btn mc-btn">
+    <span class="mc-ico" aria-hidden="true">⬇</span>Get Instant Access
+  </a>
+</div>
+
+<script>
+function wireAccordion(btnSel, itemSel) {
+  document.querySelectorAll(btnSel).forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.parentElement;
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll(itemSel).forEach(function (i) { i.classList.remove('open'); });
+      if (!wasOpen) item.classList.add('open');
+      syncPanels();
+    });
+  });
+}
+wireAccordion('.faq-q', '.faq-item');
+wireAccordion('.bacc-q', '.bacc');
+
+function syncPanels() {
+  document.querySelectorAll('.faq-item').forEach(function (item) {
+    item.querySelector('.faq-a').hidden = !item.classList.contains('open');
+  });
+  document.querySelectorAll('.bacc').forEach(function (item) {
+    item.querySelector('.bacc-a').hidden = !item.classList.contains('open');
+  });
+}
+syncPanels();
+
+/* section reveals - the reference fades its copy in as you scroll */
+(function () {
+  var SEL = [
+    'section h1', 'section h2', 'section .lead', 'section .eyebrow',
+    'section .card', 'section .caps-card', 'section .review', 'section .plan', 'section .bacc',
+    'section .faq-item', 'section .vs-col', 'section .chartcard',
+    'section .table-scroll', 'section .tcarousel', 'section .hero_visual',
+    'section .hero_cta', 'section .hero_rating', 'section .donutrow > div',
+    'section .pill', 'section .laptop .mockup-img', 'section .pad-scene', 'section .phone-scene',
+    'section .inside-stack', '.included-card', 'section .cta-block'
+  ].join(',');
+
+  var nodes = Array.prototype.slice.call(document.querySelectorAll(SEL));
+  if (!nodes.length) return;
+
+  // drop anything nested inside another revealing element, so a card and its
+  // heading do not fade twice
+  nodes = nodes.filter(function (el) {
+    return !nodes.some(function (o) { return o !== el && o.contains(el); });
+  });
+
+  if (!('IntersectionObserver' in window)) return;
+
+  nodes.forEach(function (el) { el.classList.add('reveal'); });
+
+  // stagger siblings within the same section
+  var seen = new Map();
+  nodes.forEach(function (el) {
+    var sec = el.closest('section') || document.body;
+    var n = seen.get(sec) || 0;
+    seen.set(sec, n + 1);
+    el.style.setProperty('--rd', Math.min(n, 5) * 80 + 'ms');
+  });
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+
+  nodes.forEach(function (el) { io.observe(el); });
+})();
+
+/* bottom checkout bar: appears once the hero CTA has scrolled away */
+(function () {
+  var bar = document.querySelector('.mobile-checkout');
+  var hero = document.querySelector('.hero');
+  if (!bar || !hero) return;
+  var ticking = false;
+  function update() {
+    ticking = false;
+    var past = window.scrollY > (hero.offsetHeight * 0.6);
+    var atPricing = false;
+    var pricing = document.getElementById('pricing');
+    if (pricing) {
+      var r = pricing.getBoundingClientRect();
+      atPricing = r.top < window.innerHeight && r.bottom > 0;
+    }
+    bar.classList.toggle('show', past && !atPricing);
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
+
+/* donut: crop the viewBox to the ring on phones, where the SVG callouts are
+   hidden in favour of the HTML legend and would otherwise leave dead space */
+(function () {
+  var donut = document.querySelector('.donut-svg');
+  if (!donut || !window.matchMedia) return;
+  var mq = window.matchMedia('(max-width: 560px)');
+  function fit() { donut.setAttribute('viewBox', mq.matches ? '15 45 410 410' : '0 0 640 515'); }
+  if (mq.addEventListener) mq.addEventListener('change', fit);
+  else if (mq.addListener) mq.addListener(fit);
+  fit();
+})();
+
+/* testimonial carousel */
+(function () {
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.tslide'));
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.tdot'));
+  if (!slides.length) return;
+
+  var i = 0;
+  var timer;
+
+  function show(n) {
+    i = (n + slides.length) % slides.length;
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === i); });
+    dots.forEach(function (d, k) { d.classList.toggle('active', k === i); });
+  }
+
+  function restart() {
+    clearInterval(timer);
+    timer = setInterval(function () { show(i + 1); }, 7000);
+  }
+
+  document.querySelectorAll('.tprev').forEach(function (b) {
+    b.addEventListener('click', function () { show(i - 1); restart(); });
+  });
+  document.querySelectorAll('.tnext').forEach(function (b) {
+    b.addEventListener('click', function () { show(i + 1); restart(); });
+  });
+  dots.forEach(function (d, k) {
+    d.addEventListener('click', function () { show(k); restart(); });
+  });
+
+  restart();
+})();
+</script>
+
+</body>
+</html>

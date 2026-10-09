@@ -35,11 +35,11 @@
     },
     {
       "source": "/70-ai-specialists-for-claude",
-      "destination": "/index.html"
+      "destination": "/70-ai-specialists-for-claude.html"
     },
     {
       "source": "/70-ai-specialists-for-claude/",
-      "destination": "/index.html"
+      "destination": "/70-ai-specialists-for-claude.html"
     },
     {
       "source": "/70-ai-specialists-for-claude/:path*",
