@@ -89,6 +89,18 @@ export default async function handler(req, res) {
     // The query returns a row per reminder they had been sent, collapsed here
     // to a row per buyer, so somebody who got four emails is one sale and not
     // four.
+    /* Credited to the sequence only if the journey that ended in a payment
+       began at one of its links.
+
+       Two things have to be true, and neither is enough alone. The r= tag says
+       an email link was touched during that browser session - but it is kept
+       in sessionStorage, so somebody who opened the email, wandered off to an
+       ad and bought through that would still be carrying it. The landing URL
+       says where the session actually started. Requiring both means the credit
+       only goes to a sale the email's own checkout link produced. */
+    const cameFromTheEmail = (w) =>
+      !!w.arrived_through && /[?&](r|bonus)=/.test(w.started_at || '');
+
     const wins = await convertedAfterReminder();
     const byBuyer = new Map();
     for (const w of wins) {
@@ -97,9 +109,10 @@ export default async function handler(req, res) {
         byBuyer.set(w.email, {
           email: w.email, name: w.name, source: w.source,
           boughtAt: w.bought_at,
-          // The email they actually clicked through, when it is known. This is
-          // the half that is proof rather than inference.
-          arrivedThrough: w.arrived_through || null,
+          // Set only when the sale is the email's: tag carried AND the session
+          // began at the link. Everything else is the order things happened.
+          arrivedThrough: cameFromTheEmail(w) ? w.arrived_through : null,
+          startedAt: w.started_at || null,
           // The last reminder to go out before they bought: the one most likely
           // to have moved them, and the only honest guess available when
           // arrivedThrough is null.
@@ -155,12 +168,17 @@ export default async function handler(req, res) {
         // decline leads to it.
         downsellChoice: c.downsell_choice || null,
         downsellChoiceAt: c.downsell_choice_at || null,
-        viaReminder: won
+        /* Credited to the sequence only when they actually came through one of
+           its emails. A reminder going out and a sale happening afterwards is
+           the order things occurred, not evidence the email did anything — and
+           on this badge there is no room to say which, so it said the stronger
+           of the two about everybody. One buyer was credited here while his
+           landing URL was a paid Facebook click nine hours after the email he
+           never opened. The sequence got the credit; the ad paid for it. */
+        viaReminder: won && won.arrivedThrough
           ? {
             count: won.reminderCount,
-            // The email they actually clicked, when it is known, rather than
-            // the last one that happened to go out before they bought.
-            through: won.arrivedThrough || null,
+            through: won.arrivedThrough,
             hoursAfter: won.hoursAfter
           }
           : null
@@ -205,11 +223,18 @@ export default async function handler(req, res) {
     // won. Anybody who was ever sent a reminder was in this pool by definition,
     // because that is the only list reminders are sent from - and a buyer who
     // never abandoned anything is correctly outside it.
-    const wonBack = convertedFromReminder.length;
-    const pool = didNotConvert.length + wonBack;
+    /* A win is a click. Somebody who was sent a reminder and then bought
+       through an ad is a chance the sequence had and did not take, so they
+       stay in the pool and out of the numerator — dropping them from both
+       would quietly flatter the rate by deleting a miss from the denominator.
+       Counted separately so the difference is visible rather than implied. */
+    const wonBack = convertedFromReminder.filter((w) => w.arrivedThrough).length;
+    const boughtAnotherWay = convertedFromReminder.length - wonBack;
+    const pool = didNotConvert.length + wonBack + boughtAnotherWay;
     const reminderStats = {
       pool,
       bought: wonBack,
+      boughtAnotherWay,
       stillOpen: didNotConvert.length,
       reminded: abandoned.filter(wasReminded).length,
       // Null rather than zero on an empty pool: no data is not the same as a

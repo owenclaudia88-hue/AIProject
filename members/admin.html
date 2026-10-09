@@ -1312,7 +1312,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       // details and did not buy there and then, how many an email won back.
       (f && f.reminderStats && f.reminderStats.rate != null
         ? stat(f.reminderStats.rate + '%', 'Won back by reminders',
-            f.reminderStats.bought + ' of ' + f.reminderStats.pool + ' who gave details but did not buy')
+            f.reminderStats.bought + ' of ' + f.reminderStats.pool +
+            ' who gave details but did not buy — counting only those who came back through the email' +
+            (f.reminderStats.boughtAnotherWay
+              ? '. ' + f.reminderStats.boughtAnotherWay + ' more bought another way after one went out.'
+              : ''))
         : '') +
       '</div>';
     if (members.funnelError) h += '<p class="warn">' + esc(members.funnelError) + '</p>';
@@ -1346,9 +1350,14 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       var active = m.status === 'active';
       // Won back by the sequence. "after 3 reminders" is how many had reached
       // them, which is the useful number - not which one gets the credit.
+      // Only set when they arrived through one of the emails, so the badge can
+      // name the one they clicked instead of counting the ones that were sent.
       var via = m.viaReminder
-        ? '<span class="st done">bought after ' + m.viaReminder.count +
-          ' reminder' + (m.viaReminder.count === 1 ? '' : 's') + '</span>'
+        ? '<span class="st done" title="Arrived through that email, ' +
+          (m.viaReminder.hoursAfter < 1
+            ? Math.round(m.viaReminder.hoursAfter * 60) + ' minutes after it went out"'
+            : m.viaReminder.hoursAfter.toFixed(1) + ' hours after it went out"') +
+          '>came back through ' + esc(label(m.viaReminder.through)) + '</span>'
         : '';
       var ending = m.endingAt
         ? '<span class="st new">ends ' + esc(stamp(m.endingAt * 1000)) + '</span>'
