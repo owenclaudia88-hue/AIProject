@@ -139,6 +139,11 @@ export default async function handler(req, res) {
         endingAt: endingAt.get(String(c.email).toLowerCase()) || null,
         // 'year' or 'month', from the live subscription.
         plan: planOf.get(String(c.email).toLowerCase()) || null,
+        // Which door they came in by. 'home-join' is somebody who bought the
+        // membership straight from the homepage with no $1 order behind them,
+        // and they read differently from everybody else on this list: no
+        // add-ons, no post-purchase offer, and none of the reminder sequence.
+        source: c.source || null,
         // What they did with the offer after checkout: 'year', 'trial',
         // 'declined', 'seen', or nothing at all if they never reached it.
         // A label only - nothing acts on it, and declining took nothing away.
@@ -173,6 +178,11 @@ export default async function handler(req, res) {
       .filter((p) => !p.purchased)
       .map((p) => ({
         email: p.email, name: p.name, status: p.status, createdAt: p.createdAt,
+        // Which page they gave their details on. A membership lead appears in
+        // this list but is deliberately never written to by the sequence
+        // below: every email in it sells the $1 Specialists, which is not what
+        // they came for. They are here to be seen, not to be chased yet.
+        source: p.source || null,
         // when each step of the sequence went out, so staff can see exactly
         // where someone is in it rather than just "reminded" or not
         sent: Object.fromEntries(STEPS.map((s) => [s.kind, sentByKind.get(s.kind).get(p.email) || null])),

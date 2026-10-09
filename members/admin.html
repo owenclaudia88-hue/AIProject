@@ -1055,7 +1055,11 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     var SOURCE_LABEL = {
       '70-ai-specialists-for-claude': 'main page',
       'lifetime-access': 'lifetime lander',
-      'claude-automation-engine': 'automation engine'
+      'claude-automation-engine': 'automation engine',
+      // The membership checkout. These people came for the membership itself
+      // rather than the $1 Specialists, which is why the reminder sequence
+      // skips them — it sells the wrong thing to this one group.
+      'home-join': 'homepage membership'
     };
     var badge = function (x) {
       return x.source ? '<span class="st">' + esc(SOURCE_LABEL[x.source] || x.source) + '</span>' : '';
@@ -1376,7 +1380,15 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       var dh = COURSE_CHOICE[m.downsellChoice];
       var course = dh ? '<span class="st ' + dh[0] + '" title="On the course offer' +
         (m.downsellChoiceAt ? ', ' + esc(stamp(m.downsellChoiceAt)) : '') + '">' + dh[1] + '</span>' : '';
-      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + via + plan + choice + course + ending +
+      // Which door they came in by. Everybody else on this list bought the $1
+      // Specialists first and met the membership as an offer afterwards; these
+      // bought the membership itself, from the homepage, with no order before
+      // it. That is why they carry none of the badges above — there was no
+      // post-purchase offer for them to answer.
+      var door = m.source === 'home-join'
+        ? '<span class="st planned" title="Bought the membership on /join.html, with no $1 order before it">bought via homepage</span>'
+        : '';
+      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + door + via + plan + choice + course + ending +
         '<span class="st ' + (active ? 'done' : 'declined') + '">' + esc(m.status) + '</span>' +
         '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(stamp(m.joinedAt)) + '</span></div>' +
         '<div class="acts">' +
@@ -1471,13 +1483,23 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
                  .map(function (s) { return '<span class="st planned">' + esc(s.label.toLowerCase()) + ' ' + esc(day(sent[s.kind])) + '</span>'; })
                  .join('');
 
-        var acts = (x.unsubscribed || x.bounced) ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
+        // Somebody who gave their details on the membership checkout. They
+        // belong in this list — they are a lead worth winning back — but not
+        // in this sequence: every email in it sells the $1 Specialists, which
+        // is not what they came for. The server refuses to send to them
+        // anyway, so showing the buttons would only offer a click that
+        // quietly does nothing.
+        var homeJoin = x.source === 'home-join';
+        var door = homeJoin ? '<span class="st" title="Gave their details on the membership checkout">from the homepage</span>' : '';
+
+        var acts = (x.unsubscribed || x.bounced || homeJoin) ? '' : steps.filter(function (s) { return canSend(x, s, steps); })
           .map(function (s) {
             return '<button data-remind="' + esc(x.email) + '" data-kind="' + esc(s.kind) + '">Send ' + esc(s.label.toLowerCase()) + '</button>';
           }).join('');
 
-        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + notes +
+        h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + door + notes +
           '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · ' + esc(day(x.createdAt)) + '</span></div>' +
+          (homeJoin ? '<span class="meta">No reminder is sent to these — the sequence sells the $1 Specialists.</span>' : '') +
           (acts ? '<div class="acts">' + acts + '</div>' : '') +
           '</div>';
       });
