@@ -73,7 +73,7 @@ p{margin:0}
 #express{min-height:0}
 /* fallback tip: only inside the Facebook/Instagram app when no Apple Pay / Google Pay button loaded */
 .iab-hint{font-size:.84rem;line-height:1.4;color:var(--ink-2);background:var(--paper);border:1px dashed var(--line-2);border-radius:12px;padding:10px 12px;margin:0 0 12px}
-.methods span{pointer-events:none}
+.methods img{pointer-events:none}
 .or{display:flex;align-items:center;gap:12px;color:var(--ink-3);font-size:.8rem;margin:16px 0}
 .or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
 .skel{height:180px;border-radius:12px;background:linear-gradient(90deg,#f3ece2 25%,#faf5ee 50%,#f3ece2 75%);background-size:200% 100%;animation:sh 1.2s infinite}
@@ -94,8 +94,12 @@ p{margin:0}
 .under{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-top:14px;font-size:.8rem;color:var(--ink-2)}
 .under span{display:inline-flex;align-items:center;gap:5px}
 .under svg{width:14px;height:14px;color:var(--ok)}
-.methods{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
-.methods span{font-size:.7rem;font-weight:700;border:1px solid var(--line-2);border-radius:6px;padding:3px 7px;color:var(--ink-2);background:#fff}
+.methods{display:flex;justify-content:center;margin-top:12px}
+/* The marks are one strip, 303x44. width:100% with a max-width of its own
+   natural size means it never upscales into fuzz on a wide screen and shrinks
+   in proportion on a narrow one, where 303px would otherwise reach the edges
+   of a 320px phone. height:auto keeps the ratio so nothing is squashed. */
+.methods img{display:block;width:100%;max-width:303px;height:auto}
 .terms{font-size:.74rem;color:var(--ink-3);text-align:center;margin-top:12px}
 .terms a{color:var(--ink-2)}
 
@@ -327,7 +331,16 @@ footer a{color:var(--ink-2)}
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Instant access</span>
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>One-time, no subscription</span>
         </div>
-        <div class="methods" aria-hidden="true"><span>VISA</span><span>Mastercard</span><span>AMEX</span></div>
+        <!-- Which cards are taken. Given a real alt rather than hidden the way
+             the text version was: on a payment page "which cards do you take"
+             is information somebody may actually need, not decoration. -->
+        <!-- Not lazy. It is four kilobytes and it sits beside the pay button,
+             so there is nothing to save and something to lose: a trust mark
+             that arrives after the buyer has already decided is no trust mark.
+             The text badges it replaced were there instantly. -->
+        <div class="methods"><img src="/assets/card-brands.webp"
+          alt="Visa, Mastercard, American Express and Discover accepted"
+          width="303" height="44" decoding="async"></div>
         <p class="terms">Payments are encrypted and processed by Stripe. We never see or store your card details. By ordering you agree to our <a href="https://aifounderuniversity.com/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="https://aifounderuniversity.com/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
       </form>
     </main>
