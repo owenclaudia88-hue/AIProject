@@ -113,19 +113,26 @@ export default async function handler(req, res) {
           // began at the link. Everything else is the order things happened.
           arrivedThrough: cameFromTheEmail(w) ? w.arrived_through : null,
           startedAt: w.started_at || null,
-          // The last reminder to go out before they bought: the one most likely
-          // to have moved them, and the only honest guess available when
-          // arrivedThrough is null.
-          lastReminder: w.reminder_kind, lastSentAt: w.sent_at,
-          hoursAfter: Number(w.hours_after),
-          reminderCount: 1
+          /* The last reminder to go out before they bought: the one most likely
+             to have moved them, and the only honest guess available when
+             arrivedThrough is null.
+
+             All three are null for somebody who bought under a different
+             address from the one they were written to. The emails exist, filed
+             under the address that never bought, so there is no row here to
+             count or to time. Credit does not depend on them — the tag on
+             their own row is the evidence. */
+          lastReminder: w.reminder_kind || null,
+          lastSentAt: w.sent_at || null,
+          hoursAfter: w.hours_after == null ? null : Number(w.hours_after),
+          reminderCount: w.sent_at ? 1 : 0
         });
       } else {
-        cur.reminderCount++;
-        if (new Date(w.sent_at) > new Date(cur.lastSentAt)) {
+        if (w.sent_at) cur.reminderCount++;
+        if (w.sent_at && (!cur.lastSentAt || new Date(w.sent_at) > new Date(cur.lastSentAt))) {
           cur.lastReminder = w.reminder_kind;
           cur.lastSentAt = w.sent_at;
-          cur.hoursAfter = Number(w.hours_after);
+          cur.hoursAfter = w.hours_after == null ? null : Number(w.hours_after);
         }
       }
     }

@@ -1352,12 +1352,17 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       // them, which is the useful number - not which one gets the credit.
       // Only set when they arrived through one of the emails, so the badge can
       // name the one they clicked instead of counting the ones that were sent.
+      // Timing is unknown when they bought under a different address from the
+      // one they were written to — the email is still proven by the tag they
+      // arrived carrying, but there is no sent-at on this side to measure from.
+      var viaWhen = m.viaReminder && m.viaReminder.hoursAfter != null
+        ? (m.viaReminder.hoursAfter < 1
+            ? ', ' + Math.round(m.viaReminder.hoursAfter * 60) + ' minutes after it went out'
+            : ', ' + m.viaReminder.hoursAfter.toFixed(1) + ' hours after it went out')
+        : '';
       var via = m.viaReminder
-        ? '<span class="st done" title="Arrived through that email, ' +
-          (m.viaReminder.hoursAfter < 1
-            ? Math.round(m.viaReminder.hoursAfter * 60) + ' minutes after it went out"'
-            : m.viaReminder.hoursAfter.toFixed(1) + ' hours after it went out"') +
-          '>came back through ' + esc(label(m.viaReminder.through)) + '</span>'
+        ? '<span class="st done" title="Arrived through that email' + viaWhen + '">' +
+          'came back through ' + esc(label(m.viaReminder.through)) + '</span>'
         : '';
       var ending = m.endingAt
         ? '<span class="st new">ends ' + esc(stamp(m.endingAt * 1000)) + '</span>'
@@ -1430,10 +1435,15 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           ? '<span class="st done">came through ' + esc(label(x.arrivedThrough)) + '</span>'
           : '<span class="st planned">followed ' + esc(label(x.lastReminder)) + '</span>';
 
-        var gap = x.hoursAfter < 1
-          ? Math.round(x.hoursAfter * 60) + ' min later'
-          : (x.hoursAfter < 48 ? x.hoursAfter.toFixed(1) + 'h later'
-                               : Math.round(x.hoursAfter / 24) + ' days later');
+        // Null when they bought under a different address from the one the
+        // email went to: there is no sent-at on this side to measure from, and
+        // "0 min later" would be a number we never had rather than a gap.
+        var gap = x.hoursAfter == null
+          ? 'bought under another address'
+          : x.hoursAfter < 1
+            ? Math.round(x.hoursAfter * 60) + ' min later'
+            : (x.hoursAfter < 48 ? x.hoursAfter.toFixed(1) + 'h later'
+                                 : Math.round(x.hoursAfter / 24) + ' days later');
 
         h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + badge +
           '<span class="st">' + esc(gap) + '</span>' +
