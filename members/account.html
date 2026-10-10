@@ -67,6 +67,67 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
 .conn .cx:disabled{opacity:.55;cursor:default}
 @media(max-width:480px){.conn .cx{width:100%}}
 
+/* ---------- subscription ---------- */
+/* One fact per row, the way a bill reads: what it is on the left, what it
+   costs or when it happens on the right, and the thing you can do about it
+   beside the thing it changes. */
+.sb-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.sb-row .sw{flex:1;min-width:160px}
+.sb-row b{display:block;font-size:.82rem;font-weight:700;color:var(--txt-2);
+  letter-spacing:.01em}
+.sb-row .sv{display:block;margin-top:3px;font-size:.95rem;color:var(--txt)}
+.sb-row .sm{display:block;margin-top:3px;font-size:.84rem;color:var(--txt-3);line-height:1.5}
+.sb-row .sx{flex:none;min-height:42px;padding:0 16px;background:none;border:1px solid var(--line);
+  color:var(--txt-2);border-radius:999px;font:inherit;font-size:.86rem;font-weight:600;cursor:pointer}
+.sb-row .sx:hover:not(:disabled){border-color:var(--accent);color:var(--txt)}
+.sb-row .sx:disabled{opacity:.55;cursor:default}
+/* The one row that is an offer rather than a statement, so it is the one row
+   that is allowed to use the accent. */
+.sb-row.offer{border-color:rgba(255,122,26,.45);background:rgba(255,122,26,.07)}
+.sb-row.offer .sx{border-color:var(--accent);color:var(--accent)}
+.sb-row.offer .sx:hover:not(:disabled){background:var(--accent);color:#16161c}
+.sb-tag{display:inline-block;margin-bottom:4px;padding:3px 10px;border-radius:999px;
+  background:rgba(255,122,26,.14);border:1px solid rgba(255,122,26,.4);color:var(--accent);
+  font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.sb-tag.warn{background:rgba(252,165,165,.1);border-color:rgba(252,165,165,.4);color:var(--err)}
+.sb-tag.ok{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.4);color:var(--ok)}
+/* Ending the subscription is the last thing on the panel and reads as the
+   quiet option it should be, not a button competing with the others. */
+.sb-end{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px}
+.sb-end .sw{flex:1;min-width:180px}
+.sb-end .sx{flex:none;min-height:42px;padding:0 16px;background:none;
+  border:1px solid var(--line);color:var(--txt-3);border-radius:999px;
+  font:inherit;font-size:.86rem;cursor:pointer}
+.sb-end .sx:hover:not(:disabled){border-color:#f87171;color:var(--err)}
+.sb-end .sx.keep:hover:not(:disabled){border-color:var(--ok);color:var(--ok)}
+.sb-end .sx:disabled{opacity:.55;cursor:default}
+
+/* the confirm sheet for switching to the year */
+.sb-modal{position:fixed;inset:0;background:rgba(6,6,8,.72);display:grid;place-items:center;
+  padding:20px;z-index:50}
+.sb-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  padding:24px;max-width:440px;width:100%;max-height:90vh;overflow:auto}
+.sb-card h3{margin:0 0 6px;font-size:1.15rem;font-weight:800}
+.sb-card .sc-hint{color:var(--txt-3);font-size:.9rem;margin:0 0 18px}
+.sb-sum{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px}
+.sb-sum .l{display:flex;justify-content:space-between;gap:14px;font-size:.92rem;padding:5px 0}
+.sb-sum .l.credit{color:var(--ok)}
+.sb-sum .l.due{border-top:1px solid var(--line);margin-top:8px;padding-top:11px;
+  font-weight:800;font-size:1rem}
+.sb-sum .when{display:block;margin-top:10px;font-size:.82rem;color:var(--txt-3)}
+.sb-acts{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.sb-acts button{min-height:44px;padding:0 20px;border-radius:999px;font:inherit;
+  font-size:.92rem;font-weight:700;cursor:pointer}
+.sb-acts .no{background:none;border:1px solid var(--line);color:var(--txt-2)}
+.sb-acts .yes{background:var(--accent);border:0;color:#16161c}
+.sb-acts button:disabled{opacity:.55;cursor:default}
+@media(max-width:480px){
+  .sb-row .sx,.sb-end .sx{width:100%}
+  .sb-acts{flex-direction:column-reverse}
+  .sb-acts button{width:100%}
+}
+
 .note{display:none;margin-top:16px;font-size:.9rem;border-radius:10px;padding:11px 13px}
 .note.show{display:block}
 .note.ok{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.35);color:var(--ok)}
@@ -120,6 +181,17 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
       <button type="submit" class="btn" id="pf-save">Save name</button>
     </form>
     <div class="note" id="pf-note"></div>
+  </div>
+
+  <!-- Only drawn for the members who chose a recurring plan themselves: the
+       homepage joiners, and the buyers who took the trial or the year on the
+       offer after checkout. For everybody else the request says there is
+       nothing here and this panel never appears. -->
+  <div class="panel" id="sub" hidden>
+    <h2>Subscription</h2>
+    <p class="hint">Your plan, your billing, and how to stop it.</p>
+    <div id="sub-body"></div>
+    <div class="note" id="sub-note"></div>
   </div>
 
   <!-- Only shown to somebody who can actually reach the community, which is
@@ -364,6 +436,245 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   });
 
   loadConnections();
+
+
+  /* ---------------- subscription ---------------- */
+
+  /* Everything here is drawn from one call and redrawn from whatever each
+     action returns, so the panel can never disagree with Stripe about what
+     somebody is on. A member who was not sold a plan of their own gets
+     { has: false } and never sees any of it. */
+  var sb = null;
+
+  function money(cents, currency) {
+    if (typeof cents !== 'number') return '';
+    var n = Math.abs(cents) / 100;
+    var s = '$' + (n % 1 === 0 ? n.toFixed(0) : n.toFixed(2));
+    if (String(currency || 'usd').toLowerCase() !== 'usd') {
+      s = (Math.abs(cents) / 100).toFixed(2) + ' ' + String(currency).toUpperCase();
+    }
+    return (cents < 0 ? '−' : '') + s;
+  }
+
+  function onDay(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function per(interval) { return interval === 'year' ? '/year' : interval === 'month' ? '/month' : ''; }
+
+  function sbSay(kind, text) {
+    var n = $('sub-note');
+    n.className = 'note ' + kind + ' show';
+    n.textContent = text;
+  }
+
+  function planLine(s) {
+    if (s.status === 'trialing') return { tag: 'Free trial', cls: 'sb-tag', what: 'Free until ' + onDay(s.trialEndsAt) };
+    if (s.status === 'past_due') return { tag: 'Payment failed', cls: 'sb-tag warn', what: money(s.plan.amount, s.plan.currency) + per(s.plan.interval) };
+    return {
+      tag: s.plan.isAnnual ? 'Annual' : 'Monthly', cls: 'sb-tag ok',
+      what: money(s.plan.amount, s.plan.currency) + per(s.plan.interval)
+    };
+  }
+
+  function paintSub(s) {
+    sb = s;
+    if (!s || !s.has) { $('sub').hidden = true; return; }
+
+    var p = planLine(s);
+    var html = '';
+
+    html += '<div class="sb-row"><span class="sw">' +
+      '<span class="' + p.cls + '">' + esc(p.tag) + '</span>' +
+      '<b>Current plan</b><span class="sv">' + esc(p.what) + '</span></span></div>';
+
+    // What happens next, and when. A trial that has not been stopped says when
+    // the first charge lands; one on the way out says when access goes.
+    if (s.cancelAtPeriodEnd) {
+      html += '<div class="sb-row"><span class="sw"><b>Access ends</b>' +
+        '<span class="sv">' + esc(onDay(s.endsAt)) + '</span>' +
+        '<span class="sm">Nothing more will be charged. You keep everything until then.</span></span></div>';
+    } else if (s.status === 'trialing') {
+      html += '<div class="sb-row"><span class="sw"><b>First payment</b>' +
+        '<span class="sv">' + esc(onDay(s.trialEndsAt || s.renewsAt)) + '</span>' +
+        '<span class="sm">Stop before then and you are not charged at all.</span></span></div>';
+    } else if (s.status === 'past_due') {
+      html += '<div class="sb-row"><span class="sw"><b>Last payment</b>' +
+        '<span class="sv">It did not go through</span>' +
+        '<span class="sm">Update your card below and Stripe will try again.</span></span></div>';
+    } else {
+      html += '<div class="sb-row"><span class="sw"><b>Renews on</b>' +
+        '<span class="sv">' + esc(onDay(s.renewsAt)) + '</span></span></div>';
+    }
+
+    if (s.canSwitchToAnnual) {
+      var saves = s.annualSaving ? ' — save ' + money(s.annualSaving, s.plan.currency) + ' a year' : '';
+      html += '<div class="sb-row offer"><span class="sw"><b>Billing</b>' +
+        '<span class="sv">Paid monthly</span>' +
+        '<span class="sm">Pay for twelve months at once' + esc(saves) + '.</span></span>' +
+        '<button type="button" class="sx" id="sb-annual">Switch to annual</button></div>';
+    }
+
+    html += '<div class="sb-row"><span class="sw"><b>Payment &amp; invoices</b>' +
+      '<span class="sv">Card, billing details, receipts</span>' +
+      '<span class="sm">Opens your billing page at Stripe.</span></span>' +
+      '<button type="button" class="sx" id="sb-portal">Manage billing</button></div>';
+
+    html += s.cancelAtPeriodEnd
+      ? '<div class="sb-end"><span class="sw">Changed your mind? Start it again and nothing is interrupted.</span>' +
+        '<button type="button" class="sx keep" id="sb-resume">Keep my subscription</button></div>'
+      : '<div class="sb-end"><span class="sw">Cancel your subscription. You keep access until ' +
+        esc(onDay(s.trialEndsAt || s.renewsAt)) + '.</span>' +
+        '<button type="button" class="sx" id="sb-cancel">Cancel</button></div>';
+
+    $('sub-body').innerHTML = html;
+    $('sub').hidden = false;
+
+    if ($('sb-annual')) $('sb-annual').addEventListener('click', askAnnual);
+    if ($('sb-portal')) $('sb-portal').addEventListener('click', openPortal);
+    if ($('sb-cancel')) $('sb-cancel').addEventListener('click', function () { setEnding(this, 'cancel'); });
+    if ($('sb-resume')) $('sb-resume').addEventListener('click', function () { setEnding(this, 'resume'); });
+  }
+
+  function act(payload) {
+    return fetch('/api/account/subscription', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); });
+  }
+
+  function openPortal(e) {
+    var btn = e.currentTarget;
+    btn.disabled = true; btn.textContent = 'Opening…';
+    act({ action: 'portal' })
+      .then(function (res) {
+        if (!res.ok || !res.d.url) {
+          btn.disabled = false; btn.textContent = 'Manage billing';
+          sbSay('err', res.d.error || 'Could not open your billing page.');
+          return;
+        }
+        location.href = res.d.url;
+      })
+      .catch(function () {
+        btn.disabled = false; btn.textContent = 'Manage billing';
+        sbSay('err', 'Could not open your billing page.');
+      });
+  }
+
+  function setEnding(btn, action) {
+    var stopping = action === 'cancel';
+    if (stopping && !window.confirm('Cancel your subscription? You keep access until ' +
+        onDay(sb.trialEndsAt || sb.renewsAt) + ', and nothing more is charged.')) return;
+
+    btn.disabled = true;
+    btn.textContent = stopping ? 'Cancelling…' : 'Starting it again…';
+    act({ action: action })
+      .then(function (res) {
+        if (!res.ok) throw new Error(res.d.error || '');
+        paintSub(res.d);
+        sbSay('ok', stopping
+          ? 'Cancelled. You keep everything until ' + onDay(res.d.endsAt) + '.'
+          : 'Your subscription carries on as before.');
+      })
+      .catch(function (err) {
+        paintSub(sb);
+        sbSay('err', err.message || 'That did not work. Please try again.');
+      });
+  }
+
+  /* The numbers come from Stripe's own preview of the invoice, not from
+     arithmetic here, because the figure a member agrees to has to be the
+     figure they are charged - down to the credit for the part of the month
+     they paid for and will not use. */
+  function askAnnual() {
+    var btn = $('sb-annual');
+    btn.disabled = true; btn.textContent = 'Checking…';
+    act({ action: 'preview-annual' })
+      .then(function (res) {
+        btn.disabled = false; btn.textContent = 'Switch to annual';
+        if (!res.ok) { sbSay('err', res.d.error || 'Could not work out the price.'); return; }
+        if (res.d.already) { sbSay('ok', 'You are already on the yearly plan.'); return; }
+        showAnnualSheet(res.d);
+      })
+      .catch(function () {
+        btn.disabled = false; btn.textContent = 'Switch to annual';
+        sbSay('err', 'Could not work out the price.');
+      });
+  }
+
+  function showAnnualSheet(q) {
+    // One sheet, ever. Two clicks while the first price was still being
+    // fetched used to stack two of them, and closing the top one left the
+    // other sitting over the page with a live Confirm button on it.
+    var old = document.querySelector('.sb-modal');
+    if (old) old.remove();
+
+    var wrap = document.createElement('div');
+    wrap.className = 'sb-modal';
+    var credit = q.credit < 0
+      ? '<div class="l credit"><span>Credit for the rest of this month</span><span>' +
+        money(q.credit, q.currency) + '</span></div>' : '';
+    var when = q.keepsTrial
+      ? '<span class="when">Your free trial is not touched. The ' +
+        money(q.charges, q.currency) + ' is charged on ' + esc(onDay(q.chargedOn)) + '.</span>'
+      : '<span class="when">Your year starts today.</span>';
+
+    wrap.innerHTML = '<div class="sb-card" role="dialog" aria-modal="true" aria-label="Switch to annual billing">' +
+      '<h3>Switch to annual billing</h3>' +
+      '<p class="sc-hint">' + (q.keepsTrial
+        ? 'Nothing is charged while your trial is running.'
+        : 'Stripe credits the part of this month you have paid for and have not used.') + '</p>' +
+      '<div class="sb-sum">' +
+        '<div class="l"><span>Twelve months</span><span>' + money(q.charges, q.currency) + '</span></div>' +
+        credit +
+        '<div class="l due"><span>Due today</span><span>' + money(q.dueToday, q.currency) + '</span></div>' +
+        when +
+      '</div>' +
+      '<div class="sb-acts"><button type="button" class="no">Not now</button>' +
+      '<button type="button" class="yes">Confirm &amp; switch</button></div></div>';
+
+    document.body.appendChild(wrap);
+    var close = function () { wrap.remove(); document.removeEventListener('keydown', onKey); };
+    var onKey = function (e) { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    wrap.addEventListener('click', function (e) { if (e.target === wrap) close(); });
+    wrap.querySelector('.no').addEventListener('click', close);
+    wrap.querySelector('.yes').addEventListener('click', function () {
+      var yes = this;
+      yes.disabled = true; yes.textContent = 'Switching…';
+      wrap.querySelector('.no').disabled = true;
+      act({ action: 'switch-annual' })
+        .then(function (res) {
+          if (!res.ok) throw new Error(res.d.error || '');
+          close();
+          // The card may still need the bank's approval. Send them to finish it
+          // rather than leaving a year unpaid and unmentioned.
+          if (res.d.needsPayment && res.d.payUrl) { location.href = res.d.payUrl; return; }
+          paintSub(res.d);
+          sbSay('ok', res.d.already
+            ? 'You are already on the yearly plan.'
+            : 'Done — you are on the yearly plan now.');
+        })
+        .catch(function (err) {
+          yes.disabled = false; yes.textContent = 'Confirm & switch';
+          wrap.querySelector('.no').disabled = false;
+          sbSay('err', err.message || 'That did not work. Nothing has been charged.');
+        });
+    });
+  }
+
+  function loadSubscription() {
+    fetch('/api/account/subscription', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { if (d && d.has) paintSub(d); })
+      .catch(function () { /* the rest of the account page is unaffected */ });
+  }
+
+  loadSubscription();
 
 
   /* ---------------- community emails ---------------- */
