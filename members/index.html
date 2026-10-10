@@ -1053,6 +1053,23 @@ button{font-family:inherit}
   .card .dl,.tile,.pg{min-height:40px}
   .card .dl{display:inline-flex;align-items:center;padding:0 16px}
   .banner .dl{display:inline-flex;align-items:center;min-height:44px;padding:0 20px}
+/* The two things a new member should do, in order. Side by side on a desktop
+   and stacked on a phone, both carrying the same weight: one is what they
+   bought, the other is what tells them when to use it. Giving the second a
+   quieter treatment would undo the point of putting it here. */
+.steps{display:grid;gap:14px;margin-bottom:26px}
+@media(min-width:900px){.steps{grid-template-columns:1fr 1fr;align-items:stretch}}
+.steps .banner{margin-bottom:0;height:100%;align-items:flex-start}
+.steps .banner .dl{margin-top:12px}
+.steps .banner > div{display:flex;flex-direction:column}
+.step-n{display:inline-block;font-family:var(--mono);font-size:.64rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);margin-bottom:6px}
+/* One line, where choosing is the thing they are actually doing. */
+.lib-nudge{margin:-4px 0 16px;font-size:.9rem;color:var(--txt-2)}
+.lib-nudge a{color:var(--accent-2);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,176,32,.4)}
+.lib-nudge a:hover{border-bottom-color:var(--accent-2)}
+/* Said once they have one: the card stops inviting and starts pointing. */
+.banner.done .bic{background:linear-gradient(140deg,#34d399,#10a36c)}
   .bm-row .bx{padding:11px 9px;margin:-11px -9px}
   /* The way out of a screen that fills the phone, at 20px tall. */
   .cd-back{padding:10px 10px 10px 0;margin:-10px 0 8px -0px}
@@ -2734,13 +2751,31 @@ button{font-family:inherit}
   function roadmapSeen() {
     try { return localStorage.getItem('afu_rm_seen') || ''; } catch (e) { return ''; }
   }
+  /* Which of the three a member is in. Only the last one had a badge before,
+     so somebody who had never started — the 9 in 10 — saw an empty sidebar
+     slot telling them nothing, and somebody who abandoned the form halfway
+     was never told they could pick it back up. */
+  function roadmapState() {
+    if (!rm.loaded) return 'unknown';
+    var r = rm.request;
+    if (!r) return 'none';
+    return r.status === 'published' ? 'ready' : 'started';
+  }
   function paintRoadmapBadge() {
     var c = document.getElementById('cnt-roadmap');
     if (!c) return;
     var key = roadmapKey();
     var fresh = !!key && roadmapSeen() !== key;
-    c.textContent = fresh ? 'New' : (key ? '✓' : '');
-    c.classList.toggle('is-new', fresh);
+    var state = roadmapState();
+    // "New" says a thing exists. "Start here" says do this one first, which is
+    // the only one of the two that moves anybody.
+    var text = fresh ? 'New'
+      : key ? '✓'
+      : state === 'none' ? 'Start here'
+      : state === 'started' ? 'Finish it'
+      : '';
+    c.textContent = text;
+    c.classList.toggle('is-new', fresh || state === 'none' || state === 'started');
   }
   function markRoadmapSeen() {
     var key = roadmapKey();
@@ -2760,6 +2795,10 @@ button{font-family:inherit}
         if (d.request && d.request.answers) rm.answers = d.request.answers;
         if (d.notes) rm.notes = d.notes;
         paintRoadmapBadge();
+        // The dashboard asks whether they have one, and this is what answers.
+        // It arrives after the first paint, so the card would otherwise keep
+        // inviting somebody who already has a roadmap until they reloaded.
+        if (view === 'dashboard') render();
         return d;
       })
       .catch(function () { return null; });
@@ -3112,10 +3151,48 @@ button{font-family:inherit}
         ? 'You have full access to everything — courses, plugins, and the full content library.'
         : 'Everything you bought is here and always will be. The membership opens the rest.') + '</p>';
 
-    html += '<div class="banner"><div class="bic">🧩</div><div style="min-width:200px;flex:1">' +
-      '<h3>Your Specialists &amp; Plugins are ready</h3>' +
-      '<p>Download the 70 AI Specialists and every plugin pack, then install them in Claude.</p>' +
-      '</div><a class="dl" href="#downloads" style="align-self:center">Go to downloads</a></div>';
+    /* Two steps, in order. The Specialists stay first because that is what was
+       bought; the roadmap sits beside them because it is what says when to use
+       them. They are not rivals — a roadmap schedules the downloads as well as
+       everything else, so putting the second here sells the first.
+
+       Counted live rather than written down: the library grows every week, and
+       a number typed into this sentence would be wrong by the next Monday and
+       would quietly tell members nothing had been added. */
+    var libTotal = Object.keys(counts).reduce(function (n, k) { return n + (counts[k] || 0); }, 0);
+    var what = libTotal
+      ? 'Everything in here — your downloads, ' + libTotal.toLocaleString() + ' prompts, skills and routines' +
+        (courses.length ? ', plus ' + courses.length + ' courses' : '') + ', with more every week.'
+      : 'Everything in here — your downloads, the whole library and every course, with more every week.';
+
+    var state = roadmapState();
+    var plan = state === 'ready'
+      ? { ic: '🗺️', cls: ' done', h: 'Your roadmap is ready',
+          p: 'Your plan for the next 7, 30 and 90 days — what to use, in what order.',
+          cta: 'Open my roadmap' }
+      : state === 'started'
+        ? { ic: '🗺️', cls: '', h: 'Finish your roadmap',
+            p: 'You started telling us about your business. Pick up where you left off — it takes about two minutes.',
+            cta: 'Finish it' }
+        : { ic: '🗺️', cls: '', h: 'Now get your roadmap',
+            p: what + ' Your roadmap picks what fits your business, says when to use each one, and names what to ignore.',
+            cta: 'Build my roadmap · 2 min' };
+
+    html += '<div class="steps">' +
+      '<div class="banner"><div class="bic">🧩</div><div style="min-width:200px;flex:1">' +
+        '<span class="step-n">Step 1</span>' +
+        '<h3>Your Specialists &amp; Plugins are ready</h3>' +
+        '<p>Download the 70 AI Specialists and every plugin pack, then install them in Claude.</p>' +
+        '<a class="dl" href="#downloads">Go to downloads</a>' +
+      '</div></div>' +
+      '<div class="banner' + plan.cls + '"><div class="bic">' + plan.ic + '</div>' +
+      '<div style="min-width:200px;flex:1">' +
+        '<span class="step-n">Step 2</span>' +
+        '<h3>' + plan.h + '</h3>' +
+        '<p>' + esc(plan.p) + '</p>' +
+        '<a class="dl" href="#roadmap">' + esc(plan.cta) + '</a>' +
+      '</div></div>' +
+    '</div>';
 
     // category tiles — Courses first, then each content library
     html += '<div class="sec-h first"><h2>Explore your library</h2></div><div class="tiles">';
@@ -3186,8 +3263,18 @@ button{font-family:inherit}
     var items = all.filter(function (it) { return it.kind === kind; });
     var st = libSt(kind);
 
+    /* The moment the roadmap is easiest to want: standing in front of nine
+       hundred prompts and choosing. Shown only to somebody who has not got one
+       and only where the pile is big enough to be daunting — on a shelf of
+       nine items it would be nagging rather than helping. */
+    var nudge = (roadmapState() === 'none' && items.length >= 40)
+      ? '<p class="lib-nudge">Not sure which to use first? <a href="#roadmap">Your roadmap picks</a> — ' +
+        'and says in what order.</p>'
+      : '';
+
     var html = '<h1 class="page-h">' + esc(meta.label) + '</h1>' +
       '<p class="page-sub">' + items.length + ' items in your library.</p>' +
+      nudge +
       '<div class="lib-bar">' +
         '<span class="lib-search"><span class="ic">🔍</span>' +
         '<input id="lib-q" type="search" placeholder="Search ' + esc((meta.label || '').toLowerCase()) + '…" autocomplete="off" value="' + esc(st.q) + '"></span>' +
