@@ -112,6 +112,11 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
 .sb-card .sc-hint{color:var(--txt-3);font-size:.9rem;margin:0 0 18px}
 .sb-sum{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px}
 .sb-sum .l{display:flex;justify-content:space-between;gap:14px;font-size:.92rem;padding:5px 0}
+/* The label may wrap on a narrow phone; the amount may not. Letting it break
+   put the minus sign on one line and the figure on the next, which read for a
+   moment as a charge rather than a credit. */
+.sb-sum .l span:first-child{min-width:0}
+.sb-sum .l span:last-child{flex:none;white-space:nowrap}
 .sb-sum .l.credit{color:var(--ok)}
 .sb-sum .l.due{border-top:1px solid var(--line);margin-top:8px;padding-top:11px;
   font-weight:800;font-size:1rem}
@@ -126,6 +131,18 @@ input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(25
   .sb-row .sx,.sb-end .sx{width:100%}
   .sb-acts{flex-direction:column-reverse}
   .sb-acts button{width:100%}
+}
+/* A phone held sideways leaves about 375px of height. The sheet caps at 90vh
+   and scrolls, which put both buttons below the fold - on the one screen
+   where the whole point is to agree or decline. They stay on the bottom edge
+   of the sheet instead, with the figures scrolling behind them. */
+@media(max-height:520px){
+  .sb-card{padding:18px}
+  .sb-card h3{font-size:1.05rem}
+  .sb-card .sc-hint{margin-bottom:12px}
+  .sb-sum{margin-bottom:14px}
+  .sb-acts{position:sticky;bottom:-18px;background:var(--panel);
+    padding:10px 0 18px;margin-bottom:-18px}
 }
 
 .note{display:none;margin-top:16px;font-size:.9rem;border-radius:10px;padding:11px 13px}
