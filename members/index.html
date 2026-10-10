@@ -1053,6 +1053,16 @@ button{font-family:inherit}
   .card .dl,.tile,.pg{min-height:40px}
   .card .dl{display:inline-flex;align-items:center;padding:0 16px}
   .banner .dl{display:inline-flex;align-items:center;min-height:44px;padding:0 20px}
+  /* The pair stacks here, and the pill goes full width so it is the widest
+     thing on the line rather than a word in the middle of one. */
+  .lib-nudge{gap:8px}
+  .lib-nudge a{width:100%;justify-content:center}
+  .bm-row .bx{padding:11px 9px;margin:-11px -9px}
+  /* The way out of a screen that fills the phone, at 20px tall. */
+  .cd-back{padding:10px 10px 10px 0;margin:-10px 0 8px -0px}
+  .player-topbar .pt-back{padding:9px 8px 9px 0;margin-left:0}
+}
+
 /* The two things a new member should do, in order. Side by side on a desktop
    and stacked on a phone, both carrying the same weight: one is what they
    bought, the other is what tells them when to use it. Giving the second a
@@ -1060,21 +1070,40 @@ button{font-family:inherit}
 .steps{display:grid;gap:14px;margin-bottom:26px}
 @media(min-width:900px){.steps{grid-template-columns:1fr 1fr;align-items:stretch}}
 .steps .banner{margin-bottom:0;height:100%;align-items:flex-start}
-.steps .banner .dl{margin-top:12px}
+/* Both calls to action were plain white text, which is the same fault as the
+   line on the library shelf: the one thing on the card that is meant to be
+   pressed looked exactly like the sentence above it. They get the pill the
+   rest of the site already uses for a button, and they get the same one as
+   each other, because the pair is meant to carry equal weight. */
+.steps .banner .dl{display:inline-flex;align-items:center;align-self:flex-start;
+  min-height:44px;margin-top:14px;padding:0 20px;border-radius:999px;
+  background:linear-gradient(180deg,var(--accent-2),var(--accent));
+  color:#1a0d00;font-size:.86rem;font-weight:800;transition:filter .15s}
+.steps .banner .dl:hover{filter:brightness(1.07)}
 .steps .banner > div{display:flex;flex-direction:column}
 .step-n{display:inline-block;font-family:var(--mono);font-size:.64rem;font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);margin-bottom:6px}
-/* One line, where choosing is the thing they are actually doing. */
-.lib-nudge{margin:-4px 0 16px;font-size:.9rem;color:var(--txt-2)}
-.lib-nudge a{color:var(--accent-2);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,176,32,.4)}
-.lib-nudge a:hover{border-bottom-color:var(--accent-2)}
+
+/* One line, where choosing is the thing they are actually doing. Coloured text
+   inside a sentence read as more sentence and got skipped, so the offer is a
+   control instead: a bordered pill, at a size a thumb can hit, sitting beside
+   the question rather than inside it. */
+.lib-nudge{display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+  margin:-2px 0 18px;font-size:.92rem;color:var(--txt-2)}
+/* flex:none, or the pill is the thing that gives way when the sentence beside
+   it wants the room, and nowrap crushes it to 38px of orange. */
+.lib-nudge a{display:inline-flex;flex:none;align-items:center;gap:8px;min-height:42px;
+  padding:0 18px;border-radius:999px;border:1px solid rgba(255,176,32,.5);
+  background:rgba(255,176,32,.11);color:var(--accent-2);font-size:.9rem;
+  font-weight:700;text-decoration:none;white-space:nowrap;
+  transition:background .15s,border-color .15s,transform .15s}
+.lib-nudge a .ar{font-size:1.05rem;line-height:1}
+.lib-nudge a:hover{background:rgba(255,176,32,.2);border-color:var(--accent-2);
+  transform:translateY(-1px)}
+@media (prefers-reduced-motion:reduce){.lib-nudge a:hover{transform:none}}
+
 /* Said once they have one: the card stops inviting and starts pointing. */
 .banner.done .bic{background:linear-gradient(140deg,#34d399,#10a36c)}
-  .bm-row .bx{padding:11px 9px;margin:-11px -9px}
-  /* The way out of a screen that fills the phone, at 20px tall. */
-  .cd-back{padding:10px 10px 10px 0;margin:-10px 0 8px -0px}
-  .player-topbar .pt-back{padding:9px 8px 9px 0;margin-left:0}
-}
 
 @media(max-width:820px){
   /* The course title took three lines in the player's top bar, pushing the
@@ -2799,6 +2828,7 @@ button{font-family:inherit}
         // It arrives after the first paint, so the card would otherwise keep
         // inviting somebody who already has a roadmap until they reloaded.
         if (view === 'dashboard') render();
+        else paintLibNudge();
         return d;
       })
       .catch(function () { return null; });
@@ -3258,19 +3288,34 @@ button{font-family:inherit}
     return by ? out.slice().sort(by) : out;
   }
 
+  /* The moment the roadmap is easiest to want: standing in front of nine
+     hundred prompts and choosing. Shown only to somebody who has not got one
+     and only where the pile is big enough to be daunting — on a shelf of nine
+     items it would be nagging rather than helping. */
+  function nudgeHtml(count) {
+    if (roadmapState() !== 'none' || count < 40) return '';
+    return '<div class="lib-nudge"><span>Not sure which to use first? Your roadmap picks ' +
+      'the ones that fit — and says in what order.</span>' +
+      '<a href="#roadmap">🗺️ Build my roadmap <span class="ar">→</span></a></div>';
+  }
+  /* The roadmap lands a moment after the first paint, so a shelf reached by
+     deep link or a reload was drawn while the answer was still 'unknown' and
+     got no line at all. Added to the page it already has rather than by
+     redrawing it, which would empty the search box under somebody's cursor. */
+  function paintLibNudge() {
+    if (!KINDS[view]) return;
+    var c = document.getElementById('content');
+    if (!c || c.querySelector('.lib-nudge')) return;
+    var html = nudgeHtml(all.filter(function (it) { return it.kind === view; }).length);
+    var sub = html && c.querySelector('.page-sub');
+    if (sub) sub.insertAdjacentHTML('afterend', html);
+  }
+
   function renderKind(c, kind) {
     var meta = KINDS[kind] || { label: kind };
     var items = all.filter(function (it) { return it.kind === kind; });
     var st = libSt(kind);
-
-    /* The moment the roadmap is easiest to want: standing in front of nine
-       hundred prompts and choosing. Shown only to somebody who has not got one
-       and only where the pile is big enough to be daunting — on a shelf of
-       nine items it would be nagging rather than helping. */
-    var nudge = (roadmapState() === 'none' && items.length >= 40)
-      ? '<p class="lib-nudge">Not sure which to use first? <a href="#roadmap">Your roadmap picks</a> — ' +
-        'and says in what order.</p>'
-      : '';
+    var nudge = nudgeHtml(items.length);
 
     var html = '<h1 class="page-h">' + esc(meta.label) + '</h1>' +
       '<p class="page-sub">' + items.length + ' items in your library.</p>' +
