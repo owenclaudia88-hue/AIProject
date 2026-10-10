@@ -212,9 +212,40 @@ async function setCancel(stripe, found, action, res, email) {
  * be the figure on the invoice — including the credit for the days of the
  * month they have already paid for and will not use.
  */
+/**
+ * The yearly price, checked rather than assumed.
+ *
+ * Test and live Stripe have different ids for the same plan, and a key and a
+ * price from different modes fail in a way that reads like a bug in here. This
+ * turns that into one clear line in the log and one honest sentence to the
+ * member, and - because it runs before anything is charged - it cannot put
+ * somebody on the wrong plan.
+ */
+async function annualPrice(stripe, sub) {
+  const id = process.env.STRIPE_ANNUAL_PRICE_ID;
+  if (!id) {
+    console.error('[account/subscription] STRIPE_ANNUAL_PRICE_ID is not set.');
+    return { error: 'The yearly plan is not configured yet.' };
+  }
+  const price = await stripe.prices.retrieve(id).catch(() => null);
+  if (!price) {
+    console.error('[account/subscription] STRIPE_ANNUAL_PRICE_ID', id,
+      'does not exist for this key — check it is the id for this Stripe mode.');
+    return { error: 'The yearly plan is not configured yet.' };
+  }
+  if (price.livemode !== sub.livemode) {
+    console.error('[account/subscription] mode mismatch: price', id, 'is',
+      price.livemode ? 'live' : 'test', 'but the subscription is',
+      sub.livemode ? 'live' : 'test');
+    return { error: 'The yearly plan is not configured yet.' };
+  }
+  return { id, price };
+}
+
 async function previewAnnual(stripe, found, res) {
-  const annual = process.env.STRIPE_ANNUAL_PRICE_ID;
-  if (!annual) return res.status(500).json({ error: 'The yearly plan is not configured yet.' });
+  const got = await annualPrice(stripe, found.sub);
+  if (got.error) return res.status(500).json({ error: got.error });
+  const annual = got.id;
   if (planOf(found.item).isAnnual) return res.status(200).json({ already: true });
 
   const up = await stripe.invoices.retrieveUpcoming({
@@ -234,10 +265,7 @@ async function previewAnnual(stripe, found, res) {
      has not been raised yet. Reporting Stripe's zero here would have told a
      member the year costs nothing. */
   const keepsTrial = found.sub.status === 'trialing';
-  if (keepsTrial) {
-    const price = await stripe.prices.retrieve(annual).catch(() => null);
-    charges = price?.unit_amount ?? charges;
-  }
+  if (keepsTrial) charges = got.price.unit_amount ?? charges;
 
   return res.status(200).json({
     currency: up.currency,
@@ -252,8 +280,9 @@ async function previewAnnual(stripe, found, res) {
 }
 
 async function switchAnnual(stripe, found, res, email) {
-  const annual = process.env.STRIPE_ANNUAL_PRICE_ID;
-  if (!annual) return res.status(500).json({ error: 'The yearly plan is not configured yet.' });
+  const got = await annualPrice(stripe, found.sub);
+  if (got.error) return res.status(500).json({ error: got.error });
+  const annual = got.id;
 
   // A second click, or a reload. Charging a second year is the one outcome
   // this must never produce.
