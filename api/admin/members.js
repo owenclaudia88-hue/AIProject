@@ -150,6 +150,13 @@ export default async function handler(req, res) {
         hasName: !!(c.name && c.name.trim()),
         status: c.status,
         paymentIntent: c.last_payment_intent,
+        /* Whether there is anything to refund. A one-off purchase leaves a
+           PaymentIntent on the row; a membership bought from the homepage
+           never does, because the money arrives as a subscription invoice —
+           so those members had no Refund button at all. The refund picker
+           has always worked off the Stripe customer, which they do have, so
+           the button only ever needed to know the customer exists. */
+        stripeCustomer: c.stripe_customer_id || null,
         joinedAt: c.created_at,
         updatedAt: c.updated_at,
         // Whether there is a subscription to end. Absent means no button, which

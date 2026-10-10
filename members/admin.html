@@ -1414,7 +1414,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
               ? '<button data-act="resub" data-email="' + esc(m.email) + '">Keep the subscription</button>'
               : '<button data-act="unsub" data-email="' + esc(m.email) + '">End subscription&hellip;</button>')
             : '') +
-          (m.paymentIntent ? '<button class="danger" data-act="refund" data-email="' + esc(m.email) + '">Refund&hellip;</button>' : '') +
+          /* Either kind of payer: a saved intent is the one-off purchase, a
+             Stripe customer is anybody paying by subscription — which is how
+             a homepage member pays, and why they used to be the one group on
+             this list with no way to give the money back. */
+          ((m.paymentIntent || m.stripeCustomer)
+            ? '<button class="danger" data-act="refund" data-email="' + esc(m.email) + '">Refund&hellip;</button>' : '') +
         '</div></div>';
     });
 
