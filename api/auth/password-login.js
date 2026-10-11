@@ -1,4 +1,4 @@
-import { isActive, normalizeEmail, passwordHashFor, recordAuthFailure, clearAuthFailures, recentAuthFailures, sessionEpochFor } from '../../lib/db.js';
+import { isActive, normalizeEmail, passwordHashFor, recordAuthFailure, clearAuthFailures, recentAuthFailures, sessionEpochFor, resolveAccountEmail } from '../../lib/db.js';
 import { verifyPassword, dummyVerify } from '../../lib/passwords.js';
 import { createSessionCookie } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
@@ -54,7 +54,14 @@ export default async function handler(req, res) {
       });
     }
 
-    const hash = await passwordHashFor(email);
+    /* An alternate address signs in the same way as the account's own, with
+       the same password: it is a second door into one account, not a second
+       account. Resolved after the throttle, which deliberately counts the
+       address as typed - somebody guessing at an alternate should burn the
+       alternate's budget rather than lock the real one out. */
+    const account = await resolveAccountEmail(email);
+
+    const hash = await passwordHashFor(account);
 
     // No account, or an account with no password: spend the same time anyway.
     // Returning early here is what turns a uniform error message into a way of
@@ -72,17 +79,18 @@ export default async function handler(req, res) {
 
     // Right password, but the account has to still be live — the same check
     // the magic link makes, for the same reason.
-    const staff = isAdmin(email);
-    const active = await isActive(email);
+    const staff = isAdmin(account);
+    const active = await isActive(account);
     if (!staff && !active) {
       await recordAuthFailure(email, ip);
       return res.status(401).json({ error: SAME_ANSWER });
     }
 
     await clearAuthFailures(email);
-    // A password session. Enough to use the site, not enough to replace the
+    // A password session, for the account rather than for whichever of its
+    // addresses was typed. Enough to use the site, not enough to replace the
     // password without proving the current one.
-    res.setHeader('Set-Cookie', createSessionCookie(email, 'pw', await sessionEpochFor(email)));
+    res.setHeader('Set-Cookie', createSessionCookie(account, 'pw', await sessionEpochFor(account)));
     return res.status(200).json({
       ok: true,
       // Where they were headed before being asked to sign in, if it is one of

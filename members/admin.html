@@ -1420,6 +1420,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
              this list with no way to give the money back. */
           ((m.paymentIntent || m.stripeCustomer)
             ? '<button class="danger" data-act="refund" data-email="' + esc(m.email) + '">Refund&hellip;</button>' : '') +
+          /* For the member whose mail server refuses everything we send: add
+             an address they can actually read, and send the welcome there. */
+          '<button data-act="emails" data-email="' + esc(m.email) + '">Email addresses&hellip;</button>' +
         '</div></div>';
     });
 
@@ -1788,6 +1791,137 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       .catch(function () { window.alert('That did not work.'); btn.disabled = false; btn.textContent = was; });
   }
 
+  /* ---------------- other addresses for one member ---------------- */
+
+  /* For the buyer whose mail server refuses everything we send: another
+     address they can actually read, and the welcome sent there. Both doors
+     then accept it - the sign-in link and the password - while the account
+     itself, and everything keyed on it, stays the one account it was. */
+  function openEmailPanel(btn) {
+    var email = btn.getAttribute('data-email');
+    var card = btn.closest('.card');
+    if (!card) return;
+    var open = card.querySelector('.refund-panel.emails');
+    if (open) { open.remove(); return; }
+    var panel = document.createElement('div');
+    panel.className = 'refund-panel emails';
+    card.appendChild(panel);
+    loadEmailPanel(panel, email);
+  }
+
+  function loadEmailPanel(panel, email) {
+    panel.innerHTML = '<p class="rp-load">Loading addresses…</p>';
+    fetch('/api/admin/member-emails?email=' + encodeURIComponent(email), { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.status !== 200) { panel.innerHTML = '<p class="rp-load">' + esc(res.d.error || 'Could not load.') + '</p>'; return; }
+        renderEmailPanel(panel, email, res.d);
+      })
+      .catch(function () { panel.innerHTML = '<p class="rp-load">Could not load.</p>'; });
+  }
+
+  function renderEmailPanel(panel, email, d) {
+    var row = function (addr, isOwn, meta) {
+      return '<div class="rp-row"><span class="rp-desc">' + esc(addr) +
+        (isOwn ? '<span class="rp-what">the address on the order</span>'
+               : '<span class="rp-what">' + esc(meta) + '</span>') + '</span>' +
+        '<button class="rp-btn" data-welcome="' + esc(addr) + '">Send welcome here</button>' +
+        (isOwn ? '' : '<button class="rp-btn" data-drop="' + esc(addr) + '">Remove</button>') +
+        '</div>';
+    };
+
+    var rows = row(d.email, true, '') + (d.alternates || []).map(function (a) {
+      return row(a.email, false, 'added' + (a.addedBy ? ' by ' + a.addedBy : '') + ' ' + day(a.addedAt));
+    }).join('');
+
+    panel.innerHTML = '<div class="rp-head">Addresses that reach this member</div>' + rows +
+      '<div class="rp-sub">Any of these signs in &mdash; by link or by password &mdash; to this one account. ' +
+      'Nothing else changes: it stays one member, one subscription, one library.</div>' +
+      '<div class="rp-row" style="border-bottom:0">' +
+        '<input class="em-new" type="email" placeholder="another@address.com" ' +
+          'autocomplete="off" spellcheck="false" ' +
+          'style="flex:1;min-width:190px;background:var(--bg-3);border:1px solid var(--line-2);' +
+          'color:var(--txt);border-radius:999px;padding:9px 14px;font-family:var(--mono);font-size:.78rem">' +
+        '<button class="rp-btn" data-add="1">Add &amp; send welcome</button>' +
+      '</div>' +
+      /* The choice is made before pressing, and the button says which of the
+         two it is about to do. Either way the address starts working the
+         moment it is added — this only decides whether the member hears
+         about it now. */
+      '<label class="rp-row" style="border-bottom:0;padding-top:0;gap:8px;cursor:pointer">' +
+        '<input class="em-welcome" type="checkbox" checked ' +
+          'style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">' +
+        '<span class="rp-what" style="margin:0">Send the welcome to it now. ' +
+        'It works as a sign-in and receives their mail either way.</span>' +
+      '</label>';
+
+    [].forEach.call(panel.querySelectorAll('[data-welcome]'), function (b) {
+      b.addEventListener('click', function () { sendWelcomeTo(email, b.getAttribute('data-welcome'), b, panel); });
+    });
+    [].forEach.call(panel.querySelectorAll('[data-drop]'), function (b) {
+      b.addEventListener('click', function () {
+        var addr = b.getAttribute('data-drop');
+        if (!window.confirm('Remove ' + addr + '?\n\nThey will no longer be able to sign in with it. The account and its own address are untouched.')) return;
+        postEmails(email, { action: 'remove', alternate: addr }, b, panel);
+      });
+    });
+    var add = panel.querySelector('[data-add]');
+    var input = panel.querySelector('.em-new');
+    var wel = panel.querySelector('.em-welcome');
+    // The button names the action it is about to take, so nobody has to read
+    // the checkbox back to know whether an email is about to go out.
+    var label = function () { add.textContent = wel.checked ? 'Add & send welcome' : 'Add address'; };
+    wel.addEventListener('change', label);
+    var doAdd = function () {
+      var v = String(input.value || '').trim();
+      if (!v) { input.focus(); return; }
+      postEmails(email, { action: 'add', alternate: v, welcome: wel.checked }, add, panel);
+    };
+    add.addEventListener('click', doAdd);
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); doAdd(); } });
+  }
+
+  function postEmails(email, payload, btn, panel) {
+    btn.disabled = true; var was = btn.textContent; btn.textContent = 'Working…';
+    fetch('/api/admin/member-emails', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ email: email }, payload))
+    })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false; btn.textContent = was;
+        if (res.status !== 200) { window.alert(res.d.error || 'That did not work.'); return; }
+        renderEmailPanel(panel, email, res.d);
+        /* Said out loud when a welcome was asked for, and said especially
+           when it failed — the address is added and working either way, and
+           a send that failed is the one outcome somebody must not have to
+           infer from a silent panel. */
+        var w = res.d.welcomed;
+        if (w && w.sent) window.alert('Added, and the welcome is on its way to ' + w.to + '.');
+        else if (w) window.alert('Added — ' + w.to + ' signs in and receives their mail from now on.\n\n'
+          + 'The welcome could not be sent: ' + w.error);
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = was; window.alert('That did not work.'); });
+  }
+
+  function sendWelcomeTo(email, to, btn, panel) {
+    if (!window.confirm('Send the welcome to ' + to + '?\n\nIt carries a working sign-in link for this account.')) return;
+    btn.disabled = true; var was = btn.textContent; btn.textContent = 'Sending…';
+    fetch('/api/admin/member-emails', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, action: 'welcome', alternate: to })
+    })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        btn.disabled = false; btn.textContent = was;
+        if (res.status !== 200) { window.alert(res.d.error || 'That did not work.'); return; }
+        window.alert('Welcome sent to ' + res.d.sentTo + '.\n\nThe sign-in link in it is good for 30 minutes.');
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = was; window.alert('That did not work.'); });
+  }
+
   function wireMemberActions(scope) {
     [].forEach.call(scope.querySelectorAll('[data-remind]'), function (b) {
       b.addEventListener('click', function () {
@@ -1846,6 +1980,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           // Refund now opens a picker of this member's payments rather than
           // firing straight away — one click no longer moves money.
           openRefundPanel(b);
+          return;
+        } else if (act === 'emails') {
+          openEmailPanel(b);
           return;
         } else if (act === 'resub') {
           // Undoing a cancellation that has not happened yet. Safe enough to do
