@@ -1917,7 +1917,7 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       .then(function (res) {
         btn.disabled = false; btn.textContent = was;
         if (res.status !== 200) { window.alert(res.d.error || 'That did not work.'); return; }
-        window.alert('Welcome sent to ' + res.d.sentTo + '.\n\nThe sign-in link in it is good for 30 minutes.');
+        window.alert('Welcome sent to ' + res.d.sentTo + '.\n\nThe sign-in link in it is good for 15 minutes.');
       })
       .catch(function () { btn.disabled = false; btn.textContent = was; window.alert('That did not work.'); });
   }
