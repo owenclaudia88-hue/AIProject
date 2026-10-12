@@ -12,7 +12,7 @@
  */
 import { put } from '@vercel/blob';
 import { readFile, readdir, access, stat as fstat } from 'node:fs/promises';
-import { join, dirname, basename } from 'node:path';
+import { join, dirname, basename, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { upsertLibraryItem, upsertAsset, upsertCourse, getAsset } from '../lib/db.js';
 
@@ -232,7 +232,10 @@ function primaryDownload(html) {
 const prettyName = (n) => String(n || '').replace(/^\d{10,}-[a-z0-9]+-/i, '');
 
 async function ingestBlackMagic() {
-  const dir = join(EXPORT, 'blackmagic');
+  /* The weekly run writes a small export of just that week's new rows and
+     points this at it, so the Monday ingest does not walk all 1,360 items
+     again to add nine. Unset, it is the full dump exactly as before. */
+  const dir = process.env.BM_DIR ? resolve(process.env.BM_DIR) : join(EXPORT, 'blackmagic');
   if (!(await exists(join(dir, 'data')))) { console.log('(no blackmagic/data — skipping)'); return; }
   // links.json holds every URL the export found per row. The seven automations
   // with no instructions HTML still have their blueprint and setup links here,
@@ -386,9 +389,13 @@ async function ingestCourseStructure() {
   }
 }
 
-await ingestCourses();
+/* The weekly run only ever has new AI Black Magic rows to add, and walking the
+   Circle lessons and the course structure for it would be minutes of work to
+   change nothing. Everything runs when nobody asks for less. */
+const only = process.argv.includes('--blackmagic-only');
+if (!only) await ingestCourses();
 await ingestBlackMagic();
-await ingestCourseStructure();
+if (!only) await ingestCourseStructure();
 
 console.log(`\ndone`);
 console.log(`  library items : ${items}`);

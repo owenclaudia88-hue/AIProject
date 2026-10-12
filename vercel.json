@@ -64,6 +64,10 @@
       "schedule": "0 7 * * 1"
     },
     {
+      "path": "/api/cron/new-tools",
+      "schedule": "0 18 * * 5"
+    },
+    {
       "path": "/api/cron/news",
       "schedule": "0 */4 * * *"
     }
