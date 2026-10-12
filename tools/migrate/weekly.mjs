@@ -179,7 +179,28 @@ try {
     if (out.error) { say(`  ${table}: could not read (${out.error})`); continue; }
 
     const rows = out.rows || [];
-    if (!rows.length) { say(`  ${table}: nothing new`); continue; }
+    if (!rows.length) {
+      /* An empty answer is not proof of a quiet week.
+         Supabase answers an unauthorised read with 200 and an empty array, not
+         with 401 — row-level security simply returns nothing — so a lapsed
+         token and a week with no new items look exactly alike. This run saw
+         six videos on three dry runs and none on the real one, published
+         everything else, and said "nothing new" with a straight face.
+
+         So an empty result is checked rather than believed: ask the same
+         table for one row with no date filter. Rows there mean the week really
+         was quiet; nothing there means we are not being allowed to read it,
+         and that is a stop rather than a shrug. */
+      const probe = await fromPage(page, conf, `/rest/v1/${table}?select=id&limit=1`);
+      if (probe.error || !(probe.rows || []).length) {
+        throw new Error(
+          `${table} came back empty and so did a plain one-row read of it, which means `
+          + `this session is no longer allowed to read it rather than that there is `
+          + `nothing new. Nothing has been published. Run:  node auth.mjs ${SITE}`);
+      }
+      say(`  ${table}: nothing new`);
+      continue;
+    }
     found += rows.length;
 
     const keep = [];
