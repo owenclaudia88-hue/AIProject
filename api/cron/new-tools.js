@@ -38,6 +38,11 @@ export default async function handler(req, res) {
 
   const url = new URL(req.url, 'http://localhost');
   const dry = url.searchParams.get('dry') === '1';
+  /* One address, to look at it before four dozen people do.
+     It sends the real email, built from the real week, and then changes
+     nothing: the marker below is left alone, so Friday still goes out with
+     this week's items rather than finding them already announced. */
+  const only = (url.searchParams.get('to') || '').trim().toLowerCase();
   const started = Date.now();
 
   try {
@@ -49,6 +54,22 @@ export default async function handler(req, res) {
       || new Date(Date.now() - 7 * 864e5).toISOString();
 
     const items = await libraryAddedSince(since);
+
+    // A test send goes out whatever the week looked like — the point is to see
+    // the thing, and an empty week would show nothing.
+    if (only) {
+      if (!items.length) {
+        return res.status(200).json({ error: 'nothing new to show', since });
+      }
+      await sendNewTools(only, { name: null, items, total: items.length });
+      console.log(`[cron/new-tools] test copy of ${items.length} item(s) sent to ${only}`);
+      return res.status(200).json({
+        test: true, sentTo: only, items: items.length,
+        subject: newToolsSubject(items, items.length),
+        note: 'nothing was recorded, so Friday still has these to announce',
+        ms: Date.now() - started
+      });
+    }
 
     if (items.length < MIN_ITEMS) {
       if (!dry) await setSetting('new_tools_last_skipped', new Date().toISOString());
