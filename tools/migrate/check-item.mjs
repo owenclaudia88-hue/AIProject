@@ -35,17 +35,25 @@ function looksBroken(html) {
   if (!s.trim()) return null;
   if (/^\s*[[{]/.test(s.trim()) && /"[a-z_]+"\s*:/i.test(s)) return 'the body is raw JSON';
 
-  /* Code is quoted, not broken.
-     A tutorial on building a voice agent tells you to use {{first_name}} as a
-     variable, in <code> tags, and was held for it — the thing it was teaching
-     read as the thing we feared. So the prose is examined with every code and
-     pre block taken out, and what is left is what a template never filled in. */
-  const prose = s
-    .replace(/<pre\b[^>]*>[\s\S]*?<\/pre>/gi, ' ')
-    .replace(/<code\b[^>]*>[\s\S]*?<\/code>/gi, ' ');
+  /* A placeholder is ordinary content here, and that took two goes to accept.
+     A voice-agent tutorial says to use {{first_name}} in a <code> tag; it also
+     hands you a call script, in a plain div, reading "Hi {{first_name}}, you
+     asked about [service] on {{inquiry_date}}". Both were held, and both are
+     the thing the tutorial exists to teach. On a library of prompts and
+     templates, variables are the subject matter.
 
-  if (/\{\{\s*[a-z_.]+\s*\}\}/i.test(prose)) return 'the body still has {{placeholders}} in it';
-  if (/\bundefined\b/.test(prose)) return 'the body has "undefined" in it';
+     What a filled-in template never looks like is a stub. So this fires only
+     on a body with barely any text in it that is nonetheless carrying
+     placeholders — "Hi {{first_name}}, welcome to {{product}}" and nothing
+     else — and leaves every real document alone. */
+  const text = s.replace(/<[^>]+>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').replace(/\s+/g, ' ').trim();
+  const STUB = 400;
+  if (text.length < STUB && /\{\{\s*[a-z_.]+\s*\}\}/i.test(text)) {
+    return 'the body is a stub with {{placeholders}} and nothing else';
+  }
+  if (text.length < STUB && /\bundefined\b/.test(text)) {
+    return 'the body is a stub with "undefined" in it';
+  }
   // Tags and spacing only — "<p>&nbsp;</p><br>" and friends. Closing tags go
   // in the list too; without them this matched nothing real.
   if (/^(?:\s|<\/?(?:p|br|div|span|em|strong)\s*\/?>|&nbsp;|&#160;)*$/i.test(s)) {
