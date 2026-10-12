@@ -1382,8 +1382,23 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         seen:     ['',         'saw the offer']
       };
       var ch = CHOICE[m.upsellChoice];
-      var choice = ch ? '<span class="st ' + ch[0] + '" title="On the post-purchase offer' +
-        (m.upsellChoiceAt ? ', ' + esc(stamp(m.upsellChoiceAt)) : '') + '">' + ch[1] + '</span>' : '';
+      /* No answer at all, from somebody who bought after this started being
+         recorded, means the offer page never loaded for them: 'saw the offer'
+         is written as it renders, so its absence is itself the finding. Said
+         out loud, because a blank space read exactly the same as a member who
+         bought before any of this existed — and those two are not the same
+         thing at all. About one buyer in eleven pays and closes the tab. */
+      var TRACKED_FROM = Date.parse('2026-10-07T08:43:42Z');
+      var missedOffer = !m.upsellChoice && m.source !== 'home-join'
+        && Date.parse(m.joinedAt) > TRACKED_FROM;
+      var choice = ch
+        ? '<span class="st ' + ch[0] + '" title="On the post-purchase offer' +
+          (m.upsellChoiceAt ? ', ' + esc(stamp(m.upsellChoiceAt)) : '') + '">' + ch[1] + '</span>'
+        : (missedOffer
+          ? '<span class="st declined" title="They paid and left before the offer page rendered. ' +
+            'The membership trial started anyway — it comes from the subscription, not from this page.">' +
+            'never saw the offer</span>'
+          : '');
       // The course shown only to somebody who turned the membership down, so a
       // badge here always sits beside "said no thanks".
       var COURSE_CHOICE = {
