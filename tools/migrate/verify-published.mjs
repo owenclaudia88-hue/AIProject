@@ -16,12 +16,19 @@ import { checkStored } from './check-item.mjs';
 export async function verifyPublished({ since, held = [] } = {}) {
   const sql = neon(process.env.DATABASE_URL);
 
+  /* The long-form body and the gallery tiles live in their own tables, so they
+     are read here and handed to the check. Looking only at `library` is what
+     let seven blank pages through. */
   const added = await sql`
-    select id, kind, title, description, body_html, thumb_key, meta, source_created_at
-      from library
-     where source_created_at >= ${since}
-       and id ~ '^(prompt|image_prompt|skill|gpt|automation|guide|video):'
-     order by source_created_at`;
+    select l.id, l.kind, l.title, l.description, l.body_html, l.thumb_key, l.meta,
+           l.source_created_at,
+           length(coalesce(g.html, '')) as guide_chars,
+           (select count(*)::int from library_gallery p where p.item_id = l.id) as gallery_tiles
+      from library l
+      left join library_guides g on g.item_id = l.id
+     where l.source_created_at >= ${since}
+       and l.id ~ '^(prompt|image_prompt|skill|gpt|automation|guide|video):'
+     order by l.source_created_at`;
 
   if (!added.length) {
     console.log('\nNothing new in the library. Either it was all held, or the ingest added nothing.\n');
@@ -37,7 +44,10 @@ export async function verifyPublished({ since, held = [] } = {}) {
 
   const bad = [];
   for (const item of added) {
-    const problems = checkStored(item, found);
+    const problems = checkStored(item, found, {
+      guideChars: Number(item.guide_chars) || 0,
+      galleryTiles: Number(item.gallery_tiles) || 0
+    });
     if (problems.length) bad.push({ item, problems });
   }
 

@@ -20,13 +20,19 @@
  */
 import { put } from '@vercel/blob';
 import { readFile } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { getAsset, upsertAsset, replaceGallery } from '../lib/db.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const SRC = join(HERE, '..', 'export', 'blackmagic', 'data', 'image_prompts-full.json');
+/* Same BM_DIR the other two ingests take, so the weekly run can point all
+   three at that week's export. A gallery collection carries its prompts in
+   gallery_prompts and nothing else, so without this a new one is published
+   with a title, a picture and no prompts at all. */
+const SRC = join(process.env.BM_DIR
+  ? resolve(process.env.BM_DIR)
+  : join(HERE, '..', 'export', 'blackmagic'), 'data', 'image_prompts-full.json');
 
 const TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 if (!TOKEN) { console.error('BLOB_READ_WRITE_TOKEN not set (use --env-file=.env.local)'); process.exit(1); }

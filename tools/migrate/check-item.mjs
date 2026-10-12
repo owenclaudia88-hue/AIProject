@@ -152,7 +152,7 @@ export function checkItem(table, row, got = {}) {
  * Run after the ingest, so anything that slipped through is taken straight back
  * down rather than sitting live and wrong.
  */
-export function checkStored(item, assetsResolve) {
+export function checkStored(item, assetsResolve, { guideChars = 0, galleryTiles = 0 } = {}) {
   const problems = [];
   if (!hasText(item.title, 3)) problems.push('stored without a title');
   if (!hasText(item.description, 20)) problems.push('stored without a description');
@@ -163,6 +163,32 @@ export function checkStored(item, assetsResolve) {
   if (fileKey && !assetsResolve.has(fileKey)) problems.push('its download is not in storage');
   const bodyFault = looksBroken(item.body_html);
   if (bodyFault) problems.push(bodyFault);
+
+  /* Is there anything on the page at all?
+
+     This is the check that was missing, and the gap it left published seven
+     items with a title, a picture and nothing else. It asked only about
+     body_html — and a skill or a video keeps its whole text in a separate
+     document that lands in library_guides, while a gallery collection's only
+     content is its tiles. Both of those are null in body_html by design, so
+     every empty page passed.
+
+     So the question is the member's question: is there something here to
+     read? Asked of all four places a kind can keep it, with the caller
+     supplying the two that live in other tables. */
+  const m = item.meta || {};
+  const has =
+    (item.body_html || '').trim().length > 200
+    || guideChars > 200
+    || (typeof m.promptText === 'string' && m.promptText.trim().length > 20)
+    || (Array.isArray(m.promptItems) && m.promptItems.length > 0)
+    || galleryTiles > 0
+    || !!m.videoUrl
+    // An automation is its blueprint and its setup link; it has never had prose.
+    || !!m.setupUrl
+    || !!fileKey;
+  if (!has) problems.push('nothing on the page — no text, no prompts, no file');
+
   return problems;
 }
 

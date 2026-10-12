@@ -23,15 +23,22 @@
  */
 import { put } from '@vercel/blob';
 import { readFile, readdir } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { parse } from 'node-html-parser';
 import { getAsset, upsertAsset, putGuide, getLibraryItem, mergeMeta } from '../lib/db.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const DATA = join(HERE, '..', 'export', 'blackmagic', 'data');
-const FILES = join(HERE, '..', 'export', 'blackmagic', 'files');
+/* The weekly run points this at a small export of just that week's rows, the
+   same way it points the main ingest. Unset, it is the full dump as before.
+   Without this the weekly run published skills and videos whose entire text
+   lives in a separate document, and left every one of them blank. */
+const BM = process.env.BM_DIR
+  ? resolve(process.env.BM_DIR)
+  : join(HERE, '..', 'export', 'blackmagic');
+const DATA = join(BM, 'data');
+const FILES = join(BM, 'files');
 
 const TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 if (!TOKEN) { console.error('BLOB_READ_WRITE_TOKEN not set (use --env-file=.env.local)'); process.exit(1); }

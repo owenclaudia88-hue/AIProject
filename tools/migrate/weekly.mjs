@@ -282,15 +282,28 @@ try {
   await browser.close();
   browser = null;
 
-  /* ---- hand it to the ingest that already works ---- */
-  say('\nPublishing…\n');
-  await new Promise((resolve, reject) => {
-    const p = spawn(process.execPath,
-      ['--env-file=.env.local', 'scripts/ingest-library.mjs', '--blackmagic-only'],
-      { cwd: join(import.meta.dirname, '..', '..'), stdio: 'inherit',
-        env: { ...process.env, BM_DIR: OUT } });
-    p.on('exit', (code) => (code === 0 ? resolve() : reject(new Error(`ingest exited ${code}`))));
+  /* ---- hand it to the ingests that already work ----
+
+     All three of them, which is the lesson of the first real run. The main
+     ingest puts the row on the shelf; it does not carry the long-form body,
+     and it says so in its own output — "see ingest-guides" — because a skill's
+     or a video's whole text lives in a separate document. Nor does it build
+     the tiles for a gallery collection, whose prompts are its only content.
+
+     Running only the first published seven items with a title, a picture and
+     a blank page, and nothing in the checking noticed, because it was looking
+     for a body in the one place these kinds never keep one. */
+  const root = join(import.meta.dirname, '..', '..');
+  const run = (args, label) => new Promise((ok, no) => {
+    say(`\n${label}…\n`);
+    const p = spawn(process.execPath, ['--env-file=.env.local', ...args],
+      { cwd: root, stdio: 'inherit', env: { ...process.env, BM_DIR: OUT } });
+    p.on('exit', (code) => (code === 0 ? ok() : no(new Error(`${label} exited ${code}`))));
   });
+
+  await run(['scripts/ingest-library.mjs', '--blackmagic-only'], 'Publishing');
+  await run(['scripts/ingest-guides.mjs'], 'Fetching the long-form bodies');
+  await run(['scripts/ingest-galleries.mjs'], 'Building the gallery tiles');
 
   /* ---- and check what a member would actually see ---- */
   const { verifyPublished } = await import('./verify-published.mjs');
