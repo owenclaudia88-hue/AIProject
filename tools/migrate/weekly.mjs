@@ -305,6 +305,13 @@ try {
   await run(['scripts/ingest-guides.mjs'], 'Fetching the long-form bodies');
   await run(['scripts/ingest-galleries.mjs'], 'Building the gallery tiles');
 
+  /* Everything that comes down carries their name — in a guide, in a README,
+     in a plugin's author field. Taking it out once was a morning's work; not
+     doing it here would put it back every week. Scoped to what just arrived,
+     so it is a handful of files rather than ninety-six. */
+  await run(['_rebrand-library.mjs'], 'Taking their name out of the text');
+  await run(['_rebrand-files.mjs', '--recent=2'], 'Taking their name out of the downloads');
+
   /* ---- and check what a member would actually see ---- */
   const { verifyPublished } = await import('./verify-published.mjs');
   await verifyPublished({ since, held });

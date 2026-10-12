@@ -6,6 +6,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "@vercel/blob": "^2.8.0",
+    "adm-zip": "^0.6.1",
     "resend": "^4.0.1",
     "stripe": "^17.5.0"
   },
