@@ -3333,16 +3333,25 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             send.addEventListener('click', function () {
               if (ed.isEmpty()) { note.textContent = 'Write something first.'; return; }
               send.disabled = true; note.textContent = 'Posting\u2026';
-              fetch('/api/comments/create', {
+
+              /* Two kinds of comment, two endpoints. A lesson comment belongs
+                 to a course and goes to the course endpoint; a community post
+                 belongs to a room and goes to the community one, which wants
+                 only the post being answered. Everything used to go to the
+                 first, so replying to anybody in the community was refused
+                 with "missing course" - a course the post never had. */
+              var course = b.getAttribute('data-course');
+              var url = course ? '/api/comments/create' : '/api/community/post';
+              var payload = course
+                ? { course: course, parentId: Number(id), body: ed.html() }
+                : { parentId: Number(id), body: ed.html() };
+
+              fetch(url, {
                 method: 'POST', credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
                 // The reply is flagged as staff by the endpoint, from the
                 // session - never from anything this page sends.
-                body: JSON.stringify({
-                  course: b.getAttribute('data-course'),
-                  parentId: Number(id),
-                  body: ed.html()
-                })
+                body: JSON.stringify(payload)
               })
                 .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
                 .then(function (res) {
@@ -3413,11 +3422,16 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         (c.rejected ? '<span class="badge">Rejected</span>' : '') +
         '<span class="meta" style="margin-left:auto">' + esc(c.email) + ' · ' + esc(when(c.createdAt)) + '</span>' +
         '</div>' +
-        '<span class="meta">' + (c.isReply ? 'reply · ' : '') + esc(c.course || '') +
+        // A lesson comment says which course and lesson; a community post says
+        // which room. One of the two is always set, and showing neither left
+        // the line reading "reply ·" and nothing else.
+        '<span class="meta">' + (c.isReply ? 'reply · ' : '') +
+          esc(c.course || (c.space ? c.space + ' · community' : '')) +
           (c.lesson ? ' · ' + esc(c.lesson) : '') + '</span>' +
         '<div class="ctext">' + (c.body ? window.rtSanitize(c.body) : '') + '</div>' +
         '<div class="acts">' +
-          '<button data-reply="' + c.id + '" data-course="' + esc(c.course || '') + '">Reply</button>' +
+          '<button data-reply="' + c.id + '" data-course="' + esc(c.course || '') +
+            '" data-space="' + esc(c.space || '') + '">Reply</button>' +
           '<button class="danger" data-del="' + c.id + '">Delete</button>' +
         '</div>' +
         '<div class="rt-reply" data-for="' + c.id + '" hidden></div></div>';

@@ -27,7 +27,12 @@ export default async function handler(req, res) {
         from: displayNameFor(r.email, r.name), email: r.email, createdAt: r.created_at
       })),
       comments: comments.map((c) => ({
-        id: Number(c.id), course: c.course_slug, lesson: c.lesson_title,
+        /* A community post has a space and no course; a lesson comment is the
+           other way round — the same pair the pending queue below already
+           sends. Without the space here the screen could not tell them apart,
+           so replying to a community post was posted as a lesson comment with
+           no course on it, and refused. */
+        id: Number(c.id), course: c.course_slug, lesson: c.lesson_title, space: c.space,
         isReply: c.parent_id != null, author: displayNameFor(c.email, c.name), email: c.email,
         isAdmin: c.is_admin, body: c.deleted_at ? '' : c.body,
         removed: !!c.deleted_at,
