@@ -3113,7 +3113,15 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
               : '') + '</p>' +
           '<div class="rm-acts">' +
             (r.status === 'published'
-              ? '<button data-hold="' + n + '">Take it down</button>'
+              ? '<button data-hold="' + n + '">Take it down</button>' +
+                /* Publishing used to be the only way to send, and it did not
+                   send at all — so a report could sit published with nobody
+                   told. This says who has been told, and sends to anyone who
+                   has not. The bell cannot ring twice for one report. */
+                '<button class="pub" data-tell="' + n + '" ' +
+                  'title="Rings the bell and emails every active member. ' +
+                  'Safe to press on a report that was published without going out.">' +
+                  'Send to members</button>'
               : '<button class="pub" data-pub="' + n + '">Publish it</button>') +
             // A test run claims the week's news. Deleting it hands those links
             // back, which is the whole reason this button exists rather than a
@@ -3201,17 +3209,61 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
             return;
           }
 
+          // Send one that is already published to the members who were never
+          // told about it.
+          if (b.hasAttribute('data-tell')) {
+            e.stopPropagation();
+            if (!window.confirm('Send report ' + n + ' to every active member?\n\n'
+              + 'They get the bell and an email. Anyone already notified about this '
+              + 'report will not get the bell twice.')) return;
+            b.disabled = true;
+            var wasT = b.textContent;
+            b.textContent = 'Sending…';
+            fetch('/api/admin/reports', {
+              method: 'POST', credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ n: n, announce: true })
+            })
+              .then(function (r2) { return r2.json().then(function (j) { return { status: r2.status, d: j }; }); })
+              .then(function (out) {
+                b.disabled = false; b.textContent = wasT;
+                if (out.status !== 200 || !out.d.ok) {
+                  window.alert('Did not send: ' + ((out.d && (out.d.error || out.d.message)) || 'no reason given'));
+                  return;
+                }
+                var t = out.d.told || {};
+                window.alert('Report ' + n + ' sent.\n\n'
+                  + 'Emailed ' + (t.emailed || 0) + ' of ' + (t.audience || 0) + ' member(s).\n'
+                  + 'Bell rung for ' + (t.notified || 0) + '.'
+                  + ((t.failed && t.failed.length)
+                      ? '\n\n' + t.failed.length + ' did not go: '
+                        + t.failed.slice(0, 3).map(function (f) { return f.email; }).join(', ')
+                      : ''));
+              })
+              .catch(function () { b.disabled = false; b.textContent = wasT; window.alert('Did not send.'); });
+            return;
+          }
+
           if (!(b.hasAttribute('data-pub') || b.hasAttribute('data-hold'))) return;
           e.stopPropagation();
           var publish = b.hasAttribute('data-pub');
-          if (publish && !window.confirm('Publish report ' + n + ' to members?')) return;
+          if (publish && !window.confirm('Publish report ' + n + ' to members?\n\n'
+            + 'They get the bell and an email straight away.')) return;
           b.disabled = true;
           fetch('/api/admin/reports', {
             method: 'POST', credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(publish ? { n: n, publish: true } : { n: n, hold: true })
           })
-            .then(function () {
+            .then(function (r2) { return r2.json().then(function (j) { return j; }).catch(function () { return {}; }); })
+            .then(function (j) {
+              // The reply used to be thrown away, which is why a publish that
+              // reached nobody looked exactly like one that reached everybody.
+              if (publish && j && j.told) {
+                window.alert('Report ' + n + ' published.\n\n'
+                  + 'Emailed ' + (j.told.emailed || 0) + ' of ' + (j.told.audience || 0) + ' member(s).'
+                  + (j.told.error ? '\n\nThe send failed: ' + j.told.error : ''));
+              }
               rp.list = null;
               loadReportsAdmin().then(function () {
                 paintReports(document.getElementById('panel'));
