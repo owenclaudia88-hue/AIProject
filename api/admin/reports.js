@@ -15,6 +15,7 @@ import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
 import { listReports, reportByNumber, saveReport, deleteReport } from '../../lib/db.js';
 import { makeCover } from '../../lib/report-cover.js';
+import { announceReport } from '../../lib/report-announce.js';
 import { SOURCES } from '../../lib/report-sources.js';
 import { del } from '@vercel/blob';
 
@@ -76,7 +77,55 @@ export default async function handler(req, res) {
         data: row.data, coverUrl: row.cover_url, coverKind: row.cover_kind,
         model: row.model, stats: row.stats, fail: b.publish ? null : row.fail
       });
-      return res.status(200).json({ ok: true, status: b.publish ? 'published' : 'held' });
+
+      /* Publishing by hand used to do only this — flip a column — so the
+         report went live on the site and not one member was told about it.
+         It rings the bell and sends the email now, exactly as Monday does.
+
+         `announce: false` is for the second press: a report already sent out,
+         taken down to fix a line and put back up, should not land in
+         everybody's inbox twice. The bell is safe either way, since it
+         refuses to ring twice for the same report number. */
+      let told = null;
+      if (b.publish && b.announce !== false) {
+        try {
+          const data = row.data || {};
+          told = await announceReport({
+            number: row.number, slug: row.slug, title: row.title,
+            dek: data.dek, sixty: data.sixty || [], coverUrl: row.cover_url
+          });
+        } catch (err) {
+          // The report is published either way; failing to announce it must
+          // not read as a failure to publish, but it must be said.
+          console.error('[admin/reports] could not announce', row.number, err.message);
+          told = { error: err.message };
+        }
+      }
+
+      return res.status(200).json({
+        ok: true, status: b.publish ? 'published' : 'held', told
+      });
+    }
+
+    /* ---- tell the members about one already published ----
+
+       For the report that went live before any of this existed, and for the
+       rare case where the send half failed while the publish half did not.
+       It changes nothing about the report; it only announces it. The bell
+       will not ring twice for the same report, so the cost of pressing it
+       twice is a second email, not a second notification. */
+    if (b.announce) {
+      if (row.status !== 'published') {
+        return res.status(400).json({ error: 'That report is not published yet.' });
+      }
+      const data = row.data || {};
+      const told = await announceReport({
+        number: row.number, slug: row.slug, title: row.title,
+        dek: data.dek, sixty: data.sixty || [], coverUrl: row.cover_url
+      });
+      console.log(`[admin] ${email} announced report ${row.number}: `
+        + `rang ${told.notified}, emailed ${told.emailed}`);
+      return res.status(200).json({ ok: true, told });
     }
 
     /* ---- throw a test run away ----

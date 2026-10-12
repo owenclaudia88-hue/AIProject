@@ -19,12 +19,11 @@ import { reportSlug } from '../../lib/reports.js';
 import { makeCover } from '../../lib/report-cover.js';
 import {
   nextReportNumber, recentReportTitles, coveredUrls, saveReport,
-  lastReportWrittenAt, lastPublishedReportAt,
-  digestAudience, optOuts, bouncedEmails, notifyReport
+  lastReportWrittenAt, lastPublishedReportAt
 } from '../../lib/db.js';
 import { MEMBERSHIP_UNLOCKS } from '../../lib/products.js';
-import { audienceFor } from '../../lib/report-access.js';
-import { sendReportPublished, sendReportHeld } from '../../lib/email.js';
+import { announceReport } from '../../lib/report-announce.js';
+import { sendReportHeld } from '../../lib/email.js';
 
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
@@ -174,38 +173,18 @@ export default async function handler(req, res) {
       model: out.stats.model, stats: { ...out.stats, cover: cover.kind }
     });
 
-    /* The bell, before the email.
-
-       Everybody the report is open to gets one, including the people who have
-       unsubscribed from email or whose address has bounced: those are
-       decisions about their inbox, not about their member area, and somebody
-       who asked us to stop writing to them has not asked to stop being told
-       inside the product they pay for. */
-    const [audience, opted, bounced] = await Promise.all([digestAudience(), optOuts(), bouncedEmails()]);
-    const everyone = audienceFor(audience);
-    const rang = await notifyReport(everyone.map((m) => m.email), number, report.title)
-      .catch((e) => { console.error('[cron/report] bell', e?.message); return 0; });
-
-    // The email is the narrower list: minus opt-outs, minus bounces.
-    const blocked = new Set([...(opted || []), ...(bounced || [])].map((e) => String(e).toLowerCase()));
-    const to = everyone.filter((m) => !blocked.has(String(m.email).toLowerCase()));
-
-    let sent = 0;
-    for (const m of to) {
-      try {
-        await sendReportPublished(m.email, {
-          name: m.name, number, slug, title: report.title, dek: report.dek,
-          sixty: report.sixty, coverUrl: cover.url
-        });
-        sent++;
-      } catch (err) {
-        console.error('[cron/report] email', m.email, err?.message || err);
-      }
-    }
+    // The bell and the emails, through the same step a report published by
+    // hand uses, so the two ways of publishing cannot drift apart.
+    const told = await announceReport({
+      number, slug, title: report.title, dek: report.dek,
+      sixty: report.sixty, coverUrl: cover.url
+    });
 
     return res.status(200).json({
       ok: true, number, slug, title: report.title, items: report.items.length,
-      cover: cover.kind, emailed: sent, notified: rang, cut: out.cut, dropped: out.dropped,
+      cover: cover.kind, emailed: told.emailed, notified: told.notified,
+      audience: told.audience, failed: told.failed,
+      cut: out.cut, dropped: out.dropped,
       stats: out.stats, ms: Date.now() - started
     });
   } catch (err) {
