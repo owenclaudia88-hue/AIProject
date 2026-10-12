@@ -4909,7 +4909,13 @@ button{font-family:inherit}
         });
         if (chips.length) h += '<div class="r-chips">' + chips.join('') + '</div>';
 
-        if (it.description) h += '<p class="desc">' + esc(it.description) + '</p>';
+        // The dotted hero below carries the source's own blurb, which says the
+        // same thing as the description — so showing both is a double intro.
+        // The description only stands in when no hero blurb will be drawn,
+        // including the case where there is heroText but no read time or level
+        // to draw the hero at all.
+        var heroBlurb = (meta.readTime || meta.level) ? (meta.heroText || '') : '';
+        if (it.description && !heroBlurb) h += '<p class="desc">' + esc(it.description) + '</p>';
 
         // the facts strip
         var facts = [];
@@ -4929,7 +4935,7 @@ button{font-family:inherit}
         // the parts that are not repeated are kept.
         if (meta.readTime || meta.level) {
           h += '<div class="r-hero">' +
-            (meta.heroText ? '<p>' + esc(meta.heroText) + '</p>' : '') +
+            (heroBlurb ? '<p>' + esc(heroBlurb) + '</p>' : '') +
             '<div class="r-hero-meta">' +
             (meta.readTime ? '<span class="pill">⏱ ' + esc(meta.readTime) + '</span>' : '') +
             (meta.level ? '<span class="pill lvl">● ' + esc(meta.level) + '</span>' : '') +
