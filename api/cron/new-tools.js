@@ -55,6 +55,18 @@ export default async function handler(req, res) {
 
     const items = await libraryAddedSince(since);
 
+    /* Dry wins over a recipient, always. The other way round — which is how
+       this was first written — means ?dry=1&to=me sends an email, and the one
+       flag whose whole promise is "this sends nothing" cannot be the one you
+       have to think about. */
+    if (only && dry) {
+      return res.status(200).json({
+        dry: true, wouldSendTo: only, items: items.length, since,
+        subject: items.length ? newToolsSubject(items, items.length) : null,
+        titles: items.map((i) => `${i.kind}: ${i.title}`)
+      });
+    }
+
     // A test send goes out whatever the week looked like — the point is to see
     // the thing, and an empty week would show nothing.
     if (only) {
