@@ -1438,6 +1438,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           /* For the member whose mail server refuses everything we send: add
              an address they can actually read, and send the welcome there. */
           '<button data-act="emails" data-email="' + esc(m.email) + '">Email addresses&hellip;</button>' +
+          /* The same card-update link the payment reminders carry, on demand —
+             for fixing a card over a support thread without waiting for the
+             next failed attempt to generate one. Only for somebody who has a
+             Stripe customer to open. */
+          (m.stripeCustomer
+            ? '<button data-act="billing" data-email="' + esc(m.email) + '">Billing link</button>' : '') +
         '</div></div>';
     });
 
@@ -1806,6 +1812,61 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       .catch(function () { window.alert('That did not work.'); btn.disabled = false; btn.textContent = was; });
   }
 
+  /* ---------------- a card-update link for one member ---------------- */
+
+  /* The link the payment reminders carry, made on demand: for fixing a card
+     in a support thread without waiting for the next failed attempt, and for
+     seeing that the live billing portal opens at all before somebody's card
+     fails for real.
+
+     It is shown rather than sent. The link carries a credential for a
+     fortnight, so who receives it is a decision a person makes, not something
+     this button does on their behalf. */
+  function openBillingLink(btn) {
+    var email = btn.getAttribute('data-email');
+    var card = btn.closest('.card');
+    if (!card) return;
+    var open = card.querySelector('.refund-panel.billing');
+    if (open) { open.remove(); return; }
+
+    var panel = document.createElement('div');
+    panel.className = 'refund-panel billing';
+    panel.innerHTML = '<p class="rp-load">Making a link&hellip;</p>';
+    card.appendChild(panel);
+
+    fetch('/api/admin/billing-link?email=' + encodeURIComponent(email), { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.status !== 200) {
+          panel.innerHTML = '<p class="rp-load">' + esc(res.d.error || 'Could not make a link.') + '</p>';
+          return;
+        }
+        panel.innerHTML =
+          '<div class="rp-head">Card update link for ' + esc(email) + '</div>' +
+          '<div class="rp-row"><span class="rp-desc" style="word-break:break-all;' +
+            'font-family:var(--mono);font-size:.72rem">' + esc(res.d.url) + '</span></div>' +
+          '<div class="rp-row" style="border-bottom:0">' +
+            '<button class="rp-btn" data-copy="1">Copy link</button>' +
+            '<button class="rp-btn" data-open="1">Open it</button>' +
+          '</div>' +
+          '<div class="rp-sub">Opens their Stripe billing portal, where they can replace the card. ' +
+          'Good for 14 days, and it carries no session &mdash; it cannot sign anyone in, ' +
+          'read the library or change a password.</div>';
+
+        panel.querySelector('[data-copy]').addEventListener('click', function (b) {
+          var el = b.target;
+          navigator.clipboard.writeText(res.d.url).then(function () {
+            el.textContent = 'Copied';
+            setTimeout(function () { el.textContent = 'Copy link'; }, 1600);
+          });
+        });
+        panel.querySelector('[data-open]').addEventListener('click', function () {
+          window.open(res.d.url, '_blank', 'noopener');
+        });
+      })
+      .catch(function () { panel.innerHTML = '<p class="rp-load">Could not make a link.</p>'; });
+  }
+
   /* ---------------- other addresses for one member ---------------- */
 
   /* For the buyer whose mail server refuses everything we send: another
@@ -1998,6 +2059,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
           return;
         } else if (act === 'emails') {
           openEmailPanel(b);
+          return;
+        } else if (act === 'billing') {
+          openBillingLink(b);
           return;
         } else if (act === 'resub') {
           // Undoing a cancellation that has not happened yet. Safe enough to do
