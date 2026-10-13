@@ -3797,8 +3797,37 @@ button{font-family:inherit}
   }
 
   function renderCourseDetail(c, slug) {
+    /* A course this member cannot open yet.
+       The flag is already in hand from the course list, so there is no sense
+       asking the API for a tree it is going to refuse and then saying "could
+       not load this course" — which reads as something broken rather than
+       something locked, and gives no way to do anything about it. The list
+       has always shown these properly; a link straight to one did not, and a
+       link straight to one is exactly what a bookmark or an email is. */
+    var shut = courses.filter(function (x) { return x.slug === slug; })[0];
+    if (shut && shut.locked) {
+      var lst = shut.stats || {};
+      c.innerHTML = '<button class="cd-back" id="cd-back">&larr; All courses</button>' +
+        '<h1 class="page-h">' + esc(shut.title) + '</h1>' +
+        '<p class="page-sub">' +
+          (shut.sectionCount || lst.sections || 0) + ' sections · ' +
+          (shut.lessonCount || lst.lessons || 0) + ' lessons' +
+          (lst.minutes ? ' · ' + fmtTime(lst.minutes) : '') + '</p>' +
+        '<div class="panel note"><div class="panel-h">' +
+          '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>' +
+          '<span class="pt">🔒 Locked</span></div>' +
+          '<div class="panel-b"><p>This course opens with the membership, along with every other ' +
+          'course, the full content library and everything added each week.</p>' +
+          '<p><a class="dl" href="join.html">See what the membership includes</a></p>' +
+        '</div></div>';
+      document.getElementById('cd-back').addEventListener('click', function () { location.hash = 'courses'; });
+      return;
+    }
+
     c.innerHTML = '<p class="empty">Loading course…</p>';
     loadCourse(slug).then(function (tree) {
+      // Still possible: a slug that does not exist, or one gated in a way the
+      // list did not know about. That genuinely is a failure to load.
       if (!tree) { c.innerHTML = '<p class="empty">Could not load this course.</p>'; return; }
       var flat = flatLessons(tree);
       var total = flat.length;
