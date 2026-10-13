@@ -1,9 +1,16 @@
 import Stripe from 'stripe';
 import {
-  grantAccess, revokeAccess, createLoginToken,
-  grantEntitlement, revokeEntitlement, recordDownsellChoice, queueWelcome
+  grantAccess, revokeAccess, createLoginToken, getCustomer,
+  grantEntitlement, revokeEntitlement, recordDownsellChoice, queueWelcome,
+  claimDunningStep, dunningSentFor, clearDunning
 } from '../lib/db.js';
-import { sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt } from '../lib/email.js';
+import {
+  sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt,
+  sendPaymentRetry, sendPaymentRecovered, stepForAttempt
+} from '../lib/email.js';
+import { chosePlanThemselves } from '../lib/plan-choice.js';
+import { offerForSubscription } from '../lib/offer.js';
+import { billingUrl } from '../lib/billing-token.js';
 import { sendPurchase, sendMembershipPurchase } from '../lib/meta-capi.js';
 import { sendMsPurchase } from '../lib/ms-capi.js';
 import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS, COURSES, MEMBER_SOURCE }
@@ -498,6 +505,83 @@ export default async function handler(req, res) {
         break;
       }
 
+      /* A card that will not go through.
+         Stripe makes up to eight attempts over about a fortnight and sends one
+         of these each time. What goes out is decided by the invoice itself —
+         the ordinal is its attempt_count, the date is its next_payment_attempt
+         — so nothing here has to keep a schedule, and nothing can claim a
+         decline or a deadline that did not happen. */
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object;
+        const subId = invoice.subscription
+          || invoice.parent?.subscription_details?.subscription
+          || null;
+        if (!subId) break;
+
+        const sub = await stripe.subscriptions.retrieve(subId, { expand: ['items.data.price'] })
+          .catch(() => null);
+        if (!sub) break;
+
+        const payerEmail = invoice.customer_email
+          || (await stripe.customers.retrieve(invoice.customer).catch(() => null))?.email
+          || null;
+        if (!payerEmail) {
+          console.error('[stripe-webhook] payment_failed with no email:', invoice.id);
+          break;
+        }
+
+        /* Only the members who chose a recurring plan for themselves. Everyone
+           else — the lifetime buyers enrolled on a trial they never asked for,
+           anybody whose membership arrived another way — is never written to
+           about a payment. */
+        const known = await getCustomer(payerEmail);
+        if (!chosePlanThemselves(sub, known)) {
+          console.log('[stripe-webhook] payment failed for', payerEmail,
+            '- not one of the plan-choosers, saying nothing');
+          break;
+        }
+
+        const attempt = Number(invoice.attempt_count) || 1;
+        const nextAt = invoice.next_payment_attempt
+          ? new Date(invoice.next_payment_attempt * 1000) : null;
+        const maxAttempts = Math.max(1,
+          Number.parseInt(process.env.STRIPE_MAX_RETRIES ?? '8', 10) || 8);
+        const step = stepForAttempt(attempt, nextAt, maxAttempts);
+
+        /* The claim is the dedupe. Attempts that land on a step already sent
+           say nothing rather than repeat a sentence, and a webhook delivered
+           twice loses on the primary key rather than on a check-then-act race
+           that would send the same message twice. */
+        if (!await claimDunningStep(invoice.id, step, payerEmail, attempt)) break;
+
+        /* The offer rides on the warning, while there is still a membership to
+           save, and is described from the coupon so the email cannot promise
+           what Stripe is not set up to do. */
+        let offer = null;
+        if (step === 'warning') offer = await offerForSubscription(stripe, sub);
+
+        const card = invoice.last_finalization_error?.payment_method?.card?.last4
+          || (await stripe.paymentMethods.retrieve(
+               typeof sub.default_payment_method === 'string' ? sub.default_payment_method : ''
+             ).catch(() => null))?.card?.last4
+          || null;
+
+        await sendPaymentRetry(payerEmail, {
+          step, name: known?.name, amount: invoice.amount_due, currency: invoice.currency,
+          manageUrl: billingUrl(payerEmail, 'portal'),
+          cardLabel: card, attempt, nextAttempt: nextAt, maxAttempts,
+          ...(offer ? {
+            offer: offer.label,
+            offerUrl: billingUrl(payerEmail, 'offer'),
+            offerCta: 'Keep my membership at the lower price'
+          } : {})
+        });
+
+        console.log(`[stripe-webhook] payment reminder "${step}" to ${payerEmail}`
+          + ` (attempt ${attempt} of ${maxAttempts}, invoice ${invoice.id})`);
+        break;
+      }
+
       // The membership opens every course the moment it is really paid for, and
       // closes them again when it ends. Both are keyed on the Stripe customer's
       // email, which is the only thing entitlements are stored against.
@@ -533,6 +617,20 @@ export default async function handler(req, res) {
         await grantEntitlement(payerEmail, ALL_ACCESS);
         console.log('[stripe-webhook] All-access granted to', payerEmail,
           '(invoice', invoice.id, invoice.billing_reason + ')');
+
+        /* If we had been chasing this invoice, stop, and say so once. The
+           record is cleared as well as answered: a subscription that fails
+           again next month should start the sequence at the beginning rather
+           than resume halfway through a conversation the member already had. */
+        const chased = await dunningSentFor(invoice.id);
+        if (chased > 0) {
+          await clearDunning(invoice.id);
+          await sendPaymentRecovered(payerEmail, {
+            name: (await getCustomer(payerEmail))?.name,
+            amount: invoice.amount_paid, currency: invoice.currency
+          }).catch((err) => console.error('[stripe-webhook] recovered note failed:', err.message));
+          console.log(`[stripe-webhook] payment recovered for ${payerEmail} after ${chased} reminder(s)`);
+        }
 
         /* Report the sale, but only ever the first one, and only for a
            membership bought from the homepage.
