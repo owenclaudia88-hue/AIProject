@@ -95,7 +95,8 @@ export default async function handler(req, res) {
 
       return res.status(200).end(page({
         title: 'You\'re unsubscribed',
-        message: `We won't email <strong>${safe}</strong> again.`,
+        message: `We won't send updates to <strong>${safe}</strong> again. Sign-in links and `
+          + 'receipts will still reach you, so you can always get into your account.',
         action: `<form method="post" action="/api/unsubscribe?t=${t}&resubscribe=1">
                    <button type="submit">Actually, put me back on</button>
                  </form>
@@ -103,11 +104,20 @@ export default async function handler(req, res) {
       }));
     }
 
-    // GET: ask, and change nothing. Link scanners stop here.
+    /* GET: ask, and change nothing. Link scanners stop here.
+
+       It used to say "and anything else we send", which was not true and cut
+       both ways: somebody who wanted off the marketing could hesitate in case
+       it took their account email with it, and somebody who went through with
+       it could later believe their sign-in link was broken when it was only
+       waiting in an inbox they had stopped checking. The opt-out is applied
+       where an audience is assembled, so it reaches the updates and nothing
+       that is sent because the member asked for it. */
     return res.status(200).end(page({
       title: 'Unsubscribe from our emails?',
-      message: `This takes <strong>${safe}</strong> off the list. You'll stop getting the weekly AI `
-        + 'report and anything else we send.',
+      message: `This takes <strong>${safe}</strong> off our updates — the weekly AI report, `
+        + 'the Friday new tools email and our other news. You\'ll still get anything you ask '
+        + 'for, like a sign-in link, and your receipts.',
       action: `<form method="post" action="/api/unsubscribe?t=${t}">
                  <button class="go" type="submit">Unsubscribe me</button>
                </form>
