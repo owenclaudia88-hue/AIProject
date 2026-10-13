@@ -1,4 +1,4 @@
-import { libraryAddedSince, reportAudience, optOuts, bouncedEmails,
+import { libraryAddedSince, coursesAddedSince, reportAudience, optOuts, bouncedEmails,
          setSetting, getSettings } from '../../lib/db.js';
 import { sendNewTools, newToolsSubject } from '../../lib/email.js';
 
@@ -23,8 +23,40 @@ import { sendNewTools, newToolsSubject } from '../../lib/email.js';
  * nothing.
  */
 
-// Under this it is not a week's worth of news, it is a footnote.
+// Under this it is not a week's worth of news, it is a footnote. A course is
+// the exception: it is the biggest thing we ship, and one of them on its own
+// is worth an email in a week when nothing else arrived.
 const MIN_ITEMS = 2;
+
+const hours = (m) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ''}` : `${m}m`);
+
+/**
+ * A course row in the shape the email writes: the same fields as a library
+ * item, so nothing downstream has to know there were two sources.
+ *
+ * It has no description of its own, so the line under the title is what the
+ * course card says on the site — sections, lessons and running time.
+ *
+ * An open course opens itself. A gated one points at the course list instead,
+ * because the same email goes to every member and this cannot know which of
+ * them holds the entitlement: opening a course they do not have lands on
+ * "Could not load this course", while the list shows it as a locked card with
+ * the way to unlock it. One more click for the members who do have it, and no
+ * dead end for the ones who do not.
+ */
+export function asItem(c) {
+  const st = c.stats || {};
+  const lessons = c.lesson_count || st.lessons || 0;
+  const parts = [];
+  if (c.section_count > 1) parts.push(`${c.section_count} sections`);
+  if (lessons) parts.push(`${lessons} lessons`);
+  if (st.minutes) parts.push(hours(st.minutes));
+  return {
+    kind: 'course', title: c.title,
+    hash: c.requires ? 'courses' : `course-${c.slug}`,
+    description: parts.join(' · '), tags: [], category: null
+  };
+}
 
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
@@ -53,7 +85,13 @@ export default async function handler(req, res) {
     const since = settings.new_tools_last_sent
       || new Date(Date.now() - 7 * 864e5).toISOString();
 
-    const items = await libraryAddedSince(since);
+    /* Two sources, one email. The library comes from the weekly pull; the
+       courses are ours, published in the course area whenever one is ready. A
+       member does not care which pipeline a thing arrived through. */
+    const [lib, courses] = await Promise.all([
+      libraryAddedSince(since), coursesAddedSince(since)
+    ]);
+    const items = [...courses.map(asItem), ...lib];
 
     /* Dry wins over a recipient, always. The other way round — which is how
        this was first written — means ?dry=1&to=me sends an email, and the one
@@ -83,7 +121,7 @@ export default async function handler(req, res) {
       });
     }
 
-    if (items.length < MIN_ITEMS) {
+    if (items.length < MIN_ITEMS && !courses.length) {
       if (!dry) await setSetting('new_tools_last_skipped', new Date().toISOString());
       return res.status(200).json({
         sent: 0, skipped: 'not enough new this week',
