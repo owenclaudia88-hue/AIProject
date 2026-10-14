@@ -1517,6 +1517,7 @@ button{font-family:inherit}
     // the plugins that come with membership — a buyer should be able to see
     // the thing they paid for without reading six titles.
     carousel: { label: 'Carousel Studio',      glyph: '🎠', blurb: 'Instagram and LinkedIn carousels.' },
+    adstudio: { label: 'Ad Creative Studio',   glyph: '🎯', blurb: 'Facebook and Instagram ads.' },
     powerup: { label: 'Power-Ups',             glyph: '⚡', blurb: 'Focused packs for every job.' },
     course:  { label: 'Course files',          glyph: '🎓', blurb: 'Downloadable course material.' }
   };
@@ -3479,7 +3480,11 @@ button{font-family:inherit}
   function renderDownloads(c) {
     var html = '<h1 class="page-h">Specialists &amp; Plugins</h1>' +
       '<p class="page-sub">Download your products, then install them in Claude.</p>';
-    var order = ['carousel', 'plugin', 'powerup', 'course'];
+    /* The paid add-ons lead. Anything not named here falls to the end, which
+       is where Ad Creative Studio landed on the day it was added — a thing
+       somebody had just paid $6.99 for, sitting below the plugins and course
+       files that come free with the membership. */
+    var order = ['carousel', 'adstudio', 'plugin', 'powerup', 'course'];
     var kinds = Object.keys(downloads).sort(function (a, b) {
       var ia = order.indexOf(a), ib = order.indexOf(b);
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);

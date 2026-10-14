@@ -1,5 +1,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { isActive, listCourses, entitlementsFor } from '../../lib/db.js';
+import { isTester } from '../../lib/testers.js';
+import { isAdmin } from '../../lib/admin.js';
 
 /** GET /api/courses/list — the Courses tab: one card per course, with stats. */
 export default async function handler(req, res) {
@@ -7,7 +9,11 @@ export default async function handler(req, res) {
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
     if (!(await isActive(email))) return res.status(403).json({ error: 'not active' });
-    const rows = await listCourses(await entitlementsFor(email));
+    // A course written but not announced is for the test account and staff
+    // only. Separate from the lock: that says "not bought", this says "not
+    // for sale yet".
+    const preview = isTester(email) || isAdmin(email);
+    const rows = await listCourses(await entitlementsFor(email), { preview });
     const courses = rows.map(r => ({
       slug: r.slug, title: r.title,
       lessonCount: r.lesson_count,

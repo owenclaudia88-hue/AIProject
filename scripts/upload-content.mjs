@@ -55,7 +55,9 @@ const groups = [
   // Drop the Carousel Studio plugin zip into export/carousel-studio/. Its own
   // kind rather than 'plugin', so it gets its own section on the downloads page
   // instead of being the seventh title in a list of things everyone already has.
-  { kind: 'carousel', dir: join(EXPORT, 'carousel-studio'), exts: ['.zip'], requires: 'carousel-studio' }
+  { kind: 'carousel', dir: join(EXPORT, 'carousel-studio'), exts: ['.zip'], requires: 'carousel-studio' },
+  // Paid add-on: only members holding `ad-creative-studio` see it.
+  { kind: 'adstudio', dir: join(EXPORT, 'ad-creative-studio'), exts: ['.zip'], requires: 'ad-creative-studio' }
 ];
 
 let uploaded = 0, sortBase = 0;

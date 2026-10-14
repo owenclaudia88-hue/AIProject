@@ -476,21 +476,39 @@ export default async function handler(req, res) {
             const partial = charge.amount_refunded < charge.amount;
 
             if (addons.length && partial) {
-              // Only part of a combined order was refunded — the usual reason is
-              // somebody keeping the Specialists but not wanting an add-on. Work
-              // out which add-ons the refunded amount covers and take back only
-              // those. If it matches no combination, change nothing and say so:
-              // guessing wrong would cut off something they still paid for.
+              /* Only part of a combined order was refunded — the usual reason
+                 is somebody keeping the Specialists but not wanting an add-on.
+                 Work out which add-ons the refunded amount covers and take
+                 back only those.
+
+                 An amount is only an answer when exactly one set of add-ons
+                 adds up to it. Two of them cost $4.99, so a $4.99 refund is a
+                 question with two answers, and this used to take the first and
+                 revoke the Engine — which for anybody who was actually sent
+                 their Carousel Studio money back meant losing the wrong
+                 product and keeping the one they had just been refunded for.
+
+                 So: one match acts, none or several change nothing and say so
+                 with the candidates named. The same reasoning either way —
+                 guessing wrong cuts off something they still paid for, and a
+                 refund done by hand in Stripe is rare enough that a line in
+                 the log asking for a hand is cheaper than a wrong revocation
+                 nobody notices. */
               const refunded = charge.amount_refunded;
               const combos = [[]];
               for (const k of addons) for (const c of [...combos]) combos.push([...c, k]);
-              const match = combos.find((c) => c.length
+              const matches = combos.filter((c) => c.length
                 && c.reduce((s, k) => s + ADDONS[k].priceAmount(), 0) === refunded);
-              if (match) {
-                for (const k of match) {
+
+              if (matches.length === 1) {
+                for (const k of matches[0]) {
                   await revokeEntitlement(email, ADDONS[k].entitlement);
                   console.log('[stripe-webhook] Add-on refunded and revoked:', k, email);
                 }
+              } else if (matches.length > 1) {
+                console.warn('[stripe-webhook] Partial refund of', refunded, 'on', charge.id,
+                  'could be any of:', matches.map((c) => c.join('+')).join(' / '),
+                  '- access left unchanged for', email, '- revoke the right one by hand');
               } else {
                 console.warn('[stripe-webhook] Partial refund of', refunded, 'on', charge.id,
                   "matches no add-on price - access left unchanged, adjust by hand if needed");

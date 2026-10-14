@@ -107,7 +107,8 @@ li b{color:var(--ink)}
   try { paid = JSON.parse(sessionStorage.getItem('lp_paid') || '{}') || {}; } catch (e) {}
   var ADDON_TEXT = {
     engine: '<b>Claude Automation Engine</b> — 59 routines, in Claude Routines in your member area. Read "Start Here" first.',
-    carousel: '<b>Claude Carousel Studio</b> — download it from your member area and upload it in Claude → Settings → Plugins.'
+    carousel: '<b>Claude Carousel Studio</b> — download it from your member area and upload it in Claude → Settings → Plugins.',
+    adstudio: '<b>Claude Ad Creative Studio</b> — download it from your member area and upload it in Claude → Settings → Plugins.'
   };
   var bought = (paid.addons || []).filter(function (k) { return ADDON_TEXT[k]; });
   if (bought.length) {

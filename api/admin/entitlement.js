@@ -14,7 +14,7 @@ import { grantEntitlement, revokeEntitlement, listEntitled, normalizeEmail } fro
 // refund reversal or an off-Stripe sale. Keep this in step with ADDONS in
 // lib/products.js: an entitlement missing here cannot be granted from admin,
 // and the failure looks like the member simply not having bought it.
-const PRODUCTS = new Set(['routines', 'carousel-studio']);
+const PRODUCTS = new Set(['routines', 'carousel-studio', 'ad-creative-studio']);
 
 export default async function handler(req, res) {
   const actor = await sessionEmail(req);

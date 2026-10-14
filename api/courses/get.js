@@ -1,5 +1,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { isActive, getCourse, entitlementsFor } from '../../lib/db.js';
+import { isTester } from '../../lib/testers.js';
+import { isAdmin } from '../../lib/admin.js';
 
 /**
  * GET /api/courses/get?slug=…  — one course's full section/lesson tree, for the
@@ -14,7 +16,8 @@ export default async function handler(req, res) {
     const slug = new URL(req.url, 'http://localhost').searchParams.get('slug');
     if (!slug) return res.status(400).json({ error: 'missing slug' });
 
-    const row = await getCourse(slug, await entitlementsFor(email));
+    const row = await getCourse(slug, await entitlementsFor(email),
+      { preview: isTester(email) || isAdmin(email) });
     if (!row) return res.status(404).json({ error: 'not found' });
 
     // The Bunny video id stays server-side: the player asks /api/video/sign for
