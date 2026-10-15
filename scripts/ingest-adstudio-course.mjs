@@ -16,6 +16,12 @@
  * Every figure below is taken from the plugin itself — its README, QUICKSTART,
  * meta-specs and quality bar — rather than from the sales copy, so the course
  * cannot promise something the thing they installed does not do.
+ *
+ * Written against plugin 1.2.0, which added the guided setup. The first draft
+ * was written against 1.1.0 and told buyers to run the skills by hand; that is
+ * now the long way round, and a course that teaches the long way round is
+ * worse than no course because the buyer trusts it over the thing in front of
+ * them. When the plugin changes again, this changes with it.
  */
 import { upsertLibraryItem, upsertCourse } from '../lib/db.js';
 
@@ -87,81 +93,119 @@ const sections = [
         ]
       },
       {
-        title: 'Pick a folder for your ads',
+        title: 'Make an Ads folder',
         minutes: 2,
         body: [
-          P('Ad Creative Studio writes real files: PNGs, the ad copy, a CSV for Ads Manager. They land in whatever folder Claude currently has open.'),
-          P('Make one folder now — <code>Documents\\Ads</code> is fine — and connect Claude to it before you ask for anything.'),
+          P('Your ads are saved as real files — PNGs, the ad copy, a CSV for Ads Manager — so Claude needs somewhere to put them.'),
+          OL([
+            'Make a folder called <strong>Ads</strong>, in Documents or wherever suits',
+            'Start a new <strong>Cowork task</strong> in Claude',
+            'Click <strong>Add folder</strong> and choose <strong>Ads</strong>'
+          ]),
           H2('What ends up in there'),
           PRE('ad-studio/\n  2026-03-14-launch/\n    ads.md          the copy for every ad\n    ads.csv         one row per ad, for Ads Manager\n    prompts.md      image prompts, when no generator is connected\n    *.png           the finished images\n    *.html          the page you export the images from'),
           P('Every batch gets its own dated folder, so last month’s ads are still there when you want to see what you ran.'),
-          NOTE('Do this before your first batch rather than after. Moving files later breaks the links in ads.md.')
+          NOTE('Do this before setup rather than after. Setup checks for a folder as its first step, and without one your ads have nowhere to land.')
+        ]
+      },
+      {
+        title: 'Start here: type “set up ad studio”',
+        minutes: 3,
+        body: [
+          P('This is the whole of getting started. In your Ads task, type:'),
+          PRE('set up ad studio'),
+          P('Claude then walks you through <strong>six short steps, one message at a time</strong>, and makes your first five ads at the end of it. About ten minutes, and you only do it once.'),
+          H2('The six steps'),
+          UL([
+            '<strong>1 · Folder</strong> — nothing to do, Claude checks it',
+            '<strong>2 · Your offer</strong> — paste your sales page link',
+            '<strong>3 · Your proof</strong> — tick what you really have',
+            '<strong>4 · Your look</strong> — confirm the colours it took from your page',
+            '<strong>5 · Ads you like</strong> — send screenshots of ads worth copying the style of',
+            '<strong>6 · Images</strong> — pick how the photo-style ads get made'
+          ]),
+          H2('Two things worth knowing'),
+          UL([
+            '<strong>Only step 2 is required.</strong> Everything else can be skipped, and it tells you at the end what each skipped step costs you.',
+            '<strong>You can stop halfway.</strong> Progress is saved after every step, so you can close it and pick up later.'
+          ]),
+          H2('If you skip setup entirely'),
+          P('Ask for ads without having set up, and it starts the guided setup for you rather than guessing at your offer. There is no way to get ads built on invented facts, which is the point.'),
+          NOTE('The next three lessons walk through what each step is actually asking for, and why. You can do the setup first and read them after — they are the same six steps either way.')
         ]
       }
     ]
   },
   {
-    name: 'SECTION 2 · Your offer, once',
+    name: 'SECTION 2 · The six setup steps',
     label: 'Section 2',
     lessons: [
       {
-        title: 'Your ad profile in two minutes',
+        title: 'Your offer, and what happens after purchase',
         minutes: 4,
         body: [
-          P('This is the one step that decides whether the ads are any good. Do it once, and every ad afterwards knows your price, your audience and your proof.'),
-          H2('The fast way'),
-          PRE('Read mypage.com and set up my ad profile'),
-          P('It reads your sales page and fills in most of it. You correct what it got wrong.'),
-          H2('Or answer the questions'),
-          PRE('/ad-creative-studio:ad-brand'),
-          H2('What it saves'),
-          UL([
-            'Your <strong>offer and its price</strong>, and what happens after someone buys',
-            'Who it is for, and which <strong>countries</strong> you sell to',
-            'Your <strong>real proof</strong> — numbers you can stand behind',
-            'Your <strong>guarantee</strong>, if you have one',
-            'Tone, how much emoji you want, and your <strong>colours</strong>'
-          ]),
-          P('Come back and run it again whenever your price changes. An out-of-date profile is the single most common reason an ad comes out with the wrong number in it.'),
-          NOTE('Spend the two minutes. Every ad you ever make from here reads this file.')
+          P('Step 2, and the only one you cannot skip. Paste the link to your sales page and Claude reads it — your offer, the price, who it is for, the guarantee.'),
+          H2('Then it asks you one question'),
+          P('<strong>What happens after someone buys?</strong> A one-time purchase, a trial that becomes a subscription, or an upsell afterwards.'),
+          P('This matters more than it looks. If your $1 offer starts a trial that bills monthly, the ad has to say so — an ad that hides it buys you chargebacks and a complaint to Meta. Answer it honestly and every ad states it clearly.'),
+          H2('No sales page?'),
+          P('One sentence about what you sell and the price is enough to get started. You can add the rest later.'),
+          H2('When your price changes'),
+          PRE('my price changed to $37'),
+          P('That updates the setup. An out-of-date profile is the single most common reason an ad comes out with the wrong number in it.'),
+          NOTE('If an ad ever shows a price you do not recognise, fix the setup rather than the ad — otherwise the next batch gets it wrong again.')
         ]
       },
       {
-        title: 'What it will never say',
-        minutes: 3,
+        title: 'Your proof, and what it will never say',
+        minutes: 4,
         body: [
-          P('The plugin only uses facts from your profile. If something is not in there, it stays out of the ad — it does not fill the gap with something plausible.'),
-          H2('It will not invent'),
+          P('Step 3 is a checklist of what you actually have: reviews, buyer numbers, results, testimonials. Tick what is real. <strong>“None yet” is a fine answer</strong> and handled properly.'),
+          H2('Because it will not invent any of it'),
           UL([
             'Buyer counts, review counts or star ratings',
             'Income claims or earnings you have not evidenced',
             'Deadlines and scarcity that are not real',
             'Guarantees you did not say you offer'
           ]),
-          P('This matters more than it sounds. Invented proof is the fastest route to a Meta rejection, a refund request, or a complaint you cannot answer.'),
-          H2('It also checks itself'),
+          P('Invented proof is the fastest route to a Meta rejection, a refund request, or a complaint you cannot answer. So if you want a number in your ads, it has to go in here.'),
+          H2('It checks itself too'),
           P('Every ad is run against Meta’s most common rejection reasons before you see it — no personal attributes (“are you overweight?”), no income promises, no fake countdowns.'),
-          H2('So if you want proof in the ad, put it in the profile'),
-          P('Real numbers belong in your profile where the ads can reach them. “1,900 members” in the profile becomes “1,900 members” in the ad. Nothing in the profile means nothing in the ad, which is the right failure.'),
-          NOTE('If an ad ever shows a price or a claim you do not recognise, your profile is stale. Re-run ad-brand rather than editing the ad.')
+          NOTE('“1,900 members” in your setup becomes “1,900 members” in the ad. Nothing in your setup means nothing in the ad, which is the right failure.')
         ]
       },
       {
-        title: 'Show it ads you like',
-        minutes: 4,
+        title: 'Your look, and the ads you like',
+        minutes: 5,
         body: [
-          P('Optional, and the thing that makes the biggest difference after the profile. You can teach it from real ads — your own winners, or any ad you have saved.'),
-          PRE('learn from these ads'),
-          P('Then paste screenshots, or Meta Ad Library links. It breaks each one down into a reusable recipe — the layout, the hook type, how the copy is structured — and files it in <strong>your</strong> library. Later batches start from those first.'),
-          H2('What is worth teaching it'),
+          P('<strong>Step 4</strong> is quick: Claude shows you the colours it lifted from your page. Say “looks good”, or correct them. Then pick how much emoji you want — including none.'),
+          H2('Step 5 is the one that matters most'),
+          P('Send <strong>3–10 screenshots</strong> of ads whose style you would happily copy. This is the single biggest quality jump in the whole setup, because your ads start from layouts that are already selling rather than from a default.'),
+          H2('Where to find ads worth sending'),
           UL([
-            'Your own ads that actually performed, so it makes more of what already works',
-            'Competitor ads that have clearly been running a long time',
-            'Any ad whose <em>look</em> you want, even from another industry'
+            'Screenshot ads you actually stop on in your own feed. Saved posts count.',
+            'Or go to <strong>facebook.com/ads/library</strong>, search a big name in your niche, and take the ones marked <strong>“Started running”</strong> more than 30 days ago — nobody keeps paying for an ad that does not sell.',
+            '<strong>Your own best ads count most.</strong> Add what each cost per sale, if you know it.'
           ]),
-          H2('What it keeps'),
-          P('The technique, never the ad. It stores the layout and the hook shape, not the brand, the image or the words — so what you get back is your offer in that style, not somebody else’s ad with your logo on it.'),
-          NOTE('Three or four good examples is plenty to change the character of everything it makes.')
+          H2('It also asks your target cost per sale'),
+          P('Give it a real number. It is what your results get judged against later, so “is this working?” has an answer rather than an opinion.'),
+          H2('What it keeps from those screenshots'),
+          P('The technique, never the ad. It stores the layout and the hook shape — not the brand, the image or the words — so what you get back is your offer in that style, not somebody else’s ad with your logo on it.'),
+          NOTE('Skip this step and the ads still work. They are just generic, and you will feel it.')
+        ]
+      },
+      {
+        title: 'Images: with a generator, or without',
+        minutes: 3,
+        body: [
+          P('Step 6. Claude checks whether you have an image generator connected and explains your options.'),
+          H2('With one connected'),
+          P('Photo-style ads — product mockups, hands holding the thing, creator-style shots — are generated for you, using whatever you have connected (Higgsfield, for example).'),
+          H2('Without one'),
+          P('You still get every ad. The built-in designs are laid out as real type in a browser, so those are finished either way. For the photo-style ones you get the finished prompt in <code>prompts.md</code> to paste into ChatGPT, Ideogram or any image tool.'),
+          H2('Then it scores your setup'),
+          P('At the end you get a setup score showing what each skipped step is costing you. It is worth reading — it tells you exactly which five minutes would most improve your ads.'),
+          NOTE('And then it offers your first five ads. Say yes.')
         ]
       }
     ]
@@ -174,9 +218,10 @@ const sections = [
         title: 'Your first five ads',
         minutes: 5,
         body: [
-          P('With the profile done, this is the whole job in one line:'),
-          PRE('make 5 ads for my $27 guide'),
-          P('It picks the angles, writes the hooks, writes the copy, makes the images and saves everything in a dated folder. Five is the right first number — enough to tell you something, few enough to launch today.'),
+          P('Setup ends by asking <strong>“Want your first 5 ads now?”</strong> Say yes, and you have them in about two minutes.'),
+          P('After that, a fresh batch is one line:'),
+          PRE('make 5 new ads'),
+          P('It picks the angles, writes the hooks, writes the copy, makes the images and saves everything in a dated folder. Five is the right number — enough to tell you something, few enough to launch today.'),
           H2('What comes back'),
           UL([
             'Five ads, each testing a <strong>different hook type or a different style</strong> — never both the same',
@@ -184,8 +229,10 @@ const sections = [
             '<code>ads.md</code> with the copy, <code>ads.csv</code> for upload, and the images'
           ]),
           H2('Asking for something specific'),
-          PRE('make 5 ads, mostly receipts and value stacks\nmake 3 story-format ads for my webinar\nsame offer, 5 new angles — nothing like last batch'),
+          PRE('make 5 ads, mostly receipts and value stacks\nmake 3 story-format ads for my webinar\nmore like ad 3'),
           P('It will follow the steer. Where you say nothing, it picks from the styles that tend to run longest for offers like yours.'),
+          H2('The commands worth remembering'),
+          PRE('make 5 new ads                      a fresh batch\nmore like ad 3                      new versions of a winner\nlearn from these ads  + screenshots new styles into your library\nmy price changed to $37             updates your setup\nhere are my results   + screenshot  what is working, what next'),
           NOTE('Do not ask for twenty ads on day one. You cannot read the results of twenty ads, and you will spend the budget learning nothing.')
         ]
       },
@@ -257,15 +304,20 @@ const sections = [
     label: 'Section 4',
     lessons: [
       {
-        title: 'Launching in Ads Manager',
+        title: 'Launching: one ad set, three days',
         minutes: 4,
         body: [
-          P('Upload each image with its copy. <code>ads.csv</code> holds one row per ad so you are copying and pasting, not rewriting.'),
-          PRE('ad_name, style, hook_type, image_feed, image_story,\nprimary_text_long, primary_text_short, headline,\ndescription, cta_button, url'),
+          P('There is one right way to launch a batch of five, and it is not five ad sets.'),
+          OL([
+            'In Ads Manager, create <strong>one ad set with all five ads in it</strong>',
+            'Use the budget from the test plan at the end of <code>ads.md</code>',
+            'Copy each ad’s text from <code>ads.md</code> — <code>ads.csv</code> has one row per ad if you prefer to paste from a sheet',
+            '<strong>Leave it alone for three days.</strong>'
+          ]),
+          H2('Why one ad set'),
+          P('Most first tests fail because five ads were spread across five ad sets and none got enough budget to prove anything. One ad set lets Meta spend where it is working, and three days is the shortest honest read.'),
           H2('Feed and story in one ad'),
-          P('When an ad set runs Advantage+ placements, upload <strong>both</strong> images into the same ad as placement-specific assets. One ad, two sizes — not two ads.'),
-          H2('How to group them'),
-          P('The end of <code>ads.md</code> has a test plan: which ads belong in one ad set, what to spend, and when to judge them. Follow it rather than inventing a structure — most first tests fail because five ads were spread across five ad sets and none got enough budget to prove anything.'),
+          P('When the ad set runs Advantage+ placements, upload <strong>both</strong> images into the same ad as placement-specific assets. One ad, two sizes — not two ads.'),
           H2('Before you spend'),
           UL([
             'Every price in the image matches what the page actually charges',
@@ -279,9 +331,10 @@ const sections = [
         title: 'Reading results and what to make next',
         minutes: 4,
         body: [
-          P('When the numbers are in, paste them back in. A screenshot of Ads Manager is enough.'),
-          PRE('here are my results, what\'s working?'),
+          P('After the three days, paste the numbers back in. A screenshot of Ads Manager is enough.'),
+          PRE('what\'s working?'),
           P('It reads which ads won, says what it thinks they had in common — the hook, the style, or neither — and tells you what to make next.'),
+          P('It tells you which ads won, which to turn off, and what to make next — judged against the target cost per sale you gave it during setup, so the answer is a number rather than an opinion.'),
           H2('What it is looking at'),
           UL([
             'Which <strong>hook types</strong> earned their spend, not just which ads did',
@@ -291,7 +344,7 @@ const sections = [
           H2('The loop'),
           P('A winner is not the end of a test, it is the start of the next one. Take the hook that won and make new ads in different styles; take the style that won and run it against new hooks. That is how one good ad turns into a month of them.'),
           H2('Judging too early'),
-          P('The commonest mistake. Give the test plan’s window the chance to run before you switch anything off — an ad that looks dead on day one often is not, and killing it teaches you nothing.'),
+          P('The commonest mistake, and the reason the last lesson said three days. An ad that looks dead on day one often is not, and killing it teaches you nothing.'),
           NOTE('Ask again whenever you have fresh numbers. It keeps your winners in your library, so later batches start from what already worked for you.')
         ]
       }
