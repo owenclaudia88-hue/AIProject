@@ -82,9 +82,29 @@ export default async function handler(req, res) {
         const { data, text, model } = await callClaude(prompt);
         // The tool call is structured data already. parseJson is the fallback
         // for the day a model answers in prose anyway.
-        const { roadmap, dropped, warnings } = validate(data || parseJson(text), catalogue);
+        const raw = data || parseJson(text);
+        const { roadmap, dropped, warnings } = validate(raw, catalogue);
 
-        if (!roadmap.phases.length) throw new Error('the model returned no usable phases');
+        if (!roadmap.phases.length) {
+          /* Say what actually came back. "No usable phases" on its own sent us
+             guessing twice: a phase is dropped when it has no window or no week
+             with a titled step, and which of those it was changes the fix
+             completely. This counts them instead. */
+          const got = Array.isArray(raw?.phases) ? raw.phases : [];
+          const shape = got.map((p, n) => {
+            const weeks = Array.isArray(p?.weeks) ? p.weeks : [];
+            const steps = weeks.reduce((t, w) => t + (Array.isArray(w?.steps) ? w.steps.length : 0), 0);
+            const titled = weeks.reduce((t, w) => t + (Array.isArray(w?.steps)
+              ? w.steps.filter((s) => s && typeof s.title === 'string' && s.title.trim()).length : 0), 0);
+            return `phase ${n + 1}: window=${p?.window ? 'yes' : 'MISSING'}`
+              + ` weeks=${weeks.length} steps=${steps} titled=${titled}`;
+          });
+          const detail = got.length
+            ? shape.join(' | ')
+            : `no phases array at all (top-level keys: ${Object.keys(raw || {}).join(', ') || 'none'})`;
+          console.error('[admin/roadmaps] unusable phases —', detail);
+          throw new Error(`the model returned no usable phases — ${detail}`);
+        }
 
         await saveRoadmapDraft(id, roadmap, model);
         return res.status(200).json({
