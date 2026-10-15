@@ -16,6 +16,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { upsertContent } from '../lib/db.js';
+import { describeZip } from '../lib/describe-zip.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const EXPORT = join(HERE, '..', 'export');
@@ -82,10 +83,18 @@ for (const g of groups) {
       token: process.env.BLOB_READ_WRITE_TOKEN
     });
 
+    /* Read what the pack says about itself while we have the bytes in hand, so
+       a plugin added next month arrives described rather than waiting for
+       somebody to remember a second script. Null leaves any existing
+       description alone. */
+    const title = titleFromFilename(filename);
+    const description = describeZip(body, { title });
+
     await upsertContent({
-      key, title: titleFromFilename(filename), kind: g.kind,
+      key, title, kind: g.kind,
       filename, blobUrl: url, sizeBytes: size, sort: sortBase + sort,
-      requires: g.requires ?? null
+      requires: g.requires ?? null,
+      description
     });
     uploaded += 1; sort += 1;
     console.log(`  + ${prettyKB(size).padStart(8)}  ${key}`);
