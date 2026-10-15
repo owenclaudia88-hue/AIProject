@@ -313,6 +313,25 @@ footer a{color:var(--ink-2)}
               <span class="bump-tag">Installs in Claude in 2 minutes</span>
             </div>
           </label>
+
+          <label class="bump" data-addon="adstudio">
+            <input type="checkbox" value="adstudio" aria-describedby="bump-adstudio-d">
+            <div class="bump-top">
+              <span class="arrow-nudge" aria-hidden="true">➜</span>
+              <span class="bump-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              <span class="yes">Yes! Add Claude Ad Creative Studio</span>
+              <span class="pr">+$6.99</span>
+            </div>
+            <div class="bump-body" id="bump-adstudio-d">
+              <b>Finished Facebook &amp; Instagram ads in minutes.</b> Give it your offer and get ready-to-upload ads — the images and every word that runs with them.
+              <ul>
+                <li>Ad images in 52 proven styles, feed and story sizes</li>
+                <li>Primary text, headlines and CTAs for every ad</li>
+                <li>Hooks to test, plus a plan for what to run first</li>
+              </ul>
+              <span class="bump-tag">Installs in Claude in 2 minutes</span>
+            </div>
+          </label>
         </div>
 
         <div class="sep"></div>
@@ -543,7 +562,8 @@ footer a{color:var(--ink-2)}
   var BASE = 100;
   var ADDONS = {
     engine:   { name: 'Claude Automation Engine', cents: 499 },
-    carousel: { name: 'Claude Carousel Studio',   cents: 499 }
+    carousel: { name: 'Claude Carousel Studio',   cents: 499 },
+    adstudio: { name: 'Claude Ad Creative Studio', cents: 699 }
   };
   var total = BASE;
   var chosen = [];
