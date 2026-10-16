@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import {
-  grantAccess, revokeAccess, createLoginToken, getCustomer,
+  grantAccess, createLoginToken, getCustomer,
   grantEntitlement, revokeEntitlement, recordDownsellChoice, queueWelcome,
   claimDunningStep, dunningSentFor, clearDunning
 } from '../lib/db.js';
@@ -437,13 +437,11 @@ export default async function handler(req, res) {
             // a chargeback, and they would be right to. So the subscription
             // this product started is cancelled with the refund.
             let subs = [];
-            let lookupFailed = false;
             try {
               subs = await liveSubscriptions(stripe, email, null);
             } catch (lookupErr) {
-              lookupFailed = true;
               console.error('[stripe-webhook] Refund lookup failed for', email,
-                '- keeping account access:', lookupErr.message);
+                '- cannot cancel their subscription, do it by hand:', lookupErr.message);
             }
 
             for (const s of subs.filter((x) => x.source === ENGINE_SOURCE)) {
@@ -463,14 +461,14 @@ export default async function handler(req, res) {
             // subscription that did not start from this product. On any doubt,
             // including a failed lookup, the account is kept: wrongly cutting
             // off a paying member is far worse than a refunded one lingering.
-            const other = subs.find((s) => s.source !== ENGINE_SOURCE);
-            if (lookupFailed || other) {
-              console.log('[stripe-webhook] Keeping access for', email,
-                lookupFailed ? '- lookup failed' : `- has a non-Engine subscription (${other.source} ${other.id})`);
-            } else {
-              await revokeAccess(email);
-              console.log('[stripe-webhook] Access revoked:', email, '(Engine was their only purchase)');
-            }
+            /* The account is left open here too, for the same reason as the
+               Specialists refund below: the money going back is not a decision
+               about whether somebody still has an account, and the person
+               issuing the refund is right there with a Cancel access button if
+               it is. The subscription is still cancelled above, so nothing
+               bills them after a refund. */
+            console.log('[stripe-webhook] Engine refunded:', email,
+              '- account left open, use Cancel access if it should close.');
           } else {
             const addons = parseAddons(refundedPi?.metadata?.addons);
             const partial = charge.amount_refunded < charge.amount;
@@ -514,9 +512,21 @@ export default async function handler(req, res) {
                   "matches no add-on price - access left unchanged, adjust by hand if needed");
               }
             } else {
+              /* The whole order came back. The add-ons go with it — being
+                 refunded for a product is the one clear signal that the
+                 product is no longer theirs.
+
+                 The account itself is left alone. Giving somebody their money
+                 back and closing their account are two different decisions,
+                 and refunding is the one a support thread reaches for most
+                 easily: a buyer who could not get in was refunded as a
+                 courtesy and lost the Specialists he had written in about,
+                 which is the opposite of what was meant. Cancel access is a
+                 button, and it stays a button. */
               for (const k of addons) await revokeEntitlement(email, ADDONS[k].entitlement);
-              await revokeAccess(email);
-              console.log('[stripe-webhook] Access revoked:', email, addons.length ? `(with add-ons: ${addons.join(', ')})` : '');
+              console.log('[stripe-webhook] Refunded in full:', email,
+                addons.length ? `add-ons revoked: ${addons.join(', ')}.` : '',
+                'Account left open — use Cancel access if it should close.');
             }
           }
         }
