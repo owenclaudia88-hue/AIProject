@@ -423,111 +423,42 @@ export default async function handler(req, res) {
           || refundedPi?.metadata?.buyer_email;
 
         console.log('[stripe-webhook] Refunded:', charge.id, email || '(no email)',
-          isMembershipCharge ? '(membership charge — access kept)'
-            : isEngine(refundedPi) ? '(Engine — removing routines)' : '(purchase — revoking)');
+          '— money only, products kept.');
 
         if (email && !isMembershipCharge) {
           if (isEngine(refundedPi)) {
-            await revokeEntitlement(email, ENGINE_ENTITLEMENT);
-            console.log('[stripe-webhook] Engine entitlement revoked:', email);
+            /* The Engine is a lifetime product like the rest. The money goes
+               back; the routines stay, the account stays, and the subscription
+               the purchase opened keeps running.
 
-            // Refunding the Engine does not stop the membership the purchase
-            // opened — the trial keeps running and charges $39 in a few days.
-            // Somebody who has just been refunded and is then billed will file
-            // a chargeback, and they would be right to. So the subscription
-            // this product started is cancelled with the refund.
-            let subs = [];
-            try {
-              subs = await liveSubscriptions(stripe, email, null);
-            } catch (lookupErr) {
-              console.error('[stripe-webhook] Refund lookup failed for', email,
-                '- cannot cancel their subscription, do it by hand:', lookupErr.message);
-            }
-
-            for (const s of subs.filter((x) => x.source === ENGINE_SOURCE)) {
-              try {
-                await stripe.subscriptions.cancel(s.id);
-                console.log('[stripe-webhook] Cancelled Engine subscription', s.id, 'for', email);
-              } catch (cancelErr) {
-                console.error('[stripe-webhook] Could not cancel', s.id, 'for', email, '-', cancelErr.message);
-              }
-            }
-
-            // The Engine is sold to people who never bought the Specialists, so
-            // a refund normally means their only purchase is gone and the whole
-            // account should close — leaving it open would hand back the entire
-            // library for free. The exception is somebody who also came through
-            // the Specialists funnel, and the marker for that is a live
-            // subscription that did not start from this product. On any doubt,
-            // including a failed lookup, the account is kept: wrongly cutting
-            // off a paying member is far worse than a refunded one lingering.
-            /* The account is left open here too, for the same reason as the
-               Specialists refund below: the money going back is not a decision
-               about whether somebody still has an account, and the person
-               issuing the refund is right there with a Cancel access button if
-               it is. The subscription is still cancelled above, so nothing
-               bills them after a refund. */
+               This used to cancel that subscription, on the reasoning that
+               somebody refunded and then billed $39 would file a chargeback.
+               But every checkout opens a trial, and only the Engine-sourced
+               ones were ever cancelled here — so the rule was never the rule,
+               it was one funnel's accident. Nothing is cancelled automatically
+               now. End subscription in the admin is the one way a subscription
+               ends, and it is a person's decision, not an amount's. */
             console.log('[stripe-webhook] Engine refunded:', email,
-              '- account left open, use Cancel access if it should close.');
+              '- routines, account and subscription all left as they were.');
           } else {
+            /* A refund moves money and nothing else.
+
+               The Specialists and the three checkout bumps are lifetime
+               products. Somebody who is refunded keeps what they bought —
+               that is what lifetime means, and it is not the webhook's place
+               to decide otherwise from an amount. Access is changed by the
+               buttons in the admin: Cancel access for the account, End
+               subscription for the membership.
+
+               This used to work the refunded amount back into a set of
+               add-ons and revoke them. All of that is gone: it existed only
+               to take products away, and the products are not ours to take. */
             const addons = parseAddons(refundedPi?.metadata?.addons);
             const partial = charge.amount_refunded < charge.amount;
-
-            if (addons.length && partial) {
-              /* Only part of a combined order was refunded — the usual reason
-                 is somebody keeping the Specialists but not wanting an add-on.
-                 Work out which add-ons the refunded amount covers and take
-                 back only those.
-
-                 An amount is only an answer when exactly one set of add-ons
-                 adds up to it. Two of them cost $4.99, so a $4.99 refund is a
-                 question with two answers, and this used to take the first and
-                 revoke the Engine — which for anybody who was actually sent
-                 their Carousel Studio money back meant losing the wrong
-                 product and keeping the one they had just been refunded for.
-
-                 So: one match acts, none or several change nothing and say so
-                 with the candidates named. The same reasoning either way —
-                 guessing wrong cuts off something they still paid for, and a
-                 refund done by hand in Stripe is rare enough that a line in
-                 the log asking for a hand is cheaper than a wrong revocation
-                 nobody notices. */
-              const refunded = charge.amount_refunded;
-              const combos = [[]];
-              for (const k of addons) for (const c of [...combos]) combos.push([...c, k]);
-              const matches = combos.filter((c) => c.length
-                && c.reduce((s, k) => s + ADDONS[k].priceAmount(), 0) === refunded);
-
-              if (matches.length === 1) {
-                for (const k of matches[0]) {
-                  await revokeEntitlement(email, ADDONS[k].entitlement);
-                  console.log('[stripe-webhook] Add-on refunded and revoked:', k, email);
-                }
-              } else if (matches.length > 1) {
-                console.warn('[stripe-webhook] Partial refund of', refunded, 'on', charge.id,
-                  'could be any of:', matches.map((c) => c.join('+')).join(' / '),
-                  '- access left unchanged for', email, '- revoke the right one by hand');
-              } else {
-                console.warn('[stripe-webhook] Partial refund of', refunded, 'on', charge.id,
-                  "matches no add-on price - access left unchanged, adjust by hand if needed");
-              }
-            } else {
-              /* The whole order came back. The add-ons go with it — being
-                 refunded for a product is the one clear signal that the
-                 product is no longer theirs.
-
-                 The account itself is left alone. Giving somebody their money
-                 back and closing their account are two different decisions,
-                 and refunding is the one a support thread reaches for most
-                 easily: a buyer who could not get in was refunded as a
-                 courtesy and lost the Specialists he had written in about,
-                 which is the opposite of what was meant. Cancel access is a
-                 button, and it stays a button. */
-              for (const k of addons) await revokeEntitlement(email, ADDONS[k].entitlement);
-              console.log('[stripe-webhook] Refunded in full:', email,
-                addons.length ? `add-ons revoked: ${addons.join(', ')}.` : '',
-                'Account left open — use Cancel access if it should close.');
-            }
+            console.log(`[stripe-webhook] Refund of ${charge.amount_refunded}`
+              + ` (${partial ? 'partial' : 'full'}) for ${email}`
+              + `${addons.length ? ` on an order with ${addons.join(', ')}` : ''}`
+              + ' — lifetime products left in place.');
           }
         }
         break;
