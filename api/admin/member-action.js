@@ -2,7 +2,7 @@ import { sessionEmail } from '../../lib/session.js';
 import { revokeAccess, restoreAccess, grantAccess, getCustomer, createLoginToken, normalizeEmail } from '../../lib/db.js';
 import { sendPurchaseConfirmation } from '../../lib/email.js';
 import { isAdmin } from '../../lib/admin.js';
-import { memberPayments, refundChargeById, resolveCustomerId, cancelActiveSubscriptions } from '../../lib/funnel.js';
+import { memberPayments, refundChargeById, lineRefund, resolveCustomerId, cancelActiveSubscriptions } from '../../lib/funnel.js';
 
 /**
  * POST /api/admin/member-action  { email, action, confirm }
@@ -11,7 +11,9 @@ import { memberPayments, refundChargeById, resolveCustomerId, cancelActiveSubscr
  *              them the same welcome email the webhook would have.
  *   revoke   — take away access. Reversible from this same screen.
  *   restore  — give it back.
- *   refund   — return the money through Stripe, then revoke.
+ *   refund   — return the money through Stripe: one charge (ref), one product
+ *              inside a combined order (ref + item), or everything (all).
+ *              Access is never changed by it.
  *
  * A refund moves real money and Stripe will not undo it, so it is the one
  * action that will not run on a stray click: it needs `confirm` to be the
@@ -102,6 +104,24 @@ export default async function handler(req, res) {
       const refundable = new Map(items.filter((i) => i.refundable).map((i) => [i.ref, i]));
       if (!refundable.size) {
         return res.status(400).json({ error: 'Nothing left to refund for this member.' });
+      }
+
+      // One product out of a combined order. The line, and so the amount, is
+      // looked up from Stripe's own record here — the browser only names it.
+      if (typeof body.item === 'string') {
+        const charge = typeof body.ref === 'string' ? refundable.get(body.ref) : null;
+        const line = charge?.lines?.find((l) => l.key === body.item && l.refundable);
+        if (!line) {
+          return res.status(400).json({ error: 'That product is not refundable on this order.' });
+        }
+        try {
+          const r = await lineRefund(charge.ref, line);
+          console.log(`[admin] ${actor} refunded ${line.key} (${line.amount}) on ${charge.ref} for ${email}`);
+          return res.status(200).json({ ok: true, refunded: [r], failed: [] });
+        } catch (err) {
+          console.error('[admin/member-action] line refund failed for', charge.ref, line.key, err.message);
+          return res.status(200).json({ ok: true, refunded: [], failed: [{ ref: charge.ref, why: err.message }] });
+        }
       }
 
       const wantAll = body.all === true;

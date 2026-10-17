@@ -338,6 +338,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
 .refund-panel .rp-btn:hover{border-color:#f87171;color:#fca5a5}
 .refund-panel .rp-btn:disabled{opacity:.6;cursor:default}
 .refund-panel .rp-btn.all{margin:12px 0 0;margin-left:0}
+.refund-panel .rp-row.line{padding:6px 0 6px 18px;border-bottom:1px dashed var(--line)}
+.refund-panel .rp-row.failed .rp-desc{color:var(--txt-3)}
 .sched{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg-2);
   border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:14px;
   font-family:var(--mono);font-size:.8rem;color:var(--txt-2)}
@@ -1767,16 +1769,39 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     var refundable = pays.filter(function (p) { return p.refundable; });
 
     var rows = pays.map(function (p) {
-      var tag = p.refunded ? '<span class="st declined">refunded</span>'
+      var left = p.amount - (p.amountRefunded || 0);
+      var partly = !p.refunded && p.amountRefunded > 0;
+      // A declined card is not a payment that cannot be refunded; it is not a
+      // payment at all, and says so.
+      var tag = p.failed ? '<span class="st declined">declined</span>'
+        : p.refunded ? '<span class="st declined">refunded</span>'
+        : partly ? '<span class="st declined">' + esc(money(p.amountRefunded, p.currency)) + ' refunded</span>'
         : p.refundable ? '' : '<span class="st declined">not refundable</span>';
       var act = p.refundable
-        ? '<button class="rp-btn" data-refund-ref="' + esc(p.ref) + '">Refund ' + esc(money(p.amount, p.currency)) + '</button>'
+        ? '<button class="rp-btn" data-refund-ref="' + esc(p.ref) + '">' +
+            (p.lines ? (partly ? 'Refund the rest ' : 'Refund whole order ') : 'Refund ') +
+            esc(money(left, p.currency)) + '</button>'
         : '';
       // What is in the order, under the amount — a combined order and a plain
-      // one are otherwise the same row with a different number.
-      var what = p.contents ? '<span class="rp-what">' + esc(p.contents) + '</span>' : '';
-      return '<div class="rp-row"><span class="rp-desc">' + esc(money(p.amount, p.currency)) +
+      // one are otherwise the same row with a different number. When it is
+      // split into lines below, those say it instead.
+      var what = p.failed && p.failureReason ? '<span class="rp-what">' + esc(p.failureReason) + '</span>'
+        : (p.contents && !p.lines) ? '<span class="rp-what">' + esc(p.contents) + '</span>' : '';
+      var head = '<div class="rp-row' + (p.failed ? ' failed' : '') + '"><span class="rp-desc">' + esc(money(p.amount, p.currency)) +
         ' · ' + esc(p.label) + ' · ' + esc(day(p.date)) + what + '</span>' + tag + act + '</div>';
+
+      // Each product in a combined order, refundable on its own.
+      var lines = (p.lines || []).map(function (l) {
+        var ltag = l.refunded ? '<span class="st declined">refunded</span>'
+          : l.amount === 0 ? '<span class="st declined">free</span>' : '';
+        var lact = l.refundable
+          ? '<button class="rp-btn" data-refund-ref="' + esc(p.ref) + '" data-refund-item="' + esc(l.key) + '" data-refund-name="' + esc(l.name) + '">Refund ' +
+              esc(money(l.amount, p.currency)) + '</button>'
+          : '';
+        return '<div class="rp-row line"><span class="rp-desc">' + esc(l.name) +
+          (l.amount ? ' · ' + esc(money(l.amount, p.currency)) : '') + '</span>' + ltag + lact + '</div>';
+      }).join('');
+      return head + lines;
     }).join('');
 
     var subNote = (d.subscriptions && d.subscriptions.length)
@@ -1787,15 +1812,22 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
     panel.innerHTML = '<div class="rp-head">Payments</div>' + rows + subNote + all;
 
     [].forEach.call(panel.querySelectorAll('[data-refund-ref]'), function (b) {
-      b.addEventListener('click', function () { doRefund(email, { ref: b.getAttribute('data-refund-ref') }, b, panel); });
+      b.addEventListener('click', function () {
+        var sel = { ref: b.getAttribute('data-refund-ref') };
+        var item = b.getAttribute('data-refund-item');
+        if (item) { sel.item = item; sel.name = b.getAttribute('data-refund-name'); }
+        doRefund(email, sel, b, panel);
+      });
     });
     var allBtn = panel.querySelector('[data-refund-all]');
     if (allBtn) allBtn.addEventListener('click', function () { doRefund(email, { all: true }, allBtn, panel); });
   }
 
   function doRefund(email, sel, btn, panel) {
-    var what = sel.all ? 'ALL refundable payments for ' + email : 'this payment';
+    var what = sel.all ? 'ALL refundable payments for ' + email
+      : sel.item ? sel.name + ' only' : 'this payment';
     if (!window.confirm('Refund ' + what + '?\n\nThis moves real money and cannot be undone. Access is not changed — use “Cancel access” for that.')) return;
+    delete sel.name;
     btn.disabled = true; var was = btn.textContent; btn.textContent = 'Refunding…';
     fetch('/api/admin/member-action', {
       method: 'POST', credentials: 'same-origin',
