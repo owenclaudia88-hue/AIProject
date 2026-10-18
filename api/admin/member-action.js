@@ -1,6 +1,6 @@
 import { sessionEmail } from '../../lib/session.js';
-import { revokeAccess, restoreAccess, grantAccess, getCustomer, createLoginToken, normalizeEmail } from '../../lib/db.js';
-import { sendPurchaseConfirmation } from '../../lib/email.js';
+import { revokeAccess, restoreAccess, grantAccess, getCustomer, normalizeEmail } from '../../lib/db.js';
+import { resendWelcome } from '../../lib/welcome.js';
 import { isAdmin } from '../../lib/admin.js';
 import { memberPayments, refundChargeById, lineRefund, resolveCustomerId, cancelActiveSubscriptions } from '../../lib/funnel.js';
 
@@ -50,10 +50,7 @@ export default async function handler(req, res) {
       // account they cannot reach is no better than no account.
       let emailed = false, emailError = null;
       try {
-        const token = await createLoginToken(email);
-        const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
-        await sendPurchaseConfirmation(email, `${site}/api/auth/verify?token=${encodeURIComponent(token)}`,
-          { name: typeof body.name === 'string' ? body.name : undefined });
+        await resendWelcome(email);
         emailed = true;
       } catch (mailErr) {
         // Access is already granted and that is the part that matters, so a

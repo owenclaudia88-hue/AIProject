@@ -1,10 +1,10 @@
 import { sessionEmail } from '../../lib/session.js';
 import {
   getCustomer, normalizeEmail, emailsForCustomer,
-  addCustomerEmail, removeCustomerEmail, createLoginToken
+  addCustomerEmail, removeCustomerEmail
 } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
-import { sendPurchaseConfirmation } from '../../lib/email.js';
+import { resendWelcome } from '../../lib/welcome.js';
 
 /**
  * The other addresses that reach a member, and the welcome resent to one.
@@ -69,11 +69,7 @@ export default async function handler(req, res) {
       let welcomed = null;
       if (body.welcome === true) {
         try {
-          const token = await createLoginToken(email);
-          const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
-          await sendPurchaseConfirmation(alternate,
-            `${site}/api/auth/verify?token=${encodeURIComponent(token)}`,
-            { name: customer.name || undefined });
+          await resendWelcome(email, alternate);
           welcomed = { sent: true, to: alternate };
           console.log(`[admin] ${actor} sent the welcome for ${email} to ${alternate} on adding it`);
         } catch (err) {
@@ -105,12 +101,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Add that address to the account first, then send to it.' });
       }
 
-      // Minted for the account, read in whichever inbox actually works.
-      const token = await createLoginToken(email);
-      const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
+      // The same welcome the first send was, describing the same order: the
+      // link minted for the account, read in whichever inbox actually works.
       try {
-        await sendPurchaseConfirmation(to, `${site}/api/auth/verify?token=${encodeURIComponent(token)}`,
-          { name: customer.name || undefined });
+        await resendWelcome(email, to);
       } catch (err) {
         // The usual reason for being here is that mail to this member fails.
         // Say which address and why, rather than "it did not work".

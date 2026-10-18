@@ -8,6 +8,7 @@ import {
   sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt,
   sendPaymentRetry, sendPaymentRecovered, stepForAttempt
 } from '../lib/email.js';
+import { keepWelcomeCopy } from '../lib/welcome.js';
 import { chosePlanThemselves } from '../lib/plan-choice.js';
 import { offerForSubscription } from '../lib/offer.js';
 import { billingUrl } from '../lib/billing-token.js';
@@ -243,7 +244,10 @@ export default async function handler(req, res) {
             const token = await createLoginToken(email);
             const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
             const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
-            await sendEngineWelcome(email, loginUrl, { name, existingMember: !created });
+            const out = await sendEngineWelcome(email, loginUrl, { name, existingMember: !created });
+            // Kept for resending, but only as the account's first welcome. A
+            // member who already had one keeps that as the email support resends.
+            if (created) await keepWelcomeCopy(email, out, loginUrl);
           } else {
             await queueWelcome(email);
             console.log('[stripe-webhook] Welcome queued for', email);
