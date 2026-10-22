@@ -109,7 +109,13 @@ export default async function handler(req, res) {
         source: sourceFromUrl(sourceUrl),
         // The page the visit started on, as the tracker recorded it — the
         // event's own sourceUrl is whichever page happened to fire it.
-        landingUrl: str(body.landingUrl, 500)
+        landingUrl: str(body.landingUrl, 500),
+        // The ad click, kept against the address so a sale made later from a
+        // reminder email - in another browser, with no click in it - can still
+        // be credited to the ad that brought them.
+        fbclid: str(body.fbclid, 300),
+        fbclidAt: Number(body.fbclidAt) || undefined,
+        fbp: str(body.fbp, 100)
       });
     }
 

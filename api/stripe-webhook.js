@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import {
   grantAccess, createLoginToken, getCustomer,
   grantEntitlement, revokeEntitlement, recordDownsellChoice, queueWelcome,
-  claimDunningStep, dunningSentFor, clearDunning
+  claimDunningStep, dunningSentFor, clearDunning, leadAdClick
 } from '../lib/db.js';
 import {
   sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt,
@@ -304,6 +304,21 @@ export default async function handler(req, res) {
         try {
           const bd = charge?.billing_details || {};
           const parts = String(name || '').trim().split(/\s+/);
+          /* A sale with no ad click on it is usually a sale from a reminder
+             email: the ad opened in Facebook's browser, the email in Gmail's,
+             and the second has never seen the click. The lead kept it, so the
+             purchase is credited to the ad that found the buyer. The browser
+             id goes with it - it is the one Meta saw - while a sale that does
+             carry its own click is reported exactly as it came. */
+          let ad = { fbclid: pi.metadata?.fbclid || null, fbclidAt: Number(pi.metadata?.fbclid_at) || null, fbp: pi.metadata?.fbp || null };
+          if (!ad.fbclid) {
+            const kept = await leadAdClick(email).catch(() => null);
+            if (kept?.fbclid) {
+              ad = { fbclid: kept.fbclid, fbclidAt: kept.fbclidAt, fbp: kept.fbp || ad.fbp };
+              console.log('[stripe-webhook] Purchase credited to the ad click kept on the lead for', email,
+                pi.metadata?.reminder ? `(came from ${pi.metadata.reminder})` : '');
+            }
+          }
           await sendPurchase({
             sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/${engine ? 'checkout-engine.html' : 'checkout.html'}`,
             email,
@@ -312,9 +327,9 @@ export default async function handler(req, res) {
             city: bd.address?.city || null,
             zip: bd.address?.postal_code || null,
             country: bd.address?.country || null,
-            fbclid: pi.metadata?.fbclid || null,
-            fbclidAt: Number(pi.metadata?.fbclid_at) || null,
-            fbp: pi.metadata?.fbp || null,
+            fbclid: ad.fbclid,
+            fbclidAt: ad.fbclidAt,
+            fbp: ad.fbp,
             ip: pi.metadata?.client_ip || null,
             ua: pi.metadata?.client_ua || null
           }, { amount: pi.amount, currency: pi.currency, eventId: pi.id });
@@ -635,6 +650,12 @@ export default async function handler(req, res) {
                 ip: m.client_ip || null,
                 ua: m.client_ua || null
               };
+              // Joined from a reminder email, in a browser with no click in it:
+              // the same fallback as the $1 sale above, for the same reason.
+              if (!who.fbclid) {
+                const kept = await leadAdClick(payerEmail).catch(() => null);
+                if (kept?.fbclid) Object.assign(who, { fbclid: kept.fbclid, fbclidAt: kept.fbclidAt, fbp: kept.fbp || who.fbp });
+              }
               // Keyed on the invoice: a webhook retry is de-duplicated, and
               // next year's renewal has an id of its own.
               const money = { amount: invoice.amount_paid, currency: invoice.currency, eventId: invoice.id };
