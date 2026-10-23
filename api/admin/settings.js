@@ -1,7 +1,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { setSetting } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
-import { reminderSettings, STEPS } from '../../lib/reminders.js';
+import { reminderSettings, STEPS, FE_STEPS } from '../../lib/reminders.js';
 
 /**
  * GET  /api/admin/settings  — the current knobs
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       }
 
       const delays = body.delays && typeof body.delays === 'object' ? body.delays : {};
-      for (const step of STEPS) {
+      for (const step of [...STEPS, ...FE_STEPS]) {
         if (delays[step.delayKey] === undefined) continue;
         const hours = Number.parseFloat(delays[step.delayKey]);
         if (!Number.isFinite(hours) || hours < 0.25 || hours > 168) {

@@ -1,7 +1,7 @@
 import { sessionEmail } from '../../lib/session.js';
 import { normalizeEmail } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
-import { eligibleFor, sendStepTo, STEPS } from '../../lib/reminders.js';
+import { eligibleFor, sendStepTo, STEPS, FE_STEPS } from '../../lib/reminders.js';
 
 /**
  * POST /api/admin/send-reminder  { emails: [...], kind }
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const kind = String(body.kind || STEPS[0].kind);
-    if (!STEPS.some((s) => s.kind === kind)) return res.status(400).json({ error: 'unknown reminder' });
+    if (![...STEPS, ...FE_STEPS].some((s) => s.kind === kind)) return res.status(400).json({ error: 'unknown reminder' });
 
     const asked = Array.isArray(body.emails) ? body.emails.map(normalizeEmail).filter(Boolean) : [];
     if (!asked.length) return res.status(400).json({ error: 'no addresses given' });

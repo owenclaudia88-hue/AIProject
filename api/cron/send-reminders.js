@@ -55,7 +55,8 @@ export default async function handler(req, res) {
     const report = {};
     // Later steps first: a person who has just been sent step one is not
     // then immediately sent step two in the same pass.
-    for (const step of [...settings.steps].reverse()) {
+    // The Funnel Engine's four run on the same pass, the same way round.
+    for (const step of [...[...settings.steps].reverse(), ...[...settings.feSteps].reverse()]) {
       const due = await dueFor(step.kind, step.delayHours);
       if (!due.length) { report[step.kind] = { due: 0, sent: 0 }; continue; }
 
