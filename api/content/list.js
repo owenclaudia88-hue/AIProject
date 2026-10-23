@@ -1,5 +1,6 @@
 import { sessionEmail } from '../../lib/session.js';
 import { isActive, listContent, entitlementsFor } from '../../lib/db.js';
+import { funnelEngineLock } from '../../lib/products.js';
 
 /**
  * GET /api/content/list — the member library catalog.
@@ -19,7 +20,9 @@ export default async function handler(req, res) {
       (groups[r.kind] ||= []).push({
         key: r.key, title: r.title, filename: r.filename,
         sizeBytes: r.size_bytes != null ? Number(r.size_bytes) : null,
-        locked: r.locked === true
+        locked: r.locked === true,
+        // Sold on their own page rather than lent by the membership.
+        ...(r.locked ? funnelEngineLock(r.requires) || {} : {})
       });
     }
     return res.status(200).json({ groups });

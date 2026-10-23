@@ -2,9 +2,9 @@ import { sessionEmail } from '../../lib/session.js';
 import { isActive, listCourses, entitlementsFor } from '../../lib/db.js';
 import { isTester } from '../../lib/testers.js';
 import { isAdmin } from '../../lib/admin.js';
-import { FUNNEL_ENGINE, EDWARD, DFY_OPERATORS } from '../../lib/products.js';
+import { EDWARD, DFY_OPERATORS, funnelEngineOnShow, funnelEngineLock } from '../../lib/products.js';
 
-const BUMP_ONLY = new Set([EDWARD, DFY_OPERATORS]);
+const BUMPS = new Set([EDWARD, DFY_OPERATORS]);
 
 /** GET /api/courses/list — the Courses tab: one card per course, with stats. */
 export default async function handler(req, res) {
@@ -16,13 +16,15 @@ export default async function handler(req, res) {
     // only. Separate from the lock: that says "not bought", this says "not
     // for sale yet".
     const preview = isTester(email) || isAdmin(email);
-    const rows = await listCourses(await entitlementsFor(email), { preview });
-    /* The Funnel Engine is not lent by the membership, so its lock sends
-       people to its own page rather than to join.html. Its two bumps are
-       sold only at that checkout: somebody without them has nowhere to buy
-       them, so a lock on them would be a door with no handle - they are left
-       out of the list until bought. */
-    const courses = rows.filter((r) => !(r.locked && BUMP_ONLY.has(r.requires))).map(r => ({
+    const entitled = await entitlementsFor(email);
+    const rows = await listCourses(entitled, { preview });
+    const onShow = new Set(funnelEngineOnShow(entitled));
+    /* The Funnel Engine is not lent by the membership, so its lock - and its
+       two bumps' - sends people to its own page rather than to join.html. The
+       bumps are sold only at that checkout, so somebody who already owns the
+       engine without one has nowhere to buy it: a lock there would be a door
+       with no handle, and the course is left out until it is theirs. */
+    const courses = rows.filter((r) => !(r.locked && BUMPS.has(r.requires) && !onShow.has(r.requires))).map(r => ({
       slug: r.slug, title: r.title,
       lessonCount: r.lesson_count,
       sectionCount: r.section_count,
@@ -30,7 +32,7 @@ export default async function handler(req, res) {
       // Shown with a lock rather than hidden: a course nobody can see is a
       // course nobody knows they are missing.
       locked: r.locked === true,
-      buy: r.locked && r.requires === FUNNEL_ENGINE ? '/funnel-engine' : null
+      ...(r.locked ? funnelEngineLock(r.requires) || {} : {})
     }));
     return res.status(200).json({ courses });
   } catch (err) {

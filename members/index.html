@@ -1881,7 +1881,8 @@ button{font-family:inherit}
 
     var dls = 0;
     Object.keys(downloads).forEach(function (k) {
-      downloads[k].forEach(function (it) { if (it.locked) dls++; });
+      // Not the Funnel Engine's: the membership would not open those.
+      downloads[k].forEach(function (it) { if (it.locked && !it.buy) dls++; });
     });
     // Not the ones sold on their own: the membership would not open those.
     var shutCourses = courses.filter(function (c) { return c.locked && !c.buy; }).length;
@@ -3246,7 +3247,7 @@ button{font-family:inherit}
       '<div class="cc-top"><span class="g">\ud83c\udf93</span></div>' +
       '<div class="cc-body"><h3>' + esc(co.title) + '</h3>' +
       '<div class="cc-meta">' + esc(meta) + '</div>' +
-      '<span class="cc-unlock">' + (own ? 'Get it · $100 one-time \u2192' : 'Unlock with the membership \u2192') + '</span>' +
+      '<span class="cc-unlock">' + (own ? esc(co.buyLabel || 'Get it') + ' \u2192' : 'Unlock with the membership \u2192') + '</span>' +
       '</div></a>';
   }
 
@@ -3646,7 +3647,9 @@ button{font-family:inherit}
           // A locked download used to offer a button that led straight to a
           // refusal. It offers the way in instead.
           '<div class="foot">' + (it.locked
-            ? '<a class="dl locked" href="join.html">\ud83d\udd12 Unlock</a>'
+            ? (it.buy
+                ? '<a class="dl locked" href="' + esc(it.buy) + '">\ud83d\udd12 ' + esc(it.buyLabel || 'Get it') + '</a>'
+                : '<a class="dl locked" href="join.html">\ud83d\udd12 Unlock</a>')
             : '<a class="dl" href="/api/content/download?key=' + encodeURIComponent(it.key) + '">Download</a>') +
           '</div></div></div>';
       });
