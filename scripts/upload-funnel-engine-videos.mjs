@@ -14,6 +14,8 @@
  * started again.
  */
 import { readFile, writeFile, readdir, stat } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
+import https from 'node:https';
 import path from 'node:path';
 
 const LIB = process.env.BUNNY_STREAM_LIBRARY_ID;
@@ -121,6 +123,25 @@ const api = async (method, url, body, headers = {}) => {
   return text ? JSON.parse(text) : {};
 };
 
+/* The video itself, streamed from disk with plain https rather than fetch.
+   fetch gives up when the reply takes more than five minutes to start, and
+   Bunny takes that long to answer after the last byte of a big file: the
+   709 MB Live Q&A failed that way four times running. Streaming also keeps
+   the whole file out of memory. */
+const putFile = (guid, file, size) => new Promise((resolve, reject) => {
+  const req = https.request({
+    method: 'PUT', host: 'video.bunnycdn.com', path: `/library/${LIB}/videos/${guid}`,
+    headers: { AccessKey: KEY, 'content-type': 'application/octet-stream', 'content-length': size }
+  }, (res) => {
+    let text = '';
+    res.on('data', (c) => { text += c; });
+    res.on('end', () => (res.statusCode < 300 ? resolve() : reject(new Error(`PUT ${guid} -> ${res.statusCode} ${text.slice(0, 200)}`))));
+  });
+  req.setTimeout(0);
+  req.on('error', reject);
+  createReadStream(file).on('error', reject).pipe(req);
+});
+
 const files = (await readdir(dir)).filter((f) => f.toLowerCase().endsWith('.mp4'));
 const plan = LESSONS.map(([slug, title, prefix]) => {
   const hits = prefix.startsWith('=') ? files.filter((f) => f === prefix.slice(1)) : files.filter((f) => f.startsWith(prefix));
@@ -175,7 +196,7 @@ for (const { slug, title, file } of plan) {
     { 'content-type': 'application/json' });
   const size = (await stat(file)).size;
   const t = Date.now();
-  await api('PUT', `/videos/${video.guid}`, await readFile(file), { 'content-type': 'application/octet-stream' });
+  await putFile(video.guid, file, size);
   map[slug] = { guid: video.guid, title };
   console.log(`+ ${slug}: ${(size / 1e6).toFixed(1)} MB in ${((Date.now() - t) / 1000).toFixed(0)}s -> ${video.guid}`);
   await writeFile(OUT, JSON.stringify(map, null, 2));
