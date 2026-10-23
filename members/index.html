@@ -606,6 +606,12 @@ button{font-family:inherit}
 .pl-content pre,.pl-content code{background:#0e0e10;border:1px solid var(--line);border-radius:8px;font-family:var(--mono);font-size:.85rem}
 .pl-content pre{padding:14px;overflow:auto}
 .pl-content a{color:var(--accent-2)}
+/* A lesson table, first used by the Funnel Engine's /Integrate lesson. Its own
+   scroll box, so three columns on a phone scroll inside it instead of pushing
+   the whole lesson wider than the screen. */
+.pl-content table{display:block;overflow-x:auto;border-collapse:collapse;margin:14px 0;font-size:.88rem}
+.pl-content th,.pl-content td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;min-width:120px}
+.pl-content th{color:#fff;background:#0e0e10}
 /* a recording sitting inside the lesson body, one per marker */
 .pl-content .lesson-clip{position:relative;aspect-ratio:16/9;margin:18px 0;border-radius:12px;
   background:#000;border:1px solid var(--line)}
@@ -1539,6 +1545,12 @@ button{font-family:inherit}
     // the thing they paid for without reading six titles.
     carousel: { label: 'Carousel Studio',      glyph: '🎠', blurb: 'Instagram and LinkedIn carousels.' },
     adstudio: { label: 'Ad Creative Studio',   glyph: '🎯', blurb: 'Facebook and Instagram ads.' },
+    // Bought on its own, never lent by the membership: the shelf only ever
+    // shows this section to somebody who paid for it.
+    funnelengine: { label: 'The Funnel Engine', glyph: '🚀', blurb: 'Your engine, its two skills and the bonuses.' },
+    // Its two order bumps, each its own shelf for the same reason.
+    edward: { label: 'Edward', glyph: '📣', blurb: 'Your AI media buyer and the ad templates.' },
+    operators: { label: 'DFY AI Operators', glyph: '🧠', blurb: 'All sixteen operators in one skill.' },
     powerup: { label: 'Power-Ups',             glyph: '⚡', blurb: 'Focused packs for every job.' },
     course:  { label: 'Course files',          glyph: '🎓', blurb: 'Downloadable course material.' }
   };
@@ -3505,7 +3517,7 @@ button{font-family:inherit}
        is where Ad Creative Studio landed on the day it was added — a thing
        somebody had just paid $6.99 for, sitting below the plugins and course
        files that come free with the membership. */
-    var order = ['carousel', 'adstudio', 'plugin', 'powerup', 'course'];
+    var order = ['funnelengine', 'edward', 'operators', 'carousel', 'adstudio', 'plugin', 'powerup', 'course'];
     var kinds = Object.keys(downloads).sort(function (a, b) {
       var ia = order.indexOf(a), ib = order.indexOf(b);
       return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
