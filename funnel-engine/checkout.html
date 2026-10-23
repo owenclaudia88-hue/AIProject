@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Secure Checkout — The Funnel Engine</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#14110f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://js.stripe.com">
+<!-- Same build as the lifetime-access checkout - the bump boxes, the order
+     repriced on every tick, wallets that will not open on a stale total - with
+     the Funnel Engine's own product, its own two bumps and its own endpoint.
+     No bonus offer reaches this page and nothing after it: it goes straight
+     to the confirmation. -->
+<script src="https://js.stripe.com/v3/" defer></script>
+<script src="/assets/track.js" defer></script>
+<style>
+:root{
+  --paper:#fbf7f1;--paper-2:#f4ede3;--card:#fff;
+  --ink:#14110f;--ink-2:#4a433c;--ink-3:#8a8177;
+  --line:#e7ded2;--line-2:#d8ccbc;
+  --hot:#ff5a1f;--hot-soft:#ffe9dc;--ok:#10a36c;--ok-soft:#e1f5ec;--bad:#e5484d;
+  --night:#14110f;
+  --shadow:0 1px 0 rgba(20,17,15,.04),0 12px 40px -12px rgba(20,17,15,.18);
+  --display:'Bricolage Grotesque',Inter,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.02em;line-height:1.1}
+p{margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:18px}
+.head{background:var(--night);color:#fff}
+.head .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;height:68px}
+.head img{height:36px;width:auto;display:block}
+.head .sec{display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:#cfe9dd}
+.head .sec svg{width:15px;height:15px}
+.grid{display:grid;grid-template-columns:1.12fr .88fr;gap:26px;align-items:start;padding:26px 0 60px}
+.hello h1{font-size:clamp(1.6rem,3.6vw,2.2rem);font-weight:800}
+.hello h1 .hot{color:var(--hot)}
+.hello p{color:var(--ink-2);margin-top:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.pay{margin-top:18px}
+.lab{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:0 0 10px}
+.row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.field input{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);border:1.5px solid var(--line-2);border-radius:12px;padding:13px 14px;outline:none}
+.field input:focus{border-color:var(--ink);background:#fff}
+.field input.bad{border-color:var(--bad);background:#fff5f5}
+.field .err{display:none;color:var(--bad);font-size:.8rem;margin-top:4px}
+.field input.bad + .err{display:block}
+.sep{height:1px;background:var(--line);margin:20px 0}
+.iab-hint{font-size:.84rem;line-height:1.4;color:var(--ink-2);background:var(--paper);border:1px dashed var(--line-2);border-radius:12px;padding:10px 12px;margin:0 0 12px}
+.iab-hint b{color:var(--ink)}
+.or{display:flex;align-items:center;gap:12px;color:var(--ink-3);font-size:.8rem;margin:16px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.skel{height:180px;border-radius:12px;background:linear-gradient(90deg,#f3ece2 25%,#faf5ee 50%,#f3ece2 75%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.note{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:.9rem;background:#fff1f1;color:#b4232a;border:1px solid #f7caca}
+.note.show{display:block}
+#payment.flag{border-radius:14px;box-shadow:0 0 0 3px rgba(229,72,77,.55);animation:payflag 1.2s ease 2}
+@keyframes payflag{50%{box-shadow:0 0 0 7px rgba(229,72,77,.25)}}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:18px;border:0;cursor:pointer;font:700 1.12rem/1.2 Inter,sans-serif;color:#fff;background:var(--hot);border-radius:14px;padding:19px 20px;box-shadow:0 6px 0 #c53d0c,0 14px 30px -8px rgba(255,90,31,.6);transition:transform .1s,box-shadow .1s,filter .15s}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c53d0c}
+.btn[disabled]{opacity:.7;cursor:progress}
+.btn svg{width:19px;height:19px}
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rt .7s linear infinite}
+@keyframes rt{to{transform:rotate(360deg)}}
+.under{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-top:14px;font-size:.8rem;color:var(--ink-2)}
+.under span{display:inline-flex;align-items:center;gap:5px}
+.under svg{width:14px;height:14px;color:var(--ok)}
+.methods{display:flex;justify-content:center;margin-top:12px}
+.methods img{display:block;width:100%;max-width:303px;height:auto;pointer-events:none}
+.terms{font-size:.74rem;color:var(--ink-3);text-align:center;margin-top:12px}
+.terms a{color:var(--ink-2)}
+.side{display:grid;gap:14px;position:sticky;top:16px}
+.sum h3{font-size:1.1rem}
+.prod{display:flex;gap:14px;align-items:center;margin-top:14px}
+.box{flex:none;width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#ff5a1f,#ff9a3c);display:grid;place-items:center;color:#fff;font-size:1.8rem;box-shadow:0 8px 20px -8px rgba(255,90,31,.7)}
+.prod b{display:block;font-size:.98rem;line-height:1.25}
+.prod span{font-size:.82rem;color:var(--ink-3)}
+.prod .pr{margin-left:auto;font-weight:700}
+.items{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:7px;font-size:.88rem}
+.items li{display:flex;gap:8px;align-items:flex-start}
+.items li::before{content:"✓";color:var(--ok);font-weight:800}
+.items .bn{color:var(--ink-2)}
+.items .free{margin-left:auto;font-size:.72rem;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:2px 7px;border-radius:999px;white-space:nowrap}
+.tot{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line-2);margin-top:14px;padding-top:14px}
+.tot span{font-weight:600}
+.tot b{font-family:var(--display);font-size:1.8rem}
+.tot small{display:block;text-align:right;font-size:.74rem;color:var(--ink-3)}
+.tot.updating b{opacity:.45}
+.guar{display:flex;gap:14px;align-items:center}
+.seal{flex:none;width:58px;height:58px;border-radius:50%;background:var(--ok-soft);border:2px dashed var(--ok);display:grid;place-items:center;color:var(--ok);font-family:var(--display);font-weight:800;font-size:1.3rem;line-height:1;text-align:center}
+.seal small{display:block;font:700 .46rem Inter,sans-serif;letter-spacing:.05em}
+.guar b{font-size:.95rem}
+.guar p{font-size:.84rem;color:var(--ink-2);margin-top:3px}
+.next h3{font-size:1rem}
+.next ol{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:n}
+.next li{display:flex;gap:10px;font-size:.88rem;color:var(--ink-2)}
+.next li::before{counter-increment:n;content:counter(n);flex:none;width:22px;height:22px;border-radius:50%;background:var(--hot-soft);color:var(--hot);font-weight:800;font-size:.74rem;display:grid;place-items:center}
+.next b{color:var(--ink)}
+.mobile-sum{display:none}
+.bumps{display:grid;gap:12px;margin:20px 0 6px}
+.bumps-h{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--hot);display:flex;align-items:center;gap:8px}
+.bumps-h::before{content:"";width:18px;height:2px;background:var(--hot);border-radius:2px}
+.bump{position:relative;display:block;border:2px dashed #f2b48f;background:#fff8ef;border-radius:16px;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}
+.bump:hover{border-color:var(--hot)}
+.bump.on{border-style:solid;border-color:var(--ok);background:#f2fbf6;box-shadow:0 0 0 4px rgba(16,163,108,.1)}
+.bump input{position:absolute;opacity:0;pointer-events:none}
+.bump-top{display:flex;align-items:center;gap:12px;padding:13px 14px;background:#ffe9dc;border-radius:14px 14px 0 0;font-weight:700;font-size:.97rem;line-height:1.3}
+.bump.on .bump-top{background:#dff4e9}
+.bump-box{flex:none;width:26px;height:26px;border-radius:7px;border:2px solid var(--hot);background:#fff;display:grid;place-items:center;transition:all .15s}
+.bump-box svg{width:16px;height:16px;color:#fff;opacity:0;transform:scale(.4);transition:all .15s}
+.bump.on .bump-box{background:var(--ok);border-color:var(--ok)}
+.bump.on .bump-box svg{opacity:1;transform:none}
+.bump input:focus-visible + .bump-top .bump-box{outline:3px solid rgba(255,90,31,.35);outline-offset:2px}
+.arrow-nudge{color:var(--hot);animation:nudge 1.1s ease-in-out infinite}
+.bump.on .arrow-nudge{display:none}
+@keyframes nudge{50%{transform:translateX(4px)}}
+.bump-top .yes{flex:1}
+.bump-top .pr{flex:none;font-family:var(--display);font-size:1.15rem;color:var(--hot)}
+.bump.on .bump-top .pr{color:var(--ok)}
+.bump-body{padding:12px 14px 14px;font-size:.88rem;color:var(--ink-2);line-height:1.5}
+.bump-body b{color:var(--ink)}
+.bump-body ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px}
+.bump-body li{display:flex;gap:7px}
+.bump-body li::before{content:"✓";color:var(--ok);font-weight:800}
+.bump-tag{display:block;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);margin-top:8px}
+.addon-line{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-2)}
+.addon-line b{font-weight:600}
+.addon-line span{flex:none;font-weight:700}
+footer{text-align:center;color:var(--ink-3);font-size:.74rem;padding:0 18px 40px}
+footer a{color:var(--ink-2)}
+@media (max-width:880px){
+  .grid{grid-template-columns:1fr;gap:16px;padding-top:14px}
+  .side{position:static}
+  .side .sum{display:none}
+  .mobile-sum{display:block;margin-top:16px}
+}
+@media (max-width:420px){
+  .bump-top{font-size:.92rem;gap:10px;padding:12px}
+  .bump-body{font-size:.85rem}
+  .wrap{padding-inline:14px}
+  .card{padding:18px}
+  .row{grid-template-columns:1fr}
+}
+</style>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "ynteh1taus");
+</script>
+<script>window.AIFU_MS_CID = '255018603';</script>
+<script>(function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"97272467",enableAutoSpaTracking:true};o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;s&&s!=="loaded"&&s!=="complete"||(f(),n.onload=n.onreadystatechange=null)},i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,"script","//bat.bing.com/bat.js","uetq");</script>
+</head>
+<body>
+
+<header class="head">
+  <div class="wrap">
+    <a href="/funnel-engine"><img src="/assets/logo.webp" alt="AI Founder University" width="720" height="139"></a>
+    <div class="sec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Secure checkout</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <main>
+      <div class="hello">
+        <h1 id="hello">Launch your offer <span class="hot">this week.</span></h1>
+        <p>Complete your <b id="hello-price">$100</b> order below. Your Funnel Engine is in your inbox the second you pay.</p>
+      </div>
+
+      <div class="card mobile-sum">
+        <div class="prod">
+          <div class="box">🚀</div>
+          <div><b>The Funnel Engine</b><span>Lifetime access</span></div>
+          <div class="pr">$100.00</div>
+        </div>
+        <div class="addon-lines"></div>
+        <div class="tot tot-m" hidden><span>Total today</span><div><b class="tot-val">$100.00</b></div></div>
+      </div>
+
+      <form class="card pay" id="payform" novalidate>
+        <div class="iab-hint" id="iabHint" hidden>📱 <b>Paying from Facebook or Instagram?</b> Tap <b>⋯</b> (top right) → <b>Open in browser</b> to pay in one tap with Apple Pay or Google Pay.</div>
+        <div class="lab">Your details</div>
+        <div class="row">
+          <div class="field"><input id="name" type="text" autocomplete="given-name" placeholder="First name" aria-label="First name"><p class="err">Enter your first name.</p></div>
+          <div class="field"><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="Email for your access" aria-label="Email"><p class="err">Enter a valid email — your access goes here.</p></div>
+        </div>
+
+        <div class="bumps" id="bumps">
+          <div class="bumps-h">Add to your order — one-time price</div>
+
+          <label class="bump" data-addon="edward">
+            <input type="checkbox" value="edward" aria-describedby="bump-edward-d">
+            <div class="bump-top">
+              <span class="arrow-nudge" aria-hidden="true">➜</span>
+              <span class="bump-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              <span class="yes">Yes! Add Edward, my AI media buyer</span>
+              <span class="pr">+$47</span>
+            </div>
+            <div class="bump-body" id="bump-edward-d">
+              <b>Your funnel is live. Now fill it.</b> Edward writes your Meta ads, makes your images and builds your campaign with you, in Claude or ChatGPT:
+              <ul>
+                <li>5 primary texts, 5 headlines and 5 descriptions for your offer</li>
+                <li>A clean $150 test, built for you and switched off until you approve it</li>
+                <li>What to do when an ad dies: the three bottlenecks and how to tell them apart</li>
+              </ul>
+              <span class="bump-tag">Edward + the Evergreen Ads 3.0 workshop and ad templates · one-time $47</span>
+            </div>
+          </label>
+
+          <label class="bump" data-addon="operators">
+            <input type="checkbox" value="operators" aria-describedby="bump-operators-d">
+            <div class="bump-top">
+              <span class="arrow-nudge" aria-hidden="true">➜</span>
+              <span class="bump-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>
+              <span class="yes">Yes! Add all 16 DFY AI Operators</span>
+              <span class="pr">+$197</span>
+            </div>
+            <div class="bump-body" id="bump-operators-d">
+              <b>Don't have the offer yet? The operators build it with you.</b> One skill holds all sixteen. Type <i>start micro offer</i> and it walks you through:
+              <ul>
+                <li>Your promise, your offer and your sales page</li>
+                <li>Your first buyers, your ad test and your emails</li>
+                <li>Upsells and more money per buyer once it sells</li>
+              </ul>
+              <span class="bump-tag">All 16 operators in one skill · one-time $197</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="sep"></div>
+        <div class="lab">Payment</div>
+        <div id="express"></div>
+        <div class="or" id="or" hidden>or pay with card</div>
+        <div id="payment"><div class="skel"></div></div>
+        <div class="note" id="note" role="alert"></div>
+
+        <button class="btn" id="paybtn" type="submit" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          <span id="paylabel">Complete My Order — $100</span>
+        </button>
+        <div class="under">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>72-hour money-back guarantee</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Instant access</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>One payment, no subscription</span>
+        </div>
+        <div class="methods"><img src="/assets/card-brands.webp" alt="Visa, Mastercard, American Express and Discover accepted" width="303" height="44" decoding="async"></div>
+        <p class="terms">Payments are encrypted and processed by Stripe. We never see or store your card details. By ordering you agree to our <a href="https://aifounderuniversity.com/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="https://aifounderuniversity.com/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+      </form>
+    </main>
+
+    <aside class="side">
+      <div class="card sum">
+        <h3>Order summary</h3>
+        <div class="prod">
+          <div class="box">🚀</div>
+          <div><b>The Funnel Engine</b><span>Lifetime access</span></div>
+          <div class="pr">$100.00</div>
+        </div>
+        <ul class="items">
+          <li>The Funnel Engine, yours forever</li>
+          <li>The Quick Start skill</li>
+          <li>The /Integrate skill</li>
+          <li>The full workshop recording</li>
+          <li class="bn">Claude Code &amp; Codex 80/20 Sheet <span class="free">BONUS</span></li>
+          <li class="bn">The 10/90 Launch Brief <span class="free">BONUS</span></li>
+          <li class="bn">Claude From Your Phone <span class="free">BONUS</span></li>
+        </ul>
+        <div class="addon-lines"></div>
+        <div class="tot"><span>Total today</span><div><b class="tot-val">$100.00</b><small>one payment · USD</small></div></div>
+      </div>
+
+      <div class="card guar">
+        <div class="seal"><div>72<small>HOURS</small></div></div>
+        <div><b>72-hour money-back guarantee</b><p>Set it up. If within 72 hours you're not sure you can build and launch an offer with Claude, email support and you get every cent back.</p></div>
+      </div>
+
+      <div class="card next">
+        <h3>What happens next</h3>
+        <ol>
+          <li><span><b>The second you pay</b> — your sign-in link lands in your inbox.</span></li>
+          <li><span><b>Install it</b> — tell Claude "Install my Funnel Engine" and do the logins.</span></li>
+          <li><span><b>Every offer after that</b> — idea to live in about 30 minutes.</span></li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  © 2026 AI Founder University · <a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a><br>
+  Claude is a trademark of Anthropic. This product is independent and not affiliated with or endorsed by Anthropic.
+</footer>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var SUCCESS = '/funnel-engine/success.html';
+  var SUPPORT = 'support@aifounderuniversity.com';
+
+  function stripeReady() {
+    if (window.Stripe) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var waited = 0;
+      var t = setInterval(function () {
+        if (window.Stripe) { clearInterval(t); resolve(); return; }
+        waited += 40;
+        if (waited >= 10000) { clearInterval(t); reject(new Error('The payment form could not load. Please refresh and try again.')); }
+      }, 40);
+    });
+  }
+  // Deferred scripts have run by DOMContentLoaded; the order waits for the
+  // tracker so the click id and landing page reach it (see the lifetime checkout).
+  function trackReady() {
+    return new Promise(function (resolve) {
+      if (document.readyState !== 'loading') resolve();
+      else document.addEventListener('DOMContentLoaded', function () { resolve(); });
+    });
+  }
+
+  var nameEl = $('name'), emailEl = $('email'), btn = $('paybtn'), label = $('paylabel'), note = $('note');
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if (/FBAN|FBAV|FB_IAB|Instagram/i.test(navigator.userAgent || '')) $('iabHint').hidden = false;
+  [nameEl, emailEl].forEach(function (el) { el.addEventListener('input', function () { el.classList.remove('bad'); }); });
+
+  function details(focus) {
+    var ok = true;
+    if (nameEl.value.trim().length < 2) { nameEl.classList.add('bad'); ok = false; }
+    if (!EMAIL_RE.test(emailEl.value.trim())) { emailEl.classList.add('bad'); ok = false; }
+    if (!ok && focus) (nameEl.classList.contains('bad') ? nameEl : emailEl).focus();
+    return ok;
+  }
+  function who() { return { name: nameEl.value.trim(), email: emailEl.value.trim().toLowerCase() }; }
+  function showNote(msg) { note.textContent = msg; note.classList.add('show'); }
+  function hideNote() { note.classList.remove('show'); }
+  function cardAttention() {
+    var box = $('payment');
+    box.classList.remove('flag'); void box.offsetWidth; box.classList.add('flag');
+    var y = box.getBoundingClientRect().top + window.scrollY - 90;
+    window.scrollTo({ top: y < 0 ? 0 : y, behavior: 'smooth' });
+  }
+
+  /* The lead: the page itself on arrival, and the person once a real name and
+     email are in. The second is what files them as a lead - with the ad click,
+     so a sale made later from another browser is still credited to the ad. */
+  trackReady().then(function () { if (window.aifuTrackOnce) window.aifuTrackOnce('Lead'); });
+  function maybeInitiate() {
+    if (!window.aifuTrackOnce || nameEl.value.trim().length < 2 || !EMAIL_RE.test(emailEl.value.trim())) return;
+    window.aifuTrackOnce('InitiateCheckout', { email: emailEl.value.trim(), firstName: nameEl.value.trim().split(/\s+/)[0] });
+  }
+  nameEl.addEventListener('blur', maybeInitiate);
+  emailEl.addEventListener('blur', function () { maybeInitiate(); if (EMAIL_RE.test(emailEl.value.trim())) sync({ refresh: false }); });
+
+  /* ---------- the two bumps ----------
+   * Prices here are for display. The server reprices the order from its own
+   * list on every change (/api/update-payment-intent), and the page asks
+   * Stripe for the new total before it lets anybody pay. */
+  var BASE = 10000;
+  var BUMPS = {
+    edward:    { name: 'Edward (Evergreen Ads 3.0)', cents: 4700 },
+    operators: { name: 'All 16 DFY AI Operators',    cents: 19700 }
+  };
+  var total = BASE, chosen = [], syncing = Promise.resolve(), syncOk = true, pending = 0;
+  function fmt(c) { return '$' + (c % 100 ? (c / 100).toFixed(2) : String(c / 100)); }
+  function money(c) { return '$' + (c / 100).toFixed(2); }
+
+  function paint() {
+    total = BASE + chosen.reduce(function (s, k) { return s + BUMPS[k].cents; }, 0);
+    document.querySelectorAll('.addon-lines').forEach(function (box) {
+      box.innerHTML = chosen.map(function (k) {
+        return '<div class="addon-line"><b>+ ' + BUMPS[k].name + '</b><span>' + money(BUMPS[k].cents) + '</span></div>';
+      }).join('');
+    });
+    document.querySelectorAll('.tot-val').forEach(function (el) { el.textContent = money(total); });
+    document.querySelectorAll('.tot-m').forEach(function (el) { el.hidden = !chosen.length; });
+    $('hello-price').textContent = fmt(total);
+    if (label.textContent.indexOf('Processing') === -1) label.textContent = 'Complete My Order — ' + fmt(total);
+  }
+
+  function sync(opts) {
+    var refresh = !(opts && opts.refresh === false);
+    var body = { clientSecret: clientSecret, addons: chosen.slice(), email: emailEl.value.trim() };
+    pending += 1;
+    syncing = syncing.then(function () {
+      if (!clientSecret) return;
+      document.querySelectorAll('.tot').forEach(function (el) { el.classList.add('updating'); });
+      return fetch('/api/update-payment-intent', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'error'); return j; }); })
+      .then(function (j) {
+        if (typeof j.amount === 'number') total = j.amount;
+        return refresh && elements && elements.fetchUpdates ? elements.fetchUpdates() : null;
+      })
+      .then(function () { syncOk = true; })
+      .catch(function (err) { syncOk = false; showNote((err && err.message) || 'We could not update your order. Please try again.'); })
+      .then(function () { document.querySelectorAll('.tot').forEach(function (el) { el.classList.remove('updating'); }); });
+    }).then(function () { pending -= 1; });
+    return syncing;
+  }
+
+  document.querySelectorAll('.bump input').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      hideNote();
+      cb.closest('.bump').classList.toggle('on', cb.checked);
+      chosen = Object.keys(BUMPS).filter(function (k) {
+        var el = document.querySelector('.bump input[value="' + k + '"]');
+        return el && el.checked;
+      });
+      paint();
+      sync();
+      try { if (window.aifuTrack && cb.checked) window.aifuTrack('AddToCart', { content_name: BUMPS[cb.value].name }); } catch (e) {}
+    });
+  });
+
+  // Ticked on the sales page: /funnel-engine/checkout.html?bumps=edward,operators.
+  // The server reprices once the intent exists (the sync after it is created).
+  (new URLSearchParams(location.search).get('bumps') || '').split(',').forEach(function (k) {
+    var cb = BUMPS[k] && document.querySelector('.bump input[value="' + k + '"]');
+    if (!cb) return;
+    cb.checked = true;
+    cb.closest('.bump').classList.add('on');
+    if (chosen.indexOf(k) === -1) chosen.push(k);
+  });
+  if (chosen.length) paint();
+
+  function busy(on) {
+    btn.disabled = on;
+    label.textContent = on ? 'Processing…' : 'Complete My Order — ' + fmt(total);
+    var s = btn.querySelector('.spin');
+    if (on && !s) { s = document.createElement('span'); s.className = 'spin'; btn.insertBefore(s, label); btn.querySelector('svg').style.display = 'none'; }
+    if (!on && s) { s.remove(); btn.querySelector('svg').style.display = ''; }
+  }
+
+  /* ---------- Stripe ---------- */
+  var stripe, elements, clientSecret;
+  trackReady()
+  .then(function () {
+    return fetch('/api/create-payment-intent-funnel-engine', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fbclid: window.aifuFbclid ? window.aifuFbclid() : '',
+        fbclidAt: window.aifuFbclidAt ? window.aifuFbclidAt() : 0,
+        fbp: window.aifuFbp ? window.aifuFbp() : '',
+        msclkid: window.aifuMsclkid ? window.aifuMsclkid() : '',
+        vid: window.aifuVid ? window.aifuVid() : '',
+        landingUrl: window.aifuLandingUrl ? window.aifuLandingUrl() : '',
+        reminder: window.aifuReminder ? window.aifuReminder() : ''
+      })
+    });
+  })
+  .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'error'); return j; }); })
+  .then(function (j) { return stripeReady().then(function () { return j; }); })
+  .then(function (j) {
+    if (!j.clientSecret || !j.publishableKey) throw new Error('Incomplete response from server.');
+    stripe = Stripe(j.publishableKey);
+    clientSecret = j.clientSecret;
+    elements = stripe.elements({
+      clientSecret: clientSecret,
+      fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' }],
+      appearance: {
+        theme: 'stripe',
+        variables: {
+          colorPrimary: '#ff5a1f', colorText: '#14110f', colorTextSecondary: '#4a433c',
+          colorBackground: '#fbf7f1', colorDanger: '#e5484d', borderRadius: '12px',
+          fontFamily: 'Inter, system-ui, sans-serif', fontSizeBase: '16px', spacingUnit: '4px'
+        },
+        rules: {
+          '.Input': { border: '1.5px solid #d8ccbc', boxShadow: 'none', padding: '13px 14px' },
+          '.Input:focus': { borderColor: '#14110f', boxShadow: 'none', backgroundColor: '#ffffff' },
+          '.Tab': { border: '1.5px solid #d8ccbc', boxShadow: 'none' },
+          '.Tab--selected': { borderColor: '#14110f', boxShadow: 'none' },
+          '.Label': { fontWeight: '600', fontSize: '13px' }
+        }
+      }
+    });
+
+    var express = elements.create('expressCheckout', { buttonHeight: 52, buttonType: { applePay: 'buy', googlePay: 'buy' }, emailRequired: true });
+    express.on('ready', function (ev) {
+      var any = ev.availablePaymentMethods && Object.keys(ev.availablePaymentMethods).some(function (k) { return ev.availablePaymentMethods[k]; });
+      $('or').hidden = !any;
+    });
+    // A wallet must not open on a total that is still being repriced.
+    express.on('click', function (ev) {
+      if (pending > 0) { showNote('Updating your total — tap again in a second.'); return; }
+      hideNote(); ev.resolve();
+    });
+    express.on('confirm', function (ev) {
+      hideNote();
+      var d = who();
+      var email = (ev.billingDetails && ev.billingDetails.email) || d.email;
+      var name = (ev.billingDetails && ev.billingDetails.name) || d.name;
+      if (email && EMAIL_RE.test(email)) emailEl.value = email;
+      sync({ refresh: false }).then(function () {
+        if (!syncOk) { ev.paymentFailed && ev.paymentFailed({ reason: 'fail' }); return; }
+        stripe.confirmPayment({
+          elements: elements, clientSecret: clientSecret, redirect: 'if_required',
+          confirmParams: { return_url: new URL(SUCCESS, location.href).href }
+        }).then(function (res) { done(res, name, email); });
+      });
+    });
+    express.mount('#express');
+
+    var payment = elements.create('payment', {
+      layout: { type: 'tabs', defaultCollapsed: false },
+      wallets: { applePay: 'never', googlePay: 'never' },
+      fields: { billingDetails: { name: 'never', email: 'never' } },
+      terms: { card: 'never' }
+    });
+    $('payment').innerHTML = '';
+    payment.mount('#payment');
+    payment.on('ready', function () { btn.disabled = false; });
+    if (chosen.length) sync();
+  })
+  .catch(function () {
+    $('payment').innerHTML = '';
+    showNote('We couldn’t load the payment form. Please refresh the page, or email ' + SUPPORT + '.');
+  });
+
+  function done(res, name, email) {
+    if (res.error) {
+      busy(false);
+      showNote(res.error.message || 'Your payment didn’t go through. Please try again or use another card.');
+      cardAttention();
+      return;
+    }
+    var pi = res.paymentIntent;
+    try { sessionStorage.setItem('fe_paid', JSON.stringify({ id: pi.id, name: name, email: email, bumps: chosen.slice(), total: total })); } catch (e) {}
+    location.href = SUCCESS + '?payment_intent=' + encodeURIComponent(pi.id)
+      + '&payment_intent_client_secret=' + encodeURIComponent(pi.client_secret || '')
+      + '&redirect_status=' + encodeURIComponent(pi.status);
+  }
+
+  $('payform').addEventListener('submit', function (e) {
+    e.preventDefault();
+    hideNote();
+    if (!elements || !details(true)) return;
+    var d = who();
+    maybeInitiate();
+    busy(true);
+    sync().then(function () {
+      if (!syncOk) { busy(false); return; }
+      return stripe.confirmPayment({
+        elements: elements, redirect: 'if_required',
+        confirmParams: {
+          return_url: new URL(SUCCESS, location.href).href,
+          // No receipt_email: the webhook sends our own receipt.
+          payment_method_data: { billing_details: { name: d.name, email: d.email } }
+        }
+      }).then(function (res) { done(res, d.name, d.email); });
+    });
+  });
+})();
+</script>
+</body>
+</html>

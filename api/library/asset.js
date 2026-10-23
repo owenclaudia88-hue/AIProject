@@ -1,6 +1,6 @@
 import { get } from '@vercel/blob';
 import { sessionEmail } from '../../lib/session.js';
-import { isActive, getAsset } from '../../lib/db.js';
+import { isActive, getAsset, assetLocked, entitlementsFor } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 
 /**
@@ -22,6 +22,12 @@ export default async function handler(req, res) {
     const params = new URL(req.url, 'http://localhost').searchParams;
     const key = params.get('key');
     if (!key) return res.status(400).json({ error: 'missing key' });
+
+    // A product file (a skill's download) opens only for somebody who may
+    // open its item. Staff read everything they review.
+    if (!isAdmin(email) && await assetLocked(key, await entitlementsFor(email))) {
+      return res.status(403).json({ error: 'locked' });
+    }
 
     const asset = await getAsset(key);
     if (!asset) return res.status(404).json({ error: 'not found' });

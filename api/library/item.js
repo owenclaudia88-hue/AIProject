@@ -23,13 +23,14 @@ export default async function handler(req, res) {
     // See api/library/list.js: a written tutorial is open to the test account
     // and staff before it is open to the membership.
     const preview = isTester(email) || isAdmin(email);
-    const item = await getLibraryItem(id, await entitlementsFor(email), { preview });
+    const entitled = await entitlementsFor(email);
+    const item = await getLibraryItem(id, entitled, { preview });
     if (!item) return res.status(404).json({ error: 'not found' });
 
     const meta = item.meta || {};
     const [tiles, related, guideHtml] = await Promise.all([
       item.kind === 'image_prompt' ? getGallery(id) : Promise.resolve([]),
-      relatedLibraryItems(id, item.kind, item.category, 4, { preview }),
+      relatedLibraryItems(id, item.kind, item.category, 4, { preview, entitled }),
       getGuide(id)
     ]);
 

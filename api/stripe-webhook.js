@@ -5,7 +5,7 @@ import {
   claimDunningStep, dunningSentFor, clearDunning, leadAdClick
 } from '../lib/db.js';
 import {
-  sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt,
+  sendPurchaseConfirmation, sendEngineWelcome, sendCarouselWelcome, sendReceipt, sendFunnelEngineWelcome,
   sendPaymentRetry, sendPaymentRecovered, stepForAttempt
 } from '../lib/email.js';
 import { keepWelcomeCopy } from '../lib/welcome.js';
@@ -14,7 +14,8 @@ import { offerForSubscription } from '../lib/offer.js';
 import { billingUrl } from '../lib/billing-token.js';
 import { sendPurchase, sendMembershipPurchase } from '../lib/meta-capi.js';
 import { sendMsPurchase } from '../lib/ms-capi.js';
-import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS, COURSES, MEMBER_SOURCE }
+import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS, COURSES, MEMBER_SOURCE,
+  FUNNEL_ENGINE, FUNNEL_ENGINE_SOURCE, FUNNEL_ENGINE_NAME, FUNNEL_ENGINE_BUMPS, parseFunnelEngineBumps }
   from '../lib/products.js';
 
 /**
@@ -27,6 +28,11 @@ import { ENGINE_SOURCE, DEFAULT_SOURCE, ADDONS, parseAddons, ALL_ACCESS, COURSES
  */
 const ENGINE_ENTITLEMENT = 'routines';
 const isEngine = (pi) => pi?.metadata?.source === ENGINE_SOURCE;
+
+/* The Funnel Engine is a product on its own: it grants itself and its bumps
+   and nothing else. No membership, no trial, and no base member area for a
+   buyer who had none - see BASE in lib/products.js. */
+const isFunnelEngine = (pi) => pi?.metadata?.source === FUNNEL_ENGINE_SOURCE;
 
 const LIVE_SUB = new Set(['active', 'trialing', 'past_due', 'unpaid']);
 
@@ -203,7 +209,10 @@ export default async function handler(req, res) {
           // Which reminder email brought them, when one did. Set by the
           // checkout from the ?r= on the link, so this is the email they
           // actually came through rather than one that merely went out first.
-          reminder: pi.metadata?.reminder || undefined
+          reminder: pi.metadata?.reminder || undefined,
+          // A Funnel Engine order opens the Funnel Engine. Somebody who had
+          // the member area keeps it; somebody who did not, still does not.
+          base: !isFunnelEngine(pi)
         });
         console.log('[stripe-webhook] Access granted:', email);
 
@@ -217,10 +226,28 @@ export default async function handler(req, res) {
           console.log('[stripe-webhook] Engine entitlement granted:', email);
         }
 
+        // The Funnel Engine and whichever of its two bumps were ticked. The
+        // keys were written by /api/update-payment-intent, which priced them,
+        // so what is listed is what was paid for.
+        const funnel = isFunnelEngine(pi);
+        const feBumps = funnel ? parseFunnelEngineBumps(pi.metadata?.addons) : [];
+        if (funnel) {
+          await grantEntitlement(email, FUNNEL_ENGINE);
+          for (const key of feBumps) await grantEntitlement(email, FUNNEL_ENGINE_BUMPS[key].entitlement);
+          console.log('[stripe-webhook] Funnel Engine granted:', email, feBumps.length ? `+ ${feBumps.join(', ')}` : '');
+          // The checkout made the customer before it knew who they were. The
+          // trial block below is what names it for every other order, and
+          // this order never reaches it.
+          if (typeof pi.customer === 'string') {
+            await stripe.customers.update(pi.customer, { email, ...(name ? { name } : {}) })
+              .catch((err) => console.error('[stripe-webhook] could not name the customer:', err.message));
+          }
+        }
+
         // Add-ons ticked on the lifetime-access checkout, paid in this same
         // charge. The keys were written by /api/update-payment-intent, which
         // also set the amount, so what is listed here is what was paid for.
-        const addons = engine ? [] : parseAddons(pi.metadata?.addons);
+        const addons = engine || funnel ? [] : parseAddons(pi.metadata?.addons);
         for (const key of addons) {
           await grantEntitlement(email, ADDONS[key].entitlement);
           console.log('[stripe-webhook] Add-on granted:', key, email);
@@ -240,7 +267,15 @@ export default async function handler(req, res) {
         // through that one is not in this flow and still gets the Engine
         // welcome directly.
         try {
-          if (engine) {
+          if (funnel) {
+            // Straight away, like the Engine: nothing is offered after this
+            // checkout, so there is nothing to wait for.
+            const token = await createLoginToken(email);
+            const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
+            const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
+            const out = await sendFunnelEngineWelcome(email, loginUrl, { name, existingMember: !created, bumps: feBumps });
+            if (created) await keepWelcomeCopy(email, out, loginUrl);
+          } else if (engine) {
             const token = await createLoginToken(email);
             const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
             const loginUrl = `${site}/api/auth/verify?token=${encodeURIComponent(token)}`;
@@ -275,9 +310,15 @@ export default async function handler(req, res) {
               cents: free ? 0 : ADDONS[k].priceAmount()
             }));
             const addonTotal = addonLines.reduce((s, l) => s + l.cents, 0);
-            const lines = addonLines.length
-              ? [{ label: '70 AI Specialists for Claude', cents: charge.amount - addonTotal }, ...addonLines]
-              : undefined;
+            const feLines = feBumps.map((k) => ({
+              label: FUNNEL_ENGINE_BUMPS[k].name, cents: FUNNEL_ENGINE_BUMPS[k].priceAmount()
+            }));
+            const feTotal = feLines.reduce((s, l) => s + l.cents, 0);
+            const lines = funnel
+              ? [{ label: FUNNEL_ENGINE_NAME, cents: charge.amount - feTotal }, ...feLines]
+              : addonLines.length
+                ? [{ label: '70 AI Specialists for Claude', cents: charge.amount - addonTotal }, ...addonLines]
+                : undefined;
             await sendReceipt(email, {
               name,
               lines,
@@ -320,7 +361,7 @@ export default async function handler(req, res) {
             }
           }
           await sendPurchase({
-            sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/${engine ? 'checkout-engine.html' : 'checkout.html'}`,
+            sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/${funnel ? 'funnel-engine/checkout.html' : engine ? 'checkout-engine.html' : 'checkout.html'}`,
             email,
             firstName: parts[0] || null,
             lastName: parts.length > 1 ? parts[parts.length - 1] : null,
@@ -342,7 +383,7 @@ export default async function handler(req, res) {
         // PaymentIntent so a webhook retry is not a second sale.
         try {
           await sendMsPurchase({
-            sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/${engine ? 'checkout-engine.html' : 'checkout.html'}`,
+            sourceUrl: `${(process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '')}/${funnel ? 'funnel-engine/checkout.html' : engine ? 'checkout-engine.html' : 'checkout.html'}`,
             email,
             msclkid: pi.metadata?.msclkid || null,
             vid: pi.metadata?.vid || null,
@@ -362,7 +403,8 @@ export default async function handler(req, res) {
         const monthlyPrice = process.env.STRIPE_MONTHLY_PRICE_ID;
         const customerId = typeof pi.customer === 'string' ? pi.customer : null;
         const paymentMethod = typeof pi.payment_method === 'string' ? pi.payment_method : null;
-        if (monthlyPrice && customerId && paymentMethod) {
+        // Never on a Funnel Engine order: it is just the product and its bumps.
+        if (monthlyPrice && customerId && paymentMethod && !funnel) {
           try {
             // Put the buyer's details on the customer and make the saved card
             // its default, so the trial-end invoice charges the right method.

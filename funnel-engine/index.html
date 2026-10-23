@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>The Funnel Engine · AI Founder University</title>
+<meta name="description" content="Turn your idea into a live offer. Get the Funnel Engine and let Claude build your sales page, checkout, bumps, upsells and emails, on code you own.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#fbf7f1;--card:#fff;--ink:#14110f;--muted:#6b625a;--body:#3d3631;--line:#e7ded2;--hot:#ff5a1f;--hot-dark:#c94210;--hot-soft:#ffe9dc;--ok:#10a36c;--ok-soft:#e1f5ec;--night:#14110f;--n2:#1f1a17;--n3:#2b2420;--n4:#3a322c;--sun:#ffc34d;--violet:#7c5cff;--sky:#2ea8ff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:clip}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Bricolage Grotesque",Inter,sans-serif;line-height:1.08;margin:0;letter-spacing:-.015em}
+a{color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+.narrow{max-width:800px}
+.todo{background:#fff3b0;color:#5c4a00;border-radius:4px;padding:0 5px;font-size:.75em;font-weight:600;white-space:nowrap}
+.preview-bar{background:#2b2622;color:#f5efe6;font-size:13px;text-align:center;padding:8px 16px}
+.topbar{background:linear-gradient(90deg,var(--hot),#ff8a3d,var(--hot));background-size:200% 100%;animation:slide 6s linear infinite;color:#fff;text-align:center;font-size:14.5px;font-weight:600;padding:10px 16px}
+@keyframes slide{to{background-position:-200% 0}}
+header.top{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+.ns{display:none}
+.logo{font-family:"Bricolage Grotesque";font-weight:800;font-size:18px}.logo span{color:var(--hot)}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--hot-soft);color:#b8380b;font-weight:700;font-size:13px;border-radius:99px;padding:6px 14px}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--hot);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,90,31,.6)}100%{box-shadow:0 0 0 10px rgba(255,90,31,0)}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--hot);color:#fff;font-weight:800;text-decoration:none;border-radius:14px;padding:18px 30px;font-size:18px;box-shadow:0 6px 0 var(--hot-dark),0 18px 30px -12px rgba(255,90,31,.6);transition:transform .12s,box-shadow .12s;border:0;cursor:pointer;font-family:inherit;position:relative;overflow:hidden}
+.btn:hover{transform:translateY(2px);box-shadow:0 4px 0 var(--hot-dark),0 12px 24px -12px rgba(255,90,31,.6)}
+.btn:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:shine 3.2s infinite}
+@keyframes shine{0%,60%{left:-60%}100%{left:130%}}
+.btn .arr{transition:transform .2s}.btn:hover .arr{transform:translateX(4px)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:none;border:2px solid var(--ink);padding:11px 18px;font-size:15px}.btn.ghost:after{display:none}
+.kicker{font-weight:800;color:var(--hot);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+section{padding:80px 0;position:relative}
+section.alt{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+section.dark{background:var(--night);color:#f5efe6}
+section.dark h2{color:#fff}
+section h2{font-size:clamp(32px,4vw,48px);font-weight:800;margin:10px 0 16px}
+.sub{color:var(--body);max-width:700px;margin:0 0 30px;font-size:18px}
+.dark .sub{color:#cfc5ba}
+.center{text-align:center}.center .sub{margin-left:auto;margin-right:auto}
+.hl{background:linear-gradient(transparent 60%,var(--hot-soft) 60%)}
+.cta{text-align:center;margin-top:40px}
+.cta small{display:block;color:var(--muted);font-size:14px;margin-top:14px}
+.dark .cta small{color:#a99d91}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+/* hero */
+.hero{text-align:center;padding:30px 0 60px;position:relative}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.45;z-index:-1;animation:float 12s ease-in-out infinite}
+.b1{width:340px;height:340px;background:#ffb38f;top:-40px;left:-80px}
+.b2{width:300px;height:300px;background:#ffd76b;top:120px;right:-60px;animation-delay:-4s}
+@keyframes float{50%{transform:translate(30px,-20px) scale(1.08)}}
+.hero h1{font-size:clamp(36px,5.4vw,66px);font-weight:800;margin:20px auto 20px;max-width:980px}
+.hero h1 .rot{color:var(--hot);display:inline-block;min-width:4ch;border-right:3px solid var(--hot);padding-right:4px;animation:caret 1s step-end infinite}
+@keyframes caret{50%{border-color:transparent}}
+.hero .lead{font-size:20px;color:var(--body);margin:0 auto 14px;max-width:720px}
+.proofline{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:8px 16px;font-size:15px;color:var(--body);margin:6px 0 28px}
+.proofline b{color:var(--ok);font-size:17px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:46px;text-align:left}
+.three div{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;transition:transform .25s,box-shadow .25s}
+.three div:hover{transform:translateY(-4px);box-shadow:0 18px 30px -20px rgba(20,17,15,.35)}
+.three b{display:flex;gap:8px;align-items:center;font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--hot);margin-bottom:6px}
+.three span{font-size:15.5px;color:var(--body)}
+/* bridge */
+.bridge{display:grid;grid-template-columns:1fr 60px 1fr 60px 1fr;align-items:center}
+.bcard{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:22px;height:100%}
+.bcard.hot{background:var(--night);color:#f5efe6;border:0;box-shadow:0 24px 40px -24px rgba(255,90,31,.7)}
+.bcard.hot h3{color:#fff}
+.bcard .ico{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:var(--hot-soft);margin-bottom:10px}
+.bcard.hot .ico{background:var(--hot)}
+.bcard h3{font-size:19px;margin:4px 0 6px}
+.bcard p{margin:0;font-size:15px;color:var(--body)}.bcard.hot p{color:#cfc5ba}
+.tagline{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.flowline{height:4px;border-radius:4px;background:repeating-linear-gradient(90deg,var(--hot) 0 10px,transparent 10px 18px);background-size:36px 4px;animation:dash 1s linear infinite;margin:0 6px}
+@keyframes dash{to{background-position:36px 0}}
+/* compare engine */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cmp{border-radius:22px;padding:24px}
+.cmp.old{background:#f4efe8;border:1px solid var(--line)}
+.cmp.new{background:var(--card);border:2px solid var(--hot);box-shadow:0 20px 40px -26px rgba(255,90,31,.7)}
+.cmp .chip{display:inline-block;font-size:12px;font-weight:800;border-radius:99px;padding:4px 10px;margin-bottom:8px}
+.cmp.old .chip{background:#e7ded2;color:var(--muted)}.cmp.new .chip{background:var(--hot);color:#fff}
+.cmp h3{font-size:21px;margin-bottom:14px}
+.node{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;font-weight:700;opacity:.25;transform:scale(.97);transition:all .45s}
+.cmp.old .node{background:#fff}
+.node.on{opacity:1;transform:none}
+.node .ni{width:34px;height:34px;border-radius:10px;background:var(--paper);display:grid;place-items:center;flex:0 0 34px}
+.cmp.new .node.on .ni{background:var(--hot-soft)}
+.down{height:22px;display:grid;place-items:center;color:var(--muted);opacity:.3;transition:opacity .4s}.down.on{opacity:1}
+.cmp .verdict{margin-top:16px;padding-top:14px;border-top:1px dashed #d8cdbf;font-weight:800;opacity:0;transition:opacity .5s}
+.cmp .verdict.on{opacity:1}
+.cmp.old .verdict{color:#9a8f85}.cmp.new .verdict{color:var(--ok)}
+.replay{display:inline-flex;white-space:nowrap;flex-shrink:0;gap:6px;align-items:center;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:99px;padding:7px 14px;cursor:pointer;font:inherit;font-size:13.5px;font-weight:700;margin-top:14px}
+.replay:hover{border-color:var(--hot);color:var(--hot)}
+.dark .replay{background:var(--n2);border-color:var(--n4);color:#f5efe6}
+.rrow{text-align:right}
+/* day demos */
+.dayrow{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center;margin-bottom:70px}
+.dayrow:last-child{margin-bottom:0}
+.dayrow.flip .dtext{order:2}
+.dtext .n{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--hot);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.dtext .n b{width:28px;height:28px;border-radius:9px;background:var(--hot);color:#fff;display:grid;place-items:center;font-size:14px;letter-spacing:0}
+.dtext h3{font-size:30px;margin:10px 0 10px}
+.dtext p{color:var(--body);margin:0}
+.duo{position:relative;min-height:420px}
+.claude{background:#faf8f5;border:1px solid var(--line);border-radius:18px;box-shadow:0 30px 50px -30px rgba(20,17,15,.45);width:78%;overflow:hidden;position:relative;z-index:1}
+.claude .hd{display:flex;align-items:center;gap:8px;background:#f1ece5;padding:10px 14px;font-size:13.5px;font-weight:700;border-bottom:1px solid var(--line)}
+.claude .hd .star{color:var(--hot);font-size:16px}
+.claude .hd .tag{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--muted);background:#e7ded2;border-radius:6px;padding:2px 7px}
+.claude .bd{padding:14px;min-height:300px}
+.ubub{margin-left:auto;background:#ece5dc;border-radius:14px;padding:9px 13px;font-size:14.5px;max-width:85%;width:fit-content;min-height:20px}
+.ubub .c{display:inline-block;width:2px;height:15px;background:var(--ink);vertical-align:middle;animation:caret 1s step-end infinite}
+.atext{font-size:14.5px;margin:12px 0 8px;opacity:0;transition:opacity .4s}.atext.on{opacity:1}
+.chk{display:grid;grid-template-columns:22px 1fr;gap:10px;margin:7px 0;opacity:0;transform:translateX(-8px);transition:all .4s}
+.chk.on{opacity:1;transform:none}
+.chk .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;margin-top:2px}
+.chk .dot.spin{border-color:var(--hot) transparent var(--hot) var(--hot);animation:spin .7s linear infinite}
+.chk .dot.done{background:var(--ok);border-color:var(--ok);color:#fff;font-size:11px;font-weight:900;animation:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chk b{font-size:14.5px;display:block;line-height:1.3}
+.chk span{font-size:12.5px;color:var(--muted)}
+.reply{margin:12px 14px 14px;border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:13.5px;color:#a99d91;display:flex;justify-content:space-between;align-items:center;background:#fff}
+.reply i{width:24px;height:24px;border-radius:50%;background:var(--hot);color:#fff;display:grid;place-items:center;font-style:normal;font-size:12px}
+.browser{position:absolute;right:0;bottom:10px;width:56%;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 50px -24px rgba(20,17,15,.5);overflow:hidden;z-index:2;transform:translateY(20px);opacity:0;transition:all .6s}
+.browser.on{transform:none;opacity:1}
+.browser .bar{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line);background:#faf8f5}
+.browser .bar i{width:8px;height:8px;border-radius:50%;background:#e2d9ce}
+.browser .url{flex:1;margin-left:6px;background:#fff;border:1px solid var(--line);border-radius:7px;font-size:11.5px;padding:3px 8px;color:var(--muted)}
+.browser .upd{font-size:10.5px;font-weight:800;color:var(--ok);background:var(--ok-soft);border-radius:6px;padding:2px 6px;opacity:0;transition:opacity .3s}
+.browser .upd.on{opacity:1}
+.page{padding:18px 16px 18px;text-align:center}
+.page .eyb{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--hot)}
+.page .ttl{font-family:"Bricolage Grotesque";font-weight:800;font-size:19px;margin:6px 0 10px;min-height:26px;transition:all .3s}
+.page .ttl.flash{background:var(--hot-soft);border-radius:6px}
+.sk{height:7px;border-radius:5px;background:#eee7de;margin:6px auto}
+.page .buy{display:inline-block;background:var(--hot);color:#fff;font-weight:800;font-size:12px;border-radius:9px;padding:8px 14px;margin-top:8px}
+.livepill{display:inline-flex;gap:6px;align-items:center;margin-top:10px;background:var(--ok-soft);color:var(--ok);font-weight:800;font-size:12.5px;border-radius:99px;padding:5px 11px;opacity:0;transform:scale(.8);transition:all .4s}
+.livepill.on{opacity:1;transform:none}
+/* dashboard */
+.dash{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 30px 50px -30px rgba(20,17,15,.45);overflow:hidden}
+.dash .top{background:#f1ece5;padding:8px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--muted)}
+.dash .in{padding:16px}
+.dash .row1{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.dash .row1 b{font-family:"Bricolage Grotesque";font-size:19px}
+.dash .row1 span{font-size:12.5px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper)}
+.kpi span{font-size:12px;font-weight:700;color:var(--muted)}
+.kpi b{display:block;font-family:"Bricolage Grotesque";font-size:24px}
+.dgrid{display:grid;grid-template-columns:1.2fr 1fr;gap:10px;margin-top:10px}
+.panel{border:1px solid var(--line);border-radius:12px;padding:12px}
+.panel h4{margin:0 0 10px;font-size:13px}
+.bars{display:flex;align-items:flex-end;gap:7px;height:120px;border-bottom:1px solid var(--line)}
+.bars div{flex:1;background:linear-gradient(180deg,var(--hot),#ff9a63);border-radius:6px 6px 0 0;height:0;transition:height .8s cubic-bezier(.2,.8,.2,1)}
+.blab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px}
+.works div{display:flex;gap:8px;align-items:center;font-size:13px;padding:5px 0;color:var(--muted)}
+.works .o{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:9px;transition:all .3s}
+.works .ok .o{background:var(--ok);border-color:var(--ok);color:#fff}
+.works .ok{color:var(--ink)}
+.allgood{margin-top:8px;font-size:12.5px;font-weight:800;color:var(--ok);opacity:0;transition:opacity .4s}.allgood.on{opacity:1}
+.demo-note{font-size:12.5px;color:var(--muted);margin-top:8px}
+/* old vs new race */
+.race{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.lane{border-radius:22px;padding:24px}
+.lane.old{background:#f4efe8;border:1px solid var(--line)}
+.lane.new{background:var(--night);color:#f5efe6}
+.lane .lh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.lane h3{font-size:22px}.lane.new h3{color:#fff}
+.clock{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:15px;border-radius:9px;padding:5px 10px}
+.lane.old .clock{background:#e7ded2;color:#8a7d72}
+.lane.new .clock{background:var(--hot);color:#fff}
+.ti{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed #d8cdbf;opacity:.25;transition:opacity .4s}
+.lane.new .ti{border-color:var(--n4)}
+.ti.on{opacity:1}
+.ti .tk{width:20px;height:20px;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:900;flex:0 0 20px}
+.lane.old .ti .tk{background:#e7ded2;color:#8a7d72}
+.lane.new .ti .tk{background:var(--ok);color:#fff}
+.lane .end{margin-top:14px;font-family:"Bricolage Grotesque";font-weight:800;font-size:26px;opacity:0;transition:opacity .4s}
+.lane .end.on{opacity:1}
+.lane.old .end{color:#9a8f85}.lane.new .end{color:var(--hot)}
+.coffee{display:inline-block;animation:steam 2s ease-in-out infinite}
+@keyframes steam{50%{transform:translateY(-3px) rotate(-6deg)}}
+/* desktop app demo */
+.app{background:#1c1917;border-radius:20px;overflow:hidden;box-shadow:0 40px 70px -30px rgba(20,17,15,.8);max-width:900px;margin:0 auto;color:#e8e1d8;border:1px solid #2f2823}
+.app .tb{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #2f2823;font-size:13.5px}
+.app .tb .t{font-weight:700;color:#fff}
+.app .tb .proj{font-size:11.5px;background:#2f2823;border-radius:6px;padding:2px 8px;color:#a99d91}
+.app .tb .timer{margin-left:auto;font-family:"JetBrains Mono",monospace;background:rgba(255,90,31,.15);color:var(--hot);border-radius:8px;padding:3px 10px;font-weight:600}
+.app .main{display:grid;grid-template-columns:190px 1fr;min-height:430px}
+.side{border-right:1px solid #2f2823;padding:12px;font-size:13px;display:flex;flex-direction:column;gap:4px}
+.side .s{border:1px solid #3a322c;border-radius:8px;padding:6px 10px;color:#8a7d72;margin-bottom:6px}
+.side .it{padding:6px 10px;border-radius:7px;color:#cfc5ba}
+.side .it.act{background:#2f2823;color:#fff}
+.side .lab{font-size:11.5px;color:#8a7d72;margin:8px 0 2px 4px}
+.side .you{margin-top:auto;display:flex;gap:8px;align-items:center;color:#cfc5ba}
+.side .you i{width:22px;height:22px;border-radius:50%;background:#e8e1d8;color:#1c1917;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:11px}
+.conv{padding:18px;display:flex;flex-direction:column}
+.conv .ubub{background:#2f2823;color:#fff}
+.conv .ubub .c{background:#fff}
+.conv .atext{color:#e8e1d8}
+.conv .chk span{color:#8a7d72}
+.conv .chk .dot{border-color:#3a322c}
+.conv .chk em{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:#8a7d72;margin-left:6px}
+.conv .compose{margin-top:auto;border:1px solid #3a322c;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;color:#8a7d72;font-size:13px}
+.conv .compose i{width:24px;height:24px;border-radius:50%;background:var(--hot);color:#fff;display:grid;place-items:center;font-style:normal;font-size:12px}
+.golive{margin-top:12px;display:inline-flex;gap:8px;align-items:center;background:rgba(16,163,108,.15);color:#6ee7b7;border-radius:99px;padding:6px 12px;font-weight:800;font-size:13.5px;opacity:0;transition:opacity .4s;width:fit-content}
+.golive.on{opacity:1}
+/* funnel flow */
+.whole{font-family:"Bricolage Grotesque";font-size:clamp(24px,3vw,32px);font-weight:800;text-align:center;margin:56px 0 6px}
+.whole em{font-style:normal;color:var(--hot)}
+.fflow{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:30px 20px;margin-top:20px}
+.fsteps{display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:0}
+.fs{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;width:118px;opacity:.3;transform:translateY(8px);transition:all .45s}
+.fs.on{opacity:1;transform:none}
+.fs .fi{width:64px;height:64px;border-radius:18px;background:var(--paper);border:2px solid var(--line);display:grid;place-items:center;position:relative;transition:all .4s}
+.fs.on .fi{border-color:var(--hot);background:var(--hot-soft);box-shadow:0 10px 20px -10px rgba(255,90,31,.8)}
+.fs .fi svg{width:30px;height:30px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fs.on .fi svg{stroke:var(--hot-dark)}
+.fs b{font-size:14px;line-height:1.2}
+.fs small{font-size:11.5px;color:var(--muted);font-weight:600}
+.fs .plus{position:absolute;top:-8px;right:-10px;background:var(--hot);color:#fff;font-size:10px;font-weight:800;border-radius:99px;padding:2px 6px;opacity:0;transform:scale(.5);transition:all .3s .2s}
+.fs.on .plus{opacity:1;transform:none}
+.fcon{flex:1;min-width:20px;max-width:60px;height:3px;background:var(--line);position:relative;margin-bottom:38px;overflow:hidden}
+.fcon:after{content:"";position:absolute;inset:0;background:var(--hot);transform:scaleX(0);transform-origin:left;transition:transform .45s}
+.fcon.on:after{transform:scaleX(1)}
+.yn{font-size:10.5px;font-weight:800;position:absolute;top:-16px;left:50%;transform:translateX(-50%)}
+.integ{margin-top:26px;border-top:1px dashed var(--line);padding-top:22px;text-align:center}
+.integ .cmd{display:inline-flex;gap:10px;align-items:center;font-family:"JetBrains Mono",monospace;font-weight:600;background:var(--night);color:#fff;border-radius:10px;padding:8px 14px}
+.integ .cmd:before{content:"✻";color:var(--hot)}
+.integ p{color:var(--muted);font-size:15px;margin:10px 0 14px}
+.logos{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.logo-chip{display:flex;align-items:center;gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:7px 12px 7px 7px;font-weight:700;font-size:13.5px;opacity:0;transform:scale(.8);transition:all .35s}
+.logo-chip.on{opacity:1;transform:none}
+.logo-chip i{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:#fff;font-style:normal;font-size:11px;font-weight:800}
+.madewith{margin-top:22px;background:var(--hot-soft);border-radius:14px;padding:14px 18px;font-size:15px;text-align:center}
+/* testimonials */
+.tgrid{columns:3 290px;column-gap:18px}
+.tcard{break-inside:avoid;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px;margin-bottom:18px;transition:transform .25s,box-shadow .25s}
+.tcard:hover{transform:translateY(-4px) rotate(-.4deg);box-shadow:0 22px 34px -22px rgba(20,17,15,.45)}
+.tcard img{width:100%;display:block;border-radius:12px}
+.tcard p{margin:10px 6px 4px;font-size:13.5px;color:var(--muted)}
+.tcard p b{color:var(--ink)}
+.disclaim{font-size:13px;color:var(--muted);text-align:center;margin-top:8px}
+/* hates */
+.hates{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:22px 0 24px}
+.hates span{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:9px 18px;font-weight:700;position:relative}
+.hates span:after{content:"";position:absolute;left:12px;right:12px;top:50%;height:3px;background:var(--hot);border-radius:3px;transform:scaleX(0);transform-origin:left;transition:transform .5s}
+.hates.in span:after{transform:scaleX(1)}
+.hates.in span:nth-child(2):after{transition-delay:.15s}.hates.in span:nth-child(3):after{transition-delay:.3s}.hates.in span:nth-child(4):after{transition-delay:.45s}.hates.in span:nth-child(5):after{transition-delay:.6s}.hates.in span:nth-child(6):after{transition-delay:.75s}.hates.in span:nth-child(7):after{transition-delay:.9s}
+/* workshop */
+.parts{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.part{background:var(--n2);border:1px solid var(--n3);border-radius:22px;padding:24px;transition:transform .25s,border-color .25s}
+.part:hover{transform:translateY(-4px);border-color:var(--hot)}
+.part .p{display:inline-block;font-weight:800;color:#fff;background:var(--hot);font-size:12px;letter-spacing:.08em;text-transform:uppercase;border-radius:8px;padding:3px 9px}
+.part h3{color:#fff;font-size:22px;margin:12px 0 12px}
+.part ul{list-style:none;margin:0;padding:0;color:#cfc5ba;font-size:15px}
+.part li{padding:7px 0 7px 26px;position:relative;border-bottom:1px solid var(--n3)}
+.part li:last-child{border:0}
+.part li:before{content:"✓";position:absolute;left:0;top:7px;width:18px;height:18px;border-radius:50%;background:var(--ok);color:#fff;font-size:10px;font-weight:900;display:grid;place-items:center}
+.dfy-note{margin-top:22px;background:linear-gradient(90deg,rgba(255,90,31,.18),rgba(255,90,31,.05));border:1px solid rgba(255,90,31,.4);border-radius:16px;padding:16px 20px;color:#f5efe6;font-size:15.5px}
+.dfy-note a{color:var(--hot);font-weight:800}
+/* stack */
+.stack{display:grid;gap:12px}
+.item{display:grid;grid-template-columns:64px 1fr auto;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px 20px;transition:transform .25s,box-shadow .25s}
+.item:hover{transform:translateX(4px);box-shadow:0 16px 28px -22px rgba(20,17,15,.4)}
+.aico{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;position:relative}
+.aico svg{width:32px;height:32px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.c1{background:linear-gradient(135deg,#ff5a1f,#ff9a63)}.c2{background:linear-gradient(135deg,#7c5cff,#b39bff)}.c3{background:linear-gradient(135deg,#10a36c,#5fd3a2)}.c4{background:linear-gradient(135deg,#2ea8ff,#8fd0ff)}.c5{background:linear-gradient(135deg,#ffb020,#ffd76b)}.c6{background:linear-gradient(135deg,#ff4f8b,#ff9cc0)}.c7{background:linear-gradient(135deg,#14110f,#4a3f37)}
+.a-spin svg{animation:spin 6s linear infinite}
+.a-pulse:before{content:"";position:absolute;inset:0;border-radius:18px;animation:pulse2 2s infinite}
+@keyframes pulse2{0%{box-shadow:0 0 0 0 rgba(124,92,255,.55)}100%{box-shadow:0 0 0 14px rgba(124,92,255,0)}}
+.a-bob svg{animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-5px) rotate(-8deg)}}
+.a-play svg{animation:beat 1.4s ease-in-out infinite}
+@keyframes beat{50%{transform:scale(1.15)}}
+.a-wig svg{animation:wig 2.4s ease-in-out infinite}
+@keyframes wig{0%,60%,100%{transform:rotate(0)}70%{transform:rotate(-10deg)}80%{transform:rotate(10deg)}90%{transform:rotate(-6deg)}}
+.a-ping:after{content:"";position:absolute;top:10px;right:10px;width:10px;height:10px;border-radius:50%;background:#fff;animation:pulse 1.4s infinite}
+.a-buzz svg{animation:buzz 2.2s infinite}
+@keyframes buzz{0%,70%,100%{transform:translate(0)}72%,76%,80%{transform:translate(-2px,1px) rotate(-4deg)}74%,78%,82%{transform:translate(2px,-1px) rotate(4deg)}}
+.item b{display:block;font-size:17.5px}
+.item span{font-size:15px;color:var(--body)}
+.item .tag{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:8px;padding:4px 9px;white-space:nowrap}
+.tag.inc{background:var(--hot-soft);color:#b8380b}.tag.bon{background:var(--ok-soft);color:var(--ok)}
+.stack-total{display:flex;justify-content:space-between;align-items:center;background:var(--night);color:#fff;border-radius:20px;padding:18px 22px;margin-top:6px}
+.stack-total b{font-family:"Bricolage Grotesque";font-size:30px;color:var(--hot)}
+/* price guarantee */
+.pg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+.pg .box{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px}
+.pg h3{font-size:26px;margin-bottom:12px}
+.costs{display:grid;gap:10px}
+.cost{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.cost .lab{font-size:15px}
+.cost .bar{grid-column:1/-1;height:10px;border-radius:6px;background:#eee7de;overflow:hidden}
+.cost .bar i{display:block;height:100%;width:0;border-radius:6px;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.cost b{font-size:14.5px;white-space:nowrap}
+.cost.win .lab,.cost.win b{color:var(--ok);font-weight:800}
+.guar{background:linear-gradient(135deg,#e1f5ec,#f3fbf7)!important;border:2px solid var(--ok)!important;position:relative;overflow:hidden}
+.seal{width:84px;height:84px;border-radius:50%;background:var(--ok);color:#fff;display:grid;place-items:center;text-align:center;font-weight:900;font-size:13px;line-height:1.1;float:right;margin:0 0 10px 14px;animation:spin 18s linear infinite;border:3px dashed #fff;outline:3px solid var(--ok)}
+.seal span{animation:spin 18s linear infinite reverse;display:block}
+.guar p{color:#1d4d3a}
+/* faq */
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:10px;transition:border-color .2s}
+.faq details[open]{border-color:var(--hot)}
+.faq summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:#fff;background:var(--hot);width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:0 0 24px;font-weight:800;transition:transform .25s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq p{margin:10px 0 0;color:var(--body)}
+/* checkout */
+.checkout{max-width:640px;margin:0 auto;background:var(--card);border:2px solid var(--ink);border-radius:26px;padding:28px;box-shadow:0 40px 60px -40px rgba(20,17,15,.6)}
+.checkout h3{font-size:26px}
+.secure{font-size:13px;color:var(--muted);margin:4px 0 18px}
+.field{display:block;margin-bottom:12px}
+.field span{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+.field input{width:100%;border:1px solid var(--line);border-radius:12px;padding:13px 14px;font:inherit;font-size:16px;background:var(--paper)}
+.field input:focus{outline:2px solid var(--hot);border-color:transparent}
+.paybtns{display:grid;gap:8px;margin:6px 0 16px}
+.wallet{background:#000;color:#fff;border-radius:12px;padding:13px;text-align:center;font-weight:700}
+.orline{text-align:center;color:var(--muted);font-size:13px}
+.card-in{border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:#a99d91;background:var(--paper)}
+.bump{display:block;border:2px dashed var(--hot);background:#fff8f3;border-radius:16px;padding:14px 16px;margin-bottom:12px;cursor:pointer;transition:all .2s}
+.bump:hover{background:#fff1e8}
+.bump.sel{border-style:solid;background:#fff1e8;box-shadow:0 10px 20px -14px rgba(255,90,31,.8)}
+.bump .hd{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:#b8380b;margin-bottom:6px}
+.bump .hd .arrow{animation:nudge 1s ease-in-out infinite}
+@keyframes nudge{50%{transform:translateX(5px)}}
+.bump .row{display:flex;gap:10px;align-items:flex-start}
+.bump input{width:20px;height:20px;margin-top:2px;accent-color:var(--hot);flex:0 0 20px}
+.bump b{font-size:16px}
+.bump .price{color:var(--hot);font-weight:900;white-space:nowrap}
+.bump p{margin:6px 0 0 30px;font-size:14px;color:var(--body)}
+.total{border-top:2px solid var(--ink);margin-top:16px;padding-top:12px}
+.total .ln{display:flex;justify-content:space-between;font-size:15px;padding:3px 0}
+.total .grand{font-family:"Bricolage Grotesque";font-weight:800;font-size:26px}
+.checkout .btn{display:flex;width:100%;margin-top:16px}
+.legal{font-size:12.5px;color:var(--muted);text-align:center;margin-top:12px}
+.sign{font-family:"Bricolage Grotesque";font-weight:800;font-size:24px}
+.final{background:var(--night);color:#f5efe6;text-align:center}
+.final h2{color:#fff}
+.final .lines{font-family:"Bricolage Grotesque";font-weight:800;font-size:clamp(22px,3vw,30px);line-height:1.35;margin:10px 0 28px}
+.final .lines span{display:block;opacity:.25;transition:opacity .4s}
+.final .lines span.on{opacity:1}
+.final .lines span:last-child{color:var(--hot)}
+footer{padding:36px 0 50px;color:var(--muted);font-size:12.5px;text-align:center}
+footer p{max-width:840px;margin:0 auto 8px}
+.sticky{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:10px 20px;display:flex;gap:12px;align-items:center;justify-content:center;z-index:10;transform:translateY(110%);transition:transform .35s}
+.sticky.show{transform:none}
+.sticky .btn{padding:12px 22px;font-size:16px;box-shadow:0 4px 0 var(--hot-dark)}
+.sticky .txt{font-size:15px}.sticky .txt b{font-size:18px}
+@media (max-width:900px){
+ .three,.compare,.race,.parts,.pg,.dayrow{grid-template-columns:minmax(0,1fr)}
+ .dayrow.flip .dtext{order:0}
+ .bridge{grid-template-columns:1fr}
+ .flowline{width:4px;height:30px;margin:6px auto;background:repeating-linear-gradient(180deg,var(--hot) 0 8px,transparent 8px 14px);background-size:4px 28px;animation:dashv 1s linear infinite}
+ @keyframes dashv{to{background-position:0 28px}}
+ section{padding:56px 0}
+ .duo{min-height:0}
+ .claude{width:100%}
+ .browser{position:relative;width:88%;margin:-30px 0 0 auto;bottom:auto}
+ .app .main{grid-template-columns:1fr}.side{display:none}
+ .fsteps{flex-wrap:wrap;row-gap:18px}
+ .fcon{display:none}
+ .fs{width:31%}
+ .item{grid-template-columns:52px 1fr}.item .tag{grid-column:2;justify-self:start}
+ .aico{width:52px;height:52px;border-radius:15px}.aico svg{width:26px;height:26px}
+ .checkout{padding:20px}
+ .dgrid{grid-template-columns:1fr}
+ body{padding-bottom:70px}
+ .btn{max-width:100%;white-space:normal;text-align:center;line-height:1.3}
+ .proofline{display:flex;flex-wrap:wrap;justify-content:center;border-radius:18px;font-size:14px;line-height:1.4;text-align:center;gap:4px 8px;max-width:100%}
+ .faq summary{min-height:44px;align-items:center}
+ .replay{min-height:42px;padding:9px 16px}
+ .tag{font-size:12px}
+ .sticky{padding:10px 14px;gap:10px}
+}
+@media (max-width:400px){
+ h1{font-size:34px!important;letter-spacing:-.5px}
+ .btn{padding:16px 16px;font-size:15.5px;gap:8px}
+ .sticky .txt{font-size:13px}.sticky .txt b{font-size:16px}
+ .sticky .btn{padding:11px 16px;font-size:15px;white-space:nowrap}
+ .wrap{padding-left:16px;padding-right:16px}
+ .sticky .sx{display:none}
+ .cost{grid-template-columns:1fr;gap:4px}
+ .top .nl{display:none}.top .ns{display:inline}
+ .sticky .txt{line-height:1.25}
+ .top .btn.ghost{padding:11px 14px;font-size:14px;white-space:nowrap}
+ .logo{font-size:16px;white-space:nowrap}
+ .pill{font-size:12px;padding:6px 12px}
+}
+@media (max-width:350px){
+ h1{font-size:30px!important}
+ .top .btn.ghost{padding:11px 11px;font-size:13px}
+ .logo{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="/assets/favicon.png" sizes="any">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta property="og:title" content="The Funnel Engine · AI Founder University">
+<meta property="og:description" content="Turn your idea into a live offer. Claude builds your sales page, checkout, bumps, upsells and emails, on code you own.">
+<style>footer a{color:inherit}</style>
+<script src="/assets/track.js"></script>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "ynteh1taus");
+</script>
+<script>window.AIFU_MS_CID = '255018603';</script>
+<script>(function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"97272467",enableAutoSpaTracking:true};o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;s&&s!=="loaded"&&s!=="complete"||(f(),n.onload=n.onreadystatechange=null)},i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,"script","//bat.bing.com/bat.js","uetq");</script>
+</head>
+<body>
+<div class="topbar">🎉 For AI Founder University members: launch your offer this week.</div>
+
+<div class="wrap">
+<header class="top">
+  <div class="logo">AI Founder <span>University</span></div>
+  <a class="btn ghost" href="#checkout"><span class="nl">Get The Funnel Engine</span><span class="ns">Get it · $100</span></a>
+</header>
+
+<div class="hero">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <span class="pill"><i></i> For AI Founder University members</span>
+  <h1>You know what to sell. Now let Claude build your <span class="rot" id="rot">sales page</span><br>without ever logging into a funnel builder.</h1>
+  <p class="lead">Get lifetime access to <b>The Funnel Engine</b>: the ready-made code that runs your own sales funnel. Tell Claude what you want to sell, and it builds the offer, publishes it on your own domain and connects your emails.</p>
+  <div class="proofline" hidden>📈 My partner and I cleared <b>$79,805</b> in sales in September on the Funnel Engine</div>
+  <a class="btn" href="#checkout">Get The Funnel Engine · $100 <span class="arr">→</span></a>
+  <div class="cta"><small style="margin-top:0">One payment · Lifetime access · 72-hour money-back guarantee</small></div>
+  <div class="three">
+    <div class="reveal"><b>⚡ The second you pay</b><span>The Funnel Engine and both Claude skills are yours. Install it today.</span></div>
+    <div class="reveal"><b>🎬 The workshop recording</b><span>Watch a brand-new offer go live in 30 minutes. Then launch yours.</span></div>
+    <div class="reveal"><b>🚀 Every offer after that</b><span>Idea to live in about 30 minutes. Claude builds it, /Integrate sets it up.</span></div>
+  </div>
+</div>
+</div>
+
+<!-- IDEA BRIDGE -->
+<section class="alt">
+<div class="wrap">
+  <div class="center reveal">
+    <div class="kicker">Why this is the next step</div>
+    <h2>Your idea is <span class="hl">what you sell</span>.<br>The Funnel Engine is <span class="hl">how you sell it</span>.</h2>
+    <p class="sub">Most offers stall at the same step: "now build the funnel". Pages, checkout, payments, emails, automations. That's where weeks disappear. The Funnel Engine turns that step into one conversation with Claude.</p>
+  </div>
+  <div class="bridge reveal">
+    <div class="bcard"><div class="ico">🗺️</div><div class="tagline">You bring</div><h3>Your offer idea</h3><p>What you sell and who it's for. Got your AI Roadmap? It's already written down.</p></div>
+    <div class="flowline"></div>
+    <div class="bcard"><div class="ico">📝</div><div class="tagline">You fill in</div><h3>The 10/90 Launch Brief</h3><p>The 10% only you can do, on one page.</p></div>
+    <div class="flowline"></div>
+    <div class="bcard hot"><div class="ico">🚀</div><div class="tagline" style="color:#ffb38f">Claude builds</div><h3>A live offer</h3><p>Sales page, checkout, bump, emails and automations, on your own domain.</p></div>
+  </div>
+  <div class="cta"><a class="btn" href="#checkout">Launch my offer · $100 <span class="arr">→</span></a></div>
+</div>
+</section>
+
+<!-- WHAT IS IT -->
+<section>
+<div class="wrap">
+  <div class="center reveal">
+    <div class="kicker">What is The Funnel Engine?</div>
+    <h2>The ready-made code that runs your own sales funnel.</h2>
+    <p class="sub">Sales pages, checkout, order bumps, upsells and a sales dashboard, together in one folder you own. Open it with Claude, tell it what you're selling, and Claude builds inside the funnel structure that's already there. The Quick Start skill connects your domain, payments and hosting.</p>
+  </div>
+  <div class="compare" data-anim="engine">
+    <div class="cmp old">
+      <span class="chip">HTML snippet</span><h3>Claude + a page builder</h3>
+      <div class="node"><span class="ni">&lt;/&gt;</span>Claude designs HTML + CSS</div><div class="down">↓</div>
+      <div class="node"><span class="ni">📋</span>Paste it into the builder</div><div class="down">↓</div>
+      <div class="node"><span class="ni">🧾</span>The builder runs your checkout</div>
+      <div class="verdict">You still rent the builder.</div>
+    </div>
+    <div class="cmp new">
+      <span class="chip">Your own engine</span><h3>Claude + your Funnel Engine</h3>
+      <div class="node"><span class="ni">📦</span>Download your ready-made engine</div><div class="down">↓</div>
+      <div class="node"><span class="ni">💬</span>Claude builds your offer inside it</div><div class="down">↓</div>
+      <div class="node"><span class="ni">🌐</span>Publish to your own hosting account</div>
+      <div class="verdict">✓ Your funnel runs on your own account.</div>
+    </div>
+  </div>
+  <div class="rrow"><button class="replay" data-replay="engine">↻ Replay</button></div>
+  <p class="center" style="font-weight:700;margin-top:10px">Set it up once. Then build every next offer in the same engine.</p>
+</div>
+</section>
+
+<!-- INSTALL DAY -->
+<section class="alt">
+<div class="wrap">
+  <div class="center reveal">
+    <div class="kicker">Install day, and every day after</div>
+    <h2>Here's what install day looks like.<br>And every day after.</h2>
+  </div>
+
+  <!-- 1 install -->
+  <div class="dayrow" style="margin-top:40px">
+    <div class="dtext reveal"><div class="n"><b>1</b> Install it</div><h3>Claude installs it with you.</h3><p>Open Claude and say <b>"Install my Funnel Engine."</b> Claude does the setup one step at a time, and you just do the logins.</p></div>
+    <div>
+      <div class="duo" data-anim="install">
+        <div class="claude"><div class="hd"><span class="star">✻</span> Install my Funnel Engine <span class="tag">my-business</span></div>
+          <div class="bd">
+            <div class="ubub" data-type="Install my Funnel Engine."></div>
+            <div class="atext">Let's do it. One step at a time.</div>
+            <div class="chk"><span class="dot"></span><div><b>Built your sales page</b><span>From your offer, in your brand</span></div></div>
+            <div class="chk"><span class="dot"></span><div><b>Set up your checkout</b><span>On your own Stripe, so every sale pays you directly</span></div></div>
+            <div class="chk"><span class="dot"></span><div><b>Loaded your emails</b><span>Access email and follow-ups, in your voice</span></div></div>
+            <div class="chk"><span class="dot"></span><div><b>Connected your domain</b><span>yourdomain.com</span></div></div>
+            <div class="chk"><span class="dot"></span><div><b>Published it</b><span>On your own hosting, about $5 a month</span></div></div>
+          </div>
+          <div class="reply">Reply to Claude… <i>↑</i></div>
+        </div>
+        <div class="browser"><div class="bar"><i></i><i></i><i></i><span class="url">🔒 yourdomain.com</span></div>
+          <div class="page"><div class="eyb">ONLINE COURSE</div><div class="ttl">The 7 Night Sleep Reset</div><div class="sk" style="width:80%"></div><div class="sk" style="width:60%"></div><div class="buy">Get Instant Access</div><br><span class="livepill">✓ Your funnel is live</span></div></div>
+      </div>
+      <div class="rrow"><button class="replay" data-replay="install">↻ Replay</button></div>
+    </div>
+  </div>
+
+  <!-- 2 change -->
+  <div class="dayrow flip">
+    <div class="dtext reveal"><div class="n"><b>2</b> Change it</div><h3>Change anything by asking.</h3><p>New headline, new price, new bonus. Say it in plain English and Claude changes the page and publishes it.</p></div>
+    <div>
+      <div class="duo" data-anim="change" style="min-height:360px">
+        <div class="claude"><div class="hd"><span class="star">✻</span> New headline <span class="tag">my-business</span></div>
+          <div class="bd" style="min-height:200px">
+            <div class="ubub" data-type="Change my headline to &quot;Sleep Better In 7 Nights&quot;"></div>
+            <div class="chk" style="margin-top:14px"><span class="dot"></span><div><b>Changed your headline</b><span>Same page, same design, new words</span></div></div>
+            <div class="chk"><span class="dot"></span><div><b>Published it</b><span>Up on yourdomain.com</span></div></div>
+          </div>
+          <div class="reply">Reply to Claude… <i>↑</i></div>
+        </div>
+        <div class="browser on"><div class="bar"><i></i><i></i><i></i><span class="url">🔒 yourdomain.com</span><span class="upd">Updated</span></div>
+          <div class="page"><div class="eyb">ONLINE COURSE</div><div class="ttl" data-old="The 7 Night Sleep Reset" data-new="Sleep Better In 7 Nights">The 7 Night Sleep Reset</div><div class="sk" style="width:80%"></div><div class="sk" style="width:60%"></div><div class="buy">Get Instant Access</div></div></div>
+      </div>
+      <div class="rrow"><button class="replay" data-replay="change">↻ Replay</button></div>
+    </div>
+  </div>
+
+  <!-- 3 run -->
+  <div class="dayrow">
+    <div class="dtext reveal"><div class="n"><b>3</b> Run it</div><h3>See every sale in your own dashboard.</h3><p>Your dashboard shows what came in and checks that everything works, from taking payments to getting buyers their access. The money goes straight to your Stripe.</p></div>
+    <div>
+      <div class="dash" data-anim="dash">
+        <div class="top">EXAMPLE DASHBOARD · DEMO NUMBERS</div>
+        <div class="in">
+          <div class="row1"><b>Sales dashboard</b><span>Last 7 days</span></div>
+          <div class="kpis"><div class="kpi"><span>Sales</span><b data-count="42">0</b></div><div class="kpi"><span>Money in</span><b data-count="2954" data-pre="$">$0</b></div><div class="kpi"><span>Average sale</span><b data-count="70" data-pre="$">$0</b></div></div>
+          <div class="dgrid">
+            <div class="panel"><h4>Money in by day</h4><div class="bars"><div data-h="35"></div><div data-h="52"></div><div data-h="44"></div><div data-h="68"></div><div data-h="58"></div><div data-h="82"></div><div data-h="96"></div></div><div class="blab"><span>7 days ago</span><span>Today</span></div></div>
+            <div class="panel works"><h4>Is it working?</h4><div><span class="o">✓</span>Taking real payments</div><div><span class="o">✓</span>Every sale is recorded</div><div><span class="o">✓</span>Every buyer got their access</div><div><span class="o">✓</span>Money is reaching your bank</div><div class="allgood">● Everything is working</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="demo-note">Example dashboard. These numbers are made up.</span><button class="replay" data-replay="dash">↻ Replay</button></div>
+    </div>
+  </div>
+  <div class="cta"><a class="btn" href="#checkout">Get The Funnel Engine · $100 <span class="arr">→</span></a><small>Install it today. Lifetime access.</small></div>
+</div>
+</section>
+
+<!-- RACE -->
+<section>
+<div class="wrap">
+  <div class="center reveal">
+    <div class="kicker">Stop setting up tech</div>
+    <h2>The old way takes weeks.<br>The new way takes 30 minutes.</h2>
+  </div>
+  <div class="race" data-anim="race">
+    <div class="lane old"><div class="lh"><h3>Old way</h3><span class="clock" id="oldclock">Day 1</span></div>
+      <div class="ti"><span class="tk">1</span>Build the funnel</div><div class="ti"><span class="tk">2</span>Design every page</div><div class="ti"><span class="tk">3</span>Set up the checkout</div><div class="ti"><span class="tk">4</span>Set up the course area</div><div class="ti"><span class="tk">5</span>Write and load the email sequences</div><div class="ti"><span class="tk">6</span>Wire up the automations</div>
+      <div class="end">😩 2 to 3 weeks</div></div>
+    <div class="lane new"><div class="lh"><h3>New way</h3><span class="clock" id="newclock">00:00</span></div>
+      <div class="ti"><span class="tk">✓</span>Tell Claude your offer</div><div class="ti"><span class="tk">✓</span>Claude writes and designs it</div><div class="ti"><span class="tk">✓</span>It goes live on your Funnel Engine</div><div class="ti"><span class="tk">✓</span>/Integrate sets up your emails and automations</div><div class="ti"><span class="tk">✓</span>You sip your coffee <span class="coffee">☕</span></div>
+      <div class="end">⚡ 30 minutes</div></div>
+  </div>
+  <div class="rrow"><button class="replay" data-replay="race">↻ Replay</button></div>
+  <p class="center" style="font-weight:800;font-size:20px;margin-top:8px">And you never touch a funnel builder.</p>
+</div>
+</section>
+
+<!-- 30 MIN DEMO -->
+<section class="alt">
+<div class="wrap">
+  <div class="center reveal">
+    <div class="kicker">Watch it happen</div>
+    <h2>Here's what 30 minutes looks like.</h2>
+    <p class="sub">The Claude desktop app, working inside your Funnel Engine. No terminal. You tell it what you want. It asks a few questions. You say yes.</p>
+  </div>
+  <div class="app" data-anim="app">
+    <div class="tb"><span>☰</span><span class="t">Launch my new offer</span><span class="proj">my-business</span><span class="timer" id="apptimer">⏱ 00:00</span></div>
+    <div class="main">
+      <div class="side"><div class="s">🔍 Search</div><div class="it">＋ New</div><div class="lab">Pinned</div><div class="it act">Launch my new offer</div><div class="it">Weekly email</div><div class="it">Quiz for my list</div><div class="it">Cut my podcast clip</div><div class="you"><i>Y</i> You</div></div>
+      <div class="conv">
+        <div class="ubub" data-type="Launch my new offer. It's all in my 10/90 brief."></div>
+        <div class="atext">Got it. A $47 workshop with a $27 bump. Building it now.</div>
+        <div class="chk" data-t="4"><span class="dot"></span><div><b>Wrote your sales page <em>0:04</em></b><span>Headline, offer, FAQ and guarantee, in your voice</span></div></div>
+        <div class="chk" data-t="11"><span class="dot"></span><div><b>Designed the page <em>0:11</em></b><span>Your brand, built for phones first</span></div></div>
+        <div class="chk" data-t="16"><span class="dot"></span><div><b>Set up checkout <em>0:16</em></b><span>$47 workshop + $27 bump, taking payment</span></div></div>
+        <div class="chk" data-t="21"><span class="dot"></span><div><b>Published it <em>0:21</em></b><span>Live at yourdomain.com</span></div></div>
+        <div class="chk" data-t="26"><span class="dot"></span><div><b>Ran /integrate <em>0:26</em></b><span>Tags, 5 emails and the automation, set up in your email tool</span></div></div>
+        <div class="chk" data-t="30"><span class="dot"></span><div><b>Test sale <em>0:30</em></b><span>$47 paid ✓ First email landed ✓</span></div></div>
+        <div class="golive">🟢 Live in 30 minutes</div>
+        <div class="compose" style="margin-top:14px"><span>Type / for commands</span><i>↑</i></div>
+      </div>
+    </div>
+  </div>
+  <div class="rrow" style="max-width:900px;margin:0 auto"><button class="replay" data-replay="app">↻ Replay</button></div>
+
+  <div class="whole reveal">That's a whole offer. <em>Page, checkout, emails and automations. Live.</em></div>
+  <p class="center" style="color:var(--body)">And it's the whole funnel, not just a page:</p>
+  <div class="fflow" data-anim="funnel">
+    <div class="fsteps">
+      <div class="fs"><div class="fi"><svg viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></div><b>Ad</b><small>Meta, Instagram</small></div>
+      <div class="fcon"></div>
+      <div class="fs"><div class="fi"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span class="plus">+ pop-up</span></div><b>Sales page</b><small>written for you</small></div>
+      <div class="fcon"></div>
+      <div class="fs"><div class="fi"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg><span class="plus">+ bump</span></div><b>Checkout</b><small>on your Stripe</small></div>
+      <div class="fcon"><span class="yn" style="color:var(--ok)">$</span></div>
+      <div class="fs"><div class="fi"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span class="plus">+ credit</span></div><b>Upsell</b><small>one click</small></div>
+      <div class="fcon"><span class="yn" style="color:#b8380b">No</span></div>
+      <div class="fs"><div class="fi"><svg viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></div><b>Downsell</b><small>save the sale</small></div>
+      <div class="fcon"><span class="yn" style="color:var(--ok)">Yes</span></div>
+      <div class="fs"><div class="fi"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><b>Thank you</b><small>access delivered</small></div>
+    </div>
+    <div class="integ">
+      <span class="cmd">/integrate</span>
+      <p>Sets up your emails, automations and course access in the tools you already use</p>
+      <div class="logos">
+        <span class="logo-chip"><i style="background:#2b6cb0">HL</i>GoHighLevel</span>
+        <span class="logo-chip"><i style="background:#14110f">kit</i>Kit</span>
+        <span class="logo-chip"><i style="background:#2e91fc">K</i>Kajabi</span>
+        <span class="logo-chip"><i style="background:#e3492a">CF</i>ClickFunnels</span>
+        <span class="logo-chip"><i style="background:#2bb24c">S</i>Systeme.io</span>
+        <span class="logo-chip"><i style="background:#ffe01b;color:#14110f">M</i>Mailchimp</span>
+        <span class="logo-chip"><i style="background:#356ae6">AC</i>ActiveCampaign</span>
+        <span class="logo-chip"><i style="background:#09c269">ML</i>MailerLite</span>
+      </div>
+    </div>
+    <div class="rrow"><button class="replay" data-replay="funnel">↻ Replay</button></div>
+  </div>
+  <div class="madewith">💡 <b>Like the page you're reading?</b> It was designed and built with Claude, checkout and all. No funnel builder involved.</div>
+  <div class="cta"><a class="btn" href="#checkout">Build my whole funnel · $100 <span class="arr">→</span></a></div>
+</div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section>
+<div class="wrap">
+  <div class="center reveal">
+    <div class="kicker">Real messages from Funnel Engine buyers</div>
+    <h2>Straight from the community and group chats.</h2>
+    <p class="sub">Real screenshots, nothing retyped.</p>
+  </div>
+  <div class="tgrid">
+    <div class="tcard reveal"><img src="/funnel-engine/img/proof-1.webp" loading="lazy" decoding="async" alt="Message from Natacha about moving her funnels and courses off GoHighLevel into the Funnel Engine"><p><b>Natacha</b>, moving every funnel and course off GoHighLevel and into the Funnel Engine.</p></div>
+    <div class="tcard reveal"><img src="/funnel-engine/img/proof-2.webp" loading="lazy" decoding="async" alt="WhatsApp message from Dan Candell about simplifying his tech stack"><p><b>Dan Candell</b>, on WhatsApp, after seeing the Funnel Engine.</p></div>
+    <div class="tcard reveal"><img src="/funnel-engine/img/proof-3.webp" loading="lazy" decoding="async" alt="Message from Jamie about running a global brand's sites on funnels"><p><b>Jamie</b>, a Funnel Engine buyer, on running a global brand's sites with it.</p></div>
+    <div class="tcard reveal"><img src="/funnel-engine/img/proof-4.webp" loading="lazy" decoding="async" alt="Message from Giuliano partway through the workshop recording"><p><b>Giuliano</b>, partway through the workshop recording.</p></div>
+    <div class="tcard reveal"><img src="/funnel-engine/img/proof-5.webp" loading="lazy" decoding="async" alt="Message from Diane after the live workshop"><p><b>Diane</b>, after the live workshop.</p></div>
+  </div>
+  <p class="disclaim">Their words, their screenshots, from buyers of the Funnel Engine program we run with our partner. What you build depends on your offer and the work you put in.</p>
+  <div class="cta"><a class="btn" href="#checkout">Join them · Get The Funnel Engine <span class="arr">→</span></a></div>
+</div>
+</section>
+
+<!-- HATES -->
+<section class="alt">
+<div class="wrap narrow center">
+  <div class="kicker">This is for anyone who hates…</div>
+  <div class="hates" id="hates"><span>Setting up automations</span><span>Building funnels</span><span>Building websites</span><span>Designing pages</span><span>Setting up a course area</span><span>Writing email sequences</span><span>Blogs</span></div>
+  <h2>…and just wants to launch their offer. Fast.</h2>
+  <p class="sub">If you own your business, you shouldn't be building funnels and wiring automations. In 2026 you're a few Claude prompts away from never doing it again.</p>
+</div>
+</section>
+
+<!-- WORKSHOP -->
+<section class="dark">
+<div class="wrap">
+  <div class="center reveal">
+    <div class="kicker">What's in the workshop</div>
+    <h2>One working session. Three parts. Yours for life.</h2>
+  </div>
+  <div class="parts">
+    <div class="part reveal"><span class="p">Part 1</span><h3>Claude Code for mortals</h3><ul><li>Use Claude to build almost anything, even if you've never coded</li><li>Why complex setups and tutorials waste your time, and how to run everything from one folder</li><li>What a "skill" really is, and why collecting random skills is pointless</li><li>The copy mistakes people make with AI, and why less is more</li><li>Cancel Descript, Vimeo and Wistia: edit and publish videos with Claude</li><li>Connect the tools you use now with three core plugins</li></ul></div>
+    <div class="part reveal"><span class="p">Part 2</span><h3>Install the Funnel Engine</h3><ul><li>Install the engine with Claude so you can ship any offer fast</li><li>What GHL and ClickFunnels actually do, and how to own your own platform instead</li><li>Connect any email tool or course platform, or drop them altogether</li><li>Use Claude Design to create the pages and deploy them live</li></ul></div>
+    <div class="part reveal"><span class="p">Part 3</span><h3>Launch any offer in 30 minutes</h3><ul><li>Watch a brand-new offer go live, clock on screen: page, checkout and emails</li><li>Fill in your 10/90 Launch Brief (with your AI Roadmap, it's mostly done)</li><li>Check Claude's work so everything that goes live looks great and works</li></ul></div>
+  </div>
+  <div class="dfy-note reveal"><b>Want it done for you instead?</b> Inside, I'll also show you how I can build your whole offer for you, page, checkout and ads, on your own Funnel Engine.</div>
+  <div class="cta"><a class="btn" href="#checkout">Get the workshop + engine · $100 <span class="arr">→</span></a><small>The recording is yours for life.</small></div>
+</div>
+</section>
+
+<!-- STACK -->
+<section>
+<div class="wrap narrow">
+  <div class="center reveal">
+    <div class="kicker">Here's what you're getting</div>
+    <h2>Everything you need to launch your offer.</h2>
+  </div>
+  <div class="stack">
+    <div class="item reveal"><div class="aico c1 a-spin"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></div><div><b>The Funnel Engine, yours forever</b><span>Sales page, checkout, bumps, upsells, buyer emails and sales dashboard, as code you own. Install it today.</span></div><span class="tag inc">Included</span></div>
+    <div class="item reveal"><div class="aico c2 a-pulse"><svg viewBox="0 0 24 24"><path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0V8zM12 18v4"/></svg></div><div><b>The /Integrate skill</b><span>Claude sets up your email sequences, automations and course access in the platform you already use: GHL, ClickFunnels, Kajabi, Systeme.io, Kit and more.</span></div><span class="tag inc">Included</span></div>
+    <div class="item reveal"><div class="aico c3 a-bob"><svg viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.2 2.2 0 0 0-2.9-.1zM12 15l-3-3a22 22 0 0 1 2-3.9A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2zM9 12H4s.6-3 2-4c1.6-1.1 5 0 5 0M12 15v5s3-.6 4-2c1.1-1.6 0-5 0-5"/></svg></div><div><b>The Quick Start skill</b><span>Claude installs the engine with you, step by step.</span></div><span class="tag inc">Included</span></div>
+    <div class="item reveal"><div class="aico c4 a-play"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M10 9l5 3-5 3V9z"/></svg></div><div><b>The full workshop recording</b><span>Every part, start to finish, including the engine install. Yours for life.</span></div><span class="tag inc">Included</span></div>
+    <div class="item reveal"><div class="aico c5 a-wig"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div><div><b>The Claude Code &amp; Codex 80/20 sheet</b><span>The handful of moves that do most of the work, on one page. Keep it next to your screen.</span></div><span class="tag bon">Bonus</span></div>
+    <div class="item reveal"><div class="aico c6 a-ping"><svg viewBox="0 0 24 24"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4zM8 2v16M16 6v16"/></svg></div><div><b>The 10/90 Launch Brief</b><span>The one page you fill in before every launch. If you have your AI Roadmap, it gives you most of the answers.</span></div><span class="tag bon">Bonus</span></div>
+    <div class="item reveal"><div class="aico c7 a-buzz"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></div><div><b>Claude from your phone</b><span>Change a headline from the school run. Fix a typo from the couch.</span></div><span class="tag bon">Bonus</span></div>
+    <div class="stack-total reveal"><span>Everything above, today</span><b>$100</b></div>
+  </div>
+  <div class="cta"><a class="btn" href="#checkout">Yes, I want all of it · $100 <span class="arr">→</span></a><small>One payment. Yours the second you pay.</small></div>
+</div>
+</section>
+
+<!-- PRICE + GUARANTEE -->
+<section class="alt">
+<div class="wrap">
+  <div class="pg">
+    <div class="box reveal" data-anim="costs"><h3>Price?</h3><p style="margin:0 0 16px"><b>$100, one payment.</b> Compare that to what this usually costs:</p>
+      <div class="costs">
+        <div class="cost"><span class="lab">A VA to set all this up</span><b>a few grand / month</b><div class="bar"><i style="background:#c9bdb0" data-w="100"></i></div></div>
+        <div class="cost"><span class="lab">A funnel builder</span><b>$97–$297 / month</b><div class="bar"><i style="background:#e0b49c" data-w="38"></i></div></div>
+        <div class="cost win"><span class="lab">Your Funnel Engine hosting</span><b>about $5 / month</b><div class="bar"><i style="background:var(--ok)" data-w="4"></i></div></div>
+      </div>
+      <p style="margin:16px 0 0;font-size:14px;color:var(--muted)">You'll also need a paid Claude plan (about $20 a month).</p></div>
+    <div class="box guar reveal"><div class="seal"><span>72-HOUR<br>MONEY<br>BACK</span></div><h3>Guarantee?</h3><p>Set it up. If within 72 hours you're not sure you can build, design and launch an offer with Claude, email support.</p><p><b>You get every cent back.</b> No forms. No hoops. No "did you really try".</p></div>
+  </div>
+  <div class="cta"><a class="btn" href="#checkout">Get The Funnel Engine, risk-free <span class="arr">→</span></a></div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+<div class="wrap narrow">
+  <div class="center reveal"><div class="kicker">Before you join</div><h2 style="margin-bottom:24px">Questions</h2></div>
+  <details><summary>Do I need my AI Roadmap first?</summary><p>No. You only need an offer idea: what you sell and who it's for. The 10/90 Launch Brief walks you through the rest. If you already have your AI Roadmap, it names your offer, your buyer and your goal, so most of the brief is done: copy it across and Claude builds the offer from it.</p></details>
+  <details><summary>How is this different from using Claude to make HTML for a funnel builder?</summary><p>With a builder, Claude designs the page but you still paste it in, and the builder still runs your page and checkout. With the Funnel Engine, Claude works inside your own funnel code, builds around its checkout, bumps, upsells and dashboard, and you publish to your own hosting.</p></details>
+  <details><summary>Is 30 minutes for real?</summary><p>Once your engine's installed, yes. An offer goes from idea to live in about 30 minutes because Claude does the building. The first install takes longer, about an hour, and most of that is telling Claude about your offer.</p></details>
+  <details><summary>Do I need to know how to code?</summary><p>No. You talk to Claude in plain English. Claude writes the code.</p></details>
+  <details><summary>Do I have to leave GoHighLevel, ClickFunnels or Kajabi?</summary><p>No. Keep the tools you like. /Integrate connects your new funnel to them.</p></details>
+  <details><summary>Does /Integrate work with my platform?</summary><p>GHL, ClickFunnels, Kajabi, Systeme.io, Kit, MailerLite, ActiveCampaign, Mailchimp, or no email tool at all. Claude writes every email in your voice and sets up everything your tool allows directly, then clicks the rest in for you in your own Chrome while you watch. You do the logins and paste your own keys. ClickFunnels needs a paid Zapier plan to connect, and so do some Kajabi setups. Some free email plans can't send a sequence, so Claude checks yours first.</p></details>
+  <details><summary>What do I need?</summary><p>A paid Claude plan, Chrome on a computer, a Stripe account, a domain, a hosting account (about $5 a month), and the email tool you already use. New to Stripe? Approval can take a few days, so open it today.</p></details>
+  <details><summary>Is it safe?</summary><p>Your keys stay in your own accounts and nothing runs through us. Claude never types your passwords or your keys.</p></details>
+  <div class="cta"><a class="btn" href="#checkout">I'm in · $100 <span class="arr">→</span></a></div>
+</div>
+</section>
+
+<!-- FINAL + CHECKOUT -->
+<section class="final">
+<div class="wrap narrow">
+  <h2>Stop setting up tech.</h2>
+  <div class="lines" id="lines"><span>No funnel builder.</span><span>No automations to wire.</span><span>Tell Claude what you want.</span><span>The page gets built.</span><span>/Integrate sets it up.</span><span>It goes live.</span><span>You sip your coffee. ☕</span></div>
+</div>
+</section>
+
+<section class="alt" id="checkout">
+<div class="wrap">
+  <div class="checkout">
+    <h3>The Funnel Engine Install</h3>
+    <div class="secure">🔒 Secure checkout · Powered by Stripe · <b>$100, one payment</b></div>
+    <label class="bump"><div class="hd"><span class="arrow">👉</span> Your offer's live. Now who runs the ads?</div>
+      <div class="row"><input type="checkbox" data-amt="47" value="edward"><div><b>Yes! Add Edward, your AI Media Buyer</b> <span class="price">+ $47</span></div></div>
+      <p>The AI media buyer you install in Claude or ChatGPT. He writes your ads, makes the images, builds a $150 test in your ad account (paused, so you hit go) and reads your numbers every week. Plus the full Evergreen Ads 3.0 workshop. One payment.</p></label>
+    <label class="bump"><div class="hd"><span class="arrow">👉</span> Let Claude write the whole funnel for you.</div>
+      <div class="row"><input type="checkbox" data-amt="197" value="operators"><div><b>Yes! Add all 16 DFY AI Operators</b> <span class="price">+ $197</span></div></div>
+      <p>All 16 DFY AI Operators in one Claude skill. Claude writes your offer, sales page, checkout, upsells and emails. Install the skill, tell Claude what you sell and let the operators do the work. One payment.</p></label>
+    <div class="total">
+      <div class="ln"><span>The Funnel Engine Install</span><span>$100</span></div>
+      <div class="ln" id="l47" hidden><span>Edward, AI Media Buyer</span><span>$47</span></div>
+      <div class="ln" id="l197" hidden><span>DFY AI Operators</span><span>$197</span></div>
+      <div class="ln grand"><span>Total today</span><span id="tot">$100</span></div>
+    </div>
+    <a class="btn" id="go" href="/funnel-engine/checkout.html">Get The Funnel Engine <span class="arr">→</span></a>
+    <p class="legal">Not sure you can launch an offer with Claude within 72 hours? Every cent back.<br>Your card details go straight to Stripe. We never see or store them.</p>
+  </div>
+  <div class="narrow wrap" style="margin-top:34px">
+    <p class="sign">Let's launch your offer.<br>Claudia</p>
+    <p style="color:var(--body)"><b>P.S.</b> $100 gets you the Funnel Engine and both Claude skills today, the full workshop recording, three bonuses and a 72-hour money-back guarantee. You bring the idea. This is the doing.</p>
+  </div>
+</div>
+</section>
+
+<footer>
+  <p>Not affiliated with or endorsed by Anthropic, OpenAI, HighLevel, ClickFunnels, Kajabi, Systeme.io, Kit, Mailchimp, ActiveCampaign or MailerLite. Claude, Claude Code, Codex, GoHighLevel, ClickFunnels, Kajabi, Systeme.io, Kit, Mailchimp, ActiveCampaign and MailerLite are trademarks of their respective owners.</p>
+  <p>Sales figures are gross funnel sales across businesses owned or co-owned by our team, before fees, not profit. Results vary and no specific earnings are guaranteed.</p>
+  <p>© AI Founder University · Pure Collective Ltd. · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a> · <a href="mailto:support@aifounderuniversity.com">support@aifounderuniversity.com</a></p>
+</footer>
+<div class="sticky" id="sticky"><span class="txt"><b>$100</b><span class="sx"> · The Funnel Engine</span> · lifetime access</span><a class="btn" href="#checkout">Get it now →</a></div>
+
+<script>
+(function(){
+var wait=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+var tokens={};
+function typeInto(el,text,speed,tok){el.innerHTML='<span class="c"></span>';var i=0;return new Promise(function(res){(function step(){if(tok.dead)return;if(i>text.length){el.innerHTML=text;res();return;}el.innerHTML=text.slice(0,i)+'<span class="c"></span>';i++;setTimeout(step,speed)})()})}
+async function ticks(list,tok,gap,spin){for(var k=0;k<list.length;k++){if(tok.dead)return;var c=list[k],d=c.querySelector('.dot');c.classList.add('on');if(d){d.className='dot spin';d.textContent='';await wait(spin||450);if(tok.dead)return;d.className='dot done';d.textContent='✓';}await wait(gap||250)}}
+var anims={
+ engine:async function(root,tok){var cols=root.querySelectorAll('.cmp');cols.forEach(function(c){c.querySelectorAll('.node,.down,.verdict').forEach(function(n){n.classList.remove('on')})});
+  for(var i=0;i<3;i++){for(var c=0;c<2;c++){if(tok.dead)return;var ns=cols[c].querySelectorAll('.node'),ds=cols[c].querySelectorAll('.down');ns[i].classList.add('on');if(ds[i])setTimeout(function(d){d.classList.add('on')},300,ds[i]);}await wait(650)}
+  cols.forEach(function(c){c.querySelector('.verdict').classList.add('on')})},
+ install:async function(root,tok){var u=root.querySelector('.ubub'),a=root.querySelector('.atext'),cs=root.querySelectorAll('.chk'),b=root.querySelector('.browser'),lp=root.querySelector('.livepill');
+  a.classList.remove('on');cs.forEach(function(c){c.classList.remove('on');c.querySelector('.dot').className='dot';c.querySelector('.dot').textContent=''});b.classList.remove('on');lp.classList.remove('on');
+  await typeInto(u,u.dataset.type,45,tok);await wait(300);if(tok.dead)return;a.classList.add('on');await wait(400);
+  await ticks(cs,tok,180,550);if(tok.dead)return;b.classList.add('on');await wait(700);lp.classList.add('on')},
+ change:async function(root,tok){var u=root.querySelector('.ubub'),cs=root.querySelectorAll('.chk'),t=root.querySelector('.ttl'),up=root.querySelector('.upd');
+  cs.forEach(function(c){c.classList.remove('on')});t.textContent=t.dataset.old;up.classList.remove('on');
+  await typeInto(u,u.dataset.type,38,tok);await wait(300);await ticks([cs[0]],tok,100,600);if(tok.dead)return;
+  t.classList.add('flash');t.textContent=t.dataset.new;setTimeout(function(){t.classList.remove('flash')},900);await ticks([cs[1]],tok,100,500);up.classList.add('on')},
+ dash:async function(root,tok){var ks=root.querySelectorAll('[data-count]'),bs=root.querySelectorAll('.bars div'),ws=root.querySelectorAll('.works > div:not(.allgood)'),ag=root.querySelector('.allgood');
+  bs.forEach(function(b){b.style.height='0'});ws.forEach(function(w){w.classList.remove('ok')});ag.classList.remove('on');
+  ks.forEach(function(k){var end=+k.dataset.count,pre=k.dataset.pre||'',t0=performance.now();(function f(n){if(tok.dead)return;var p=Math.min(1,(n-t0)/1600);k.textContent=pre+Math.round(end*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(f)})(t0)});
+  bs.forEach(function(b,i){setTimeout(function(){b.style.height=b.dataset.h+'%'},120*i)});
+  await wait(900);for(var i=0;i<ws.length;i++){if(tok.dead)return;ws[i].classList.add('ok');await wait(350)}ag.classList.add('on')},
+ race:async function(root,tok){var o=root.querySelectorAll('.lane.old .ti'),n=root.querySelectorAll('.lane.new .ti'),oe=root.querySelector('.lane.old .end'),ne=root.querySelector('.lane.new .end'),oc=document.getElementById('oldclock'),nc=document.getElementById('newclock');
+  [].forEach.call(o,function(x){x.classList.remove('on')});[].forEach.call(n,function(x){x.classList.remove('on')});oe.classList.remove('on');ne.classList.remove('on');
+  var days=[1,3,6,9,13,17],mins=[2,9,16,24,30];
+  for(var i=0;i<6;i++){if(tok.dead)return;if(i<5){n[i].classList.add('on');nc.textContent=(mins[i]<10?'0':'')+mins[i]+':00';}if(i==4)ne.classList.add('on');o[i].classList.add('on');oc.textContent='Day '+days[i];await wait(i<5?520:900)}
+  oc.textContent='Day 21';oe.classList.add('on')},
+ app:async function(root,tok){var u=root.querySelector('.ubub'),a=root.querySelector('.atext'),cs=root.querySelectorAll('.chk'),g=root.querySelector('.golive'),tm=document.getElementById('apptimer');
+  a.classList.remove('on');g.classList.remove('on');cs.forEach(function(c){c.classList.remove('on');c.querySelector('.dot').className='dot';c.querySelector('.dot').textContent=''});tm.textContent='⏱ 00:00';
+  await typeInto(u,u.dataset.type,32,tok);await wait(300);if(tok.dead)return;a.classList.add('on');
+  var cur=0;var clock=setInterval(function(){if(tok.dead){clearInterval(clock);return}cur=Math.min(30,cur+1);tm.textContent='⏱ '+(cur<10?'0':'')+cur+':00'},130);
+  for(var i=0;i<cs.length;i++){var target=+cs[i].dataset.t;while(cur<target-1&&!tok.dead)await wait(60);await ticks([cs[i]],tok,40,380)}
+  clearInterval(clock);tm.textContent='⏱ 30:00';g.classList.add('on')},
+ funnel:async function(root,tok){var fs=root.querySelectorAll('.fs'),fc=root.querySelectorAll('.fcon'),lc=root.querySelectorAll('.logo-chip');
+  fs.forEach(function(x){x.classList.remove('on')});fc.forEach(function(x){x.classList.remove('on')});lc.forEach(function(x){x.classList.remove('on')});
+  for(var i=0;i<fs.length;i++){if(tok.dead)return;fs[i].classList.add('on');await wait(380);if(fc[i]){fc[i].classList.add('on');await wait(250)}}
+  for(var j=0;j<lc.length;j++){if(tok.dead)return;lc[j].classList.add('on');await wait(110)}},
+ costs:async function(root,tok){root.querySelectorAll('.bar i').forEach(function(b){b.style.width='0';setTimeout(function(){b.style.width=b.dataset.w+'%'},200)})}
+};
+function run(name){var root=document.querySelector('[data-anim="'+name+'"]');if(!root)return;if(tokens[name])tokens[name].dead=true;var tok={dead:false};tokens[name]=tok;anims[name](root,tok)}
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var n=e.target.dataset.anim;if(n&&!e.target._ran){e.target._ran=1;run(n)}if(e.target.classList.contains('reveal'))e.target.classList.add('in');if(e.target.id==='hates')e.target.classList.add('in');if(e.target.id==='lines')lines();})},{threshold:.3});
+document.querySelectorAll('[data-anim],.reveal,#hates,#lines').forEach(function(el){io.observe(el)});
+document.querySelectorAll('[data-replay]').forEach(function(b){b.addEventListener('click',function(){run(b.dataset.replay)})});
+async function lines(){var s=document.querySelectorAll('#lines span');for(var i=0;i<s.length;i++){s[i].classList.add('on');await wait(380)}}
+// hero rotating word
+var words=['sales page','checkout','order bumps','upsells','emails','whole funnel'],wi=0,rot=document.getElementById('rot');
+setInterval(function(){wi=(wi+1)%words.length;var w=words[wi],cur=rot.textContent;var del=setInterval(function(){cur=cur.slice(0,-1);rot.textContent=cur;if(!cur){clearInterval(del);var k=0;var add=setInterval(function(){k++;rot.textContent=w.slice(0,k);if(k>=w.length)clearInterval(add)},55)}},30)},2600);
+// sticky
+var st=document.getElementById('sticky'),co=document.getElementById('checkout');
+addEventListener('scroll',function(){var r=co.getBoundingClientRect();st.classList.toggle('show',scrollY>700&&!(r.top<innerHeight&&r.bottom>0))},{passive:true});
+// bumps
+document.querySelectorAll('.bump input').forEach(function(cb){cb.addEventListener('change',function(){var t=100;document.querySelectorAll('.bump input').forEach(function(c){var a=+c.dataset.amt;document.getElementById('l'+a).hidden=!c.checked;c.closest('.bump').classList.toggle('sel',c.checked);if(c.checked)t+=a;});document.getElementById('tot').textContent='$'+t;var b=[].filter.call(document.querySelectorAll('.bump input'),function(c){return c.checked}).map(function(c){return c.value});document.getElementById('go').href='/funnel-engine/checkout.html'+(b.length?'?bumps='+b.join(','):'');})});
+})();
+</script>
+</body>
+</html>

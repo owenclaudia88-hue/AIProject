@@ -34,6 +34,14 @@
       "destination": "/claude-automation-engine.html"
     },
     {
+      "source": "/funnel-engine",
+      "destination": "/funnel-engine/index.html"
+    },
+    {
+      "source": "/funnel-engine/",
+      "destination": "/funnel-engine/index.html"
+    },
+    {
       "source": "/70-ai-specialists-for-claude",
       "destination": "/70-ai-specialists-for-claude.html"
     },

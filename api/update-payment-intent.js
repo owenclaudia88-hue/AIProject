@@ -1,5 +1,8 @@
 import Stripe from 'stripe';
-import { ADDONS, ADDON_SOURCES, parseAddons } from '../lib/products.js';
+import {
+  ADDONS, ADDON_SOURCES, parseAddons,
+  FUNNEL_ENGINE_SOURCE, FUNNEL_ENGINE_NAME, FUNNEL_ENGINE_BUMPS, parseFunnelEngineBumps, funnelEnginePrice
+} from '../lib/products.js';
 import { BONUS_ADDONS, bonusActive } from '../lib/bonus.js';
 
 /**
@@ -49,6 +52,24 @@ export default async function handler(req, res) {
     // Same answer for "not yours" and "does not exist", so the endpoint cannot
     // be used to probe for intents.
     if (pi.client_secret !== clientSecret) return res.status(404).json({ error: 'Not found.' });
+
+    /* The Funnel Engine checkout's own two bumps, priced from its own list.
+       Kept apart from everything below: no bonus offer reaches this checkout,
+       and the $1 add-ons can never be ticked onto it, nor these onto that. */
+    if (pi.metadata?.source === FUNNEL_ENGINE_SOURCE) {
+      if (!EDITABLE.has(pi.status)) return res.status(409).json({ error: 'This order can no longer be changed.' });
+      const bumps = parseFunnelEngineBumps(body.addons);
+      const email = typeof body.email === 'string' ? body.email.trim().toLowerCase().slice(0, 320) : '';
+      const updated = await stripe.paymentIntents.update(id, {
+        amount: funnelEnginePrice() + bumps.reduce((sum, k) => sum + FUNNEL_ENGINE_BUMPS[k].priceAmount(), 0),
+        description: [FUNNEL_ENGINE_NAME, ...bumps.map((k) => FUNNEL_ENGINE_BUMPS[k].short)].join(' + '),
+        metadata: {
+          addons: bumps.join(','),
+          ...(EMAIL_RE.test(email) ? { buyer_email: email } : {})
+        }
+      });
+      return res.status(200).json({ amount: updated.amount, currency: updated.currency, addons: bumps, bonusEnded: false });
+    }
     // A bonus order (24-hour offer from the first reminder) already has both
     // add-ons free and stays at the base price: the page can only refresh
     // the email on it, never change what is included or what it costs.

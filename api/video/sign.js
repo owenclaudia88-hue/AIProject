@@ -1,5 +1,5 @@
 import { sessionEmail } from '../../lib/session.js';
-import { isActive, lessonVideoId } from '../../lib/db.js';
+import { isActive, lessonVideoId, entitlementsFor } from '../../lib/db.js';
 import { signedVideoUrl, signedThumbUrl, bunnyConfig } from '../../lib/bunny.js';
 
 /**
@@ -34,7 +34,9 @@ export default async function handler(req, res) {
       }
     }
 
-    const videoId = await lessonVideoId(lesson, clip);
+    // Only from a course this member may open - a locked course's lesson
+    // ids are in the library list, so knowing one proves nothing.
+    const videoId = await lessonVideoId(lesson, clip, await entitlementsFor(email));
     // Not every lesson has a video — the prompt-vault ones are text only.
     if (!videoId) return res.status(404).json({ error: 'no video' });
 

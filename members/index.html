@@ -1426,6 +1426,10 @@ button{font-family:inherit}
         me.canSeeReports = !!res.d.canSeeReports;
         me.canSeeNews = !!res.d.canSeeNews;
         me.hasMembership = !!res.d.hasMembership;
+        // False only for a buyer whose one purchase is the Funnel Engine: the
+        // base area then shows locked like everything else they have not got.
+        me.hasBase = res.d.hasBase !== false;
+        me.hasFunnelEngine = !!res.d.hasFunnelEngine;
         // Who gets the membership rooms rather than a lock on them. Staff are
         // in because they have never bought anything and still have to be able
         // to look. Set here, with the rest of the fields copied off /api/me,
@@ -1565,7 +1569,7 @@ button{font-family:inherit}
   };
 
   var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false, canPreview: false,
-             hasMembership: true };
+             hasMembership: true, hasBase: true, hasFunnelEngine: false };
   var all = [];        // library items (with .kind)
   var downloads = {};  // grouped downloadables
   var courses = [];    // course list (cards)
@@ -3215,6 +3219,17 @@ button{font-family:inherit}
         ? 'You have full access to everything — courses, plugins, and the full content library.'
         : 'Everything you bought is here and always will be. The membership opens the rest.') + '</p>';
 
+    /* Step 1 is what they bought. For almost everybody that is the
+       Specialists; a buyer whose only purchase is the Funnel Engine has no
+       Specialists to download, so theirs is the engine. */
+    var first = me.hasBase
+      ? { h: 'Your Specialists &amp; Plugins are ready',
+          p: 'Download the 70 AI Specialists and every plugin pack, then install them in Claude.',
+          href: '#downloads', cta: 'Go to downloads' }
+      : { h: 'Your Funnel Engine is ready',
+          p: 'Watch "Start Here", download the files, then tell Claude "Install my Funnel Engine".',
+          href: '#course-the-funnel-engine', cta: 'Open the Funnel Engine' };
+
     /* Two steps, in order. The Specialists stay first because that is what was
        bought; the roadmap sits beside them because it is what says when to use
        them. They are not rivals — a roadmap schedules the downloads as well as
@@ -3245,9 +3260,9 @@ button{font-family:inherit}
     html += '<div class="steps">' +
       '<div class="banner"><div class="bic">🧩</div><div style="min-width:200px;flex:1">' +
         '<span class="step-n">Step 1</span>' +
-        '<h3>Your Specialists &amp; Plugins are ready</h3>' +
-        '<p>Download the 70 AI Specialists and every plugin pack, then install them in Claude.</p>' +
-        '<a class="dl" href="#downloads">Go to downloads</a>' +
+        '<h3>' + first.h + '</h3>' +
+        '<p>' + esc(first.p) + '</p>' +
+        '<a class="dl" href="' + first.href + '">' + first.cta + '</a>' +
       '</div></div>' +
       '<div class="banner' + plan.cls + '"><div class="bic">' + plan.ic + '</div>' +
       '<div style="min-width:200px;flex:1">' +

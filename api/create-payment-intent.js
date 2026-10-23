@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { sourceFromUrl, DEFAULT_SOURCE, ENGINE_SOURCE } from '../lib/products.js';
+import { sourceFromUrl, DEFAULT_SOURCE, ENGINE_SOURCE, FUNNEL_ENGINE_SOURCE } from '../lib/products.js';
 import { readBonusToken, BONUS_ADDONS } from '../lib/bonus.js';
 
 /**
@@ -62,7 +62,9 @@ export default async function handler(req, res) {
     // entitlement purely on this tag, so somebody who wandered through the
     // Engine page and then bought here would otherwise be handed an Engine-priced
     // product for $1. The URL decides the funnel, not the product.
-    if (landingSource === ENGINE_SOURCE) landingSource = DEFAULT_SOURCE;
+    // The Funnel Engine the same way, and for the same reason: its tag grants
+    // the Funnel Engine and withholds the base area.
+    if (landingSource === ENGINE_SOURCE || landingSource === FUNNEL_ENGINE_SOURCE) landingSource = DEFAULT_SOURCE;
 
     // The 24-hour bonus from the first reminder email: a signed, unexpired
     // token puts the Engine and Carousel Studio on this order at no extra

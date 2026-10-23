@@ -4,7 +4,7 @@ import { isAdmin } from '../lib/admin.js';
 import { isTester } from '../lib/testers.js';
 import { reportsOpenTo } from '../lib/report-access.js';
 import { newsOpenTo } from '../lib/news-access.js';
-import { MEMBERSHIP_ONLY } from '../lib/products.js';
+import { MEMBERSHIP_ONLY, BASE, FUNNEL_ENGINE } from '../lib/products.js';
 
 /**
  * GET /api/me — who is signed in, and are they still active.
@@ -22,6 +22,7 @@ export default async function handler(req, res) {
     if (!customer || customer.status !== 'active') {
       return res.status(403).json({ authenticated: true, active: false, email });
     }
+    const held = await entitlementsFor(email);
     return res.status(200).json({
       authenticated: true,
       active: true,
@@ -50,7 +51,12 @@ export default async function handler(req, res) {
       photoUrl: customer.photo_url ? '/api/account/photo' : null,
       // Whether they are subscribed, which is what the member area reads to
       // decide between a perk and a lock.
-      hasMembership: (await entitlementsFor(email)).has(MEMBERSHIP_ONLY)
+      hasMembership: held.has(MEMBERSHIP_ONLY),
+      // Whether the base member area is theirs. False only for somebody whose
+      // one purchase is the Funnel Engine: everything else shows with a lock
+      // that offers the Specialists, not a membership they never had.
+      hasBase: held.has(BASE),
+      hasFunnelEngine: held.has(FUNNEL_ENGINE)
     });
   } catch (err) {
     console.error('[me]', err);
