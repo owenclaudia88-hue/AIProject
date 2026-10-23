@@ -1,9 +1,10 @@
 import { sessionEmail } from '../../lib/session.js';
 import { listCustomers, displayNameFor, outreachLog, optOuts, bouncedEmails,
-         convertedAfterReminder } from '../../lib/db.js';
+         convertedAfterReminder, funnelEngineCheckouts, listEntitled } from '../../lib/db.js';
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
-import { reminderSettings, abandonedCheckouts, STEPS } from '../../lib/reminders.js';
+import { reminderSettings, abandonedCheckouts, STEPS, FE_STEPS } from '../../lib/reminders.js';
+import { FUNNEL_ENGINE } from '../../lib/products.js';
 import { listLeads } from '../../lib/db.js';
 
 /**
@@ -20,12 +21,33 @@ export default async function handler(req, res) {
   if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 
   try {
-    const [customers, optedOut, bounced, reminders, ...logs] = await Promise.all([
+    const [customers, optedOut, bounced, reminders, feOpen, feOwners, ...logs] = await Promise.all([
       listCustomers(), optOuts(), bouncedEmails(), reminderSettings(),
-      ...STEPS.map((s) => outreachLog(s.kind))
+      funnelEngineCheckouts(), listEntitled(FUNNEL_ENGINE),
+      ...[...STEPS, ...FE_STEPS].map((s) => outreachLog(s.kind))
     ]);
     // kind -> Map(email -> when it was sent)
-    const sentByKind = new Map(STEPS.map((s, i) => [s.kind, logs[i]]));
+    const sentByKind = new Map([...STEPS, ...FE_STEPS].map((s, i) => [s.kind, logs[i]]));
+
+    /* The Funnel Engine's own sequence, reported on its own: different people
+       (members walking away from it count), a different clock and a different
+       product, so mixing it into the $1 figures would muddy both. */
+    const feSent = (e) => Object.fromEntries(FE_STEPS.map((s) => [s.kind, sentByKind.get(s.kind).get(e) || null]));
+    const feReminded = new Set(FE_STEPS.flatMap((s) => [...sentByKind.get(s.kind).keys()]));
+    const funnelEngine = {
+      open: feOpen.map((p) => ({
+        email: p.email, name: p.name || null,
+        createdAt: new Date(p.fe_started_at).toISOString(),
+        sent: feSent(p.email),
+        unsubscribed: optedOut.has(p.email),
+        bounced: bounced.has(p.email)
+      })),
+      // Bought after at least one of the four went to them. Not proof the
+      // email did it, which is why it is labelled "after" on the page.
+      boughtAfter: feOwners.filter((o) => feReminded.has(o.email)).length,
+      reminded: feReminded.size,
+      buyers: feOwners.length
+    };
 
     let funnel = null, funnelError = null;
     try {
@@ -297,7 +319,8 @@ export default async function handler(req, res) {
         paidWithoutAccess
       },
       funnelError,
-      reminders
+      reminders,
+      funnelEngine
     });
   } catch (err) {
     console.error('[admin/members]', err);

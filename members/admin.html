@@ -1556,9 +1556,101 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       });
     }
 
+    h += funnelEngineLeads(members.funnelEngine, (members.reminders || {}).feSteps || []);
+
     p.innerHTML = h;
     wireMemberActions(p);
+    wireFunnelEngineLeads(p);
     paintOpenCourses();
+  }
+
+  /* The Funnel Engine's own four reminders, in a block of their own: they go
+     to different people from the list above (a member who walked away from
+     this checkout is chased here, never there), on a different clock, about a
+     different product. Same rules for who can be sent what - canSend, with
+     this sequence's steps. */
+  function funnelEngineLeads(fe, steps) {
+    if (!fe) return '';
+    var open = fe.open || [];
+    var h = '<h3 class="sech">Funnel Engine checkouts to win back <span class="meta">' + open.length + '</span></h3>' +
+      '<p class="sub-note">Started the $100 Funnel Engine checkout and do not own it, members included. ' +
+        'They leave this list the moment they buy. ' + fe.boughtAfter + ' of ' + fe.reminded +
+        ' people sent a reminder have bought since.</p>';
+
+    h += '<div class="sched">' + steps.map(function (s) {
+      return '<span class="sep">· ' + esc(s.label.replace(/^Funnel Engine /, '')) + ' after</span>' +
+        '<input type="number" data-fe-delay="' + esc(s.delayKey) + '" min="0.25" max="168" step="0.25" value="' + esc(s.delayHours) + '">' +
+        '<span class="sep">h ' + esc(afterLabel(s, steps)) + '</span>';
+    }).join('') +
+      '<button class="bulk" id="fe-rem-save">Save</button>' +
+      '<span class="hint" id="fe-rem-hint">Sent by the same scheduled check as the reminders above, ' +
+        'and switched on and off with them.</span></div>';
+
+    if (!open.length) return h + '<p class="empty">Nobody to win back right now.</p>';
+
+    var bulk = steps.map(function (s) {
+      var n = open.filter(function (x) { return canSend(x, s, steps); }).length;
+      return n ? '<button class="bulk" data-fe-sendall="' + esc(s.kind) + '">Send ' +
+        esc(s.label.replace(/^Funnel Engine /, '')) + ' to ' + n + ' now</button>' : '';
+    }).filter(Boolean).join('');
+    if (bulk) h += '<div class="dl" style="margin-bottom:12px">' + bulk + '<span>Don\'t wait for the schedule.</span></div>';
+
+    open.forEach(function (x) {
+      var sent = x.sent || {};
+      var notes = x.bounced ? '<span class="st declined">email does not exist</span>'
+        : x.unsubscribed ? '<span class="st declined">unsubscribed</span>'
+        : steps.filter(function (s) { return sent[s.kind]; }).map(function (s) {
+            return '<span class="st planned">' + esc(s.label.replace(/^Funnel Engine /, '').toLowerCase()) + ' ' + esc(day(sent[s.kind])) + '</span>';
+          }).join('');
+      var acts = steps.filter(function (s) { return canSend(x, s, steps); }).map(function (s) {
+        return '<button data-remind="' + esc(x.email) + '" data-kind="' + esc(s.kind) + '">Send ' +
+          esc(s.label.replace(/^Funnel Engine /, '').toLowerCase()) + '</button>';
+      }).join('');
+      h += '<div class="card"><div class="hd"><b>' + esc(x.name || x.email) + '</b>' + notes +
+        '<span class="meta" style="margin-left:auto">' + esc(x.email) + ' · started ' + esc(day(x.createdAt)) + '</span></div>' +
+        (acts ? '<div class="acts">' + acts + '</div>' : '') + '</div>';
+    });
+    return h;
+  }
+
+  function wireFunnelEngineLeads(scope) {
+    var save = scope.querySelector('#fe-rem-save');
+    if (save) save.addEventListener('click', function () {
+      var delays = {};
+      [].forEach.call(scope.querySelectorAll('[data-fe-delay]'), function (i) {
+        delays[i.getAttribute('data-fe-delay')] = i.value;
+      });
+      var hint = scope.querySelector('#fe-rem-hint');
+      save.disabled = true; save.textContent = 'Saving…';
+      // Delays only: leaving `enabled` out leaves the switch above as it is.
+      fetch('/api/admin/settings', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ delays: delays })
+      })
+        .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+        .then(function (res) {
+          save.disabled = false; save.textContent = 'Save';
+          if (res.status !== 200) { hint.textContent = res.d.error || 'That did not save.'; return; }
+          hint.textContent = 'Saved — ' + (res.d.feSteps || []).map(function (s) {
+            return s.label.replace(/^Funnel Engine /, '').toLowerCase() + ' at ' + s.delayHours + 'h';
+          }).join(', ') + '.';
+          if (members) members.reminders = res.d;
+        })
+        .catch(function () { save.disabled = false; save.textContent = 'Save'; hint.textContent = 'That did not save.'; });
+    });
+
+    [].forEach.call(scope.querySelectorAll('[data-fe-sendall]'), function (b) {
+      b.addEventListener('click', function () {
+        var kind = b.getAttribute('data-fe-sendall');
+        var steps = (members && members.reminders && members.reminders.feSteps) || [];
+        var step = steps.filter(function (s) { return s.kind === kind; })[0];
+        var list = ((members && members.funnelEngine && members.funnelEngine.open) || [])
+          .filter(function (x) { return canSend(x, step, steps); })
+          .map(function (x) { return x.email; });
+        sendReminders(list, b, kind);
+      });
+    });
   }
 
   /* "checkout-reminder-3" -> the label the sequence uses for it, or a readable

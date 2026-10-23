@@ -809,6 +809,28 @@ button{font-family:inherit}
 .rm-wait .g{font-size:2.2rem;display:block;margin-bottom:12px}
 .rm-wait h3{margin:0 0 8px;font-size:1.12rem;font-weight:800}
 .rm-wait p{margin:0;color:var(--txt-2);font-size:.93rem;line-height:1.6}
+/* The Funnel Engine, where it is offered: under the roadmap, on the dashboard,
+   and one line while a roadmap is being written. */
+.rm-wait-fe{max-width:640px;margin:14px 0 0;color:var(--txt-2);font-size:.9rem;line-height:1.6}
+.rm-wait-fe a{color:var(--accent-2);font-weight:700}
+.fe-next{max-width:860px;margin:6px 0 34px;background:var(--bg-2);border:1px solid var(--line);
+  border-left:3px solid var(--accent);border-radius:0 16px 16px 0;padding:22px 24px}
+.fe-next h2{margin:6px 0 8px;font-size:1.2rem;font-weight:800;letter-spacing:-.01em}
+.fe-next p{margin:0 0 10px;color:var(--txt-2);line-height:1.6;max-width:68ch}
+.fe-next .fe-fine{font-size:.84rem;color:var(--txt-3)}
+.fe-k{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent-2)}
+.fe-go,.fe-alt{display:inline-flex;align-items:center;min-height:44px;margin:6px 10px 0 0;padding:0 18px;
+  border-radius:11px;font-weight:800;font-size:.9rem;text-decoration:none}
+.fe-go{background:var(--accent);color:#1a0d00}
+.fe-alt{border:1px solid var(--line-2);color:var(--txt-2)}
+.fe-alt:hover{border-color:var(--accent);color:var(--accent-2)}
+.fe-promo{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:18px 0 28px;padding:16px 20px;
+  background:var(--bg-2);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 14px 14px 0;text-decoration:none;color:var(--txt)}
+.fe-promo:hover{border-color:var(--accent)}
+.fe-promo .fe-t{flex:1;min-width:min(100%,260px);color:var(--txt-2);font-size:.93rem;line-height:1.55}
+.fe-promo .fe-t b{color:var(--txt)}
+.fe-promo .fe-c{font-weight:800;color:var(--accent-2);font-size:.9rem}
 
 /* ---------- questions about the roadmap ---------- */
 .rm-notes{max-width:860px;margin:44px 0 0;padding-top:28px;border-top:1px solid var(--line)}
@@ -1430,6 +1452,9 @@ button{font-family:inherit}
         // base area then shows locked like everything else they have not got.
         me.hasBase = res.d.hasBase !== false;
         me.hasFunnelEngine = !!res.d.hasFunnelEngine;
+        // On sale to them and not theirs yet. The one switch for every place
+        // the Funnel Engine is offered below.
+        me.offerFunnelEngine = !!res.d.offerFunnelEngine;
         // Who gets the membership rooms rather than a lock on them. Staff are
         // in because they have never bought anything and still have to be able
         // to look. Set here, with the rest of the fields copied off /api/me,
@@ -1569,7 +1594,7 @@ button{font-family:inherit}
   };
 
   var me = { email: '', name: '', hasName: false, isAdmin: false, isTester: false, canPreview: false,
-             hasMembership: true, hasBase: true, hasFunnelEngine: false };
+             hasMembership: true, hasBase: true, hasFunnelEngine: false, offerFunnelEngine: false };
   var all = [];        // library items (with .kind)
   var downloads = {};  // grouped downloadables
   var courses = [];    // course list (cards)
@@ -1858,7 +1883,8 @@ button{font-family:inherit}
     Object.keys(downloads).forEach(function (k) {
       downloads[k].forEach(function (it) { if (it.locked) dls++; });
     });
-    var shutCourses = courses.filter(function (c) { return c.locked; }).length;
+    // Not the ones sold on their own: the membership would not open those.
+    var shutCourses = courses.filter(function (c) { return c.locked && !c.buy; }).length;
 
     var total = Object.keys(byKind).reduce(function (n, k) { return n + byKind[k]; }, 0) + dls;
     // Nothing is shut, so there is nothing to sell. A banner here would be an
@@ -2934,7 +2960,12 @@ button{font-family:inherit}
         '<h3>' + (done ? 'Being written now' : 'We have your answers') + '</h3>' +
         '<p>Your roadmap is being built from what you told us, and checked by hand before it ' +
           'reaches you. You will get an email the moment it is ready, and it will appear here.</p>' +
-      '</div>';
+      '</div>' +
+      (me.offerFunnelEngine
+        ? '<p class="rm-wait-fe">Your roadmap will name the first offer to sell, written as a Launch ' +
+            'Brief. <a href="/funnel-engine">The Funnel Engine</a> is how members put that offer live ' +
+            'with Claude, without a funnel builder.</p>'
+        : '');
   }
 
   /* ---- the form ---- */
@@ -3150,6 +3181,7 @@ button{font-family:inherit}
       foot: 'Built for you by AI Founder University.'
     });
     window.roadmapDoc.wire(c, {
+      offer: R.offer || null,
       // Ticks belong to this published version. A republished roadmap is a
       // different plan, and carrying the old ticks over would mark steps done
       // that nobody has done.
@@ -3160,8 +3192,62 @@ button{font-family:inherit}
     // empty comment box at the end is a form nobody can fill in.
     var notes = document.createElement('div');
     notes.innerHTML = roadmapNotes();
+
+    // Also outside the document, and for the same reason as the notes: the
+    // plan is theirs to print and keep, and an offer printed into it would
+    // turn the plan into a pitch.
+    var next = funnelEngineNext(R.offer);
+    if (next) {
+      var box = document.createElement('div');
+      box.innerHTML = next;
+      c.appendChild(box);
+    }
     c.appendChild(notes);
     wireRoadmapNotes(c);
+  }
+
+  /* What comes after the plan: the offer it names, launched. Only for a
+     member who could buy the Funnel Engine today, or who already owns it -
+     for the second it is a pointer to the engine, never a sale. */
+  function funnelEngineNext(of) {
+    // Roadmaps written before the offer section have no brief to copy, so
+    // the wording only points at one when it is there.
+    var named = of && of.name
+      ? '<b>' + esc(of.name) + '</b>' + (of.price ? ' at ' + esc(of.price) : '')
+      : 'the offer in your plan';
+    var tell = of && of.promise ? 'paste the brief above into Claude' : 'tell Claude what you sell';
+    if (me.hasFunnelEngine) {
+      return '<section class="fe-next"><span class="fe-k">Next step</span>' +
+        '<h2>Build it with your Funnel Engine</h2>' +
+        '<p>' + (of && of.promise ? 'Copy your offer above as your Launch Brief, paste it into Claude'
+            : 'Fill in your 10/90 Launch Brief, paste it into Claude') + ' in your Funnel Engine ' +
+          'folder, and it builds the page, checkout and emails for ' + named + '.</p>' +
+        '<a class="fe-go" href="#course-the-funnel-engine">Open the Funnel Engine</a></section>';
+    }
+    if (!me.offerFunnelEngine) return '';
+    return '<section class="fe-next"><span class="fe-k">Launch this plan</span>' +
+      '<h2>Have Claude put your offer live this week</h2>' +
+      '<p>Your roadmap starts with ' + named + '. The Funnel Engine is how you launch it without a ' +
+        'funnel builder: ' + tell + ' and it builds the sales page, checkout, ' +
+        'order bumps, upsells and emails on your own domain. About an hour the first time, about ' +
+        '30 minutes for every offer after.</p>' +
+      '<p class="fe-fine">$100 once, yours for life. 72-hour money-back guarantee.</p>' +
+      '<a class="fe-go" href="/funnel-engine">See The Funnel Engine</a>' +
+      '<a class="fe-alt" href="/funnel-engine/checkout.html">Get it now · $100</a></section>';
+  }
+
+  /* A course somebody cannot open, with a lock that says what opens it: the
+     membership for most, the Funnel Engine's own page for that one. */
+  function lockedCourseCard(co, meta) {
+    var own = !!co.buy;
+    return '<a class="course-card locked" href="' + esc(own ? co.buy : 'join.html') + '" title="' +
+        (own ? 'Get ' + esc(co.title) : 'Unlock with the membership') + '">' +
+      '<span class="lock-badge">\ud83d\udd12</span>' +
+      '<div class="cc-top"><span class="g">\ud83c\udf93</span></div>' +
+      '<div class="cc-body"><h3>' + esc(co.title) + '</h3>' +
+      '<div class="cc-meta">' + esc(meta) + '</div>' +
+      '<span class="cc-unlock">' + (own ? 'Get it · $100 one-time \u2192' : 'Unlock with the membership \u2192') + '</span>' +
+      '</div></a>';
   }
 
 
@@ -3272,6 +3358,14 @@ button{font-family:inherit}
         '<a class="dl" href="#roadmap">' + esc(plan.cta) + '</a>' +
       '</div></div>' +
     '</div>';
+
+    if (me.offerFunnelEngine) {
+      html += '<a class="fe-promo" href="/funnel-engine">' +
+        '<span class="fe-k">New</span>' +
+        '<span class="fe-t"><b>The Funnel Engine</b> — tell Claude what you want to sell, and it builds ' +
+          'the sales page, checkout, bumps and emails on your own domain. No funnel builder, no tech skills.</span>' +
+        '<span class="fe-c">See how it works →</span></a>';
+    }
 
     // category tiles — Courses first, then each content library
     html += '<div class="sec-h first"><h2>Explore your library</h2></div><div class="tiles">';
@@ -3743,13 +3837,7 @@ button{font-family:inherit}
       // A course they cannot open. No progress bar: there is no progress to
       // have made, and an empty one reads as a course they started and dropped.
       if (co.locked) {
-        html += '<a class="course-card locked" href="join.html" title="Unlock with the membership">' +
-          '<span class="lock-badge">\ud83d\udd12</span>' +
-          '<div class="cc-top"><span class="g">\ud83c\udf93</span></div>' +
-          '<div class="cc-body"><h3>' + esc(co.title) + '</h3>' +
-          '<div class="cc-meta">' + esc(meta) + '</div>' +
-          '<span class="cc-unlock">Unlock with the membership \u2192</span>' +
-          '</div></a>';
+        html += lockedCourseCard(co, meta);
         return;
       }
 
@@ -3858,6 +3946,9 @@ button{font-family:inherit}
        has always shown these properly; a link straight to one did not, and a
        link straight to one is exactly what a bookmark or an email is. */
     var shut = courses.filter(function (x) { return x.slug === slug; })[0];
+    // Sold on its own rather than lent by the membership: its own page says
+    // what it is and takes the order.
+    if (shut && shut.locked && shut.buy) { location.href = shut.buy; return; }
     if (shut && shut.locked) {
       var lst = shut.stats || {};
       c.innerHTML = '<button class="cd-back" id="cd-back">&larr; All courses</button>' +
@@ -4776,12 +4867,7 @@ button{font-family:inherit}
       out += gsHead('Courses', cos.length) + '<div class="course-grid">' + cos.map(function (co) {
         var total = co.lessonCount || (co.stats && co.stats.lessons) || 0;
         var meta = total + ' lesson' + (total === 1 ? '' : 's');
-        if (co.locked) {
-          return '<a class="course-card locked" href="join.html" title="Unlock with the membership">' +
-            '<span class="lock-badge">🔒</span><div class="cc-top"><span class="g">🎓</span></div>' +
-            '<div class="cc-body"><h3>' + esc(co.title) + '</h3><div class="cc-meta">' + esc(meta) + '</div>' +
-            '<span class="cc-unlock">Unlock with the membership →</span></div></a>';
-        }
+        if (co.locked) return lockedCourseCard(co, meta);
         return '<div class="course-card" data-slug="' + esc(co.slug) + '">' +
           '<div class="cc-top"><span class="g">🎓</span></div>' +
           '<div class="cc-body"><h3>' + esc(co.title) + '</h3>' +

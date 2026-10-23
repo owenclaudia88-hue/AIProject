@@ -238,6 +238,59 @@
 
   /* ---------- the whole thing ---------- */
 
+  /* ---------- the offer ----------
+
+     The first thing the plan sells, in the Launch Brief's own terms. It is
+     what a member hands Claude to build the offer, so it is shown as a brief
+     and can be copied as one. */
+  function offerSection(of, interactive) {
+    if (!of || !has(of.promise)) return '';
+    var row = function (k, v) {
+      return has(v) ? '<div class="rmd-of-r"><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>' : '';
+    };
+    var gets = list(of.gets).filter(has);
+    return '<section class="rmd-offer"><h2>Your offer<span class="sub">The first thing this plan ' +
+      'sells, written as your 10/90 Launch Brief.</span></h2><dl class="rmd-of">' +
+      row('Offer', of.name) + row('Who it\'s for', of.who) + row('Their problem', of.problem) +
+      row('The one promise', of.promise) +
+      (gets.length ? '<div class="rmd-of-r"><dt>What they get</dt><dd><ul>' +
+        gets.map(function (g) { return '<li>' + esc(g) + '</li>'; }).join('') + '</ul></dd></div>' : '') +
+      row('Price', of.price) +
+      (of.bump && has(of.bump.name)
+        ? row('Order bump', of.bump.name + ' · ' + of.bump.price + (has(of.bump.what) ? ' · ' + of.bump.what : ''))
+        : '') +
+      '</dl>' +
+      (interactive === false ? ''
+        : '<button class="rmd-brief" type="button" data-rmd-brief>Copy as my Launch Brief</button>' +
+          '<span class="rmd-brief-ok" aria-live="polite"></span>') +
+      '</section>';
+  }
+
+  /* The brief's own fields, filled from the offer. The lines only the member
+     can answer - proof, guarantee, delivery link, email, business details -
+     are left blank and marked, because a brief that guesses them is the
+     thing the brief is there to stop. */
+  function briefText(of) {
+    var line = function (v) { return has(v) ? ' ' + String(v).trim() : ''; };
+    return [
+      'THE 10/90 BRIEF', '',
+      '(needed) WHO IT\'S FOR:' + line(of.who), '',
+      '(needed) THEIR PROBLEM, IN THEIR WORDS:' + line(of.problem), '',
+      '(needed) THE ONE PROMISE:' + line(of.promise), '',
+      '(needed) OFFER NAME:' + line(of.name), '',
+      '(needed) WHAT THEY GET (one line each):'
+    ].concat(list(of.gets).filter(has).map(function (g) { return '- ' + g; }))
+      .concat(['', '(needed) PRICE:' + line(of.price), '',
+        'BUMPS (optional, name / price / one line on what it is):',
+        of.bump && has(of.bump.name) ? '- ' + of.bump.name + ' / ' + of.bump.price + (has(of.bump.what) ? ' / ' + of.bump.what : '') : '-',
+        '', '(needed) PROOF I REALLY HAVE (exact words, who said it, or "none"):', '-',
+        '', '(needed) GUARANTEE (my exact words):',
+        '', '(needed) DELIVERY LINK (where the product lives, the full web address):',
+        '', '(needed) EMAIL (your email tool, or none), and does it really send the access email? (yes / no):',
+        '', '(needed) BUSINESS NAME:', '(needed) BUSINESS ADDRESS:', '(needed) SUPPORT EMAIL:'])
+      .join('\n');
+  }
+
   function render(R, opts) {
     var o = opts || {};
     var base = o.base || '';
@@ -272,7 +325,8 @@
     if (has(R.goal)) html += '<p class="rmd-goal"><span>90-day goal</span>' + esc(R.goal) + '</p>';
     if (has(R.opening)) html += '<p class="rmd-lede">' + esc(R.opening) + '</p>';
 
-    // 3. How the goal is reached.
+    // What the plan sells first, then how the goal is reached.
+    html += offerSection(R.offer, o.interactive);
     html += revenueTable(R);
 
     // 4. Day one.
@@ -393,7 +447,19 @@
 
     var pdf = el.querySelector('[data-rmd-pdf]');
     if (pdf) pdf.addEventListener('click', function () { window.print(); });
+
+    var brief = el.querySelector('[data-rmd-brief]');
+    if (brief && o.offer) brief.addEventListener('click', function () {
+      var ok = brief.nextElementSibling;
+      var text = briefText(o.offer);
+      var done = function () { if (ok) ok.textContent = 'Copied. Paste it into the brief in your Funnel Engine.'; };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { window.prompt('Copy your brief:', text); });
+      } else {
+        window.prompt('Copy your brief:', text);
+      }
+    });
   }
 
-  root.roadmapDoc = { render: render, wire: wire, hrefFor: hrefFor };
+  root.roadmapDoc = { render: render, wire: wire, hrefFor: hrefFor, briefText: briefText };
 })(window);

@@ -1,5 +1,5 @@
 import { currentSession } from '../lib/session.js';
-import { getCustomer, displayNameFor, entitlementsFor } from '../lib/db.js';
+import { getCustomer, displayNameFor, entitlementsFor, courseIsOut } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
 import { isTester } from '../lib/testers.js';
 import { reportsOpenTo } from '../lib/report-access.js';
@@ -56,7 +56,11 @@ export default async function handler(req, res) {
       // one purchase is the Funnel Engine: everything else shows with a lock
       // that offers the Specialists, not a membership they never had.
       hasBase: held.has(BASE),
-      hasFunnelEngine: held.has(FUNNEL_ENGINE)
+      hasFunnelEngine: held.has(FUNNEL_ENGINE),
+      // Whether to offer it: on sale (its course is out to this viewer) and
+      // not already theirs. Everything that promotes it reads this one flag.
+      offerFunnelEngine: !held.has(FUNNEL_ENGINE)
+        && await courseIsOut('the-funnel-engine', { preview: isTester(email) || isAdmin(email) })
     });
   } catch (err) {
     console.error('[me]', err);

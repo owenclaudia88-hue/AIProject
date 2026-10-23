@@ -358,6 +358,20 @@ footer a{color:var(--ink-2)}
     window.aifuTrackOnce('InitiateCheckout', { email: emailEl.value.trim(), firstName: nameEl.value.trim().split(/\s+/)[0] });
   }
   nameEl.addEventListener('blur', maybeInitiate);
+
+  /* A member who came from the member area is signed in on this same site, so
+     their name and email are already known. Filled in only where the box is
+     still empty; anybody else gets a 401 and an untouched form. */
+  fetch('/api/me', { credentials: 'same-origin' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (!d || !d.email) return;
+      if (!emailEl.value) emailEl.value = d.email;
+      if (!nameEl.value && d.hasName && d.name) nameEl.value = String(d.name).split(/\s+/)[0];
+      trackReady().then(maybeInitiate);
+      sync({ refresh: false });
+    })
+    .catch(function () {});
   emailEl.addEventListener('blur', function () { maybeInitiate(); if (EMAIL_RE.test(emailEl.value.trim())) sync({ refresh: false }); });
 
   /* ---------- the two bumps ----------

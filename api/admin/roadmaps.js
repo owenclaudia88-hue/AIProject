@@ -15,10 +15,11 @@ import { sessionEmail } from '../../lib/session.js';
 import { isAdmin } from '../../lib/admin.js';
 import {
   listRoadmaps, roadmapById, claimRoadmap, saveRoadmapDraft, failRoadmap,
-  publishRoadmap, entitlementsFor, getCustomer,
+  publishRoadmap, entitlementsFor, getCustomer, courseIsOut,
   addRoadmapNote, listRoadmapNotes, roadmapNoteCounts, notifyRoadmapReply
 } from '../../lib/db.js';
 import { answersAsText } from '../../lib/roadmap.js';
+import { FUNNEL_ENGINE } from '../../lib/products.js';
 import {
   buildCatalogue, buildPrompt, callClaude, parseJson, validate, MODEL
 } from '../../lib/roadmap-generate.js';
@@ -170,9 +171,13 @@ export default async function handler(req, res) {
       const to = await publishRoadmap(id, roadmap);
       if (to) {
         const customer = await getCustomer(to);
+        // One line about the Funnel Engine, only while it is on sale and not
+        // already theirs - the same rule as the member area's.
+        const funnelEngine = !(await entitlementsFor(to)).has(FUNNEL_ENGINE)
+          && await courseIsOut('the-funnel-engine');
         // Never let a failed email lose a published roadmap. It is in their
         // member area either way; the email is the nudge, not the delivery.
-        sendRoadmapReady(to, { name: customer?.name, headline: roadmap.headline })
+        sendRoadmapReady(to, { name: customer?.name, headline: roadmap.headline, funnelEngine })
           .catch((err) => console.error('[admin/roadmaps] email', err?.message || err));
       }
       return res.status(200).json({ ok: true });

@@ -39,6 +39,25 @@
 .rmd-pdf:hover{border-color:var(--accent);color:var(--accent-2)}
 .rmd-lede{margin:18px 0 0;color:var(--txt-2);font-size:1.02rem;line-height:1.7;max-width:68ch}
 
+/* ---------- the offer ---------- */
+
+/* A brief, not prose: labels down the left, the answer beside each, so it
+   reads as the form it gets pasted into. Stacked on a phone. */
+.rmd-of{margin:0;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.rmd-of-r{display:grid;grid-template-columns:minmax(120px,170px) 1fr;gap:4px 18px;padding:12px 18px;
+  border-top:1px solid var(--line)}
+.rmd-of-r:first-child{border-top:0}
+.rmd-of dt{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--accent-2);padding-top:3px}
+.rmd-of dd{margin:0;color:var(--txt);line-height:1.55}
+.rmd-of dd ul{margin:0;padding-left:18px}
+.rmd-brief{margin-top:12px;background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);
+  font-size:.84rem;font-weight:700;padding:11px 17px;border-radius:11px;cursor:pointer;
+  min-height:44px;font-family:inherit}
+.rmd-brief:hover{border-color:var(--accent);color:var(--accent-2)}
+.rmd-brief-ok{margin-left:10px;font-size:.84rem;color:var(--txt-3)}
+@media (max-width:560px){.rmd-of-r{grid-template-columns:1fr}}
+
 /* ---------- the three gates ---------- */
 
 /* The shape of the whole plan on one screen. Everything below is the detail of
@@ -230,7 +249,11 @@
 
   body{background:#fff!important;color:#111!important}
   .rmd{max-width:none}
-  .rmd-pdf,.rmd-chk{display:none!important}
+  .rmd-pdf,.rmd-chk,.rmd-brief,.rmd-brief-ok{display:none!important}
+  .rmd-of,.rmd-of-r{border-color:#ccc!important;background:#fff!important}
+  .rmd-of dt{color:#8a4b00!important}
+  .rmd-of dd{color:#000!important}
+  .rmd-of-r{break-inside:avoid}
   .rmd-step{padding-left:0;gap:0}
 
   .rmd h1,.rmd h2,.rmd h3,.rmd-list b,.rmd-t td:first-child{color:#000!important}
