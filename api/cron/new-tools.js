@@ -65,6 +65,18 @@ export function asItem(c) {
   };
 }
 
+/* Tools built into the member area, announced in the first Friday email after
+   they go live and then never again - the same once-only rule as the products
+   below. Written here because they live nowhere a query could find them. */
+const FEATURES = [
+  {
+    key: 'promise-builder', kind: 'feature', icon: '✍️', title: 'The Promise Builder', hash: 'promise',
+    description: 'Tell it about your offer in a sentence or two and get six promises for the top of your sales page in about a minute, '
+      + 'each scored on what makes people buy, and one click to make any of them bolder, simpler or more tangible. '
+      + 'Use it for a sharper headline, an ad hook or a subject line today. Part of the membership.'
+  }
+];
+
 /* What a member can open with the membership. A course sold on its own - the
    Funnel Engine and its two bumps - is not "new in your library" for anybody
    who has not bought it, which is nearly everybody this goes to. */
@@ -119,7 +131,10 @@ export default async function handler(req, res) {
     let announced = [];
     try { announced = JSON.parse(settings.new_tools_offers_announced || '[]'); } catch { announced = []; }
     const offers = onSale.filter((c) => !inLibrary(c) && !announced.includes(c.slug));
-    const items = [...courses.filter(inLibrary).map(asItem), ...lib, ...offers.map((c) => asOffer(c, site))];
+    let featuresDone = [];
+    try { featuresDone = JSON.parse(settings.new_tools_features_announced || '[]'); } catch { featuresDone = []; }
+    const features = FEATURES.filter((f) => !featuresDone.includes(f.key));
+    const items = [...features, ...courses.filter(inLibrary).map(asItem), ...lib, ...offers.map((c) => asOffer(c, site))];
 
     /* Dry wins over a recipient, always. The other way round — which is how
        this was first written — means ?dry=1&to=me sends an email, and the one
@@ -191,6 +206,9 @@ export default async function handler(req, res) {
     await setSetting('new_tools_last_sent', new Date().toISOString());
     if (offers.length) {
       await setSetting('new_tools_offers_announced', JSON.stringify([...announced, ...offers.map((c) => c.slug)]));
+    }
+    if (features.length) {
+      await setSetting('new_tools_features_announced', JSON.stringify([...featuresDone, ...features.map((f) => f.key)]));
     }
 
     console.log(`[cron/new-tools] ${items.length} item(s) announced to ${sent} member(s)`);
