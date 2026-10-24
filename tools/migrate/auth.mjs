@@ -38,9 +38,24 @@ const context = await browser.newContext({ viewport: { width: 1400, height: 900 
 const page = await context.newPage();
 await page.goto(site.loginUrl, { waitUntil: 'domcontentloaded' });
 
-const rl = createInterface({ input: process.stdin, output: process.stdout });
-await rl.question('Press Enter once you are logged in... ');
-rl.close();
+/* --auto saves on its own once the window has left the login page and stayed
+   away for a few seconds, for when the terminal is not somewhere the person
+   can easily press Enter - or the sign-in is a magic link pasted into the
+   window. Up to thirty minutes. */
+if (process.argv.includes('--auto')) {
+  console.log('Waiting for you to finish signing in in that window (saves by itself)...');
+  const onLogin = () => { const u = page.url(); return u.startsWith(site.loginUrl) || /\/(auth|login|sign-?in)\b/i.test(u); };
+  let away = 0;
+  for (let i = 0; i < 900 && away < 4; i++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    away = page.isClosed() ? 0 : (onLogin() ? 0 : away + 1);
+  }
+  if (away < 4) { console.error('Still on the sign-in page after 30 minutes. Nothing saved.'); await browser.close(); process.exit(1); }
+} else {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  await rl.question('Press Enter once you are logged in... ');
+  rl.close();
+}
 
 const url = page.url();
 await mkdir(SESSION_DIR, { recursive: true });

@@ -1,6 +1,7 @@
 import { libraryAddedSince, coursesAddedSince, reportAudience, optOuts, bouncedEmails,
          setSetting, getSettings } from '../../lib/db.js';
 import { sendNewTools, newToolsSubject } from '../../lib/email.js';
+import { MEMBERSHIP_UNLOCKS } from '../../lib/products.js';
 
 /**
  * What went into the library this week, told to the members on a Friday.
@@ -51,12 +52,23 @@ export function asItem(c) {
   if (c.section_count > 1) parts.push(`${c.section_count} sections`);
   if (lessons) parts.push(`${lessons} lessons`);
   if (st.minutes) parts.push(hours(st.minutes));
+  // A description somebody wrote leads, with the size after it. The ones the
+  // ingest generated ("25 lessons, about 5h. Covers: ...") only repeat the
+  // size and list lesson titles, so those are left out.
+  const written = String(c.description || '').trim();
+  const lead = written && !/^\d+ lessons?\b/i.test(written) ? written : '';
+  const size = parts.join(' · ');
   return {
     kind: 'course', title: c.title,
     hash: c.requires ? 'courses' : `course-${c.slug}`,
-    description: parts.join(' · '), tags: [], category: null
+    description: lead ? `${lead} (${size})` : size, tags: [], category: null
   };
 }
+
+/* What a member can open with the membership. A course sold on its own - the
+   Funnel Engine and its two bumps - is not "new in your library" for anybody
+   who has not bought it, which is nearly everybody this goes to. */
+const inLibrary = (c) => !c.requires || MEMBERSHIP_UNLOCKS.includes(c.requires);
 
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
@@ -91,7 +103,7 @@ export default async function handler(req, res) {
     const [lib, courses] = await Promise.all([
       libraryAddedSince(since), coursesAddedSince(since)
     ]);
-    const items = [...courses.map(asItem), ...lib];
+    const items = [...courses.filter(inLibrary).map(asItem), ...lib];
 
     /* Dry wins over a recipient, always. The other way round — which is how
        this was first written — means ?dry=1&to=me sends an email, and the one
