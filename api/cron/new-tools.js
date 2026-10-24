@@ -1,7 +1,7 @@
 import { libraryAddedSince, coursesAddedSince, reportAudience, optOuts, bouncedEmails,
-         setSetting, getSettings } from '../../lib/db.js';
+         setSetting, getSettings, offersOnSale } from '../../lib/db.js';
 import { sendNewTools, newToolsSubject } from '../../lib/email.js';
-import { MEMBERSHIP_UNLOCKS } from '../../lib/products.js';
+import { MEMBERSHIP_UNLOCKS, funnelEngineLock, FUNNEL_ENGINE } from '../../lib/products.js';
 
 /**
  * What went into the library this week, told to the members on a Friday.
@@ -70,6 +70,18 @@ export function asItem(c) {
    who has not bought it, which is nearly everybody this goes to. */
 const inLibrary = (c) => !c.requires || MEMBERSHIP_UNLOCKS.includes(c.requires);
 
+/* A course sold on its own, in the email's "New to add" section: its written
+   description and size, linking to the page that sells it. Announced once -
+   the slugs go into a setting when the real email goes out - so a product is
+   introduced properly and then left alone, rather than repeated every week. */
+const OFFER_ICON = { [FUNNEL_ENGINE]: '🚀', edward: '📣', 'dfy-operators': '🤖' };
+export function asOffer(c, site) {
+  const item = asItem(c);
+  const lock = funnelEngineLock(c.requires);
+  return { ...item, kind: 'offer', icon: OFFER_ICON[c.requires] || null,
+           href: lock ? `${site}${lock.buy}` : `${site}/members/#courses` };
+}
+
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
@@ -100,10 +112,14 @@ export default async function handler(req, res) {
     /* Two sources, one email. The library comes from the weekly pull; the
        courses are ours, published in the course area whenever one is ready. A
        member does not care which pipeline a thing arrived through. */
-    const [lib, courses] = await Promise.all([
-      libraryAddedSince(since), coursesAddedSince(since)
+    const [lib, courses, onSale] = await Promise.all([
+      libraryAddedSince(since), coursesAddedSince(since), offersOnSale()
     ]);
-    const items = [...courses.filter(inLibrary).map(asItem), ...lib];
+    const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
+    let announced = [];
+    try { announced = JSON.parse(settings.new_tools_offers_announced || '[]'); } catch { announced = []; }
+    const offers = onSale.filter((c) => !inLibrary(c) && !announced.includes(c.slug));
+    const items = [...courses.filter(inLibrary).map(asItem), ...lib, ...offers.map((c) => asOffer(c, site))];
 
     /* Dry wins over a recipient, always. The other way round — which is how
        this was first written — means ?dry=1&to=me sends an email, and the one
@@ -173,6 +189,9 @@ export default async function handler(req, res) {
        alternative is that next Friday repeats this week's list to everybody
        who did get it, which is worse than a handful missing one email. */
     await setSetting('new_tools_last_sent', new Date().toISOString());
+    if (offers.length) {
+      await setSetting('new_tools_offers_announced', JSON.stringify([...announced, ...offers.map((c) => c.slug)]));
+    }
 
     console.log(`[cron/new-tools] ${items.length} item(s) announced to ${sent} member(s)`);
     return res.status(200).json({
