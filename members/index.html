@@ -1520,6 +1520,9 @@ button{font-family:inherit}
         // so it carries a lock rather than leading somewhere that refuses them.
         var connectNav = document.getElementById('nav-connect');
         if (connectNav && !me.hasMembership) connectNav.classList.add('is-locked');
+        // The Promise Builder is a membership perk too, and says so the same way.
+        var pbNav = document.querySelector('.nav[data-view="promise"]');
+        if (pbNav && !me.canPreview) pbNav.classList.add('is-locked');
         var rmNav = document.querySelector('.nav[data-view="roadmap"]');
         // Both are membership perks, said the same way as the others: shown to
         // everybody, wearing a lock for anybody not paying for them, rather
@@ -3316,12 +3319,24 @@ button{font-family:inherit}
   }
 
   function renderPromise(c) {
+    if (!me.canPreview) {
+      c.innerHTML = '<span class="pb-k">\u2728 Member tool</span>' +
+        '<h1 class="page-h" style="margin-top:6px">The Promise Builder</h1>' +
+        '<p class="page-sub">Answer one question. Get 6 promises for the top of your sales page, scored and ready to paste.</p>' +
+        '<div class="req-card locked-perk"><span class="lock-badge">\ud83d\udd12</span>' +
+          '<h2>A membership perk</h2>' +
+          '<p class="sub">Tell it about your offer and it writes six promises for the top of your sales page: the bar, ' +
+            'the headline and the line under it, each scored on what makes a promise sell, and rewritable in one click.</p>' +
+          '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">' +
+            '\ud83d\udd12 Unlock with the membership</a></div>';
+      return;
+    }
     if (!pb.loaded) {
       c.innerHTML = '<p class="empty">Loading\u2026</p>';
       pbLoad().then(function () { if (view === 'promise') renderPromise(document.getElementById('content')); });
       return;
     }
-    var html = '<div class="pb-wrap"><span class="pb-k">\u2728 Free tool</span>' +
+    var html = '<div class="pb-wrap"><span class="pb-k">\u2728 Member tool</span>' +
       '<h1 class="page-h" style="margin-top:6px">The Promise Builder</h1>' +
       '<p class="page-sub">Answer one question. Get 6 promises for the top of your sales page, scored and ready to paste.</p>';
     html += (pb.run && !pb.editing) ? pbResults() : pbForm();

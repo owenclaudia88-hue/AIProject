@@ -1,11 +1,15 @@
 import { sessionEmail } from '../lib/session.js';
-import { isActive, savePromiseRun, getPromiseRun, updatePromiseRun, listPromiseRuns,
+import { isActive, entitlementsFor, savePromiseRun, getPromiseRun, updatePromiseRun, listPromiseRuns,
          promiseCallsToday, promiseCallsAllToday } from '../lib/db.js';
+import { MEMBERSHIP_ONLY } from '../lib/products.js';
 import { isAdmin } from '../lib/admin.js';
 import { FIELDS, SCORES, REFINE_KINDS, writePromises, refinePromise } from '../lib/promise.js';
 
 /**
- * The Promise Builder, for signed-in members.
+ * The Promise Builder: a membership perk, open to members on a trial or an
+ * active membership, and to staff. Everybody else sees it locked in the
+ * member area, and is refused here as well - a lock only on the page is not
+ * a lock, and every call here costs money.
  *
  *   GET  /api/promise              the questions, the scores, past runs, calls left today
  *   GET  /api/promise?id=12        one past run
@@ -25,7 +29,11 @@ export default async function handler(req, res) {
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   try {
-    if (!isAdmin(email) && !(await isActive(email))) return res.status(403).json({ error: 'not active' });
+    const staff = isAdmin(email);
+    if (!staff && !(await isActive(email))) return res.status(403).json({ error: 'not active' });
+    if (!staff && !(await entitlementsFor(email)).has(MEMBERSHIP_ONLY)) {
+      return res.status(403).json({ error: 'membership', message: 'The Promise Builder is part of the membership.' });
+    }
 
     if (req.method === 'GET') {
       const id = new URL(req.url, 'http://localhost').searchParams.get('id');
