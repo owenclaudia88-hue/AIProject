@@ -4,7 +4,7 @@ import { listCustomers, displayNameFor, outreachLog, optOuts, bouncedEmails,
 import { isAdmin } from '../../lib/admin.js';
 import { checkoutFunnel } from '../../lib/funnel.js';
 import { reminderSettings, abandonedCheckouts, STEPS, FE_STEPS } from '../../lib/reminders.js';
-import { FUNNEL_ENGINE } from '../../lib/products.js';
+import { FUNNEL_ENGINE, EDWARD, DFY_OPERATORS, FUNNEL_ENGINE_SOURCE } from '../../lib/products.js';
 import { listLeads } from '../../lib/db.js';
 
 /**
@@ -15,15 +15,50 @@ import { listLeads } from '../../lib/db.js';
  * still returns, because losing the funnel should not cost staff the ability
  * to see and manage their members.
  */
+/**
+ * The Funnel Engine's sales, from Stripe, which is the only place that knows
+ * what was actually paid: orders, money in, refunds, and how often each add-on
+ * was ticked. Best-effort - without Stripe the rest of the page still loads.
+ */
+async function funnelEngineSales() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) return null;
+  try {
+    const Stripe = (await import('stripe')).default;
+    const stripe = new Stripe(key, { apiVersion: '2024-12-18.acacia' });
+    const week = Date.now() - 7 * 864e5;
+    const s = { orders: 0, gross: 0, refunded: 0, edward: 0, operators: 0, roadmapPrice: 0, lastWeek: 0, currency: 'usd' };
+    for await (const pi of stripe.paymentIntents.search({
+      query: `metadata['source']:'${FUNNEL_ENGINE_SOURCE}' AND status:'succeeded'`,
+      limit: 100, expand: ['data.latest_charge']
+    })) {
+      // A test-mode intent never appears on a live key, and the other way round.
+      s.orders++;
+      s.gross += pi.amount_received || pi.amount || 0;
+      s.refunded += (typeof pi.latest_charge === 'object' && pi.latest_charge?.amount_refunded) || 0;
+      const bumps = String(pi.metadata?.addons || '').split(',');
+      if (bumps.includes('edward')) s.edward++;
+      if (bumps.includes('operators')) s.operators++;
+      if (pi.metadata?.deal) s.roadmapPrice++;
+      if (pi.created * 1000 > week) s.lastWeek++;
+      s.currency = pi.currency || s.currency;
+    }
+    return s;
+  } catch (err) {
+    console.error('[admin/members] funnel engine sales unavailable:', err.message);
+    return { error: 'Could not reach Stripe for the Funnel Engine figures.' };
+  }
+}
+
 export default async function handler(req, res) {
   const email = await sessionEmail(req);
   if (!email) return res.status(401).json({ error: 'not signed in' });
   if (!isAdmin(email)) return res.status(403).json({ error: 'not an admin' });
 
   try {
-    const [customers, optedOut, bounced, reminders, feOpen, feOwners, ...logs] = await Promise.all([
+    const [customers, optedOut, bounced, reminders, feOpen, feOwners, edOwners, opOwners, ...logs] = await Promise.all([
       listCustomers(), optOuts(), bouncedEmails(), reminderSettings(),
-      funnelEngineCheckouts(), listEntitled(FUNNEL_ENGINE),
+      funnelEngineCheckouts(), listEntitled(FUNNEL_ENGINE), listEntitled(EDWARD), listEntitled(DFY_OPERATORS),
       ...[...STEPS, ...FE_STEPS].map((s) => outreachLog(s.kind))
     ]);
     // kind -> Map(email -> when it was sent)
@@ -46,8 +81,13 @@ export default async function handler(req, res) {
       // email did it, which is why it is labelled "after" on the page.
       boughtAfter: feOwners.filter((o) => feReminded.has(o.email)).length,
       reminded: feReminded.size,
-      buyers: feOwners.length
+      buyers: feOwners.length,
+      sales: await funnelEngineSales()
     };
+    // What each member owns of the Funnel Engine, for the badges on their card.
+    const feSet = new Set(feOwners.map((o) => o.email));
+    const edSet = new Set(edOwners.map((o) => o.email));
+    const opSet = new Set(opOwners.map((o) => o.email));
 
     let funnel = null, funnelError = null;
     try {
@@ -169,6 +209,10 @@ export default async function handler(req, res) {
       return {
         email: c.email,
         name: displayNameFor(c.email, c.name),
+        // The Funnel Engine and its add-ons, owned outright. Read off what they
+        // hold rather than how they arrived: a member who bought it later has
+        // the $1 as their source and would otherwise show nothing.
+        funnelEngine: { engine: feSet.has(c.email), edward: edSet.has(c.email), operators: opSet.has(c.email) },
         hasName: !!(c.name && c.name.trim()),
         status: c.status,
         paymentIntent: c.last_payment_intent,

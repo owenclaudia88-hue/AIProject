@@ -446,6 +446,12 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   .pw-card button{width:100%}
   .pw-card button.quiet{margin:10px 0 0}
 }
+/* Funnel Engine: badges on member cards and the sales tiles. */
+.st.fe{background:rgba(255,122,26,.14);color:#ffb020;border-color:rgba(255,122,26,.35)}
+.fe-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 10px}
+.fe-tile{background:var(--bg-2,#111113);border:1px solid var(--line,#26262b);border-radius:12px;padding:12px 14px}
+.fe-tile b{display:block;font-size:1.35rem;color:#fff}
+.fe-tile span{font-size:.8rem;color:#a1a1aa}
 </style>
 <link rel="stylesheet" href="../assets/richtext.css">
 <link rel="stylesheet" href="../assets/roadmap-doc.css">
@@ -1392,7 +1398,9 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
          bought before any of this existed — and those two are not the same
          thing at all. About one buyer in eleven pays and closes the tab. */
       var TRACKED_FROM = Date.parse('2026-10-07T08:43:42Z');
-      var missedOffer = !m.upsellChoice && m.source !== 'home-join'
+      // A Funnel Engine order has no post-purchase offer either, so the same
+      // silence means nothing there.
+      var missedOffer = !m.upsellChoice && m.source !== 'home-join' && m.source !== 'funnel-engine'
         && Date.parse(m.joinedAt) > TRACKED_FROM;
       var choice = ch
         ? '<span class="st ' + ch[0] + '" title="On the post-purchase offer' +
@@ -1420,7 +1428,13 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
       var door = m.source === 'home-join'
         ? '<span class="st planned" title="Bought the membership on /join.html, with no $1 order before it">bought via homepage</span>'
         : '';
-      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + door + via + plan + choice + course + ending +
+      // The Funnel Engine and its add-ons, owned. Orange, so they read apart
+      // from the membership's own green and blue.
+      var fe = m.funnelEngine || {};
+      var feBadges = (fe.engine ? '<span class="st fe">Funnel Engine</span>' : '') +
+        (fe.edward ? '<span class="st fe">+ Edward</span>' : '') +
+        (fe.operators ? '<span class="st fe">+ Operators</span>' : '');
+      h += '<div class="card"><div class="hd"><b>' + esc(m.name) + '</b>' + door + feBadges + via + plan + choice + course + ending +
         '<span class="st ' + (active ? 'done' : 'declined') + '">' + esc(m.status) + '</span>' +
         '<span class="meta" style="margin-left:auto">' + esc(m.email) + ' · joined ' + esc(stamp(m.joinedAt)) + '</span></div>' +
         '<div class="acts">' +
@@ -1572,7 +1586,8 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
   function funnelEngineLeads(fe, steps) {
     if (!fe) return '';
     var open = fe.open || [];
-    var h = '<h3 class="sech">Funnel Engine checkouts to win back <span class="meta">' + open.length + '</span></h3>' +
+    var h = funnelEngineSalesCard(fe.sales, fe.buyers) +
+      '<h3 class="sech">Funnel Engine checkouts to win back <span class="meta">' + open.length + '</span></h3>' +
       '<p class="sub-note">Started the $100 Funnel Engine checkout and do not own it, members included. ' +
         'They leave this list the moment they buy. ' + fe.boughtAfter + ' of ' + fe.reminded +
         ' people sent a reminder have bought since.</p>';
@@ -1611,6 +1626,31 @@ h1{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800;letter-spacing:-.03em;marg
         (acts ? '<div class="acts">' + acts + '</div>' : '') + '</div>';
     });
     return h;
+  }
+
+  /* Sales at a glance, from Stripe: orders, money in after refunds, and how
+     often each add-on is ticked. The take rates are what say whether the
+     checkout's bump copy is working. */
+  function funnelEngineSalesCard(s, owners) {
+    if (!s) return '';
+    if (s.error) return '<p class="sub-note">' + esc(s.error) + '</p>';
+    var cur = String(s.currency || 'usd').toUpperCase();
+    var money = function (c) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(c / 100);
+    };
+    var pct = function (n) { return s.orders ? Math.round(n / s.orders * 100) + '%' : '\u2013'; };
+    var tile = function (big, small) {
+      return '<div class="fe-tile"><b>' + big + '</b><span>' + small + '</span></div>';
+    };
+    return '<h3 class="sech">Funnel Engine sales</h3>' +
+      '<div class="fe-tiles">' +
+        tile(String(s.orders), 'orders' + (s.lastWeek ? ' \u00b7 ' + s.lastWeek + ' this week' : '')) +
+        tile(money(s.gross - s.refunded), 'taken' + (s.refunded ? ', after ' + money(s.refunded) + ' refunded' : '')) +
+        tile(pct(s.edward), 'added Edward (' + s.edward + ')') +
+        tile(pct(s.operators), 'added the Operators (' + s.operators + ')') +
+        tile(String(s.roadmapPrice), 'at the roadmap price') +
+      '</div>' +
+      '<p class="sub-note">' + owners + ' member' + (owners === 1 ? '' : 's') + ' own it now, including any given it by hand.</p>';
   }
 
   function wireFunnelEngineLeads(scope) {
