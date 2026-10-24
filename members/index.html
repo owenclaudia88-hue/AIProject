@@ -809,6 +809,55 @@ button{font-family:inherit}
 .rm-wait .g{font-size:2.2rem;display:block;margin-bottom:12px}
 .rm-wait h3{margin:0 0 8px;font-size:1.12rem;font-weight:800}
 .rm-wait p{margin:0;color:var(--txt-2);font-size:.93rem;line-height:1.6}
+/* ---- the Promise Builder ---- */
+.pb-wrap{max-width:820px}
+.pb-k{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent-2)}
+.pb-form{background:var(--bg-2);border:1px solid var(--line);border-radius:17px;padding:24px;margin-top:18px}
+.pb-form .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 4px}
+.pb-form h2{margin:0;font-size:1.2rem;font-weight:800;flex:1}
+.pb-ex{background:none;border:0;color:var(--accent-2);font-weight:700;cursor:pointer;font-family:inherit;font-size:.88rem;min-height:44px}
+.pb-f{margin-top:18px}
+.pb-f label{display:flex;gap:8px;align-items:baseline;font-weight:700}
+.pb-f label i{font-style:normal;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--txt-3)}
+.pb-f label i.req{color:var(--accent-2)}
+.pb-f p{margin:4px 0 8px;color:var(--txt-3);font-size:.85rem}
+.pb-f textarea{width:100%;min-height:64px;resize:vertical;background:var(--bg);border:1px solid var(--line-2);border-radius:12px;
+  padding:12px 14px;color:var(--txt);font:inherit;font-size:.95rem;line-height:1.55}
+.pb-f textarea.big{min-height:120px}
+.pb-go{margin-top:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pb-go button{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;border:0;border-radius:999px;
+  padding:14px 26px;font-weight:800;font-size:.98rem;cursor:pointer;font-family:inherit;min-height:48px}
+.pb-go button[disabled]{opacity:.6;cursor:progress}
+.pb-go span{color:var(--txt-3);font-size:.85rem}
+.pb-err{color:#f87171;font-size:.9rem;margin:12px 0 0}
+.pb-out{margin-top:18px;background:linear-gradient(135deg,rgba(255,122,26,.16),rgba(255,176,32,.05));border:1px solid rgba(255,176,32,.3);
+  border-radius:17px;padding:22px 24px}
+.pb-out p{margin:8px 0 0;font-size:clamp(1.05rem,2.2vw,1.3rem);font-weight:700;line-height:1.45}
+.pb-card{background:var(--bg-2);border:1px solid var(--line);border-radius:17px;padding:20px 22px;margin-top:14px}
+.pb-card.used{border-color:var(--accent)}
+.pb-card .hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.pb-card .hd .pb-k{flex:1}
+.pb-btn{background:var(--bg-3);border:1px solid var(--line-2);color:var(--txt-2);border-radius:10px;padding:8px 12px;
+  font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;min-height:38px}
+.pb-btn:hover{border-color:var(--accent);color:var(--accent-2)}
+.pb-prom{background:#fff;color:#14110f;border-radius:13px;padding:18px 18px 20px;text-align:center}
+.pb-prom .bar{display:inline-block;background:#14110f;color:#fff;font-size:.8rem;font-weight:700;border-radius:8px;padding:7px 12px;margin:0 0 12px}
+.pb-prom h3{margin:0 auto;max-width:34ch;font-size:clamp(1.15rem,2.6vw,1.5rem);font-weight:800;line-height:1.25;letter-spacing:-.01em}
+.pb-prom .sub{margin:10px auto 0;max-width:52ch;color:#4a433c;font-size:.95rem;line-height:1.5}
+.pb-scores{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0 0}
+.pb-scores div{font-size:.72rem;color:var(--txt-3)}
+.pb-scores b{color:var(--txt-2);font-weight:700}
+.pb-scores .m{display:flex;gap:3px;margin-top:5px}
+.pb-scores .m i{flex:1;height:5px;border-radius:3px;background:var(--line-2)}
+.pb-scores .m i.on{background:var(--accent)}
+.pb-why{margin:14px 0 0;color:var(--txt-2);font-size:.9rem;line-height:1.55}
+.pb-why b{color:var(--txt)}
+.pb-ref{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pb-hist{margin-top:26px}
+.pb-hist button{display:flex;justify-content:space-between;gap:12px;width:100%;text-align:left;background:var(--bg-2);border:1px solid var(--line);
+  border-radius:11px;padding:12px 14px;margin-top:8px;color:var(--txt-2);font:inherit;font-size:.88rem;cursor:pointer}
+.pb-hist button span{color:var(--txt-3);flex:none}
+@media (max-width:560px){.pb-scores{grid-template-columns:repeat(3,1fr)}.pb-form,.pb-card{padding:18px}}
 /* The Funnel Engine, where it is offered: under the roadmap, on the dashboard,
    and one line while a roadmap is being written. */
 .rm-wait-fe{max-width:640px;margin:14px 0 0;color:var(--txt-2);font-size:.9rem;line-height:1.6}
@@ -1229,6 +1278,7 @@ button{font-family:inherit}
                libraries, which is where you put a library, and this is the one
                thing here written for one person. -->
           <button class="nav" data-view="roadmap" id="nav-roadmap" hidden><span class="nic">🗺️</span>AI Roadmap<span class="n-count" id="cnt-roadmap"></span></button>
+          <button class="nav" data-view="promise"><span class="nic">✍️</span>Promise Builder<span class="pill-beta">New</span></button>
           <!-- Hidden until the reports open to everybody; the test account and
                staff see it in the meantime. -->
           <button class="nav" data-view="reports" id="nav-reports" hidden><span class="nic">📰</span>AI Reports<span class="n-count" id="cnt-reports"></span></button>
@@ -1734,7 +1784,7 @@ button{font-family:inherit}
     }
     else if (raw.indexOf('c-') === 0) { view = raw; navKey = raw; }
     else {
-      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && raw !== 'reports' && raw !== 'news' && !KINDS[raw]) raw = 'dashboard';
+      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && raw !== 'promise' && raw !== 'reports' && raw !== 'news' && !KINDS[raw]) raw = 'dashboard';
       view = raw; navKey = raw;
     }
     [].forEach.call(document.querySelectorAll('.nav'), function (n) {
@@ -3250,6 +3300,179 @@ button{font-family:inherit}
       '<a class="fe-alt" href="/funnel-engine/checkout.html">Get it now · $100</a></section>';
   }
 
+  /* ---------------- the Promise Builder ----------------
+     One paragraph about an offer in, six promises for the top of its sales page
+     out, each scored. The work happens on the server (/api/promise); this is
+     the form, the cards, refining one, and the runs they made before. */
+  var pb = { loaded: false, fields: [], scores: [], runs: [], left: 0, run: null, answers: {}, editing: false, busy: false, err: '', used: null };
+
+  function pbLoad() {
+    return fetch('/api/promise', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        pb.fields = d.fields; pb.scores = d.scores; pb.runs = d.runs; pb.left = d.left; pb.loaded = true;
+      });
+  }
+
+  function renderPromise(c) {
+    if (!pb.loaded) {
+      c.innerHTML = '<p class="empty">Loading\u2026</p>';
+      pbLoad().then(function () { if (view === 'promise') renderPromise(document.getElementById('content')); });
+      return;
+    }
+    var html = '<div class="pb-wrap"><span class="pb-k">\u2728 Free tool</span>' +
+      '<h1 class="page-h" style="margin-top:6px">The Promise Builder</h1>' +
+      '<p class="page-sub">Answer one question. Get 6 promises for the top of your sales page, scored and ready to paste.</p>';
+    html += (pb.run && !pb.editing) ? pbResults() : pbForm();
+    html += pbHistory() + '</div>';
+    c.innerHTML = html;
+    pbWire(c);
+  }
+
+  function pbForm() {
+    var h = '<div class="pb-form"><div class="top"><h2>Tell us about your offer</h2>' +
+      '<button class="pb-ex" type="button" data-pb="example">\u270e Fill in an example</button></div>' +
+      '<p class="sub" style="margin:0;color:var(--txt-3);font-size:.88rem">Only the first one is needed. Each extra answer makes your promises sharper.</p>';
+    pb.fields.forEach(function (f) {
+      h += '<div class="pb-f"><label>' + esc(f.label) + (f.required ? ' <i class="req">REQUIRED</i>' : ' <i>OPTIONAL</i>') + '</label>' +
+        '<p>' + esc(f.hint || '') + '</p>' +
+        '<textarea data-k="' + esc(f.key) + '"' + (f.required ? ' class="big"' : '') + ' placeholder="' + esc(f.example || '') + '">' +
+          esc(pb.answers[f.key] || '') + '</textarea></div>';
+    });
+    h += '<div class="pb-go"><button type="button" data-pb="go"' + (pb.busy ? ' disabled' : '') + '>' +
+      (pb.busy ? 'Writing your promises\u2026' : 'Write my promises') + '</button>' +
+      '<span>' + (pb.busy ? 'Takes about a minute.' : 'Takes about a minute. ' + pb.left + ' of 25 left today.') + '</span></div>' +
+      (pb.err ? '<p class="pb-err">' + esc(pb.err) + '</p>' : '') + '</div>';
+    return h;
+  }
+
+  function pbCard(o, list, i, label) {
+    var meters = pb.scores.map(function (s) {
+      var n = (o.scores && o.scores[s.key]) || 0, bars = '';
+      for (var k = 1; k <= 5; k++) bars += '<i' + (k <= n ? ' class="on"' : '') + '></i>';
+      return '<div><b>' + esc(s.label) + '</b> ' + n + '/5<span class="m">' + bars + '</span></div>';
+    }).join('');
+    var id = list + '-' + i;
+    return '<div class="pb-card' + (pb.used === id ? ' used' : '') + '" data-card="' + id + '">' +
+      '<div class="hd"><span class="pb-k">' + label + '</span>' +
+        '<button class="pb-btn" type="button" data-pb="copy" data-list="' + list + '" data-i="' + i + '">Copy</button>' +
+        '<button class="pb-btn" type="button" data-pb="use" data-list="' + list + '" data-i="' + i + '">' + (pb.used === id ? '\u2713 Using this one' : 'Use this one') + '</button></div>' +
+      '<div class="pb-prom">' + (o.bar ? '<span class="bar">' + esc(o.bar) + '</span>' : '') +
+        '<h3>' + esc(o.headline) + '</h3>' + (o.sub ? '<p class="sub">' + esc(o.sub) + '</p>' : '') + '</div>' +
+      '<div class="pb-scores">' + meters + '</div>' +
+      (o.why ? '<p class="pb-why"><b>Why it works:</b> ' + esc(o.why) + '</p>' : '') +
+      '<div class="pb-ref">' + [['tangible', 'More tangible'], ['bolder', 'Bolder'], ['simpler', 'Simpler'], ['angle', 'New angle']].map(function (r) {
+        return '<button class="pb-btn" type="button" data-pb="refine" data-kind="' + r[0] + '" data-list="' + list + '" data-i="' + i + '">\u2728 ' + r[1] + '</button>';
+      }).join('') + '</div></div>';
+  }
+
+  function pbResults() {
+    var r = pb.run, h = '<div class="pb-out"><span class="pb-k">Your one outcome</span><p>' + esc(r.outcome || '') + '</p></div>';
+    (r.options || []).forEach(function (o, i) { h += pbCard(o, 'options', i, 'Option ' + (i + 1)); });
+    (r.wild || []).forEach(function (o, i) { h += pbCard(o, 'wild', i, 'Wild card ' + (i + 1)); });
+    if (pb.err) h += '<p class="pb-err">' + esc(pb.err) + '</p>';
+    h += '<div class="pb-form" style="text-align:center"><h2 style="font-size:1.05rem">Not quite there?</h2>' +
+      '<p style="color:var(--txt-3);font-size:.9rem;margin:6px 0 12px">Change your answers and get 6 fresh promises.</p>' +
+      '<button class="pb-btn" type="button" data-pb="edit">Edit my answers</button></div>';
+    return h + pbNext();
+  }
+
+  /* Underneath: the next step. A promise is the top of a sales page; the
+     Funnel Engine builds the page under it. Owners are pointed at their own. */
+  function pbNext() {
+    if (me.hasFunnelEngine) {
+      return '<section class="fe-next" style="margin-top:22px"><span class="fe-k">Next step</span>' +
+        '<h2>Build the page under it</h2><p>Put your favourite promise in your 10/90 Launch Brief and paste it into Claude in your ' +
+        'Funnel Engine folder. It builds the sales page, checkout and emails around it.</p>' +
+        '<a class="fe-go" href="#course-the-funnel-engine">Open the Funnel Engine</a></section>';
+    }
+    if (!me.offerFunnelEngine) return '';
+    var deal = me.funnelEngineDeal && me.funnelEngineDeal.endsAt > Date.now() ? me.funnelEngineDeal : null;
+    return '<section class="fe-next" style="margin-top:22px"><span class="fe-k">Now put it on a live page</span>' +
+      '<h2>Have Claude build the sales page under your promise</h2>' +
+      '<p>The promise is the top of the page. The Funnel Engine builds everything under it: the sales page, checkout, ' +
+        'order bumps, upsells and emails, live on your own domain. Nothing technical, no funnel builder.</p>' +
+      '<p class="fe-fine">' + (deal ? 'Your roadmap members\u2019 price: $80 instead of $100.' : '$100 once, yours for life.') +
+        ' 72-hour money-back guarantee.</p>' +
+      '<a class="fe-go" href="' + esc(deal ? deal.url : '/funnel-engine') + '">' + (deal ? 'Get it for $80' : 'See The Funnel Engine') + '</a></section>';
+  }
+
+  function pbHistory() {
+    if (!pb.runs.length) return '';
+    return '<div class="pb-hist"><span class="pb-k">Your past promises</span>' + pb.runs.map(function (r) {
+      return '<button type="button" data-pb="open" data-id="' + r.id + '">' + esc((r.offer || '').trim() || 'Untitled') +
+        '<span>' + esc(ago(r.at)) + '</span></button>';
+    }).join('') + '</div>';
+  }
+
+  function pbCollect(c) {
+    [].forEach.call(c.querySelectorAll('.pb-f textarea'), function (t) {
+      var v = t.value.trim();
+      if (v) pb.answers[t.getAttribute('data-k')] = v; else delete pb.answers[t.getAttribute('data-k')];
+    });
+  }
+
+  function pbWire(c) {
+    var again = function () { renderPromise(document.getElementById('content')); };
+    var post = function (body) {
+      return fetch('/api/promise', { method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); });
+    };
+    [].forEach.call(c.querySelectorAll('[data-pb]'), function (b) {
+      b.addEventListener('click', function () {
+        var act = b.getAttribute('data-pb'), list = b.getAttribute('data-list'), i = Number(b.getAttribute('data-i'));
+        var o = list && pb.run && pb.run[list] ? pb.run[list][i] : null;
+        if (act === 'example') {
+          pb.fields.forEach(function (f) { pb.answers[f.key] = f.example || ''; });
+          return again();
+        }
+        if (act === 'go') {
+          pbCollect(c);
+          if (!pb.answers.offer) { pb.err = 'Tell us about your offer first.'; return again(); }
+          pb.busy = true; pb.err = ''; again();
+          return post({ answers: pb.answers }).then(function (out) {
+            pb.busy = false;
+            if (!out.ok) { pb.err = out.j.error || 'That did not work.'; return again(); }
+            pb.run = out.j.run; pb.editing = false; pb.used = null; pb.left = Math.max(0, pb.left - 1);
+            pb.runs.unshift({ id: pb.run.id, offer: (pb.answers.offer || '').slice(0, 80), at: pb.run.at });
+            again(); window.scrollTo(0, 0);
+          }).catch(function () { pb.busy = false; pb.err = 'Network error. Try again.'; again(); });
+        }
+        if (act === 'copy' && o) {
+          var text = [o.bar, o.headline, o.sub].filter(Boolean).join('\n');
+          var done = function () { b.textContent = 'Copied \u2713'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); };
+          if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () { window.prompt('Copy your promise:', text); });
+          else window.prompt('Copy your promise:', text);
+          return;
+        }
+        if (act === 'use' && o) { pb.used = list + '-' + i; return again(); }
+        if (act === 'refine' && o) {
+          if (pb.left <= 0) { pb.err = 'That\u2019s all 25 for today. It resets tomorrow.'; return again(); }
+          var card = b.closest('.pb-card');
+          [].forEach.call(card.querySelectorAll('button'), function (x) { x.disabled = true; });
+          b.textContent = 'Rewriting\u2026';
+          return post({ id: pb.run.id, list: list, index: i, refine: b.getAttribute('data-kind') }).then(function (out) {
+            if (out.ok) { pb.run[list][i] = out.j.promise; pb.left = Math.max(0, pb.left - 1); pb.err = ''; }
+            else pb.err = out.j.error || 'That did not work.';
+            again();
+          }).catch(function () { pb.err = 'Network error. Try again.'; again(); });
+        }
+        if (act === 'edit') { pb.answers = Object.assign({}, pb.run.answers || pb.answers); pb.editing = true; return again(); }
+        if (act === 'open') {
+          return fetch('/api/promise?id=' + encodeURIComponent(b.getAttribute('data-id')), { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+              if (!d) return;
+              pb.run = d.run; pb.answers = Object.assign({}, d.run.answers); pb.editing = false; pb.used = null; pb.err = '';
+              again(); window.scrollTo(0, 0);
+            });
+        }
+      });
+    });
+  }
+
   /* A course somebody cannot open, with a lock that says what opens it: the
      membership for most, the Funnel Engine's own page for that one. */
   function lockedCourseCard(co, meta) {
@@ -3293,6 +3516,7 @@ button{font-family:inherit}
       // front of it is all the API needs.
       return renderReport(c, parseInt(view.slice('report-'.length), 10) || 0);
     }
+    if (view === 'promise') return renderPromise(c);
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
     if (view.indexOf('c-') !== 0 && view.indexOf('t-') !== 0) communityQ = '';
