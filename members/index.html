@@ -3287,7 +3287,7 @@ button{font-family:inherit}
           'domain. Nothing technical.</p>' +
         '<p class="fe-fine">20% off for roadmap members: $80 instead of $100, once. 72-hour money-back guarantee.</p>' +
         '<a class="fe-go" href="' + esc(deal.url) + '">Get it for $80</a>' +
-        '<a class="fe-alt" href="/funnel-engine">See what it does</a></section>';
+        '<a class="fe-alt" href="/funnel-engine">See the offer</a></section>';
     }
     return '<section class="fe-next"><span class="fe-k">Launch this plan</span>' +
       '<h2>Have Claude put your offer live this week</h2>' +
@@ -3296,8 +3296,8 @@ button{font-family:inherit}
         'order bumps, upsells and emails on your own domain. About an hour the first time, about ' +
         '30 minutes for every offer after.</p>' +
       '<p class="fe-fine">$100 once, yours for life. 72-hour money-back guarantee.</p>' +
-      '<a class="fe-go" href="/funnel-engine">See The Funnel Engine</a>' +
-      '<a class="fe-alt" href="/funnel-engine/checkout.html">Get it now · $100</a></section>';
+      '<a class="fe-go" href="/funnel-engine/checkout.html">Get it now · $100</a>' +
+      '<a class="fe-alt" href="/funnel-engine">See the offer</a></section>';
   }
 
   /* ---------------- the Promise Builder ----------------
@@ -3311,7 +3311,7 @@ button{font-family:inherit}
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
         if (!d) return;
-        pb.fields = d.fields; pb.scores = d.scores; pb.runs = d.runs; pb.left = d.left; pb.loaded = true;
+        pb.fields = d.fields; pb.scores = d.scores; pb.runs = d.runs; pb.left = d.left; pb.daily = d.daily; pb.loaded = true;
       });
   }
 
@@ -3342,7 +3342,8 @@ button{font-family:inherit}
     });
     h += '<div class="pb-go"><button type="button" data-pb="go"' + (pb.busy ? ' disabled' : '') + '>' +
       (pb.busy ? 'Writing your promises\u2026' : 'Write my promises') + '</button>' +
-      '<span>' + (pb.busy ? 'Takes about a minute.' : 'Takes about a minute. ' + pb.left + ' of 25 left today.') + '</span></div>' +
+      '<span>' + (pb.busy ? 'Takes about a minute.' : 'Takes about a minute. ' + pb.left + ' of ' + (pb.daily || 10) +
+        ' left today, counting rewrites.') + '</span></div>' +
       (pb.err ? '<p class="pb-err">' + esc(pb.err) + '</p>' : '') + '</div>';
     return h;
   }
@@ -3395,7 +3396,8 @@ button{font-family:inherit}
         'order bumps, upsells and emails, live on your own domain. Nothing technical, no funnel builder.</p>' +
       '<p class="fe-fine">' + (deal ? 'Your roadmap members\u2019 price: $80 instead of $100.' : '$100 once, yours for life.') +
         ' 72-hour money-back guarantee.</p>' +
-      '<a class="fe-go" href="' + esc(deal ? deal.url : '/funnel-engine') + '">' + (deal ? 'Get it for $80' : 'See The Funnel Engine') + '</a></section>';
+      '<a class="fe-go" href="' + esc(deal ? deal.url : '/funnel-engine/checkout.html') + '">' + (deal ? 'Get it for $80' : 'Get it now \u00b7 $100') + '</a>' +
+      '<a class="fe-alt" href="/funnel-engine">See the offer</a></section>';
   }
 
   function pbHistory() {
@@ -3449,7 +3451,7 @@ button{font-family:inherit}
         }
         if (act === 'use' && o) { pb.used = list + '-' + i; return again(); }
         if (act === 'refine' && o) {
-          if (pb.left <= 0) { pb.err = 'That\u2019s all 25 for today. It resets tomorrow.'; return again(); }
+          if (pb.left <= 0) { pb.err = 'That\u2019s all ' + (pb.daily || 10) + ' for today. It resets tomorrow.'; return again(); }
           var card = b.closest('.pb-card');
           [].forEach.call(card.querySelectorAll('button'), function (x) { x.disabled = true; });
           b.textContent = 'Rewriting\u2026';

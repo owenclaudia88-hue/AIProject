@@ -1,6 +1,6 @@
 import { sessionEmail } from '../lib/session.js';
 import { isActive, savePromiseRun, getPromiseRun, updatePromiseRun, listPromiseRuns,
-         promiseCallsToday } from '../lib/db.js';
+         promiseCallsToday, promiseCallsAllToday } from '../lib/db.js';
 import { isAdmin } from '../lib/admin.js';
 import { FIELDS, SCORES, REFINE_KINDS, writePromises, refinePromise } from '../lib/promise.js';
 
@@ -13,9 +13,12 @@ import { FIELDS, SCORES, REFINE_KINDS, writePromises, refinePromise } from '../l
  *   POST /api/promise { id, list: 'options'|'wild', index, refine } one promise rewritten
  *
  * Every call to the model counts against DAILY, runs and refines alike: the
- * tool is free to members, and a cap is what keeps it that way.
+ * tool is free to members, and a cap is what keeps it that way. SITE_DAILY is
+ * the ceiling across everybody, so a busy day can never run up the bill: past
+ * it the tool rests until tomorrow and says so. Both can be set in env.
  */
-const DAILY = 25;
+const DAILY = Number.parseInt(process.env.PROMISE_DAILY ?? '10', 10) || 10;
+const SITE_DAILY = Number.parseInt(process.env.PROMISE_SITE_DAILY ?? '250', 10) || 250;
 const MAX = 3000;
 
 export default async function handler(req, res) {
@@ -43,6 +46,9 @@ export default async function handler(req, res) {
     const b = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     if ((await promiseCallsToday(email)) >= DAILY) {
       return res.status(429).json({ error: `That's all ${DAILY} for today. Your past promises are still here, and it resets tomorrow.` });
+    }
+    if ((await promiseCallsAllToday()) >= SITE_DAILY) {
+      return res.status(429).json({ error: 'The Promise Builder is resting until tomorrow: it has been busy today. Your past promises are still here.' });
     }
 
     // One promise rewritten.
