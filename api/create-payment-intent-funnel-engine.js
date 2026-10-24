@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { FUNNEL_ENGINE_SOURCE, FUNNEL_ENGINE_NAME, funnelEnginePrice } from '../lib/products.js';
+import { readDealToken, dealPrice, DEAL_PERCENT } from '../lib/roadmap-deal.js';
 
 /**
  * PaymentIntent for The Funnel Engine ($100), before any bump is ticked.
@@ -33,8 +34,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Payments are not configured yet.' });
   }
 
-  const amount = funnelEnginePrice();
-  if (!Number.isInteger(amount) || amount < 50) {
+  const full = funnelEnginePrice();
+  if (!Number.isInteger(full) || full < 50) {
     console.error('[create-payment-intent-funnel-engine] FUNNEL_ENGINE_PRICE_AMOUNT is invalid:', process.env.FUNNEL_ENGINE_PRICE_AMOUNT);
     return res.status(500).json({ error: 'Price is misconfigured.' });
   }
@@ -43,6 +44,11 @@ export default async function handler(req, res) {
     const stripe = new Stripe(secretKey, { apiVersion: '2024-12-18.acacia' });
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
     const email = typeof body.email === 'string' ? body.email.slice(0, 320) : undefined;
+    // The roadmap members' price, from the link in their roadmap message. Checked
+    // here, once; its deadline then rides on the intent (deal_ends), so a repricing
+    // after it has passed goes back to the full price.
+    const deal = readDealToken(body.deal);
+    const amount = deal ? dealPrice() : full;
     const landingUrl = typeof body.landingUrl === 'string' ? body.landingUrl.slice(0, 500) : '';
 
     const clientIp = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
@@ -61,6 +67,7 @@ export default async function handler(req, res) {
       metadata: {
         product: FUNNEL_ENGINE_NAME,
         source: FUNNEL_ENGINE_SOURCE,
+        ...(deal ? { deal: `roadmap-${DEAL_PERCENT}`, deal_ends: new Date(deal.endsAt).toISOString(), deal_email: deal.email } : {}),
         ...(landingUrl ? { landing_url: landingUrl } : {}),
         ...(email ? { buyer_email: email } : {}),
         ...(typeof body.fbclid === 'string' && body.fbclid ? { fbclid: body.fbclid.slice(0, 300) } : {}),
@@ -78,7 +85,9 @@ export default async function handler(req, res) {
       clientSecret: paymentIntent.client_secret,
       publishableKey,
       amount,
-      currency: PRICE_CURRENCY
+      currency: PRICE_CURRENCY,
+      // What the page shows: the price and when it runs out, or nothing.
+      deal: deal ? { endsAt: deal.endsAt, base: amount, full } : null
     });
   } catch (err) {
     console.error('[create-payment-intent-funnel-engine]', err);

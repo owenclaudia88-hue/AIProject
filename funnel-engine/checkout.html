@@ -133,6 +133,13 @@ p{margin:0}
 .addon-line{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-2)}
 .addon-line b{font-weight:600}
 .addon-line span{flex:none;font-weight:700}
+.deal-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 0;padding:12px 14px;border-radius:14px;
+  background:var(--ok-soft);border:1px solid #b7e6d0;color:#0b6b47;font-size:.92rem;font-weight:600}
+.deal-bar b{font-family:var(--display);font-size:1.05rem}
+.deal-bar .cd{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800}
+.deal-gone{margin:14px 0 0;padding:12px 14px;border-radius:14px;background:var(--paper-2);border:1px solid var(--line);
+  color:var(--ink-2);font-size:.9rem}
+.pr s{color:var(--ink-3);font-weight:500;margin-right:6px}
 footer{text-align:center;color:var(--ink-3);font-size:.74rem;padding:0 18px 40px}
 footer a{color:var(--ink-2)}
 @media (max-width:880px){
@@ -175,13 +182,15 @@ footer a{color:var(--ink-2)}
       <div class="hello">
         <h1 id="hello">Launch your offer <span class="hot">this week.</span></h1>
         <p>Complete your <b id="hello-price">$100</b> order below. Your Funnel Engine is in your inbox the second you pay.</p>
+        <div class="deal-bar" id="deal-bar" hidden>🎁 <span>Your roadmap members' price: <b>20% off</b></span><span class="cd" id="deal-cd"></span></div>
+        <div class="deal-gone" id="deal-gone" hidden>This roadmap members' price has ended, so the order below is at the full price.</div>
       </div>
 
       <div class="card mobile-sum">
         <div class="prod">
           <div class="box">🚀</div>
           <div><b>The Funnel Engine</b><span>Lifetime access</span></div>
-          <div class="pr">$100.00</div>
+          <div class="pr fe-pr">$100.00</div>
         </div>
         <div class="addon-lines"></div>
         <div class="tot tot-m" hidden><span>Total today</span><div><b class="tot-val">$100.00</b></div></div>
@@ -264,7 +273,7 @@ footer a{color:var(--ink-2)}
         <div class="prod">
           <div class="box">🚀</div>
           <div><b>The Funnel Engine</b><span>Lifetime access</span></div>
-          <div class="pr">$100.00</div>
+          <div class="pr fe-pr">$100.00</div>
         </div>
         <ul class="items">
           <li>The Funnel Engine, yours forever</li>
@@ -379,6 +388,31 @@ footer a{color:var(--ink-2)}
    * list on every change (/api/update-payment-intent), and the page asks
    * Stripe for the new total before it lets anybody pay. */
   var BASE = 10000;
+  /* The roadmap members' price. The link carries a signed code; the server
+     decides whether it still counts and prices the order, and this only shows
+     what it decided - the reduced price, the full one struck through, and how
+     long is left. */
+  var dealToken = new URLSearchParams(location.search).get('deal') || '';
+  var FULL = BASE, dealEnds = 0, dealTimer = null;
+  function showDeal(d) {
+    if (!d) {
+      if (dealToken) $('deal-gone').hidden = false;
+      return;
+    }
+    FULL = d.full || BASE; BASE = d.base; dealEnds = d.endsAt;
+    $('deal-bar').hidden = false;
+    document.querySelectorAll('.fe-pr').forEach(function (el) {
+      el.innerHTML = '<s>' + money(FULL) + '</s>' + money(BASE);
+    });
+    paint();
+    var tick = function () {
+      var left = dealEnds - Date.now();
+      if (left <= 0) { $('deal-cd').textContent = 'ended'; clearInterval(dealTimer); return; }
+      var h = Math.floor(left / 3600e3), m = Math.floor(left % 3600e3 / 60e3), s = Math.floor(left % 60e3 / 1e3);
+      $('deal-cd').textContent = 'ends in ' + h + 'h ' + (m < 10 ? '0' : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+    };
+    tick(); dealTimer = setInterval(tick, 1000);
+  }
   var BUMPS = {
     edward:    { name: 'Edward (Evergreen Ads 3.0)', cents: 4700 },
     operators: { name: 'All 16 DFY AI Operators',    cents: 19700 }
@@ -468,7 +502,8 @@ footer a{color:var(--ink-2)}
         msclkid: window.aifuMsclkid ? window.aifuMsclkid() : '',
         vid: window.aifuVid ? window.aifuVid() : '',
         landingUrl: window.aifuLandingUrl ? window.aifuLandingUrl() : '',
-        reminder: window.aifuReminder ? window.aifuReminder() : ''
+        reminder: window.aifuReminder ? window.aifuReminder() : '',
+        deal: dealToken
       })
     });
   })
@@ -476,6 +511,7 @@ footer a{color:var(--ink-2)}
   .then(function (j) { return stripeReady().then(function () { return j; }); })
   .then(function (j) {
     if (!j.clientSecret || !j.publishableKey) throw new Error('Incomplete response from server.');
+    showDeal(j.deal);
     stripe = Stripe(j.publishableKey);
     clientSecret = j.clientSecret;
     elements = stripe.elements({

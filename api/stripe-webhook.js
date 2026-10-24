@@ -315,7 +315,8 @@ export default async function handler(req, res) {
             }));
             const feTotal = feLines.reduce((s, l) => s + l.cents, 0);
             const lines = funnel
-              ? [{ label: FUNNEL_ENGINE_NAME, cents: charge.amount - feTotal }, ...feLines]
+              ? [{ label: FUNNEL_ENGINE_NAME + (pi.metadata?.deal ? " (roadmap members’ price, 20% off)" : ""),
+                   cents: charge.amount - feTotal }, ...feLines]
               : addonLines.length
                 ? [{ label: '70 AI Specialists for Claude', cents: charge.amount - addonTotal }, ...addonLines]
                 : undefined;

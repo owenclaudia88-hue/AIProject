@@ -1,9 +1,10 @@
 import Stripe from 'stripe';
 import {
   ADDONS, ADDON_SOURCES, parseAddons,
-  FUNNEL_ENGINE_SOURCE, FUNNEL_ENGINE_NAME, FUNNEL_ENGINE_BUMPS, parseFunnelEngineBumps, funnelEnginePrice
+  FUNNEL_ENGINE_SOURCE, FUNNEL_ENGINE_NAME, FUNNEL_ENGINE_BUMPS, parseFunnelEngineBumps
 } from '../lib/products.js';
 import { BONUS_ADDONS, bonusActive } from '../lib/bonus.js';
+import { engineBaseFor } from '../lib/roadmap-deal.js';
 
 /**
  * POST /api/update-payment-intent  { clientSecret, addons: ['engine','carousel'], email? }
@@ -61,7 +62,8 @@ export default async function handler(req, res) {
       const bumps = parseFunnelEngineBumps(body.addons);
       const email = typeof body.email === 'string' ? body.email.trim().toLowerCase().slice(0, 320) : '';
       const updated = await stripe.paymentIntents.update(id, {
-        amount: funnelEnginePrice() + bumps.reduce((sum, k) => sum + FUNNEL_ENGINE_BUMPS[k].priceAmount(), 0),
+        // The roadmap members' price while its deadline holds, the full price after.
+        amount: engineBaseFor(pi.metadata) + bumps.reduce((sum, k) => sum + FUNNEL_ENGINE_BUMPS[k].priceAmount(), 0),
         description: [FUNNEL_ENGINE_NAME, ...bumps.map((k) => FUNNEL_ENGINE_BUMPS[k].short)].join(' + '),
         metadata: {
           addons: bumps.join(','),

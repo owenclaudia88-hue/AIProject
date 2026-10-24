@@ -1455,6 +1455,7 @@ button{font-family:inherit}
         // On sale to them and not theirs yet. The one switch for every place
         // the Funnel Engine is offered below.
         me.offerFunnelEngine = !!res.d.offerFunnelEngine;
+        me.funnelEngineDeal = res.d.funnelEngineDeal || null;
         // Who gets the membership rooms rather than a lock on them. Staff are
         // in because they have never bought anything and still have to be able
         // to look. Set here, with the rest of the fields copied off /api/me,
@@ -3226,6 +3227,18 @@ button{font-family:inherit}
         '<a class="fe-go" href="#course-the-funnel-engine">Open the Funnel Engine</a></section>';
     }
     if (!me.offerFunnelEngine) return '';
+    var deal = me.funnelEngineDeal && me.funnelEngineDeal.endsAt > Date.now() ? me.funnelEngineDeal : null;
+    if (deal) {
+      var ends = new Date(deal.endsAt).toLocaleString(undefined, { weekday: 'long', hour: '2-digit', minute: '2-digit' });
+      return '<section class="fe-next"><span class="fe-k">Roadmap members\u2019 price \u00b7 ends ' + esc(ends) + '</span>' +
+        '<h2>Have Claude put your offer live this week, for $80</h2>' +
+        '<p>Your roadmap starts with ' + named + '. The Funnel Engine is how you launch it without the weeks of ' +
+          'building: ' + tell + ' and it builds the sales page, checkout, order bumps, upsells and emails on your own ' +
+          'domain. Nothing technical.</p>' +
+        '<p class="fe-fine">20% off for roadmap members: $80 instead of $100, once. 72-hour money-back guarantee.</p>' +
+        '<a class="fe-go" href="' + esc(deal.url) + '">Get it for $80</a>' +
+        '<a class="fe-alt" href="/funnel-engine">See what it does</a></section>';
+    }
     return '<section class="fe-next"><span class="fe-k">Launch this plan</span>' +
       '<h2>Have Claude put your offer live this week</h2>' +
       '<p>Your roadmap starts with ' + named + '. The Funnel Engine is how you launch it without a ' +

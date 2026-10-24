@@ -1,6 +1,8 @@
 import { runLaunch, dueNow, launchSettings, STEPS } from '../../lib/fe-launch.js';
 import { setSetting } from '../../lib/db.js';
-import { sendFunnelEngineLaunch } from '../../lib/email.js';
+import { sendFunnelEngineLaunch, sendRoadmapDeal } from '../../lib/email.js';
+import { DEAL_HOURS, dealCheckoutUrl } from '../../lib/roadmap-deal.js';
+import { runRoadmapDeals } from '../../lib/roadmap-deal-run.js';
 
 /**
  * The Funnel Engine introduction (lib/fe-launch.js), run every 30 minutes.
@@ -31,6 +33,17 @@ export default async function handler(req, res) {
     }
 
     const to = (q.get('to') || '').trim().toLowerCase();
+    // ?to=me@x&deal=all - the roadmap price's three emails, with a working
+    // 48-hour link for that address. Records nothing.
+    if (to && q.get('deal')) {
+      const which = q.get('deal') === 'all' ? ['open', 'h24', 'h1'] : [q.get('deal')];
+      const endsAt = Math.floor((Date.now() + DEAL_HOURS * 3600e3) / 60000) * 60000;
+      const site = (process.env.SITE_URL || 'https://aifounderuniversity.com').replace(/\/+$/, '');
+      for (const w of which) {
+        await sendRoadmapDeal(to, w, { name: q.get('name') || null, url: dealCheckoutUrl(site, to, endsAt), endsAt });
+      }
+      return res.status(200).json({ test: true, sentTo: to, deal: which, note: 'nothing was recorded' });
+    }
     if (to) {
       const which = q.get('step') === 'all' ? STEPS.map((s) => s.n) : [Number(q.get('step') || 1)];
       if (which.some((n) => !STEPS[n - 1])) return res.status(400).json({ error: 'step is 1-7 or all' });
@@ -41,12 +54,19 @@ export default async function handler(req, res) {
     if (q.get('dry') === '1') {
       const { settings, due, audience } = await dueNow();
       const byStep = due.reduce((a, p) => ({ ...a, [p.kind]: (a[p.kind] || 0) + 1 }), {});
-      return res.status(200).json({ dry: true, ...settings, audience, due: due.length, byStep });
+      const deals = await runRoadmapDeals({ dry: true });
+      return res.status(200).json({ dry: true, ...settings, audience, due: due.length, byStep, roadmapDeals: deals });
     }
 
+    // The roadmap members' price first: somebody inside its 48 hours is then
+    // skipped by the introduction below rather than sent both.
+    const roadmapDeals = await runRoadmapDeals();
+    if (roadmapDeals.opened || roadmapDeals.reminded24 || roadmapDeals.reminded1) {
+      console.log('[cron/fe-launch] roadmap deals', JSON.stringify(roadmapDeals));
+    }
     const out = await runLaunch();
     if (out.sent) console.log(`[cron/fe-launch] sent ${out.sent}, ${out.failed.length} failed`);
-    return res.status(200).json(out);
+    return res.status(200).json({ ...out, roadmapDeals });
   } catch (err) {
     console.error('[cron/fe-launch]', err);
     return res.status(500).json({ error: 'server' });
