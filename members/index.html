@@ -858,6 +858,59 @@ button{font-family:inherit}
   border-radius:11px;padding:12px 14px;margin-top:8px;color:var(--txt-2);font:inherit;font-size:.88rem;cursor:pointer}
 .pb-hist button span{color:var(--txt-3);flex:none}
 @media (max-width:560px){.pb-scores{grid-template-columns:repeat(3,1fr)}.pb-form,.pb-card{padding:18px}}
+/* ---- the Offer Roaster ---- */
+.or-tabs{display:inline-flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;margin:14px 0 6px}
+.or-tabs button{background:none;border:0;color:var(--txt-3);font:inherit;font-weight:700;font-size:.86rem;padding:9px 14px;border-radius:9px;cursor:pointer;min-height:40px}
+.or-tabs button.on{background:var(--bg-3);color:var(--txt)}
+.or-in{width:100%;background:var(--bg);border:1px solid var(--line-2);border-radius:12px;padding:12px 14px;color:var(--txt);font:inherit;font-size:.95rem}
+textarea.or-in{min-height:180px;resize:vertical;line-height:1.55}
+.or-feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px;margin-top:16px}
+.or-feats div{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.84rem;color:var(--txt-3)}
+.or-feats b{display:block;color:var(--txt);font-size:.92rem;margin-bottom:3px}
+.or-score{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:18px;background:var(--bg-2);border:1px solid var(--line);border-radius:17px;padding:22px 24px}
+.or-num{flex:none;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;text-align:center;border:5px solid var(--accent)}
+.or-num b{display:block;font-size:2rem;font-weight:900;line-height:1}
+.or-num span{font-size:.66rem;color:var(--txt-3)}
+.or-num.low{border-color:#f87171}.or-num.mid{border-color:var(--accent-2)}.or-num.high{border-color:var(--green)}
+.or-score .t{flex:1;min-width:min(100%,240px)}
+.or-score h2{margin:4px 0 6px;font-size:1.05rem;font-weight:800;line-height:1.4}
+.or-score p{margin:0;color:var(--txt-2);font-size:.92rem;line-height:1.55}
+.or-score .jab{margin-top:8px;color:var(--txt);font-style:italic}
+.or-offer{margin-top:12px;color:var(--txt-3);font-size:.88rem;line-height:1.55}
+.or-h{display:flex;align-items:baseline;gap:10px;margin:28px 0 10px}
+.or-h h2{margin:0;font-size:1.15rem;font-weight:800}
+.or-h span{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3)}
+.or-fix{background:var(--bg-2);border:1px solid var(--line);border-radius:17px;padding:20px 22px;margin-top:12px}
+.or-fix .hd{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.or-fix .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#1a0d00;font-weight:900;display:grid;place-items:center;font-size:.85rem}
+.or-fix h3{margin:0;font-size:1rem;font-weight:800}
+.or-fix .sec{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3)}
+.or-now{border-left:3px solid var(--line-2);padding:4px 0 4px 12px;color:var(--txt-3);font-size:.9rem;line-height:1.55;margin:10px 0;white-space:pre-wrap}
+.or-why{color:var(--txt-2);font-size:.92rem;line-height:1.55;margin:0 0 12px}
+.or-paste{background:#fff;color:#14110f;border-radius:12px;padding:14px 16px;font-size:.93rem;line-height:1.55;white-space:pre-wrap}
+.or-paste-h{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
+.or-paste-h span{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-2)}
+.or-top{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.or-top .col{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.or-top .col > span{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3)}
+.or-top .pb-prom{margin-top:8px}
+.or-warn{color:var(--accent-2);font-size:.88rem;margin:10px 0 0}
+.or-secs{display:grid;gap:8px}
+.or-sec{display:flex;gap:12px;align-items:baseline;background:var(--bg-2);border:1px solid var(--line);border-radius:11px;padding:10px 14px}
+.or-sec b{flex:none;width:min(42%,190px);font-size:.9rem}
+.or-sec .st{flex:none;font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:3px 8px;border-radius:999px}
+.or-sec .st.strong{color:var(--green);background:rgba(52,211,153,.12)}
+.or-sec .st.weak{color:var(--accent-2);background:rgba(255,176,32,.12)}
+.or-sec .st.missing{color:#f87171;background:rgba(248,113,113,.12)}
+.or-sec span.note{color:var(--txt-3);font-size:.86rem;line-height:1.45}
+.or-more{margin:0;padding-left:20px;color:var(--txt-2);font-size:.92rem;line-height:1.6}
+.or-cav{margin-top:14px;color:var(--txt-3);font-size:.86rem;line-height:1.55}
+.or-again{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.or-unlock{margin-top:18px;background:linear-gradient(135deg,rgba(255,122,26,.16),rgba(255,176,32,.05));border:1px solid rgba(255,176,32,.3);border-radius:17px;padding:24px}
+.or-unlock h2{margin:6px 0 8px;font-size:1.25rem;font-weight:800}
+.or-unlock p{margin:0 0 10px;color:var(--txt-2);line-height:1.6;max-width:62ch}
+.or-unlock ul{margin:0 0 14px;padding-left:20px;color:var(--txt-2);line-height:1.6}
+@media (max-width:640px){.or-top{grid-template-columns:1fr}.or-sec{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}.or-sec b{width:auto}.or-sec span.note{grid-column:1/-1}.or-score,.or-fix,.or-unlock{padding:18px}}
 /* The Funnel Engine, where it is offered: under the roadmap, on the dashboard,
    and one line while a roadmap is being written. */
 .rm-wait-fe{max-width:640px;margin:14px 0 0;color:var(--txt-2);font-size:.9rem;line-height:1.6}
@@ -1279,6 +1332,7 @@ button{font-family:inherit}
                thing here written for one person. -->
           <button class="nav" data-view="roadmap" id="nav-roadmap" hidden><span class="nic">🗺️</span>AI Roadmap<span class="n-count" id="cnt-roadmap"></span></button>
           <button class="nav" data-view="promise"><span class="nic">✍️</span>Promise Builder<span class="pill-beta">New</span></button>
+          <button class="nav" data-view="roaster"><span class="nic">🔥</span>Offer Roaster<span class="pill-beta">New</span></button>
           <!-- Hidden until the reports open to everybody; the test account and
                staff see it in the meantime. -->
           <button class="nav" data-view="reports" id="nav-reports" hidden><span class="nic">📰</span>AI Reports<span class="n-count" id="cnt-reports"></span></button>
@@ -1523,6 +1577,8 @@ button{font-family:inherit}
         // The Promise Builder is a membership perk too, and says so the same way.
         var pbNav = document.querySelector('.nav[data-view="promise"]');
         if (pbNav && !me.canPreview) pbNav.classList.add('is-locked');
+        var orNav = document.querySelector('.nav[data-view="roaster"]');
+        if (orNav && !me.canPreview) orNav.classList.add('is-locked');
         var rmNav = document.querySelector('.nav[data-view="roadmap"]');
         // Both are membership perks, said the same way as the others: shown to
         // everybody, wearing a lock for anybody not paying for them, rather
@@ -1787,7 +1843,7 @@ button{font-family:inherit}
     }
     else if (raw.indexOf('c-') === 0) { view = raw; navKey = raw; }
     else {
-      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && raw !== 'promise' && raw !== 'reports' && raw !== 'news' && !KINDS[raw]) raw = 'dashboard';
+      if (raw !== 'dashboard' && raw !== 'downloads' && raw !== 'favorites' && raw !== 'bookmarks' && raw !== 'courses' && raw !== 'request' && raw !== 'roadmap' && raw !== 'promise' && raw !== 'roaster' && raw !== 'reports' && raw !== 'news' && !KINDS[raw]) raw = 'dashboard';
       view = raw; navKey = raw;
     }
     [].forEach.call(document.querySelectorAll('.nav'), function (n) {
@@ -3490,6 +3546,197 @@ button{font-family:inherit}
     });
   }
 
+  /* ---------------- the Offer Roaster ----------------
+     A sales page in, a roast out. Locked twice: to the membership, like the
+     Promise Builder, and then until the member shares a win in the
+     community - which is the point of it: a reason to post one. */
+  var orS = { loaded: false, unlocked: false, roasts: [], left: 0, daily: 5, mode: 'url', url: '', copy: '', roast: null, busy: false, err: '' };
+
+  function orLoad() {
+    return fetch('/api/roaster', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d) return;
+        orS.unlocked = !!d.unlocked; orS.roasts = d.roasts || []; orS.left = d.left; orS.daily = d.daily; orS.loaded = true;
+        if (d.scores && d.scores.length) orS.scores = d.scores;
+      });
+  }
+
+  function renderRoaster(c) {
+    var head = '<div class="pb-wrap"><span class="pb-k">\ud83d\udd25 Member tool</span>' +
+      '<h1 class="page-h" style="margin-top:6px">The Offer Roaster</h1>' +
+      '<p class="page-sub">Drop in your sales page. Get a score out of 100, the 3 fixes that make the most money, and new lines to paste.</p>';
+    if (!me.canPreview) {
+      c.innerHTML = head + '<div class="req-card locked-perk"><span class="lock-badge">\ud83d\udd12</span>' +
+        '<h2>A membership perk</h2><p class="sub">Paste in your sales page and get an honest score, the three fixes worth the most ' +
+        'money with lines ready to paste, a rewritten headline, and every part of the page checked.</p>' +
+        '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">\ud83d\udd12 Unlock with the membership</a></div></div>';
+      return;
+    }
+    // Asked again each visit while locked, so a win posted a minute ago opens it.
+    if (!orS.loaded || !orS.unlocked) {
+      if (!orS.loaded) c.innerHTML = head + '<p class="empty">Loading\u2026</p></div>';
+      var was = orS.loaded;
+      orLoad().then(function () { if (view === 'roaster' && (!was || orS.unlocked)) renderRoaster(document.getElementById('content')); });
+      if (!orS.loaded) return;
+    }
+    if (!orS.unlocked) {
+      c.innerHTML = head + '<div class="or-unlock"><span class="pb-k">\ud83d\udd12 Unlocks with a win</span>' +
+        '<h2>Share one win, and it\u2019s yours</h2>' +
+        '<p>The Offer Roaster opens the moment you post a win in the community. Any win counts, however small:</p>' +
+        '<ul><li>your first sale, or your first lead</li><li>a page, an email or an ad you finally shipped</li>' +
+          '<li>an hour saved with Claude this week</li></ul>' +
+        '<p>Other members get to cheer you on, and you get a straight-talking roast of your sales page.</p>' +
+        '<div class="pb-go" style="margin-top:6px"><button type="button" data-or="win">\ud83c\udfc6 Share a win to unlock</button></div></div></div>';
+      orWire(c);
+      return;
+    }
+    c.innerHTML = head + (orS.roast ? orResult() : orForm()) + orHistory() + '</div>';
+    orWire(c);
+  }
+
+  function orForm() {
+    return '<div class="pb-form"><h2>What should we roast?</h2>' +
+      '<div class="or-tabs"><button type="button" data-or="mode" data-m="url" class="' + (orS.mode === 'url' ? 'on' : '') + '">\ud83d\udd17 A link</button>' +
+        '<button type="button" data-or="mode" data-m="copy" class="' + (orS.mode === 'copy' ? 'on' : '') + '">\ud83d\udccb Paste the copy</button></div>' +
+      (orS.mode === 'url'
+        ? '<div class="pb-f"><label>Your sales page link</label><input class="or-in" id="or-url" type="url" inputmode="url" placeholder="https://yourpage.com" value="' + esc(orS.url) + '">' +
+          '<p>A page behind a login cannot be read. Paste the copy for those.</p></div>'
+        : '<div class="pb-f"><label>Your sales page copy</label><textarea class="or-in" id="or-copy" placeholder="Paste the whole page: headline, offer, price, guarantee, everything.">' + esc(orS.copy) + '</textarea></div>') +
+      '<div class="pb-go"><button type="button" data-or="go"' + (orS.busy ? ' disabled' : '') + '>' + (orS.busy ? 'Roasting\u2026' : 'Roast my offer') + '</button>' +
+        '<span>' + (orS.busy ? 'Takes about a minute.' : 'Takes about a minute. ' + orS.left + ' of ' + orS.daily + ' left today.') + '</span></div>' +
+      (orS.err ? '<p class="pb-err">' + esc(orS.err) + '</p>' : '') + '</div>' +
+      '<div class="or-feats"><div><b>A score out of 100</b>So you know if it is ready for traffic.</div>' +
+        '<div><b>3 fixes, ranked by money</b>With new lines you can paste today.</div>' +
+        '<div><b>A new top of the page</b>Your bar, headline and subheadline, rewritten.</div>' +
+        '<div><b>Every section checked</b>13 parts of a page that sells, marked one by one.</div></div>';
+  }
+
+  function orPromCard(t) {
+    return '<div class="pb-prom">' + (t.bar ? '<span class="bar">' + esc(t.bar) + '</span>' : '') +
+      '<h3>' + esc(t.headline || '') + '</h3>' + (t.sub ? '<p class="sub">' + esc(t.sub) + '</p>' : '') + '</div>';
+  }
+
+  function orResult() {
+    var r = orS.roast, band = r.score < 50 ? 'low' : r.score < 75 ? 'mid' : 'high';
+    var counts = { strong: 0, weak: 0, missing: 0 };
+    (r.sections || []).forEach(function (s) { counts[s.status]++; });
+    var h = '<div class="or-score"><div class="or-num ' + band + '"><div><b>' + r.score + '</b><span>out of 100</span></div></div>' +
+      '<div class="t"><span class="pb-k">' + esc(r.verdict || '') + '</span><h2>' + esc(r.diagnosis || '') + '</h2>' +
+        (r.jab ? '<p class="jab">\u201c' + esc(r.jab) + '\u201d</p>' : '') + '</div></div>' +
+      (r.offer ? '<p class="or-offer"><b>What we read:</b> ' + esc(r.offer) + ' <span>(' + esc(r.source || '') + ')</span></p>' : '');
+
+    h += '<div class="or-h"><h2>Fix these 3 first</h2><span>Ranked by money</span></div>';
+    (r.fixes || []).forEach(function (f, i) {
+      h += '<div class="or-fix"><div class="hd"><span class="n">' + (i + 1) + '</span><div><h3>' + esc(f.title) + '</h3>' +
+        '<span class="sec">' + esc(f.section || '') + '</span></div></div>' +
+        (f.now ? '<div class="or-now">' + esc(f.now) + '</div>' : '') +
+        '<p class="or-why">' + esc(f.why) + '</p>' +
+        '<div class="or-paste-h"><span>Paste this instead</span><button class="pb-btn" type="button" data-or="copy" data-text="' + esc(f.paste) + '">Copy</button></div>' +
+        '<div class="or-paste">' + esc(f.paste) + '</div></div>';
+    });
+
+    var t = r.top || {};
+    var meters = (orS.scores || PB_SCORES).map(function (s) {
+      var n = (t.scores && t.scores[s.key]) || 0, bars = '';
+      for (var k = 1; k <= 5; k++) bars += '<i' + (k <= n ? ' class="on"' : '') + '></i>';
+      return '<div><b>' + esc(s.label) + '</b> ' + n + '/5<span class="m">' + bars + '</span></div>';
+    }).join('');
+    h += '<div class="or-h"><h2>The top of your page</h2><span>Bar, headline, subheadline</span></div>' +
+      '<div class="or-top"><div class="col"><span>On your page now</span>' + orPromCard(t.now || {}) + '</div>' +
+        '<div class="col"><span>Try this instead</span>' + orPromCard(t.better || {}) + '</div></div>' +
+      '<div class="pb-scores">' + meters + '</div>' +
+      (t.warning ? '<p class="or-warn">' + esc(t.warning) + '</p>' : '') +
+      (t.why ? '<p class="pb-why">' + esc(t.why) + '</p>' : '') +
+      '<div class="or-again"><button class="pb-btn" type="button" data-or="copy" data-text="' +
+        esc([t.better && t.better.bar, t.better && t.better.headline, t.better && t.better.sub].filter(Boolean).join('\n')) + '">Copy the new top</button>' +
+        (me.canPreview ? '<a class="pb-btn" href="#promise" style="text-decoration:none;display:inline-flex;align-items:center">\u270d\ufe0f Get 6 more headline options</a>' : '') + '</div>';
+
+    h += '<div class="or-h"><h2>Section by section</h2><span>' + counts.strong + ' strong, ' + counts.weak + ' weak, ' + counts.missing + ' missing</span></div>' +
+      '<div class="or-secs">' + (r.sections || []).map(function (s) {
+        return '<div class="or-sec"><b>' + esc(s.name) + '</b><span class="st ' + esc(s.status) + '">' + esc(s.status) + '</span>' +
+          '<span class="note">' + esc(s.note) + '</span></div>';
+      }).join('') + '</div>';
+
+    if ((r.more || []).length) {
+      h += '<div class="or-h"><h2>' + r.more.length + ' more lines to fix</h2></div><ol class="or-more">' +
+        r.more.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ol>';
+    }
+    if (r.caveat) h += '<p class="or-cav">' + esc(r.caveat) + '</p>';
+    if (orS.err) h += '<p class="pb-err">' + esc(orS.err) + '</p>';
+    h += '<div class="pb-form" style="text-align:center"><h2 style="font-size:1.05rem">Made the fixes?</h2>' +
+      '<p style="color:var(--txt-3);font-size:.9rem;margin:6px 0 12px">Roast the new version and see how much your score moved.</p>' +
+      '<div class="or-again" style="justify-content:center;margin-top:0">' +
+        (r.source && r.source !== 'Pasted copy' ? '<button class="pb-btn" type="button" data-or="again">Roast the new version</button>' : '') +
+        '<button class="pb-btn" type="button" data-or="new">Roast a different page</button></div>' +
+      '<p style="color:var(--txt-3);font-size:.86rem;margin:14px 0 0">Got a win from these fixes? <a href="#c-wins" style="color:var(--accent-2)">Share it in Wins</a>.</p></div>';
+    return h + pbNext();
+  }
+
+  var PB_SCORES = [{ key: 'small', label: 'Small' }, { key: 'tangible', label: 'Tangible' }, { key: 'verb', label: 'Action verb' },
+    { key: 'button', label: 'Push button' }, { key: 'time', label: 'Time' }];
+
+  function orHistory() {
+    if (!orS.roasts.length) return '';
+    return '<div class="pb-hist"><span class="pb-k">Your roasts</span>' + orS.roasts.map(function (r) {
+      return '<button type="button" data-or="open" data-id="' + r.id + '"><span style="color:var(--txt);font-weight:800">' + r.score + '</span> ' +
+        esc(r.source || '') + '<span>' + esc(ago(r.at)) + '</span></button>';
+    }).join('') + '</div>';
+  }
+
+  function orWire(c) {
+    var again = function () { renderRoaster(document.getElementById('content')); };
+    var run = function (body) {
+      orS.busy = true; orS.err = ''; orS.roast = null; again();
+      return fetch('/api/roaster', { method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (out) {
+          orS.busy = false;
+          if (!out.ok) { orS.err = out.j.error || out.j.message || 'That did not work.'; return again(); }
+          orS.roast = out.j.roast; orS.left = Math.max(0, orS.left - 1);
+          orS.roasts.unshift({ id: orS.roast.id, source: orS.roast.source, score: orS.roast.score, at: orS.roast.at });
+          again(); window.scrollTo(0, 0);
+        })
+        .catch(function () { orS.busy = false; orS.err = 'Network error. Try again.'; again(); });
+    };
+    [].forEach.call(c.querySelectorAll('[data-or]'), function (b) {
+      b.addEventListener('click', function (e) {
+        var act = b.getAttribute('data-or');
+        if (act === 'win') {
+          // Straight to a new post in Wins, rather than a room to find the button in.
+          e.preventDefault();
+          location.hash = 'c-wins';
+          setTimeout(function () { try { newThread('wins'); } catch (err) {} }, 700);
+          return;
+        }
+        if (act === 'mode') { orS.mode = b.getAttribute('data-m'); orS.err = ''; return again(); }
+        if (act === 'go') {
+          var u = c.querySelector('#or-url'), t = c.querySelector('#or-copy');
+          if (u) orS.url = u.value.trim();
+          if (t) orS.copy = t.value.trim();
+          if (orS.mode === 'url' && !orS.url) { orS.err = 'Paste the link to your sales page first.'; return again(); }
+          if (orS.mode === 'copy' && orS.copy.length < 300) { orS.err = 'Paste a bit more of the page: at least the headline, the offer and the price.'; return again(); }
+          return run(orS.mode === 'url' ? { url: orS.url } : { copy: orS.copy });
+        }
+        if (act === 'copy') {
+          var text = b.getAttribute('data-text') || '';
+          var done = function () { var was = b.textContent; b.textContent = 'Copied \u2713'; setTimeout(function () { b.textContent = was; }, 1500); };
+          if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () { window.prompt('Copy:', text); });
+          else window.prompt('Copy:', text);
+          return;
+        }
+        if (act === 'again') { orS.mode = 'url'; return run({ url: orS.url || ('https://' + orS.roast.source) }); }
+        if (act === 'new') { orS.roast = null; orS.err = ''; return again(); }
+        if (act === 'open') {
+          return fetch('/api/roaster?id=' + encodeURIComponent(b.getAttribute('data-id')), { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) { if (d) { orS.roast = d.roast; orS.err = ''; again(); window.scrollTo(0, 0); } });
+        }
+      });
+    });
+  }
+
   /* A course somebody cannot open, with a lock that says what opens it: the
      membership for most, the Funnel Engine's own page for that one. */
   function lockedCourseCard(co, meta) {
@@ -3534,6 +3781,7 @@ button{font-family:inherit}
       return renderReport(c, parseInt(view.slice('report-'.length), 10) || 0);
     }
     if (view === 'promise') return renderPromise(c);
+    if (view === 'roaster') return renderRoaster(c);
     if (view === 'courses') return renderCourses(c);
     if (view.indexOf('course-') === 0) return renderCourseDetail(c, view.slice('course-'.length));
     if (view.indexOf('c-') !== 0 && view.indexOf('t-') !== 0) communityQ = '';
