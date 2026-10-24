@@ -100,9 +100,13 @@ export default async function handler(req, res) {
             return `phase ${n + 1}: window=${p?.window ? 'yes' : 'MISSING'}`
               + ` weeks=${weeks.length} steps=${steps} titled=${titled}`;
           });
+          const p = raw?.phases;
+          const what = p === undefined ? 'missing'
+            : Array.isArray(p) ? 'an empty list'
+            : `a ${typeof p} (${JSON.stringify(p).slice(0, 140)})`;
           const detail = got.length
             ? shape.join(' | ')
-            : `no phases array at all (top-level keys: ${Object.keys(raw || {}).join(', ') || 'none'})`;
+            : `phases was ${what} (top-level keys: ${Object.keys(raw || {}).join(', ') || 'none'})`;
           console.error('[admin/roadmaps] unusable phases —', detail);
           throw new Error(`the model returned no usable phases — ${detail}`);
         }
