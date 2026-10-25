@@ -60,11 +60,11 @@ export default async function handler(req, res) {
     }
 
     const b = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body ?? {});
-    let text, source;
+    let text, source, url = '';
     if (typeof b.url === 'string' && b.url.trim()) {
       try {
         const page = await readPage(b.url);
-        text = page.text; source = page.host;
+        text = page.text; source = page.host; url = b.url.trim();
       } catch (err) {
         return res.status(400).json({ error: err.message });
       }
@@ -74,7 +74,9 @@ export default async function handler(req, res) {
       if (text.length < 300) return res.status(400).json({ error: 'Paste a bit more of the page: at least the headline, the offer and the price.' });
     }
 
-    const result = await roast(text);
+    // The link as the member gave it, kept with the result so "roast the new
+    // version" reads the same page again rather than the site's front page.
+    const result = url ? { ...(await roast(text)), url } : await roast(text);
     const saved = await saveRoast(email, source, text, result);
     return res.status(200).json({ roast: { id: Number(saved.id), source, ...result, at: saved.created_at } });
   } catch (err) {

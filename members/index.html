@@ -859,58 +859,166 @@ button{font-family:inherit}
 .pb-hist button span{color:var(--txt-3);flex:none}
 @media (max-width:560px){.pb-scores{grid-template-columns:repeat(3,1fr)}.pb-form,.pb-card{padding:18px}}
 /* ---- the Offer Roaster ---- */
-.or-tabs{display:inline-flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;margin:14px 0 6px}
-.or-tabs button{background:none;border:0;color:var(--txt-3);font:inherit;font-weight:700;font-size:.86rem;padding:9px 14px;border-radius:9px;cursor:pointer;min-height:40px}
-.or-tabs button.on{background:var(--bg-3);color:var(--txt)}
-.or-in{width:100%;background:var(--bg);border:1px solid var(--line-2);border-radius:12px;padding:12px 14px;color:var(--txt);font:inherit;font-size:.95rem}
-textarea.or-in{min-height:180px;resize:vertical;line-height:1.55}
-.or-feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px;margin-top:16px}
-.or-feats div{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.84rem;color:var(--txt-3)}
-.or-feats b{display:block;color:var(--txt);font-size:.92rem;margin-bottom:3px}
-.or-score{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:18px;background:var(--bg-2);border:1px solid var(--line);border-radius:17px;padding:22px 24px}
-.or-num{flex:none;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;text-align:center;border:5px solid var(--accent)}
-.or-num b{display:block;font-size:2rem;font-weight:900;line-height:1}
-.or-num span{font-size:.66rem;color:var(--txt-3)}
-.or-num.low{border-color:#f87171}.or-num.mid{border-color:var(--accent-2)}.or-num.high{border-color:var(--green)}
-.or-score .t{flex:1;min-width:min(100%,240px)}
-.or-score h2{margin:4px 0 6px;font-size:1.05rem;font-weight:800;line-height:1.4}
-.or-score p{margin:0;color:var(--txt-2);font-size:.92rem;line-height:1.55}
-.or-score .jab{margin-top:8px;color:var(--txt);font-style:italic}
-.or-offer{margin-top:12px;color:var(--txt-3);font-size:.88rem;line-height:1.55}
-.or-h{display:flex;align-items:baseline;gap:10px;margin:28px 0 10px}
-.or-h h2{margin:0;font-size:1.15rem;font-weight:800}
-.or-h span{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3)}
-.or-fix{background:var(--bg-2);border:1px solid var(--line);border-radius:17px;padding:20px 22px;margin-top:12px}
-.or-fix .hd{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
-.or-fix .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#1a0d00;font-weight:900;display:grid;place-items:center;font-size:.85rem}
-.or-fix h3{margin:0;font-size:1rem;font-weight:800}
-.or-fix .sec{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3)}
-.or-now{border-left:3px solid var(--line-2);padding:4px 0 4px 12px;color:var(--txt-3);font-size:.9rem;line-height:1.55;margin:10px 0;white-space:pre-wrap}
-.or-why{color:var(--txt-2);font-size:.92rem;line-height:1.55;margin:0 0 12px}
-.or-paste{background:#fff;color:#14110f;border-radius:12px;padding:14px 16px;font-size:.93rem;line-height:1.55;white-space:pre-wrap}
-.or-paste-h{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px}
-.or-paste-h span{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-2)}
-.or-top{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.or-top .col{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:14px}
-.or-top .col > span{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--txt-3)}
-.or-top .pb-prom{margin-top:8px}
-.or-warn{color:var(--accent-2);font-size:.88rem;margin:10px 0 0}
-.or-secs{display:grid;gap:8px}
-.or-sec{display:flex;gap:12px;align-items:baseline;background:var(--bg-2);border:1px solid var(--line);border-radius:11px;padding:10px 14px}
-.or-sec b{flex:none;width:min(42%,190px);font-size:.9rem}
-.or-sec .st{flex:none;font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:3px 8px;border-radius:999px}
-.or-sec .st.strong{color:var(--green);background:rgba(52,211,153,.12)}
-.or-sec .st.weak{color:var(--accent-2);background:rgba(255,176,32,.12)}
-.or-sec .st.missing{color:#f87171;background:rgba(248,113,113,.12)}
-.or-sec span.note{color:var(--txt-3);font-size:.86rem;line-height:1.45}
-.or-more{margin:0;padding-left:20px;color:var(--txt-2);font-size:.92rem;line-height:1.6}
-.or-cav{margin-top:14px;color:var(--txt-3);font-size:.86rem;line-height:1.55}
-.or-again{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-.or-unlock{margin-top:18px;background:linear-gradient(135deg,rgba(255,122,26,.16),rgba(255,176,32,.05));border:1px solid rgba(255,176,32,.3);border-radius:17px;padding:24px}
-.or-unlock h2{margin:6px 0 8px;font-size:1.25rem;font-weight:800}
-.or-unlock p{margin:0 0 10px;color:var(--txt-2);line-height:1.6;max-width:62ch}
-.or-unlock ul{margin:0 0 14px;padding-left:20px;color:var(--txt-2);line-height:1.6}
-@media (max-width:640px){.or-top{grid-template-columns:1fr}.or-sec{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}.or-sec b{width:auto}.or-sec span.note{grid-column:1/-1}.or-score,.or-fix,.or-unlock{padding:18px}}
+.oi{width:1em;height:1em;flex:none;vertical-align:-.125em}
+.or-k{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--txt-3)}
+.or-card{background:var(--bg-2);border:1px solid var(--line);border-radius:18px;padding:26px}
+.or-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:12px;border:0;cursor:pointer;
+  font:inherit;font-weight:800;font-size:.95rem;text-decoration:none;background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00}
+.or-btn[disabled]{opacity:.6;cursor:progress}
+.or-btn.ghost{background:var(--bg-3);color:var(--txt);border:1px solid var(--line-2);font-weight:700}
+.or-btn.ghost:hover{border-color:var(--txt-3)}
+.or-copy{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line-2);color:var(--txt);border-radius:999px;
+  padding:7px 14px;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;flex:none}
+.or-copy:hover,.or-copy.done{border-color:var(--green);color:var(--green)}
+/* the form */
+.or-form h2{margin:0 0 4px;font-size:1.25rem;font-weight:800}
+.or-form > p{margin:0;color:var(--txt-3);font-size:.92rem}
+.or-tabs{display:flex;gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px;margin:18px 0;width:max-content;max-width:100%}
+.or-tabs button{display:inline-flex;align-items:center;gap:8px;background:none;border:0;color:var(--txt-3);font:inherit;font-weight:700;font-size:.88rem;
+  padding:9px 16px;border-radius:9px;cursor:pointer;min-height:40px}
+.or-tabs button.on{background:var(--bg-3);color:var(--txt);box-shadow:inset 0 0 0 1px var(--line-2)}
+.or-label{display:block;font-weight:700;margin:0 0 8px}
+.or-in{width:100%;background:var(--bg);border:1px solid var(--line-2);border-radius:12px;padding:13px 15px;color:var(--txt);font:inherit;font-size:1rem}
+.or-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,122,26,.15)}
+textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
+.or-hint{margin:8px 0 0;color:var(--txt-3);font-size:.84rem}
+.or-go{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px}
+.or-left{font-size:.85rem;color:var(--txt-3)}
+.or-left b{color:var(--txt)}
+.or-err{display:flex;gap:10px;align-items:flex-start;margin:16px 0 0;padding:12px 14px;border-radius:12px;background:rgba(248,113,113,.08);
+  border:1px solid rgba(248,113,113,.3);color:#fca5a5;font-size:.92rem;line-height:1.5}
+.or-err .oi{width:18px;height:18px;margin-top:1px}
+.or-feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px;margin-top:16px}
+.or-feats div{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:16px;font-size:.86rem;color:var(--txt-3);line-height:1.5}
+.or-feats .oi{display:block;width:22px;height:22px;color:var(--accent-2);margin-bottom:10px}
+.or-feats b{display:block;color:var(--txt);font-size:.95rem;margin-bottom:4px}
+/* while it works */
+.or-load{text-align:center;padding:40px 24px}
+.or-spin{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;border:4px solid var(--line-2);border-top-color:var(--accent);animation:or-spin 1s linear infinite}
+@keyframes or-spin{to{transform:rotate(360deg)}}
+.or-load h2{margin:0 0 6px;font-size:1.3rem;font-weight:800}
+.or-load > p{margin:0 0 24px;color:var(--txt-3)}
+.or-steps{list-style:none;margin:0 auto;padding:0;max-width:340px;text-align:left;display:grid;gap:12px}
+.or-steps li{display:flex;gap:12px;align-items:center;color:var(--txt-3);font-size:.95rem}
+.or-steps li i{width:22px;height:22px;border-radius:50%;border:2px solid var(--line-2);flex:none;display:grid;place-items:center}
+.or-steps li i .oi{display:none;width:13px;height:13px}
+.or-steps li.now{color:var(--txt);font-weight:700}
+.or-steps li.now i{border-color:var(--accent);border-right-color:transparent;animation:or-spin .9s linear infinite}
+.or-steps li.done{color:var(--txt-2)}
+.or-steps li.done i{background:var(--green);border-color:var(--green);color:#052e1f}
+.or-steps li.done i .oi{display:block}
+/* the score */
+.or-hero{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;padding:32px;border-radius:22px;border:1px solid var(--line-2);
+  background:radial-gradient(120% 140% at 0% 0%,rgba(255,122,26,.14),transparent 55%),var(--bg-2)}
+.or-ring{position:relative;width:156px;height:156px}
+.or-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.or-ring circle{fill:none;stroke-width:10}
+.or-ring .tr{stroke:var(--line-2)}
+.or-ring .val{stroke-linecap:round}
+.or-ring div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.or-ring b{font-size:3.2rem;font-weight:900;line-height:1;letter-spacing:-.04em}
+.or-ring span{font-size:.8rem;color:var(--txt-3);margin-top:6px}
+.or-hero.low .val{stroke:#f87171}.or-hero.mid .val{stroke:var(--accent-2)}.or-hero.high .val{stroke:var(--green)}
+.or-verdict{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,176,32,.45);background:rgba(255,176,32,.08);color:var(--accent-2);
+  border-radius:999px;padding:6px 14px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.or-hero h2{margin:14px 0 0;font-size:clamp(1.3rem,2.5vw,1.75rem);font-weight:800;line-height:1.3;letter-spacing:-.015em}
+.or-jab{margin:12px 0 0;color:var(--accent-2);font-style:italic;font-size:1.05rem;line-height:1.55}
+.or-offer{margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line);color:var(--txt-2);font-size:.92rem;line-height:1.65}
+.or-src{display:block;margin-top:8px;font-family:var(--mono);font-size:.7rem;color:var(--txt-3)}
+.or-h{display:flex;align-items:baseline;justify-content:space-between;gap:6px 12px;flex-wrap:wrap;margin:44px 0 14px}
+.or-h h2{margin:0;font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.or-h span{color:var(--txt-3);font-size:.88rem}
+/* the three fixes */
+.or-fix{background:var(--bg-2);border:1px solid var(--line);border-top:2px solid var(--accent-2);border-radius:18px;padding:26px;margin-top:16px}
+.or-fix-hd{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap}
+.or-n{flex:none;width:40px;height:40px;border-radius:50%;background:var(--accent);color:#1a0d00;font-weight:900;font-size:1.05rem;display:grid;place-items:center}
+.or-fix h3{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
+.or-pill{display:inline-flex;align-items:center;background:var(--bg-4);border:1px solid var(--line-2);color:var(--txt-2);border-radius:999px;padding:4px 12px;font-size:.78rem;font-weight:700}
+.or-fix-bd{padding-left:54px;margin-top:16px}
+.or-now{background:var(--bg-3);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.or-now p{margin:8px 0 0;color:var(--txt-2);font-size:.95rem;line-height:1.6;white-space:pre-wrap}
+.or-why{margin:16px 0;color:var(--txt);font-size:1.02rem;line-height:1.7}
+.or-paste{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.35);border-radius:14px;padding:16px 18px}
+.or-paste-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;min-height:34px}
+.or-paste .or-k,.or-col.better .or-k{color:var(--green)}
+.or-paste-tx{color:var(--txt);font-size:1.02rem;line-height:1.75;white-space:pre-wrap}
+/* the top of the page */
+.or-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.or-col{border:1px solid var(--line);background:var(--bg-3);border-radius:14px;padding:18px}
+.or-col.better{background:rgba(52,211,153,.05);border-color:rgba(52,211,153,.35)}
+.or-col .or-paste-hd{margin-bottom:12px}
+.or-bar{display:block;background:#000;border:1px solid var(--line-2);color:#fff;border-radius:10px;padding:10px 14px;text-align:center;font-weight:700;font-size:.86rem;line-height:1.45;margin-bottom:14px}
+.or-col h3{margin:0;font-size:1.32rem;font-weight:800;line-height:1.3;letter-spacing:-.01em}
+.or-col .sub{margin:10px 0 0;color:var(--txt-2);font-size:.96rem;line-height:1.6}
+.or-meters{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:24px}
+.or-meters div{font-size:.8rem;color:var(--txt-3)}
+.or-meters b{color:var(--txt);font-weight:800}
+.or-meters .m{display:flex;gap:4px;margin-top:7px}
+.or-meters .m i{flex:1;height:6px;border-radius:3px;background:var(--line-2)}
+.or-meters .m i.on{background:var(--green)}
+.or-warn{display:inline-flex;gap:8px;align-items:flex-start;margin:20px 0 0;padding:10px 14px;border-radius:12px;background:rgba(255,176,32,.1);
+  border:1px solid rgba(255,176,32,.3);color:var(--accent-2);font-size:.9rem;font-weight:600;line-height:1.45}
+.or-warn .oi{margin-top:2px}
+.or-topwhy{margin:16px 0 0;color:var(--txt-2);font-size:.98rem;line-height:1.7}
+.or-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+/* section by section */
+.or-table{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.or-row{display:grid;grid-template-columns:minmax(150px,210px) 96px 1fr;gap:16px;align-items:center;padding:15px 20px;border-top:1px solid var(--line)}
+.or-row:first-child{border-top:0}
+.or-row b{font-size:.94rem}
+.or-st{justify-self:start;display:inline-flex;justify-content:center;min-width:78px;padding:5px 12px;border-radius:999px;font-size:.78rem;font-weight:800}
+.or-st.strong{color:var(--green);background:rgba(52,211,153,.12)}
+.or-st.weak{color:var(--accent-2);background:rgba(255,176,32,.12)}
+.or-st.missing{color:#f87171;background:rgba(248,113,113,.12)}
+.or-row .note{color:var(--txt-2);font-size:.92rem;line-height:1.5}
+.or-more{margin-top:16px;background:var(--bg-2);border:1px solid var(--line);border-radius:16px}
+.or-more summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 22px;cursor:pointer;font-weight:800;font-size:1.02rem}
+.or-more summary::-webkit-details-marker{display:none}
+.or-more summary .oi{transition:transform .2s;color:var(--txt-3);width:20px;height:20px}
+.or-more[open] summary .oi{transform:rotate(180deg)}
+.or-more ol{margin:0;padding:0 22px 22px 44px;color:var(--txt-2);line-height:1.65;display:grid;gap:10px}
+.or-cav{display:flex;gap:12px;align-items:flex-start;margin-top:16px;padding:16px 18px;border-radius:14px;background:var(--bg-3);border:1px dashed var(--line-2);
+  color:var(--txt-2);font-size:.93rem;line-height:1.65}
+.or-cav .oi{width:20px;height:20px;color:var(--txt-3);margin-top:2px}
+/* after the roast */
+.or-again{margin-top:32px}
+.or-again h2{margin:0 0 6px;font-size:1.35rem;font-weight:800}
+.or-again p{margin:0 0 18px;color:var(--txt-2)}
+.or-hist{display:grid;gap:8px}
+.or-hist button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;
+  padding:12px 16px;color:var(--txt);font:inherit;cursor:pointer}
+.or-hist button:hover,.or-hist button.on{border-color:var(--line-2);background:var(--bg-3)}
+.or-hist .src{flex:1;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.or-hist .t{color:var(--txt-3);font-size:.82rem;flex:none}
+.or-sc{flex:none;min-width:44px;padding:5px 0;border-radius:999px;text-align:center;font-weight:900;font-size:.85rem}
+.or-sc.low{background:rgba(248,113,113,.15);color:#f87171}.or-sc.mid{background:rgba(255,176,32,.15);color:var(--accent-2)}
+.or-sc.high{background:rgba(52,211,153,.15);color:var(--green)}
+.or-win{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px;padding:14px 18px;border-radius:14px;background:var(--bg-2);border:1px solid var(--line);color:var(--txt-2);font-size:.95rem}
+.or-win .oi{color:var(--green);width:18px;height:18px}
+.or-win a{color:var(--accent-2);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+/* locked until a win */
+.or-unlock{background:radial-gradient(120% 140% at 0% 0%,rgba(255,122,26,.16),transparent 60%),var(--bg-2);border:1px solid rgba(255,176,32,.3);border-radius:20px;padding:28px}
+.or-unlock h2{margin:12px 0 8px;font-size:1.4rem;font-weight:800}
+.or-unlock > p{margin:0;color:var(--txt-2);line-height:1.65;max-width:62ch}
+.or-unlock-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px;margin:20px 0 22px}
+.or-unlock-steps div{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:.88rem;color:var(--txt-3);line-height:1.5}
+.or-unlock-steps i{flex:none;width:28px;height:28px;border-radius:50%;background:var(--bg-3);border:1px solid var(--line-2);display:grid;place-items:center;font-style:normal;font-weight:800;color:var(--accent-2)}
+.or-unlock-steps b{display:block;color:var(--txt);font-size:.93rem;margin-bottom:2px}
+@media (max-width:720px){
+  .or-hero{grid-template-columns:1fr;gap:18px;padding:24px 18px}
+  .or-ring{justify-self:center;width:136px;height:136px}
+  .or-ring b{font-size:2.7rem}
+  .or-card,.or-fix,.or-unlock{padding:18px}
+  .or-fix-bd{padding-left:0}
+  .or-fix h3{font-size:1.1rem}
+  .or-cols{grid-template-columns:1fr}
+  .or-meters{grid-template-columns:repeat(3,1fr)}
+  .or-row{grid-template-columns:1fr auto;gap:6px 12px;padding:13px 16px}
+  .or-row .note{grid-column:1/-1}
+  .or-h{margin-top:36px}
+  .or-h h2{font-size:1.3rem}
+  .or-acts .or-btn,.or-again .or-btn,.or-go .or-btn{flex:1 1 100%}
+}
 /* The Funnel Engine, where it is offered: under the roadmap, on the dashboard,
    and one line while a roadmap is being written. */
 .rm-wait-fe{max-width:640px;margin:14px 0 0;color:var(--txt-2);font-size:.9rem;line-height:1.6}
@@ -3550,7 +3658,34 @@ textarea.or-in{min-height:180px;resize:vertical;line-height:1.55}
      A sales page in, a roast out. Locked twice: to the membership, like the
      Promise Builder, and then until the member shares a win in the
      community - which is the point of it: a reason to post one. */
-  var orS = { loaded: false, unlocked: false, roasts: [], left: 0, daily: 5, mode: 'url', url: '', copy: '', roast: null, busy: false, err: '' };
+  var orS = { loaded: false, unlocked: false, roasts: [], left: 0, daily: 5, mode: 'url', url: '', copy: '', roast: null, busy: false, err: '', step: 0 };
+  var orTimer = null;
+
+  var OI = {
+    flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+    copy: '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    sparkles: '<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/><path d="M20 3v4M22 5h-4"/>',
+    warn: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
+    eyeoff: '<path d="M10.73 5.08a10.74 10.74 0 0 1 11.2 6.57 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-1.44 2.49"/><path d="M14.08 14.16a3 3 0 0 1-4.24-4.24"/><path d="M17.48 17.5a10.75 10.75 0 0 1-15.42-5.15 1 1 0 0 1 0-.7 10.75 10.75 0 0 1 4.45-5.14"/><path d="m2 2 20 20"/>',
+    circlecheck: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+    down: '<path d="m6 9 6 6 6-6"/>',
+    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    paste: '<rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>',
+    trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+    gauge: '<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
+    wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    heading: '<path d="M6 12h12M6 20V4M18 20V4"/>',
+    list: '<path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/>',
+    alert: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
+  };
+  function oi(name) {
+    return '<svg class="oi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + OI[name] + '</svg>';
+  }
+  function orBand(n) { return n < 50 ? 'low' : n < 75 ? 'mid' : 'high'; }
+  function orCopyBtn(text, label) {
+    return '<button class="or-copy" type="button" data-or="copy" data-text="' + esc(text) + '">' + oi('copy') + '<span>' + (label || 'Copy') + '</span></button>';
+  }
 
   function orLoad() {
     return fetch('/api/roaster', { credentials: 'same-origin' })
@@ -3570,7 +3705,7 @@ textarea.or-in{min-height:180px;resize:vertical;line-height:1.55}
       c.innerHTML = head + '<div class="req-card locked-perk"><span class="lock-badge">\ud83d\udd12</span>' +
         '<h2>A membership perk</h2><p class="sub">Paste in your sales page and get an honest score, the three fixes worth the most ' +
         'money with lines ready to paste, a rewritten headline, and every part of the page checked.</p>' +
-        '<a class="dl" href="join.html" style="display:inline-flex;margin-top:14px">\ud83d\udd12 Unlock with the membership</a></div></div>';
+        '<a class="or-btn" href="join.html" style="margin-top:16px">\ud83d\udd12 Unlock with the membership</a></div></div>';
       return;
     }
     // Asked again each visit while locked, so a win posted a minute ago opens it.
@@ -3581,96 +3716,139 @@ textarea.or-in{min-height:180px;resize:vertical;line-height:1.55}
       if (!orS.loaded) return;
     }
     if (!orS.unlocked) {
-      c.innerHTML = head + '<div class="or-unlock"><span class="pb-k">\ud83d\udd12 Unlocks with a win</span>' +
+      c.innerHTML = head + '<div class="or-unlock"><span class="or-verdict">' + oi('trophy') + 'Unlocks with a win</span>' +
         '<h2>Share one win, and it\u2019s yours</h2>' +
-        '<p>The Offer Roaster opens the moment you post a win in the community. Any win counts, however small:</p>' +
-        '<ul><li>your first sale, or your first lead</li><li>a page, an email or an ad you finally shipped</li>' +
-          '<li>an hour saved with Claude this week</li></ul>' +
-        '<p>Other members get to cheer you on, and you get a straight-talking roast of your sales page.</p>' +
-        '<div class="pb-go" style="margin-top:6px"><button type="button" data-or="win">\ud83c\udfc6 Share a win to unlock</button></div></div></div>';
+        '<p>The Offer Roaster opens the moment you post a win in the community. Any win counts, however small: a first sale, ' +
+          'a first lead, a page you finally shipped, an hour saved with Claude this week.</p>' +
+        '<div class="or-unlock-steps"><div><i>1</i><span><b>Post your win</b>A line or two in Wins is plenty.</span></div>' +
+          '<div><i>2</i><span><b>Come back here</b>The roaster is open straight away.</span></div>' +
+          '<div><i>3</i><span><b>Roast your page</b>Get your score and the 3 fixes worth the most.</span></div></div>' +
+        '<button class="or-btn" type="button" data-or="win">' + oi('trophy') + 'Share a win to unlock</button></div></div>';
       orWire(c);
       return;
     }
-    c.innerHTML = head + (orS.roast ? orResult() : orForm()) + orHistory() + '</div>';
+    if (orS.busy) c.innerHTML = head + orLoading() + '</div>';
+    else if (orS.roast) c.innerHTML = head + orResult() + '</div>';
+    else c.innerHTML = head + orForm() + orHistory() + '</div>';
     orWire(c);
   }
 
   function orForm() {
-    return '<div class="pb-form"><h2>What should we roast?</h2>' +
-      '<div class="or-tabs"><button type="button" data-or="mode" data-m="url" class="' + (orS.mode === 'url' ? 'on' : '') + '">\ud83d\udd17 A link</button>' +
-        '<button type="button" data-or="mode" data-m="copy" class="' + (orS.mode === 'copy' ? 'on' : '') + '">\ud83d\udccb Paste the copy</button></div>' +
-      (orS.mode === 'url'
-        ? '<div class="pb-f"><label>Your sales page link</label><input class="or-in" id="or-url" type="url" inputmode="url" placeholder="https://yourpage.com" value="' + esc(orS.url) + '">' +
-          '<p>A page behind a login cannot be read. Paste the copy for those.</p></div>'
-        : '<div class="pb-f"><label>Your sales page copy</label><textarea class="or-in" id="or-copy" placeholder="Paste the whole page: headline, offer, price, guarantee, everything.">' + esc(orS.copy) + '</textarea></div>') +
-      '<div class="pb-go"><button type="button" data-or="go"' + (orS.busy ? ' disabled' : '') + '>' + (orS.busy ? 'Roasting\u2026' : 'Roast my offer') + '</button>' +
-        '<span>' + (orS.busy ? 'Takes about a minute.' : 'Takes about a minute. ' + orS.left + ' of ' + orS.daily + ' left today.') + '</span></div>' +
-      (orS.err ? '<p class="pb-err">' + esc(orS.err) + '</p>' : '') + '</div>' +
-      '<div class="or-feats"><div><b>A score out of 100</b>So you know if it is ready for traffic.</div>' +
-        '<div><b>3 fixes, ranked by money</b>With new lines you can paste today.</div>' +
-        '<div><b>A new top of the page</b>Your bar, headline and subheadline, rewritten.</div>' +
-        '<div><b>Every section checked</b>13 parts of a page that sells, marked one by one.</div></div>';
+    var url = orS.mode === 'url';
+    return '<div class="or-card or-form"><h2>What should we roast?</h2><p>Your own sales page, or one you are about to launch.</p>' +
+      '<div class="or-tabs" role="tablist">' +
+        '<button type="button" data-or="mode" data-m="url" class="' + (url ? 'on' : '') + '">' + oi('link') + 'A link</button>' +
+        '<button type="button" data-or="mode" data-m="copy" class="' + (url ? '' : 'on') + '">' + oi('paste') + 'Paste the copy</button></div>' +
+      (url
+        ? '<label class="or-label" for="or-url">Your sales page link</label>' +
+          '<input class="or-in" id="or-url" type="url" inputmode="url" autocomplete="url" placeholder="https://yourpage.com/offer" value="' + esc(orS.url) + '">' +
+          '<p class="or-hint">A page behind a login can\u2019t be read. For those, paste the copy instead.</p>'
+        : '<label class="or-label" for="or-copy">Your sales page copy</label>' +
+          '<textarea class="or-in" id="or-copy" placeholder="Paste the whole page: headline, offer, price, guarantee, everything.">' + esc(orS.copy) + '</textarea>' +
+          '<p class="or-hint">The more of the page you paste, the sharper the roast.</p>') +
+      '<div class="or-go"><button class="or-btn" type="button" data-or="go"' + (orS.left ? '' : ' disabled') + '>' + oi('flame') + 'Roast my offer</button>' +
+        '<span class="or-left">Takes about a minute \u00b7 <b>' + orS.left + ' of ' + orS.daily + '</b> left today</span></div>' +
+      (orS.err ? '<p class="or-err">' + oi('alert') + '<span>' + esc(orS.err) + '</span></p>' : '') + '</div>' +
+      '<div class="or-feats"><div>' + oi('gauge') + '<b>A score out of 100</b>So you know if it is ready for paid traffic.</div>' +
+        '<div>' + oi('wrench') + '<b>3 fixes, ranked by money</b>Each with new lines you can paste today.</div>' +
+        '<div>' + oi('heading') + '<b>A new top of the page</b>Your bar, headline and subheadline, rewritten.</div>' +
+        '<div>' + oi('list') + '<b>Every section checked</b>13 parts of a page that sells, marked one by one.</div></div>';
   }
 
-  function orPromCard(t) {
-    return '<div class="pb-prom">' + (t.bar ? '<span class="bar">' + esc(t.bar) + '</span>' : '') +
+  var OR_STEPS = ['Reading your page', 'Checking all 13 sections', 'Finding the 3 fixes worth the most', 'Rewriting the top of your page'];
+  function orLoading() {
+    return '<div class="or-card or-load"><div class="or-spin"></div><h2>Roasting your offer\u2026</h2>' +
+      '<p>About a minute. Keep this tab open.</p><ul class="or-steps">' + OR_STEPS.map(function (t, i) {
+        if (i === 0 && orS.mode === 'copy') t = 'Reading your copy';
+        return '<li class="' + (i < orS.step ? 'done' : i === orS.step ? 'now' : '') + '"><i>' + oi('check') + '</i>' + esc(t) + '</li>';
+      }).join('') + '</ul></div>';
+  }
+
+  function orTop(t, better) {
+    t = t || {};
+    var text = [t.bar, t.headline, t.sub].filter(Boolean).join('\n\n');
+    return '<div class="or-col' + (better ? ' better' : '') + '"><div class="or-paste-hd"><span class="or-k">' + (better ? 'Try this instead' : 'On your page now') + '</span>' +
+      (better ? orCopyBtn(text) : '') + '</div>' +
+      (t.bar ? '<span class="or-bar">' + esc(t.bar) + '</span>' : '') +
       '<h3>' + esc(t.headline || '') + '</h3>' + (t.sub ? '<p class="sub">' + esc(t.sub) + '</p>' : '') + '</div>';
   }
 
   function orResult() {
-    var r = orS.roast, band = r.score < 50 ? 'low' : r.score < 75 ? 'mid' : 'high';
+    var r = orS.roast, band = orBand(r.score), C = 2 * Math.PI * 52;
     var counts = { strong: 0, weak: 0, missing: 0 };
     (r.sections || []).forEach(function (s) { counts[s.status]++; });
-    var h = '<div class="or-score"><div class="or-num ' + band + '"><div><b>' + r.score + '</b><span>out of 100</span></div></div>' +
-      '<div class="t"><span class="pb-k">' + esc(r.verdict || '') + '</span><h2>' + esc(r.diagnosis || '') + '</h2>' +
-        (r.jab ? '<p class="jab">\u201c' + esc(r.jab) + '\u201d</p>' : '') + '</div></div>' +
-      (r.offer ? '<p class="or-offer"><b>What we read:</b> ' + esc(r.offer) + ' <span>(' + esc(r.source || '') + ')</span></p>' : '');
+    var h = '<section class="or-hero ' + band + '"><div class="or-ring"><svg viewBox="0 0 120 120"><circle class="tr" cx="60" cy="60" r="52"/>' +
+        '<circle class="val" cx="60" cy="60" r="52" stroke-dasharray="' + C.toFixed(1) + '" stroke-dashoffset="' + (C * (1 - r.score / 100)).toFixed(1) + '"/></svg>' +
+        '<div><b>' + r.score + '</b><span>out of 100</span></div></div>' +
+      '<div class="t"><span class="or-verdict">' + oi('flame') + esc(r.verdict || '') + '</span>' +
+        '<h2>' + esc(r.diagnosis || '') + '</h2>' +
+        (r.jab ? '<p class="or-jab">' + esc(r.jab) + '</p>' : '') +
+        (r.offer ? '<p class="or-offer">' + esc(r.offer) + '<span class="or-src">Read from ' + esc(r.source || '') + (r.at ? ' \u00b7 ' + esc(ago(r.at)) : '') + '</span></p>' : '') +
+      '</div></section>';
 
     h += '<div class="or-h"><h2>Fix these 3 first</h2><span>Ranked by money</span></div>';
     (r.fixes || []).forEach(function (f, i) {
-      h += '<div class="or-fix"><div class="hd"><span class="n">' + (i + 1) + '</span><div><h3>' + esc(f.title) + '</h3>' +
-        '<span class="sec">' + esc(f.section || '') + '</span></div></div>' +
-        (f.now ? '<div class="or-now">' + esc(f.now) + '</div>' : '') +
-        '<p class="or-why">' + esc(f.why) + '</p>' +
-        '<div class="or-paste-h"><span>Paste this instead</span><button class="pb-btn" type="button" data-or="copy" data-text="' + esc(f.paste) + '">Copy</button></div>' +
-        '<div class="or-paste">' + esc(f.paste) + '</div></div>';
+      h += '<article class="or-fix"><div class="or-fix-hd"><span class="or-n">' + (i + 1) + '</span><h3>' + esc(f.title) + '</h3>' +
+          (f.section ? '<span class="or-pill">' + esc(f.section) + '</span>' : '') + '</div>' +
+        '<div class="or-fix-bd">' +
+          (f.now ? '<div class="or-now"><span class="or-k">On your page now</span><p>' + esc(f.now) + '</p></div>' : '') +
+          '<p class="or-why">' + esc(f.why) + '</p>' +
+          '<div class="or-paste"><div class="or-paste-hd"><span class="or-k">Paste this instead</span>' + orCopyBtn(f.paste) + '</div>' +
+            '<div class="or-paste-tx">' + esc(f.paste) + '</div></div>' +
+        '</div></article>';
     });
 
     var t = r.top || {};
     var meters = (orS.scores || PB_SCORES).map(function (s) {
       var n = (t.scores && t.scores[s.key]) || 0, bars = '';
       for (var k = 1; k <= 5; k++) bars += '<i' + (k <= n ? ' class="on"' : '') + '></i>';
-      return '<div><b>' + esc(s.label) + '</b> ' + n + '/5<span class="m">' + bars + '</span></div>';
+      return '<div>' + esc(s.label) + ' <b>' + n + '/5</b><span class="m">' + bars + '</span></div>';
     }).join('');
     h += '<div class="or-h"><h2>The top of your page</h2><span>Bar, headline, subheadline</span></div>' +
-      '<div class="or-top"><div class="col"><span>On your page now</span>' + orPromCard(t.now || {}) + '</div>' +
-        '<div class="col"><span>Try this instead</span>' + orPromCard(t.better || {}) + '</div></div>' +
-      '<div class="pb-scores">' + meters + '</div>' +
-      (t.warning ? '<p class="or-warn">' + esc(t.warning) + '</p>' : '') +
-      (t.why ? '<p class="pb-why">' + esc(t.why) + '</p>' : '') +
-      '<div class="or-again"><button class="pb-btn" type="button" data-or="copy" data-text="' +
-        esc([t.better && t.better.bar, t.better && t.better.headline, t.better && t.better.sub].filter(Boolean).join('\n')) + '">Copy the new top</button>' +
-        (me.canPreview ? '<a class="pb-btn" href="#promise" style="text-decoration:none;display:inline-flex;align-items:center">\u270d\ufe0f Get 6 more headline options</a>' : '') + '</div>';
+      '<div class="or-card"><div class="or-cols">' + orTop(t.now, false) + orTop(t.better, true) + '</div>' +
+        '<div class="or-meters">' + meters + '</div>' +
+        (t.warning ? '<p class="or-warn">' + oi('warn') + '<span>' + esc(t.warning) + '</span></p>' : '') +
+        (t.why ? '<p class="or-topwhy">' + esc(t.why) + '</p>' : '') +
+        '<div class="or-acts"><a class="or-btn ghost" href="#promise">' + oi('sparkles') + 'Get 6 more headline options</a></div></div>';
 
     h += '<div class="or-h"><h2>Section by section</h2><span>' + counts.strong + ' strong, ' + counts.weak + ' weak, ' + counts.missing + ' missing</span></div>' +
-      '<div class="or-secs">' + (r.sections || []).map(function (s) {
-        return '<div class="or-sec"><b>' + esc(s.name) + '</b><span class="st ' + esc(s.status) + '">' + esc(s.status) + '</span>' +
-          '<span class="note">' + esc(s.note) + '</span></div>';
+      '<div class="or-table">' + (r.sections || []).map(function (s) {
+        return '<div class="or-row"><b>' + esc(s.name) + '</b><span class="or-st ' + esc(s.status) + '">' +
+          esc(s.status.charAt(0).toUpperCase() + s.status.slice(1)) + '</span><span class="note">' + esc(s.note) + '</span></div>';
       }).join('') + '</div>';
 
     if ((r.more || []).length) {
-      h += '<div class="or-h"><h2>' + r.more.length + ' more lines to fix</h2></div><ol class="or-more">' +
-        r.more.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ol>';
+      h += '<details class="or-more"><summary>' + r.more.length + ' more line' + (r.more.length === 1 ? '' : 's') + ' to fix' + oi('down') + '</summary><ol>' +
+        r.more.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ol></details>';
     }
-    if (r.caveat) h += '<p class="or-cav">' + esc(r.caveat) + '</p>';
-    if (orS.err) h += '<p class="pb-err">' + esc(orS.err) + '</p>';
-    h += '<div class="pb-form" style="text-align:center"><h2 style="font-size:1.05rem">Made the fixes?</h2>' +
-      '<p style="color:var(--txt-3);font-size:.9rem;margin:6px 0 12px">Roast the new version and see how much your score moved.</p>' +
-      '<div class="or-again" style="justify-content:center;margin-top:0">' +
-        (r.source && r.source !== 'Pasted copy' ? '<button class="pb-btn" type="button" data-or="again">Roast the new version</button>' : '') +
-        '<button class="pb-btn" type="button" data-or="new">Roast a different page</button></div>' +
-      '<p style="color:var(--txt-3);font-size:.86rem;margin:14px 0 0">Got a win from these fixes? <a href="#c-wins" style="color:var(--accent-2)">Share it in Wins</a>.</p></div>';
-    return h + pbNext();
+    if (r.caveat) h += '<p class="or-cav">' + oi('eyeoff') + '<span>' + esc(r.caveat) + '</span></p>';
+
+    h += '<div class="or-card or-again"><h2>Made the fixes?</h2><p>Roast the new version and see how far your score moved.</p>' +
+      (orS.err ? '<p class="or-err" style="margin:0 0 16px">' + oi('alert') + '<span>' + esc(orS.err) + '</span></p>' : '') +
+      '<div class="or-acts" style="margin-top:0">' +
+        (orRoastUrl(r) ? '<button class="or-btn" type="button" data-or="again"' + (orS.left ? '' : ' disabled') + '>' + oi('flame') + 'Roast the new version</button>' : '') +
+        '<button class="or-btn ghost" type="button" data-or="new">Roast a different page</button></div></div>';
+    h += orHistory();
+    h += '<p class="or-win">' + oi('circlecheck') + '<span>Got a win from these fixes? <a href="#c-wins" data-or="win">Share it in Wins</a> and let the community cheer you on.</span></p>';
+    return h + orNext();
+  }
+
+  /* The link a roast came from, to roast it again: kept with newer roasts,
+     rebuilt from the site's name for older ones. Pasted copy has none. */
+  function orRoastUrl(r) {
+    if (r.url) return r.url;
+    if (!r.source || r.source === 'Pasted copy') return '';
+    return 'https://' + r.source;
+  }
+
+  function orNext() {
+    if (me.hasFunnelEngine) {
+      return '<section class="fe-next" style="margin-top:22px"><span class="fe-k">Next step</span>' +
+        '<h2>Rebuild the page with these fixes</h2><p>Paste the fixes into Claude in your Funnel Engine folder and ask it to ' +
+        'update your sales page. It rewrites the sections and republishes the page for you.</p>' +
+        '<a class="fe-go" href="#course-the-funnel-engine">Open the Funnel Engine</a></section>';
+    }
+    return pbNext();
   }
 
   var PB_SCORES = [{ key: 'small', label: 'Small' }, { key: 'tangible', label: 'Tangible' }, { key: 'verb', label: 'Action verb' },
@@ -3678,27 +3856,37 @@ textarea.or-in{min-height:180px;resize:vertical;line-height:1.55}
 
   function orHistory() {
     if (!orS.roasts.length) return '';
-    return '<div class="pb-hist"><span class="pb-k">Your roasts</span>' + orS.roasts.map(function (r) {
-      return '<button type="button" data-or="open" data-id="' + r.id + '"><span style="color:var(--txt);font-weight:800">' + r.score + '</span> ' +
-        esc(r.source || '') + '<span>' + esc(ago(r.at)) + '</span></button>';
+    var cur = orS.roast && orS.roast.id;
+    return '<div class="or-h"><h2>Your roasts</h2><span>' + orS.roasts.length + ' saved</span></div><div class="or-hist">' + orS.roasts.map(function (r) {
+      return '<button type="button" data-or="open" data-id="' + r.id + '" class="' + (r.id === cur ? 'on' : '') + '">' +
+        '<span class="or-sc ' + orBand(r.score) + '">' + r.score + '</span><span class="src">' + esc(r.source || '') + '</span>' +
+        '<span class="t">' + esc(ago(r.at)) + '</span></button>';
     }).join('') + '</div>';
   }
 
   function orWire(c) {
-    var again = function () { renderRoaster(document.getElementById('content')); };
+    var again = function () { if (view === 'roaster') renderRoaster(document.getElementById('content')); };
+    var tick = function () {
+      // Moves the steps along while the roast runs: a guide to the wait, not a measure of it.
+      if (orS.step < OR_STEPS.length - 1) orS.step++;
+      var li = document.querySelectorAll('.or-steps li');
+      [].forEach.call(li, function (el, i) { el.className = i < orS.step ? 'done' : i === orS.step ? 'now' : ''; });
+    };
     var run = function (body) {
-      orS.busy = true; orS.err = ''; orS.roast = null; again();
+      orS.busy = true; orS.err = ''; orS.step = 0; again(); window.scrollTo(0, 0);
+      clearInterval(orTimer); orTimer = setInterval(tick, 12000);
+      var finish = function () { clearInterval(orTimer); orTimer = null; orS.busy = false; };
       return fetch('/api/roaster', { method: 'POST', credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (out) {
-          orS.busy = false;
+          finish();
           if (!out.ok) { orS.err = out.j.error || out.j.message || 'That did not work.'; return again(); }
           orS.roast = out.j.roast; orS.left = Math.max(0, orS.left - 1);
           orS.roasts.unshift({ id: orS.roast.id, source: orS.roast.source, score: orS.roast.score, at: orS.roast.at });
           again(); window.scrollTo(0, 0);
         })
-        .catch(function () { orS.busy = false; orS.err = 'Network error. Try again.'; again(); });
+        .catch(function () { finish(); orS.err = 'Network error. Try again.'; again(); });
     };
     [].forEach.call(c.querySelectorAll('[data-or]'), function (b) {
       b.addEventListener('click', function (e) {
@@ -3716,18 +3904,22 @@ textarea.or-in{min-height:180px;resize:vertical;line-height:1.55}
           if (u) orS.url = u.value.trim();
           if (t) orS.copy = t.value.trim();
           if (orS.mode === 'url' && !orS.url) { orS.err = 'Paste the link to your sales page first.'; return again(); }
+          if (orS.mode === 'url' && !/^https?:\/\//i.test(orS.url)) orS.url = 'https://' + orS.url;
           if (orS.mode === 'copy' && orS.copy.length < 300) { orS.err = 'Paste a bit more of the page: at least the headline, the offer and the price.'; return again(); }
           return run(orS.mode === 'url' ? { url: orS.url } : { copy: orS.copy });
         }
         if (act === 'copy') {
-          var text = b.getAttribute('data-text') || '';
-          var done = function () { var was = b.textContent; b.textContent = 'Copied \u2713'; setTimeout(function () { b.textContent = was; }, 1500); };
+          var text = b.getAttribute('data-text') || '', lbl = b.querySelector('span');
+          var done = function () {
+            b.classList.add('done'); lbl.textContent = 'Copied';
+            setTimeout(function () { b.classList.remove('done'); lbl.textContent = 'Copy'; }, 1600);
+          };
           if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () { window.prompt('Copy:', text); });
           else window.prompt('Copy:', text);
           return;
         }
-        if (act === 'again') { orS.mode = 'url'; return run({ url: orS.url || ('https://' + orS.roast.source) }); }
-        if (act === 'new') { orS.roast = null; orS.err = ''; return again(); }
+        if (act === 'again') { orS.mode = 'url'; orS.url = orRoastUrl(orS.roast); return run({ url: orS.url }); }
+        if (act === 'new') { orS.roast = null; orS.err = ''; again(); window.scrollTo(0, 0); return; }
         if (act === 'open') {
           return fetch('/api/roaster?id=' + encodeURIComponent(b.getAttribute('data-id')), { credentials: 'same-origin' })
             .then(function (r) { return r.ok ? r.json() : null; })
