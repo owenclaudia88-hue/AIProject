@@ -1,6 +1,6 @@
 import { sessionEmail } from '../lib/session.js';
 import { isActive, entitlementsFor, hasSharedWin, saveRoast, getRoast, listRoasts, roastsToday } from '../lib/db.js';
-import { MEMBERSHIP_ONLY } from '../lib/products.js';
+import { MEMBERSHIP_ONLY, OFFER_ROASTER } from '../lib/products.js';
 import { isAdmin } from '../lib/admin.js';
 import { readPage, roast, SECTIONS } from '../lib/roaster.js';
 import { SCORES } from '../lib/promise.js';
@@ -26,10 +26,12 @@ export default async function handler(req, res) {
   try {
     const staff = isAdmin(email);
     if (!staff && !(await isActive(email))) return res.status(403).json({ error: 'not active' });
-    if (!staff && !(await entitlementsFor(email)).has(MEMBERSHIP_ONLY)) {
+    const held = await entitlementsFor(email);
+    if (!staff && !held.has(MEMBERSHIP_ONLY)) {
       return res.status(403).json({ error: 'membership', message: 'The Offer Roaster is part of the membership.' });
     }
-    const unlocked = staff || await hasSharedWin(email);
+    // A win unlocks it; so does a grant by hand, for a test account or a gift.
+    const unlocked = staff || held.has(OFFER_ROASTER) || await hasSharedWin(email);
 
     if (req.method === 'GET') {
       const id = new URL(req.url, 'http://localhost').searchParams.get('id');
