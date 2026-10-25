@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
-      message: 'If that email has access, a sign-in link is on its way.'
+      message: 'If that email has access, a sign-in link is on its way. Open the newest email we send: older links stop working.'
     });
   } catch (err) {
     console.error('[request-link]', err);
