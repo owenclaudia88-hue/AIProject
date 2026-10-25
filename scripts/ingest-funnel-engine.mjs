@@ -113,7 +113,12 @@ const H2 = (s) => `<h2>${s}</h2>`;
 const UL = (items) => `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
 const OL = (items) => `<ol>${items.map((i) => `<li>${i}</li>`).join('')}</ol>`;
 const NOTE = (s) => `<p><em>${s}</em></p>`;
-const HELP = 'Ask in the community, under <strong>Ask for help</strong> in your menu';
+const HELP = 'Ask in the community, under <a href="#c-help"><strong>Ask for help</strong></a> in your menu';
+
+/* A link to another lesson of this course, by its number in the order below
+   (Start Here is 1). The member area opens it in the player: #lesson-<course>/<id>. */
+const LESSON = { startHere: 1, engine: 2, quickStart: 3, integrate: 4, mortals: 8, bypass: 13, replay: 19, installEngine: 20, tenNinety: 22 };
+const A = (n, text) => `<a href="#lesson-${SLUG}/lesson:funnel-engine-${String(n).padStart(2, '0')}">${text}</a>`;
 
 const sections = [
   {
@@ -123,15 +128,15 @@ const sections = [
       body: [
         P("You're in. The live call was on October 13, and all of it is here for you to watch."),
         H2('Watch Claude Code for Mortals first'),
-        P("Start with its first lesson. It's Part 1 of the call, re-recorded as short lessons: you set up Claude Code and plug in your tools."),
+        P(`${A(LESSON.mortals, 'Start with the first lesson')}. It's Part 1 of the call, re-recorded as short lessons: you set up Claude Code and plug in your tools.`),
         H2('Then watch The Replay'),
-        P("It's the rest of the call, in five parts."),
+        P(`${A(LESSON.replay, 'Open The Replay')}. It's the rest of the call, in five parts.`),
         H2('Install your engine'),
         OL([
-          'Download Your Funnel Engine and save the zip.',
-          'Download the Quick Start skill and add it to Claude.',
+          `${A(LESSON.engine, 'Download Your Funnel Engine')} and save the zip.`,
+          `${A(LESSON.quickStart, 'Download the Quick Start skill')} and add it to Claude.`,
           'Tell Claude to set up your engine with you.',
-          'Download and set up the /Integrate skill. Run it after your funnel is live.'
+          `${A(LESSON.integrate, 'Download and set up the /Integrate skill')}. Run it after your funnel is live.`
         ]),
         P(`Stuck? Stop there. ${HELP}.`),
         H2('Have these ready'),
@@ -151,10 +156,10 @@ const sections = [
           H2('Save the zip'),
           OL(['Tap the download button above.', "Save the zip where you'll find it again.", 'Unzip it. You get a folder called <strong>my-business</strong>.']),
           H2('Set it up'),
-          P('Download the Quick Start skill next. Claude sets up the engine with you, one step at a time.'),
-          P('Then download and set up the /Integrate skill. It connects your email tool and your course after your funnel is live.'),
+          P(`${A(LESSON.quickStart, 'Download the Quick Start skill')} next. Claude sets up the engine with you, one step at a time.`),
+          P(`Then ${A(LESSON.integrate, 'download and set up the /Integrate skill')}. It connects your email tool and your course after your funnel is live.`),
           P('Both skill lessons have a zip download. You can save both now. Run Quick Start first.'),
-          NOTE('Rather watch first? Open <strong>Install the Funnel Engine</strong> in The Replay. Nothing saved? Tap the button again, then look in your Downloads folder.')
+          NOTE(`Rather watch first? Open ${A(LESSON.installEngine, '<strong>Install the Funnel Engine</strong>')} in The Replay. Nothing saved? Tap the button again, then look in your Downloads folder.`)
         ]
       },
       {
@@ -167,7 +172,7 @@ const sections = [
           H2('Answer what it asks'),
           P(`Claude asks for one thing at a time. Have your Stripe, Cloudflare and domain logins close by. Get stuck? Stop there. ${HELP}.`),
           H2('Connect your tools after you\'re live'),
-          P('Download and set up the /Integrate skill. It connects your email tool and your course.'),
+          P(`${A(LESSON.integrate, 'Download and set up the /Integrate skill')}. It connects your email tool and your course.`),
           NOTE('Claude didn\'t start the setup? Say it again: "Use the Quick Start skill to set up my Funnel Engine."')
         ]
       },
@@ -177,7 +182,7 @@ const sections = [
           dl('integrate-skill.zip', 'Download the /Integrate skill (zip)'),
           P('This skill connects your funnel to the tools you already use. You keep them. Claude does the setup for you while you watch.'),
           H2('Finish the Quick Start first'),
-          P('/Integrate needs a live funnel. Run the Quick Start skill until Claude says you\'re live, then come back here.'),
+          P(`/Integrate needs a live funnel. Run the ${A(LESSON.quickStart, 'Quick Start skill')} until Claude says you're live, then come back here.`),
           H2('Add the skill to Claude'),
           OL([
             'Tap the download button above.',
@@ -249,8 +254,8 @@ const sections = [
           H2('Use it like this'),
           OL(['Tap the download button above.', "Fill it in. That's your 10%.", "Hand it to Claude. That's the other 90%."]),
           P('"Build me an offer" gets you junk. This page gets you the offer you meant.'),
-          P('Have your <strong>AI Roadmap</strong>? It already names your offer, your buyer and your goal, so most of the brief is done. Copy it across.'),
-          NOTE(`Stuck on a box? Watch <strong>The 10/90 and the Install Offer</strong> in The Replay. Still stuck? Leave it blank and ${HELP.charAt(0).toLowerCase() + HELP.slice(1)}.`)
+          P('Have your <a href="#roadmap"><strong>AI Roadmap</strong></a>? It already names your offer, your buyer and your goal, so most of the brief is done. Copy it across.'),
+          NOTE(`Stuck on a box? Watch ${A(LESSON.tenNinety, '<strong>The 10/90 and the Install Offer</strong>')} in The Replay. Still stuck? Leave it blank and ${HELP.charAt(0).toLowerCase() + HELP.slice(1)}.`)
         ]
       },
       {
@@ -261,7 +266,7 @@ const sections = [
           H2('Set it up once'),
           OL(['Tap the download button above.', 'Follow the steps on your phone.', 'Try one small change, like a new headline.']),
           P('Once that works, you can fix a page from anywhere.'),
-          NOTE(`Didn't work? Watch <strong>Bypass Permissions and Remote Control</strong> in Claude Code for Mortals. Still stuck? ${HELP}.`)
+          NOTE(`Didn't work? Watch ${A(LESSON.bypass, '<strong>Bypass Permissions and Remote Control</strong>')} in Claude Code for Mortals. Still stuck? ${HELP}.`)
         ]
       }
     ]

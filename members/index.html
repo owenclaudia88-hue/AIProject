@@ -4965,6 +4965,14 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
     if (curCourseSlug && view === 'course-' + curCourseSlug) render();
   }
 
+  // A link in a lesson to somewhere else in the member area ("Ask for help",
+  // "your AI Roadmap") closes the player on its way, or the page it opens sits
+  // hidden behind it. A link to another lesson stays in the player.
+  playerEl.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (a && a.getAttribute('href').indexOf('#lesson-') !== 0 && a.getAttribute('href').length > 1) closePlayer();
+  });
+
   /* ---------------- lesson video ---------------- */
   // Videos are served from Bunny Stream as HLS and played in our own <video>,
   // not an embedded player. The URL is signed per member and expires, so it is
