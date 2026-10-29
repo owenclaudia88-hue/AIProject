@@ -6,9 +6,10 @@
  * change: the live fields are untouched until publishing, which is a separate
  * decision taken after the drafts have been read.
  *
- * Switched on and off with the `vault_run` setting ("on" to run) and sized
- * with `vault_batch`, so the run can be stopped from the database without a
- * deploy, and started small to look at the first few before the rest.
+ * Switched on and off with the `vault_run` setting ("on" to run), sized with
+ * `vault_batch`, and given its model by `vault_model`, so the run can be
+ * stopped or changed from the database without a deploy, and started small to
+ * look at the first few before the rest.
  *
  * A prompt whose rebuild throws is marked in `meta.vault_error` and skipped
  * from then on, rather than tried again on every run. Clearing that key puts
@@ -49,6 +50,7 @@ export default async function handler(req, res) {
     }
     const batch = Math.max(1, Math.min(30, Number(url.searchParams.get('batch')) || Number(s.vault_batch) || 12));
     const parallel = Math.max(1, Math.min(5, Number(s.vault_parallel) || 3));
+    const model = String(s.vault_model || '').trim() || VAULT_MODEL;
 
     const sql = neon(process.env.DATABASE_URL);
     const rows = await sql`
@@ -76,10 +78,10 @@ export default async function handler(req, res) {
         const t0 = Date.now();
         try {
           const before = meter.total.usd;
-          const { vault, problems } = await rebuildPrompt(row, { meter });
+          const { vault, problems } = await rebuildPrompt(row, { meter, model });
           const usd = Math.round((meter.total.usd - before) * 100) / 100;
           const draft = {
-            ...vault, draft: true, by: 'claude', model: VAULT_MODEL, usd,
+            ...vault, draft: true, by: 'claude', model, usd,
             writtenAt: new Date().toISOString(),
             ...(problems.length ? { problems } : {})
           };
