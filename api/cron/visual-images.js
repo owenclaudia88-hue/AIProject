@@ -6,11 +6,16 @@
  * picture, stores it as a private library asset, and notes the key in the
  * row's `vault` column. The old picture stays in `asset_key` until publishing.
  *
- * OpenRouter rather than a generator's own API because the key is already on
- * the site and the model is a setting: `visual_image_model` picks it, so the
- * cheapest one that looks right wins without a deploy. `visual_images_run`
- * ("on") switches the job on, `visual_images_batch` sizes it, and
+ * Two ways to a picture, chosen by the model's name in the `visual_image_model`
+ * setting: a `fal-ai/...` model (Flux, through fal.ai) or anything else
+ * through OpenRouter (Gemini). Both keys are on the site, so the cheapest
+ * model that looks right wins without a deploy. `visual_images_run` ("on")
+ * switches the job on, `visual_images_batch` sizes it, and
  * `visual_per_collection` limits how many of each set get a picture at all.
+ *
+ * `?compare=1` draws rows that already have a picture, with whatever model
+ * is set, and files the result under `vault.compare[model]` beside the
+ * first one, for putting two models side by side before choosing.
  *
  * A row whose picture fails is marked in `vault.imageError` and skipped from
  * then on; clearing that key puts it back in the queue.
@@ -27,8 +32,37 @@ const WIDTH = 1280;
 
 const DEFAULT_MODEL = 'google/gemini-2.5-flash-image';
 
+/* fal.ai's named sizes for the shapes a prompt asks for. */
+const FAL_SIZE = { '1:1': 'square_hd', '4:5': 'portrait_4_3', '3:4': 'portrait_4_3', '2:3': 'portrait_4_3', '9:16': 'portrait_16_9',
+                   '16:9': 'landscape_16_9', '21:9': 'landscape_16_9', '3:2': 'landscape_4_3', '4:3': 'landscape_4_3', '5:4': 'landscape_4_3' };
+/* fal.ai does not say what a call cost; these are its listed prices per
+   megapixel, so the figure stored is an estimate to a fraction of a cent. */
+const FAL_USD_PER_MP = { 'fal-ai/flux/schnell': 0.003, 'fal-ai/flux/dev': 0.025, 'fal-ai/flux-pro': 0.05 };
+
+/** One picture from fal.ai (Flux): the bytes, their type, and roughly what it cost. */
+async function generateFal(prompt, model, aspect) {
+  if (!process.env.FAL_KEY) throw new Error('FAL_KEY is not set');
+  const res = await fetch(`https://fal.run/${model}`, {
+    method: 'POST',
+    headers: { authorization: `Key ${process.env.FAL_KEY}`, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      prompt, image_size: FAL_SIZE[aspect] || 'square_hd', num_images: 1,
+      output_format: 'jpeg', enable_safety_checker: true
+    })
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(`fal.ai ${res.status}: ${JSON.stringify(body).slice(0, 300)}`);
+  const img = body.images?.[0];
+  if (!img?.url) throw new Error('no image in the reply');
+  const file = await fetch(img.url);
+  if (!file.ok) throw new Error(`could not fetch the picture: ${file.status}`);
+  const mp = ((img.width || 1024) * (img.height || 1024)) / 1e6;
+  const rate = Object.entries(FAL_USD_PER_MP).find(([k]) => model.startsWith(k))?.[1] ?? 0.025;
+  return { bytes: Buffer.from(await file.arrayBuffer()), type: img.content_type || 'image/jpeg', usd: Math.round(mp * rate * 10000) / 10000, tokens: null };
+}
+
 /** One picture from OpenRouter: the bytes, their type, and what it cost. */
-async function generate(prompt, model, aspect) {
+async function generateOpenRouter(prompt, model, aspect) {
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -67,9 +101,6 @@ export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${secret}`) {
     return res.status(401).json({ error: 'unauthorized' });
   }
-  if (!process.env.OPENROUTER_API_KEY) {
-    return res.status(503).json({ error: 'no_key', message: 'OPENROUTER_API_KEY is not set.' });
-  }
   if (!process.env.BLOB_READ_WRITE_TOKEN) {
     return res.status(503).json({ error: 'no_blob', message: 'BLOB_READ_WRITE_TOKEN is not set.' });
   }
@@ -87,17 +118,28 @@ export default async function handler(req, res) {
     const parallel = Math.max(1, Math.min(4, Number(s.visual_images_parallel) || 2));
     const model = String(s.visual_image_model || '').trim() || DEFAULT_MODEL;
     const perCollection = Math.max(0, Number(s.visual_per_collection) || 0);
+    const compare = url.searchParams.get('compare') === '1';
+    const fal = model.startsWith('fal-ai/');
+    if (fal && !process.env.FAL_KEY) return res.status(503).json({ error: 'no_key', message: 'FAL_KEY is not set.' });
+    if (!fal && !process.env.OPENROUTER_API_KEY) return res.status(503).json({ error: 'no_key', message: 'OPENROUTER_API_KEY is not set.' });
+    const generate = fal ? generateFal : generateOpenRouter;
 
     const sql = neon(process.env.DATABASE_URL);
     // Two queries rather than one with an optional clause: the driver cannot
     // splice a tagged fragment into another.
-    const rows = perCollection
-      ? await sql`select item_id, idx, vault from library_gallery
-                  where vault ? 'prompt' and not (vault ? 'assetKey') and not (vault ? 'imageError') and idx < ${perCollection}
-                  order by item_id, idx limit ${batch}`
-      : await sql`select item_id, idx, vault from library_gallery
-                  where vault ? 'prompt' and not (vault ? 'assetKey') and not (vault ? 'imageError')
-                  order by item_id, idx limit ${batch}`;
+    // The collection's name and line go in front of every prompt: a row's
+    // prompt describes one picture, and the set it belongs to is what keeps
+    // a "double exposure" from coming back as a plain portrait.
+    const rows = compare
+      ? await sql`select g.item_id, g.idx, g.vault, l.title, l.description, l.meta from library_gallery g join library l on l.id = g.item_id
+                  where g.vault ? 'assetKey' order by g.item_id, g.idx limit ${batch}`
+      : perCollection
+      ? await sql`select g.item_id, g.idx, g.vault, l.title, l.description, l.meta from library_gallery g join library l on l.id = g.item_id
+                  where g.vault ? 'prompt' and not (g.vault ? 'assetKey') and not (g.vault ? 'imageError') and g.idx < ${perCollection}
+                  order by g.item_id, g.idx limit ${batch}`
+      : await sql`select g.item_id, g.idx, g.vault, l.title, l.description, l.meta from library_gallery g join library l on l.id = g.item_id
+                  where g.vault ? 'prompt' and not (g.vault ? 'assetKey') and not (g.vault ? 'imageError')
+                  order by g.item_id, g.idx limit ${batch}`;
     if (!rows.length) {
       console.log('[cron/visual-images] nothing left to draw');
       return res.status(200).json({ ok: true, done: 0, left: 0 });
@@ -113,7 +155,9 @@ export default async function handler(req, res) {
         const t0 = Date.now();
         try {
           const prompt = row.vault.prompt;
-          const got = await generate(prompt, model, aspectOf(prompt));
+          const v = row.meta?.vault;
+          const setLine = `From a set called "${v?.title || row.title}": ${v?.description || row.description || ''}`.trim();
+          const got = await generate(setLine + '\n\n' + prompt, model, aspectOf(prompt));
           const webp = await sharp(got.bytes).rotate().resize({ width: WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
           const key = `vault/gallery/${row.item_id.replace(/[^a-z0-9]+/gi, '_')}/${row.idx}-${Date.now().toString(36)}.webp`;
           if (!dry) {
@@ -121,7 +165,9 @@ export default async function handler(req, res) {
               access: 'private', addRandomSuffix: true, contentType: 'image/webp', token: process.env.BLOB_READ_WRITE_TOKEN
             });
             await upsertAsset(key, blobUrl, 'image/webp');
-            const add = { assetKey: key, imageModel: model, imageUsd: got.usd, imageTokens: got.tokens, drawnAt: new Date().toISOString() };
+            const add = compare
+              ? { compare: { ...(row.vault.compare || {}), [model]: { assetKey: key, usd: got.usd } } }
+              : { assetKey: key, imageModel: model, imageUsd: got.usd, imageTokens: got.tokens, drawnAt: new Date().toISOString() };
             await sql`update library_gallery set vault = vault || ${JSON.stringify(add)}::jsonb where item_id = ${row.item_id} and idx = ${row.idx}`;
           }
           done += 1;
