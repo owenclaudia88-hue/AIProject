@@ -86,6 +86,14 @@
     {
       "path": "/api/cron/vault",
       "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/visual-gallery",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/visual-images",
+      "schedule": "*/10 * * * *"
     }
   ]
 }

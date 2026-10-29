@@ -1,5 +1,5 @@
 /**
- * The AI Prompt Vault rebuild, a batch at a time.
+ * The Vault rebuild, a batch at a time.
  *
  * Every ten minutes this takes the next few prompts that have no rebuild yet
  * and writes one for each into `meta.vault`, as a draft. Members see nothing
@@ -7,9 +7,11 @@
  * decision taken after the drafts have been read.
  *
  * Switched on and off with the `vault_run` setting ("on" to run), sized with
- * `vault_batch`, and given its model by `vault_model`, so the run can be
- * stopped or changed from the database without a deploy, and started small to
- * look at the first few before the rest.
+ * `vault_batch`, given its model by `vault_model` and pointed at a kind by
+ * `vault_kind` ('prompt' for the AI Prompt Vault, 'image_prompt' for the AI
+ * Visual Vault), so the run can be stopped or changed from the database
+ * without a deploy, and started small to look at the first few before the
+ * rest.
  *
  * A prompt whose rebuild throws is marked in `meta.vault_error` and skipped
  * from then on, rather than tried again on every run. Clearing that key puts
@@ -18,7 +20,7 @@
 import { neon } from '@neondatabase/serverless';
 import { getSettings } from '../../lib/db.js';
 import { newMeter } from '../../lib/claude.js';
-import { rebuildPrompt, VAULT_MODEL } from '../../lib/vault.js';
+import { rebuildPrompt, isCollection, VAULT_MODEL } from '../../lib/vault.js';
 
 /* A rebuild on the strongest model is around a minute, two with a retry, and a
    batch runs a few at a time; the default 300 seconds would cut the batch
@@ -48,23 +50,24 @@ export default async function handler(req, res) {
     if (s.vault_run !== 'on' && !dry) {
       return res.status(200).json({ ok: true, skipped: 'vault_run is not "on"' });
     }
+    const kind = s.vault_kind === 'image_prompt' ? 'image_prompt' : 'prompt';
     const batch = Math.max(1, Math.min(30, Number(url.searchParams.get('batch')) || Number(s.vault_batch) || 12));
     const parallel = Math.max(1, Math.min(5, Number(s.vault_parallel) || 3));
     const model = String(s.vault_model || '').trim() || VAULT_MODEL;
 
     const sql = neon(process.env.DATABASE_URL);
     const rows = await sql`
-      select id, category, title, description, body_html, meta
+      select id, kind, category, title, description, body_html, meta
       from library
-      where kind = 'prompt'
+      where kind = ${kind}
         and not (coalesce(meta, '{}'::jsonb) ? 'vault')
         and not (coalesce(meta, '{}'::jsonb) ? 'vault_error')
         and coalesce(meta, '{}'::jsonb)->>'videoUrl' is null
       order by sort, id
       limit ${batch}`;
     if (!rows.length) {
-      console.log('[cron/vault] nothing left to rebuild');
-      return res.status(200).json({ ok: true, done: 0, left: 0 });
+      console.log(`[cron/vault] nothing left to rebuild for ${kind}`);
+      return res.status(200).json({ ok: true, kind, done: 0, left: 0 });
     }
 
     const meter = newMeter();
@@ -78,7 +81,11 @@ export default async function handler(req, res) {
         const t0 = Date.now();
         try {
           const before = meter.total.usd;
-          const { vault, problems } = await rebuildPrompt(row, { meter, model });
+          // A collection's frame is written with a few of its prompts in view.
+          const gallery = isCollection(row)
+            ? await sql`select prompt from library_gallery where item_id = ${row.id} order by idx`
+            : [];
+          const { vault, problems } = await rebuildPrompt(row, { meter, model, gallery });
           const usd = Math.round((meter.total.usd - before) * 100) / 100;
           const draft = {
             ...vault, draft: true, by: 'claude', model, usd,
@@ -110,13 +117,13 @@ export default async function handler(req, res) {
 
     const [{ left }] = await sql`
       select count(*)::int as left from library
-      where kind = 'prompt'
+      where kind = ${kind}
         and not (coalesce(meta, '{}'::jsonb) ? 'vault')
         and not (coalesce(meta, '{}'::jsonb) ? 'vault_error')
         and coalesce(meta, '{}'::jsonb)->>'videoUrl' is null`;
 
-    const summary = { ok: true, dry, done, failed, flagged, left, cost: meter.total, ms: Date.now() - started, items: out };
-    console.log(`[cron/vault] ${done} rebuilt, ${failed} failed, ${flagged} flagged, ${left} left; $${meter.total.usd} in ${Math.round(summary.ms / 1000)}s`);
+    const summary = { ok: true, kind, dry, done, failed, flagged, left, cost: meter.total, ms: Date.now() - started, items: out };
+    console.log(`[cron/vault] ${kind}: ${done} rebuilt, ${failed} failed, ${flagged} flagged, ${left} left; $${meter.total.usd} in ${Math.round(summary.ms / 1000)}s`);
     return res.status(200).json(summary);
   } catch (err) {
     console.error('[cron/vault]', err);
