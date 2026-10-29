@@ -1193,6 +1193,18 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
 .chip.k{background:rgba(255,122,26,.15);border-color:rgba(255,122,26,.34);color:var(--accent-2)}
 .r-meta{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:.74rem;color:var(--txt-3);margin:12px 0 0}
 .r-meta b{color:var(--txt-2);font-weight:600}
+/* the Vault frame around a prompt */
+.v-top{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 4px}
+.v-get,.v-fill{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg-3)}
+.v-k{display:block;font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-3);margin-bottom:6px}
+.v-get p{margin:0;color:var(--txt-2);font-size:.92rem}
+.v-fill ul{margin:0;padding-left:18px;color:var(--txt-2);font-size:.92rem}.v-fill li{margin:2px 0}
+.panel-b mark.blank{background:rgba(255,122,26,.16);color:var(--accent-2);border-radius:4px;padding:0 3px}
+.v-next p{margin:0 0 10px;color:var(--txt-3);font-size:.86rem}
+.v-next ul{list-style:none;margin:0;padding:0}.v-next li{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.v-next li span{flex:1;color:var(--txt);font-size:.92rem}.v-next li .pc{margin-left:0}
+.v-in{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:-6px 0 20px}.v-in b{color:var(--txt-2);font-weight:600}
+@media (max-width:720px){.v-top{grid-template-columns:1fr}}
 
 .panel{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:20px 0;background:#0e0e10}
 .panel-h{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-3);border-bottom:1px solid var(--line)}
@@ -1490,7 +1502,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
 
         <div class="sb-group">
           <div class="sb-group-t">Content Libraries</div>
-          <button class="nav" data-view="prompt"><span class="nic">💬</span>LLM Prompts<span class="n-count" id="cnt-prompt"></span></button>
+          <button class="nav" data-view="prompt"><span class="nic">💬</span>AI Prompt Vault<span class="n-count" id="cnt-prompt"></span></button>
           <button class="nav" data-view="image_prompt"><span class="nic">🎨</span>Image &amp; Video Prompts<span class="n-count" id="cnt-image_prompt"></span></button>
           <button class="nav" data-view="gpt"><span class="nic">🧠</span>Custom GPTs<span class="n-count" id="cnt-gpt"></span></button>
           <button class="nav" data-view="automation"><span class="nic">⚡</span>Automation Templates<span class="n-count" id="cnt-automation"></span></button>
@@ -1786,12 +1798,10 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
   });
 
   /* ---------------- config ---------------- */
-  // Names match the source library exactly — "Prompts" and "LLM Prompts" are
-  // the same shelf and it should not be a guess which one a member is on.
   // `label` names the shelf, `one` names a single item — a card reading
-  // "LLM Prompts" describes a category rather than the thing in front of you.
+  // "AI Prompt Vault" describes the shelf rather than the thing in front of you.
   var KINDS = {
-    prompt:       { label: 'LLM Prompts',            one: 'LLM Prompt',   glyph: '💬' },
+    prompt:       { label: 'AI Prompt Vault',        one: 'Prompt',       glyph: '💬' },
     image_prompt: { label: 'Image & Video Prompts',  one: 'Image Prompt', glyph: '🎨' },
     skill:        { label: 'Agents & Skills',        one: 'Claude Skill', glyph: '🤖' },
     gpt:          { label: 'Custom GPTs',            one: 'Custom GPT',   glyph: '🧠' },
@@ -5873,6 +5883,18 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
           if (meta.videoText) h += '<p class="desc">' + esc(meta.videoText) + '</p>';
         }
 
+        // A Vault prompt carries its own frame: what you get and the blanks to
+        // fill before the prompt, the follow-ups and the model after it. Only
+        // once published — a draft rebuild sits unseen beside the old text.
+        var vault = it.kind === 'prompt' && meta.vault && meta.vault.draft === false ? meta.vault : null;
+        if (vault) {
+          h += '<div class="v-top">' +
+            (vault.whatYouGet ? '<div class="v-get"><span class="v-k">What you get</span><p>' + esc(vault.whatYouGet) + '</p></div>' : '') +
+            ((vault.fillIn || []).length ? '<div class="v-fill"><span class="v-k">Fill in first</span><ul>' +
+              vault.fillIn.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></div>' : '') +
+            '</div>';
+        }
+
         // how-to note — the item's own, or the fallback for its kind
         var howTo = meta.howTo || (HOW_TO[it.kind] && (body || (it.gallery || []).length) ? HOW_TO[it.kind] : null);
         if (howTo) {
@@ -5910,6 +5932,16 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
           extras.forEach(function (part) {
             panel(part.title || 'System instructions', part.content || part.text || '', true, 'Copy');
           });
+        }
+
+        if (vault) {
+          if ((vault.thenAskFor || []).length) {
+            h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">Then ask for</span></div>' +
+              '<div class="panel-b v-next"><p>Once it has answered, keep the conversation going. Each line is a message you can send next.</p><ul>' +
+              vault.thenAskFor.map(function (t) { return '<li><span>' + esc(t) + '</span>' + copyBtn(t, 'Copy', 'pc') + '</li>'; }).join('') +
+              '</ul></div></div>';
+          }
+          if (vault.worksBestIn) h += '<p class="v-in"><b>Works best in:</b> ' + esc(vault.worksBestIn) + '</p>';
         }
 
         // A routine's prompt sits below the setup, not above it: you read how
