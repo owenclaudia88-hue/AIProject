@@ -37,7 +37,10 @@ const FAL_SIZE = { '1:1': 'square_hd', '4:5': 'portrait_4_3', '3:4': 'portrait_4
                    '16:9': 'landscape_16_9', '21:9': 'landscape_16_9', '3:2': 'landscape_4_3', '4:3': 'landscape_4_3', '5:4': 'landscape_4_3' };
 /* fal.ai does not say what a call cost; these are its listed prices per
    megapixel, so the figure stored is an estimate to a fraction of a cent. */
-const FAL_USD_PER_MP = { 'fal-ai/flux/schnell': 0.003, 'fal-ai/flux/dev': 0.025, 'fal-ai/flux-pro': 0.05 };
+const FAL_USD_PER_MP = { 'fal-ai/flux/schnell': 0.003, 'fal-ai/flux/dev': 0.025, 'fal-ai/flux-pro/v1.1': 0.04, 'fal-ai/flux-pro': 0.05 };
+
+/* What a provider says when the account behind its key has run dry. */
+const OUT_OF_CREDIT = /\b(402|insufficient|credit|balance|quota|billing|exhausted|payment required)\b/i;
 
 /** One picture from fal.ai (Flux): the bytes, their type, and roughly what it cost. */
 async function generateFal(prompt, model, aspect) {
@@ -119,10 +122,25 @@ export default async function handler(req, res) {
     const model = String(s.visual_image_model || '').trim() || DEFAULT_MODEL;
     const perCollection = Math.max(0, Number(s.visual_per_collection) || 0);
     const compare = url.searchParams.get('compare') === '1';
-    const fal = model.startsWith('fal-ai/');
-    if (fal && !process.env.FAL_KEY) return res.status(503).json({ error: 'no_key', message: 'FAL_KEY is not set.' });
-    if (!fal && !process.env.OPENROUTER_API_KEY) return res.status(503).json({ error: 'no_key', message: 'OPENROUTER_API_KEY is not set.' });
-    const generate = fal ? generateFal : generateOpenRouter;
+    const isFal = (m) => m.startsWith('fal-ai/');
+    if (isFal(model) && !process.env.FAL_KEY) return res.status(503).json({ error: 'no_key', message: 'FAL_KEY is not set.' });
+    if (!isFal(model) && !process.env.OPENROUTER_API_KEY) return res.status(503).json({ error: 'no_key', message: 'OPENROUTER_API_KEY is not set.' });
+    // When the account behind one key runs dry, the other provider carries on:
+    // `visual_image_fallback` names the model there, and the row records which
+    // one actually drew it.
+    const fallback = String(s.visual_image_fallback || '').trim() || (isFal(model) ? DEFAULT_MODEL : 'fal-ai/flux-pro/v1.1');
+    const draw = async (prompt, aspect) => {
+      const gen = (m) => (isFal(m) ? generateFal : generateOpenRouter)(prompt, m, aspect);
+      try {
+        return { ...(await gen(model)), model };
+      } catch (err) {
+        const msg = String(err?.message || err);
+        const otherKey = isFal(fallback) ? process.env.FAL_KEY : process.env.OPENROUTER_API_KEY;
+        if (!OUT_OF_CREDIT.test(msg) || !otherKey || fallback === model) throw err;
+        console.error(`[cron/visual-images] ${model} is out of credit (${msg.slice(0, 120)}); drawing with ${fallback}`);
+        return { ...(await gen(fallback)), model: fallback };
+      }
+    };
 
     const sql = neon(process.env.DATABASE_URL);
     // Two queries rather than one with an optional clause: the driver cannot
@@ -132,7 +150,7 @@ export default async function handler(req, res) {
     // a "double exposure" from coming back as a plain portrait.
     const rows = compare
       ? await sql`select g.item_id, g.idx, g.vault, l.title, l.description, l.meta from library_gallery g join library l on l.id = g.item_id
-                  where g.vault ? 'assetKey' order by g.item_id, g.idx limit ${batch}`
+                  where g.vault ? 'prompt' order by g.item_id, g.idx limit ${batch}`
       : perCollection
       ? await sql`select g.item_id, g.idx, g.vault, l.title, l.description, l.meta from library_gallery g join library l on l.id = g.item_id
                   where g.vault ? 'prompt' and not (g.vault ? 'assetKey') and not (g.vault ? 'imageError') and g.idx < ${perCollection}
@@ -157,7 +175,7 @@ export default async function handler(req, res) {
           const prompt = row.vault.prompt;
           const v = row.meta?.vault;
           const setLine = `From a set called "${v?.title || row.title}": ${v?.description || row.description || ''}`.trim();
-          const got = await generate(setLine + '\n\n' + prompt, model, aspectOf(prompt));
+          const got = await draw(setLine + '\n\n' + prompt, aspectOf(prompt));
           const webp = await sharp(got.bytes).rotate().resize({ width: WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
           const key = `vault/gallery/${row.item_id.replace(/[^a-z0-9]+/gi, '_')}/${row.idx}-${Date.now().toString(36)}.webp`;
           if (!dry) {
@@ -166,8 +184,8 @@ export default async function handler(req, res) {
             });
             await upsertAsset(key, blobUrl, 'image/webp');
             const add = compare
-              ? { compare: { ...(row.vault.compare || {}), [model]: { assetKey: key, usd: got.usd } } }
-              : { assetKey: key, imageModel: model, imageUsd: got.usd, imageTokens: got.tokens, drawnAt: new Date().toISOString() };
+              ? { compare: { ...(row.vault.compare || {}), [got.model]: { assetKey: key, usd: got.usd } } }
+              : { assetKey: key, imageModel: got.model, imageUsd: got.usd, imageTokens: got.tokens, drawnAt: new Date().toISOString() };
             await sql`update library_gallery set vault = vault || ${JSON.stringify(add)}::jsonb where item_id = ${row.item_id} and idx = ${row.idx}`;
           }
           done += 1;
