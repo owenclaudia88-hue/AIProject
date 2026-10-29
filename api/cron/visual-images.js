@@ -38,6 +38,9 @@ const FAL_SIZE = { '1:1': 'square_hd', '4:5': 'portrait_4_3', '3:4': 'portrait_4
 /* fal.ai does not say what a call cost; these are its listed prices per
    megapixel, so the figure stored is an estimate to a fraction of a cent. */
 const FAL_USD_PER_MP = { 'fal-ai/flux/schnell': 0.003, 'fal-ai/flux/dev': 0.025, 'fal-ai/flux-pro/v1.1': 0.04, 'fal-ai/flux-pro': 0.05 };
+/* fal.ai also hosts Google's image model, priced per picture rather than per
+   megapixel, and it takes an aspect ratio rather than a named size. */
+const FAL_PER_IMAGE = { 'fal-ai/gemini-25-flash-image': 0.039, 'fal-ai/nano-banana': 0.039 };
 
 /* What a provider says when the account behind its key has run dry. */
 const OUT_OF_CREDIT = /\b(402|insufficient|credit|balance|quota|billing|exhausted|payment required)\b/i;
@@ -45,13 +48,13 @@ const OUT_OF_CREDIT = /\b(402|insufficient|credit|balance|quota|billing|exhauste
 /** One picture from fal.ai (Flux): the bytes, their type, and roughly what it cost. */
 async function generateFal(prompt, model, aspect) {
   if (!process.env.FAL_KEY) throw new Error('FAL_KEY is not set');
+  const perImage = Object.entries(FAL_PER_IMAGE).find(([k]) => model.startsWith(k))?.[1];
   const res = await fetch(`https://fal.run/${model}`, {
     method: 'POST',
     headers: { authorization: `Key ${process.env.FAL_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({
-      prompt, image_size: FAL_SIZE[aspect] || 'square_hd', num_images: 1,
-      output_format: 'jpeg', enable_safety_checker: true
-    })
+    body: JSON.stringify(perImage
+      ? { prompt, num_images: 1, aspect_ratio: aspect, output_format: 'jpeg' }
+      : { prompt, image_size: FAL_SIZE[aspect] || 'square_hd', num_images: 1, output_format: 'jpeg', enable_safety_checker: true })
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`fal.ai ${res.status}: ${JSON.stringify(body).slice(0, 300)}`);
@@ -61,7 +64,8 @@ async function generateFal(prompt, model, aspect) {
   if (!file.ok) throw new Error(`could not fetch the picture: ${file.status}`);
   const mp = ((img.width || 1024) * (img.height || 1024)) / 1e6;
   const rate = Object.entries(FAL_USD_PER_MP).find(([k]) => model.startsWith(k))?.[1] ?? 0.025;
-  return { bytes: Buffer.from(await file.arrayBuffer()), type: img.content_type || 'image/jpeg', usd: Math.round(mp * rate * 10000) / 10000, tokens: null };
+  const usd = perImage ?? Math.round(mp * rate * 10000) / 10000;
+  return { bytes: Buffer.from(await file.arrayBuffer()), type: img.content_type || 'image/jpeg', usd, tokens: null };
 }
 
 /** One picture from OpenRouter: the bytes, their type, and what it cost. */
