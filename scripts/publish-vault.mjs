@@ -87,8 +87,30 @@ for (const r of rows) {
     vault: { ...v, draft: false, publishedAt: new Date().toISOString() }
   };
   const body = steps ? '' : briefHtml(v.brief);
+  // A seed (one of the Vault's own prompts, see vault-seeds.mjs) was hidden
+  // from members until now; publishing is what makes it theirs.
   await sql`update library set title = ${v.title}, description = ${v.description}, body_html = ${body},
-            tags = ${v.tags}, meta = ${JSON.stringify(meta)}::jsonb where id = ${r.id}`;
+            tags = ${v.tags}, meta = ${JSON.stringify(meta)}::jsonb,
+            testers_only = case when meta ? 'seed' then false else testers_only end
+            where id = ${r.id}`;
   done += 1;
 }
 console.log(`${done} ${LIVE ? 'published' : 'would be published'}, ${skipped} flagged and left as drafts${LIVE ? '' : ' (dry run; pass --live)'}`);
+
+/* The 29 that arrived with the old library's videos attached are not rebuilt;
+   they are retired, and the Vault's own prompts take their place. Nothing
+   else refers to them (no guide, no gallery), so a delete is clean, but a
+   copy goes to disk first in case anybody ever wants a title back. */
+if (args.includes('--retire-videos')) {
+  const { writeFileSync, mkdirSync } = await import('node:fs');
+  const gone = await sql`select * from library where kind = 'prompt' and meta->>'videoUrl' is not null`;
+  console.log(`${gone.length} prompt(s) with the old videos to retire${LIVE ? '' : ' (dry run)'}`);
+  for (const r of gone) console.log(`  ${r.category} | ${r.title}`);
+  if (LIVE && gone.length) {
+    mkdirSync('Claude outputs/vault', { recursive: true });
+    const file = `Claude outputs/vault/retired-video-prompts-${new Date().toISOString().slice(0, 10)}.json`;
+    writeFileSync(file, JSON.stringify(gone, null, 2));
+    await sql`delete from library where kind = 'prompt' and meta->>'videoUrl' is not null`;
+    console.log(`  deleted; copy kept at ${file}`);
+  }
+}
