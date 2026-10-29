@@ -82,6 +82,10 @@
     {
       "path": "/api/cron/news",
       "schedule": "0 */4 * * *"
+    },
+    {
+      "path": "/api/cron/vault",
+      "schedule": "*/10 * * * *"
     }
   ]
 }
