@@ -1503,7 +1503,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
         <div class="sb-group">
           <div class="sb-group-t">Content Libraries</div>
           <button class="nav" data-view="prompt"><span class="nic">💬</span>AI Prompt Vault<span class="n-count" id="cnt-prompt"></span></button>
-          <button class="nav" data-view="image_prompt"><span class="nic">🎨</span>Image &amp; Video Prompts<span class="n-count" id="cnt-image_prompt"></span></button>
+          <button class="nav" data-view="image_prompt"><span class="nic">🎨</span>AI Visual Vault<span class="n-count" id="cnt-image_prompt"></span></button>
           <button class="nav" data-view="gpt"><span class="nic">🧠</span>Custom GPTs<span class="n-count" id="cnt-gpt"></span></button>
           <button class="nav" data-view="automation"><span class="nic">⚡</span>Automation Templates<span class="n-count" id="cnt-automation"></span></button>
           <button class="nav" data-view="guide"><span class="nic">📖</span>Prompting Fundamentals<span class="n-count" id="cnt-guide"></span></button>
@@ -1802,7 +1802,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
   // "AI Prompt Vault" describes the shelf rather than the thing in front of you.
   var KINDS = {
     prompt:       { label: 'AI Prompt Vault',        one: 'Prompt',       glyph: '💬' },
-    image_prompt: { label: 'Image & Video Prompts',  one: 'Image Prompt', glyph: '🎨' },
+    image_prompt: { label: 'AI Visual Vault',        one: 'Visual Prompt', glyph: '🎨' },
     skill:        { label: 'Agents & Skills',        one: 'Claude Skill', glyph: '🤖' },
     gpt:          { label: 'Custom GPTs',            one: 'Custom GPT',   glyph: '🧠' },
     automation:   { label: 'Automation Templates',   one: 'Automation',   glyph: '⚡' },
@@ -5886,7 +5886,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
         // A Vault prompt carries its own frame: what you get and the blanks to
         // fill before the prompt, the follow-ups and the model after it. Only
         // once published — a draft rebuild sits unseen beside the old text.
-        var vault = it.kind === 'prompt' && meta.vault && meta.vault.draft === false ? meta.vault : null;
+        var vault = (it.kind === 'prompt' || it.kind === 'image_prompt') && meta.vault && meta.vault.draft === false ? meta.vault : null;
         if (vault) {
           h += '<div class="v-top">' +
             (vault.whatYouGet ? '<div class="v-get"><span class="v-k">What you get</span><p>' + esc(vault.whatYouGet) + '</p></div>' : '') +
@@ -5936,8 +5936,13 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
 
         if (vault) {
           if ((vault.thenAskFor || []).length) {
-            h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">Then ask for</span></div>' +
-              '<div class="panel-b v-next"><p>Once it has answered, keep the conversation going. Each line is a message you can send next.</p><ul>' +
+            // A language model is asked for more; a generator is asked to change
+            // one thing and keep the rest.
+            var visual = it.kind === 'image_prompt';
+            h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">' + (visual ? 'Then try' : 'Then ask for') + '</span></div>' +
+              '<div class="panel-b v-next"><p>' + (visual
+                ? 'Once you have a picture, ask for a change in the same chat. Each line is one you can send next.'
+                : 'Once it has answered, keep the conversation going. Each line is a message you can send next.') + '</p><ul>' +
               vault.thenAskFor.map(function (t) { return '<li><span>' + esc(t) + '</span>' + copyBtn(t, 'Copy', 'pc') + '</li>'; }).join('') +
               '</ul></div></div>';
           }
