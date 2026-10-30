@@ -40,7 +40,8 @@ const ids = args.includes('--ids') ? only : null;
 
 const sql = neon(process.env.DATABASE_URL);
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const stamp = new Date().toISOString().slice(0, 10);
+// Date and time: two publishes on one day must not share a backup file.
+const stamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
 
 /* Paragraphs for blank-line breaks, <br> for single ones, and the [blanks]
    marked so the member area can light them up. The copy button reads the
