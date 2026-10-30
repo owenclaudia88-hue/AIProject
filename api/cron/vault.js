@@ -81,11 +81,19 @@ export default async function handler(req, res) {
         const t0 = Date.now();
         try {
           const before = meter.total.usd;
-          // A collection's frame is written with a few of its prompts in view.
-          const gallery = isCollection(row)
-            ? await sql`select prompt from library_gallery where item_id = ${row.id} order by idx`
-            : [];
-          const { vault, problems } = await rebuildPrompt(row, { meter, model, gallery });
+          // A collection's frame is written with a few of its prompts in view,
+          // and counts only the rows that will be kept: a set trimmed to twelve
+          // pictures must not call itself fifty.
+          const cap = Math.max(0, Number(s.visual_per_collection) || 0);
+          const gallery = !isCollection(row) ? []
+            : cap ? await sql`select prompt from library_gallery where item_id = ${row.id} and idx < ${cap} order by idx`
+            : await sql`select prompt from library_gallery where item_id = ${row.id} order by idx`;
+          // An entry rebuilt once already and published shows its own words in
+          // the live columns; the old library's are what the rebuild starts from.
+          const o = row.meta?.original;
+          const source = o ? { ...row, title: o.title, description: o.description, body_html: o.body_html,
+                               meta: { ...row.meta, promptItems: o.promptItems, promptType: o.promptType } } : row;
+          const { vault, problems } = await rebuildPrompt(source, { meter, model, gallery });
           const usd = Math.round((meter.total.usd - before) * 100) / 100;
           const draft = {
             ...vault, draft: true, by: 'claude', model, usd,

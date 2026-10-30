@@ -133,7 +133,9 @@ export default async function handler(req, res) {
     // `visual_image_fallback` names the model there, and the row records which
     // one actually drew it.
     const fallback = String(s.visual_image_fallback || '').trim() || (isFal(model) ? DEFAULT_MODEL : 'fal-ai/flux-pro/v1.1');
-    const draw = async (prompt, aspect) => {
+    // A collection may name its own model in `meta.imageModel`: charts, labels,
+    // logos and anything with words in it come out of Gemini and not of Flux.
+    const draw = async (prompt, aspect, model) => {
       const gen = (m) => (isFal(m) ? generateFal : generateOpenRouter)(prompt, m, aspect);
       try {
         return { ...(await gen(model)), model };
@@ -179,7 +181,7 @@ export default async function handler(req, res) {
           const prompt = row.vault.prompt;
           const v = row.meta?.vault;
           const setLine = `From a set called "${v?.title || row.title}": ${v?.description || row.description || ''}`.trim();
-          const got = await draw(setLine + '\n\n' + prompt, aspectOf(prompt));
+          const got = await draw(setLine + '\n\n' + prompt, aspectOf(prompt), String(row.meta?.imageModel || '').trim() || model);
           const webp = await sharp(got.bytes).rotate().resize({ width: WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
           const key = `vault/gallery/${row.item_id.replace(/[^a-z0-9]+/gi, '_')}/${row.idx}-${Date.now().toString(36)}.webp`;
           if (!dry) {
