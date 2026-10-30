@@ -35,8 +35,11 @@ const sinceArg = (() => {
 })();
 
 /* The tables that hold things a member would browse. news_feed and
-   weekly_highlights are the source site's own front page, not library items. */
-const TABLES = ['prompts', 'image_prompts', 'claude_skills', 'custom_gpts',
+   weekly_highlights are the source site's own front page, not library items.
+   custom_gpts is left out since 2026-10-30: the AI Assistants section is our
+   own now, and a GPT of theirs links to their ChatGPT account, which is the
+   dependency the rebuild removed. */
+const TABLES = ['prompts', 'image_prompts', 'claude_skills',
   'automation_templates', 'guides', 'videos'];
 
 const say = (s = '') => console.log(s);

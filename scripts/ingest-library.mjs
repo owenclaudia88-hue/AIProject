@@ -104,7 +104,7 @@ const BM_KINDS = {
   prompts:              { kind: 'prompt',       label: 'Prompts' },
   image_prompts:        { kind: 'image_prompt', label: 'Image & Video Prompts' },
   claude_skills:        { kind: 'skill',        label: 'Agents & Skills' },
-  custom_gpts:          { kind: 'gpt',          label: 'Custom GPTs' },
+  custom_gpts:          { kind: 'gpt',          label: 'AI Assistants' },
   guides:               { kind: 'guide',        label: 'Prompting Fundamentals' },
   automation_templates: { kind: 'automation',   label: 'Automation Templates' },
   videos:               { kind: 'video',        label: 'Tutorials' }

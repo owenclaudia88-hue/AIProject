@@ -4,6 +4,7 @@
  *   node --env-file=.env.local scripts/publish-vault.mjs                       # what would change (AI Prompt Vault)
  *   node --env-file=.env.local scripts/publish-vault.mjs --live                # do it
  *   node --env-file=.env.local scripts/publish-vault.mjs --kind image_prompt   # the AI Visual Vault instead
+ *   node --env-file=.env.local scripts/publish-vault.mjs --kind gpt            # the AI Assistants
  *   node --env-file=.env.local scripts/publish-vault.mjs --revert              # put the old text back
  *   node --env-file=.env.local scripts/publish-vault.mjs --live --ids prompt:abc,prompt:def
  *
@@ -34,7 +35,7 @@ const LIVE = args.includes('--live');
 const REVERT = args.includes('--revert');
 const FLAGGED = args.includes('--flagged');
 const KIND = args.includes('--kind') ? args[args.indexOf('--kind') + 1] : 'prompt';
-if (!['prompt', 'image_prompt'].includes(KIND)) throw new Error('--kind must be prompt or image_prompt');
+if (!['prompt', 'image_prompt', 'gpt'].includes(KIND)) throw new Error('--kind must be prompt, image_prompt or gpt');
 const only = (args[args.indexOf('--ids') + 1] || '').split(',').map((s) => s.trim()).filter(Boolean);
 const ids = args.includes('--ids') ? only : null;
 
@@ -92,6 +93,9 @@ for (const r of rows) {
   if (v.problems && v.problems.length && !FLAGGED) { skipped += 1; continue; }
   const collection = !!v.collection;
   const steps = !collection && Array.isArray(v.steps) && v.steps.length ? v.steps : null;
+  // An assistant's one part is its instructions: the text a member pastes
+  // into a Project or a Gem once, which the reader shows with a copy button.
+  const assistant = KIND === 'gpt' && typeof v.instructions === 'string';
 
   // A collection goes live only when every kept row has both a new prompt
   // and a new picture; half a set would show old pictures under new words.
@@ -122,12 +126,13 @@ for (const r of rows) {
     original,
     howTo: HOWTO[KIND],
     promptType: steps ? 'stack' : 'single',
-    promptItems: steps ? steps.map((s) => ({ title: s.title, content: briefHtml(s.brief) })) : [],
+    promptItems: steps ? steps.map((s) => ({ title: s.title, content: briefHtml(s.brief) }))
+      : assistant ? [{ title: 'Instructions', content: briefHtml(v.instructions) }] : [],
     vault: { ...v, draft: false, publishedAt: new Date().toISOString() }
   };
   // The old library's own tutorial videos do not come along.
   delete meta.videoUrl; delete meta.videoText; delete meta.galleryVideos;
-  const body = steps || collection ? '' : briefHtml(v.brief);
+  const body = steps || collection || assistant ? '' : briefHtml(v.brief);
   let thumb = r.thumb_key ?? null;
 
   if (collection) {

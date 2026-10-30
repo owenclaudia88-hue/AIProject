@@ -1205,6 +1205,14 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
 .v-next li span{flex:1;color:var(--txt);font-size:.92rem}.v-next li .pc{margin-left:0}
 .v-in{font-family:var(--mono);font-size:.78rem;color:var(--txt-3);margin:-6px 0 20px}.v-in b{color:var(--txt-2);font-weight:600}
 @media (max-width:720px){.v-top{grid-template-columns:1fr}}
+.v-setup>p{margin:0 0 10px;color:var(--txt-2);font-size:.92rem}
+.v-tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.v-tabs button{background:var(--bg-4);border:1px solid var(--line-2);color:var(--txt-2);font-family:var(--mono);font-size:.74rem;font-weight:700;padding:7px 14px;border-radius:999px;cursor:pointer}
+.v-tabs button.on{color:#1a0d00;background:linear-gradient(180deg,var(--accent-2),var(--accent));border-color:transparent}
+.v-steps{display:none;margin:0;padding-left:20px;color:var(--txt-2);font-size:.92rem}.v-steps.on{display:block}.v-steps li{margin:4px 0}
+.v-steps b{color:var(--txt);font-weight:600}
+.v-else{margin:12px 0 0;color:var(--txt-3);font-size:.82rem}
+.v-open{margin:14px 0 0}.v-open .tpl-btn{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;border-color:transparent}
 
 .panel{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:20px 0;background:#0e0e10}
 .panel-h{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-3);border-bottom:1px solid var(--line)}
@@ -1504,7 +1512,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
           <div class="sb-group-t">Content Libraries</div>
           <button class="nav" data-view="prompt"><span class="nic">💬</span>AI Prompt Vault<span class="n-count" id="cnt-prompt"></span></button>
           <button class="nav" data-view="image_prompt"><span class="nic">🎨</span>AI Visual Vault<span class="n-count" id="cnt-image_prompt"></span></button>
-          <button class="nav" data-view="gpt"><span class="nic">🧠</span>Custom GPTs<span class="n-count" id="cnt-gpt"></span></button>
+          <button class="nav" data-view="gpt"><span class="nic">🧠</span>AI Assistants<span class="n-count" id="cnt-gpt"></span></button>
           <button class="nav" data-view="automation"><span class="nic">⚡</span>Automation Templates<span class="n-count" id="cnt-automation"></span></button>
           <button class="nav" data-view="guide"><span class="nic">📖</span>Prompting Fundamentals<span class="n-count" id="cnt-guide"></span></button>
           <button class="nav" data-view="video"><span class="nic">🎬</span>Tutorials<span class="n-count" id="cnt-video"></span></button>
@@ -1804,7 +1812,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
     prompt:       { label: 'AI Prompt Vault',        one: 'Prompt',       glyph: '💬' },
     image_prompt: { label: 'AI Visual Vault',        one: 'Visual Prompt', glyph: '🎨' },
     skill:        { label: 'Agents & Skills',        one: 'Claude Skill', glyph: '🤖' },
-    gpt:          { label: 'Custom GPTs',            one: 'Custom GPT',   glyph: '🧠' },
+    gpt:          { label: 'AI Assistants',          one: 'AI Assistant', glyph: '🧠' },
     automation:   { label: 'Automation Templates',   one: 'Automation',   glyph: '⚡' },
     guide:        { label: 'Prompting Fundamentals', one: 'Guide',        glyph: '📖' },
     video:        { label: 'Tutorials',              one: 'Tutorial',     glyph: '🎬' },
@@ -5768,6 +5776,14 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
 
   /* ---------------- reader ---------------- */
   var reader = document.getElementById('reader');
+  // The assistant setup card's tabs (ChatGPT / Claude / Gemini).
+  reader.addEventListener('click', function (e) {
+    var b = e.target.closest('.v-tabs button');
+    if (!b) return;
+    var card = b.closest('.v-setup');
+    card.querySelectorAll('.v-tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+    card.querySelectorAll('.v-steps').forEach(function (ol) { ol.classList.toggle('on', ol.getAttribute('data-tab') === b.getAttribute('data-tab')); });
+  });
   // Wording for the panel that holds the item's own text, per kind.
   //
   // `copy` is null where the body is something to read rather than to paste.
@@ -5886,13 +5902,38 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
         // A Vault prompt carries its own frame: what you get and the blanks to
         // fill before the prompt, the follow-ups and the model after it. Only
         // once published — a draft rebuild sits unseen beside the old text.
-        var vault = (it.kind === 'prompt' || it.kind === 'image_prompt') && meta.vault && meta.vault.draft === false ? meta.vault : null;
+        var vault = (it.kind === 'prompt' || it.kind === 'image_prompt' || it.kind === 'gpt') && meta.vault && meta.vault.draft === false ? meta.vault : null;
+        // An assistant is set up once rather than pasted each time, so its
+        // frame says what to have ready and how to install it.
+        var assistant = !!vault && it.kind === 'gpt';
         if (vault) {
           h += '<div class="v-top">' +
             (vault.whatYouGet ? '<div class="v-get"><span class="v-k">What you get</span><p>' + esc(vault.whatYouGet) + '</p></div>' : '') +
-            ((vault.fillIn || []).length ? '<div class="v-fill"><span class="v-k">Fill in first</span><ul>' +
+            ((vault.fillIn || []).length ? '<div class="v-fill"><span class="v-k">' + (assistant ? 'Have ready' : 'Fill in first') + '</span><ul>' +
               vault.fillIn.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></div>' : '') +
             '</div>';
+        }
+        if (assistant) {
+          var name = esc(it.title);
+          h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">Set it up once</span></div>' +
+            '<div class="panel-b v-setup">' +
+            '<p>Paste the instructions below into whichever model you use. It takes about two minutes, and from then on it is yours to open, use and change.</p>' +
+            '<div class="v-tabs"><button class="on" data-tab="chatgpt">ChatGPT</button><button data-tab="claude">Claude</button><button data-tab="gemini">Gemini</button></div>' +
+            '<ol class="v-steps on" data-tab="chatgpt">' +
+              '<li>In ChatGPT, open <b>Projects</b> in the sidebar and click <b>New project</b>. Name it <b>' + name + '</b>.</li>' +
+              '<li>Open the project\'s <b>Instructions</b> and paste the instructions from the panel below. Save.</li>' +
+              '<li>Start a chat inside the project and send one of the starters below.</li></ol>' +
+            '<ol class="v-steps" data-tab="claude">' +
+              '<li>In Claude, open <b>Projects</b> and click <b>New project</b>. Name it <b>' + name + '</b>.</li>' +
+              '<li>Click <b>Set project instructions</b>, paste the instructions from the panel below and save.</li>' +
+              '<li>Start a chat in the project and send one of the starters below.</li></ol>' +
+            '<ol class="v-steps" data-tab="gemini">' +
+              '<li>In Gemini, open <b>Gems</b> in the sidebar and click <b>New Gem</b>. Name it <b>' + name + '</b>.</li>' +
+              '<li>Paste the instructions from the panel below into the <b>Instructions</b> box and save.</li>' +
+              '<li>Open the Gem and send one of the starters below.</li></ol>' +
+            '<p class="v-else">Using something else? Paste the instructions as the first message of a new chat. It works the same, it just does not remember them next time.</p>' +
+            (vault.openUrl ? '<p class="v-open"><a class="tpl-btn" href="' + esc(vault.openUrl) + '" target="_blank" rel="noopener">Open it in ' + esc(vault.openIn || 'ChatGPT') + ' &#8599;</a></p>' : '') +
+            '</div></div>';
         }
 
         // how-to note — the item's own, or the fallback for its kind
@@ -5935,6 +5976,12 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
         }
 
         if (vault) {
+          if (assistant && (vault.starters || []).length) {
+            h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">Start with</span></div>' +
+              '<div class="panel-b v-next"><p>Once it is set up, open a chat with it and send one of these.</p><ul>' +
+              vault.starters.map(function (t) { return '<li><span>' + esc(t) + '</span>' + copyBtn(t, 'Copy', 'pc') + '</li>'; }).join('') +
+              '</ul></div></div>';
+          }
           if ((vault.thenAskFor || []).length) {
             // A language model is asked for more; a generator is asked to change
             // one thing and keep the rest.
