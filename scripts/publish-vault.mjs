@@ -84,6 +84,8 @@ const rows = await sql(`
 
 let done = 0, skipped = 0, trimmed = 0;
 const backup = [];
+const [capRow] = await sql`select value from settings where key = 'visual_per_collection'`;
+const perCollection = Math.max(0, Number(capRow?.value) || 0);
 for (const r of rows) {
   const v = r.meta.vault;
   if (v.problems && v.problems.length && !FLAGGED) { skipped += 1; continue; }
@@ -93,14 +95,20 @@ for (const r of rows) {
   // A collection goes live only when every kept row has both a new prompt
   // and a new picture; half a set would show old pictures under new words.
   let gallery = [];
+  let under = () => true;
   if (collection) {
     gallery = await sql`select idx, prompt, asset_key, vault, original from library_gallery where item_id = ${r.id} order by idx`;
-    const kept = gallery.filter((g) => g.vault?.prompt && g.vault?.assetKey);
-    const waiting = gallery.filter((g) => g.vault?.prompt && !g.vault?.assetKey && !g.vault?.imageError);
+    // Rows past the per-collection cap were never drawn on purpose; they go
+    // with the rows without a picture rather than holding the set back.
+    // A row whose picture failed still counts as waiting: the failures so far
+    // have all been a provider out of credit, which a retry settles.
+    under = (g) => !perCollection || g.idx < perCollection;
+    const kept = gallery.filter((g) => under(g) && g.vault?.prompt && g.vault?.assetKey);
+    const waiting = gallery.filter((g) => under(g) && g.vault?.prompt && !g.vault?.assetKey);
     if (!kept.length || waiting.length) { skipped += 1; console.log(`  (waiting) "${r.title}": ${kept.length} ready, ${waiting.length} still to draw`); continue; }
   }
 
-  console.log(`  "${r.title}" → "${v.title}"${steps ? ` (${steps.length} parts)` : ''}${collection ? ` (collection: ${gallery.filter((g) => g.vault?.assetKey).length} of ${gallery.length} rows kept)` : ''}`);
+  console.log(`  "${r.title}" → "${v.title}"${steps ? ` (${steps.length} parts)` : ''}${collection ? ` (collection: ${gallery.filter((g) => under(g) && g.vault?.assetKey).length} of ${gallery.length} rows kept)` : ''}`);
   if (!LIVE) { done += 1; continue; }
 
   const original = {
@@ -123,7 +131,7 @@ for (const r of rows) {
 
   if (collection) {
     for (const g of gallery) {
-      if (g.vault?.prompt && g.vault?.assetKey) {
+      if (under(g) && g.vault?.prompt && g.vault?.assetKey) {
         await sql`update library_gallery set prompt = ${g.vault.prompt}, asset_key = ${g.vault.assetKey},
                   original = coalesce(original, ${JSON.stringify({ prompt: g.prompt, asset_key: g.asset_key })}::jsonb)
                   where item_id = ${r.id} and idx = ${g.idx}`;
@@ -133,7 +141,7 @@ for (const r of rows) {
         trimmed += 1;
       }
     }
-    thumb = gallery.find((g) => g.vault?.assetKey)?.vault.assetKey ?? thumb;
+    thumb = gallery.find((g) => under(g) && g.vault?.assetKey)?.vault.assetKey ?? thumb;
   }
 
   await sql`update library set title = ${v.title}, description = ${v.description}, body_html = ${body},
