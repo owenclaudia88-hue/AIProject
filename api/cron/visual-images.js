@@ -44,6 +44,8 @@ const FAL_PER_IMAGE = { 'fal-ai/gemini-25-flash-image': 0.039, 'fal-ai/nano-bana
 
 /* What a provider says when the account behind its key has run dry. */
 const OUT_OF_CREDIT = /\b(402|403|insufficient|credit|balance|quota|billing|exhausted|payment required|locked|top.?up)\b/i;
+/* ...and when it declines one prompt rather than the account. */
+const REFUSED = /\b422\b|did not generate the expected output|content.?polic|safety/i;
 
 /** One picture from fal.ai (Flux): the bytes, their type, and roughly what it cost. */
 async function generateFal(prompt, model, aspect) {
@@ -142,8 +144,10 @@ export default async function handler(req, res) {
       } catch (err) {
         const msg = String(err?.message || err);
         const otherKey = isFal(fallback) ? process.env.FAL_KEY : process.env.OPENROUTER_API_KEY;
-        if (!OUT_OF_CREDIT.test(msg) || !otherKey || fallback === model) throw err;
-        console.error(`[cron/visual-images] ${model} is out of credit (${msg.slice(0, 120)}); drawing with ${fallback}`);
+        // A provider that will not draw this one prompt (fal.ai's 422) hands
+        // it over too; the other one usually will.
+        if (!(OUT_OF_CREDIT.test(msg) || REFUSED.test(msg)) || !otherKey || fallback === model) throw err;
+        console.error(`[cron/visual-images] ${model} would not draw it (${msg.slice(0, 120)}); drawing with ${fallback}`);
         return { ...(await gen(fallback)), model: fallback };
       }
     };
