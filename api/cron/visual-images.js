@@ -43,7 +43,7 @@ const FAL_USD_PER_MP = { 'fal-ai/flux/schnell': 0.003, 'fal-ai/flux/dev': 0.025,
 const FAL_PER_IMAGE = { 'fal-ai/gemini-25-flash-image': 0.039, 'fal-ai/nano-banana': 0.039 };
 
 /* What a provider says when the account behind its key has run dry. */
-const OUT_OF_CREDIT = /\b(402|insufficient|credit|balance|quota|billing|exhausted|payment required)\b/i;
+const OUT_OF_CREDIT = /\b(402|403|insufficient|credit|balance|quota|billing|exhausted|payment required|locked|top.?up)\b/i;
 
 /** One picture from fal.ai (Flux): the bytes, their type, and roughly what it cost. */
 async function generateFal(prompt, model, aspect) {
