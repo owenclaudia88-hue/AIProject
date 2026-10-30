@@ -181,7 +181,11 @@ export default async function handler(req, res) {
           const prompt = row.vault.prompt;
           const v = row.meta?.vault;
           const setLine = `From a set called "${v?.title || row.title}": ${v?.description || row.description || ''}`.trim();
-          const got = await draw(setLine + '\n\n' + prompt, aspectOf(prompt), String(row.meta?.imageModel || '').trim() || model);
+          // A picture drawn again after the audit turned the first one down
+          // carries the reason, so the second try does not repeat the first.
+          const turned = Array.isArray(row.vault.rejected) ? row.vault.rejected[row.vault.rejected.length - 1] : null;
+          const note = turned?.reason ? `\n\nThe last attempt was rejected because: ${turned.reason}. The picture must unmistakably be what the set promises.` : '';
+          const got = await draw(setLine + '\n\n' + prompt + note, aspectOf(prompt), String(row.meta?.imageModel || '').trim() || model);
           const webp = await sharp(got.bytes).rotate().resize({ width: WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
           const key = `vault/gallery/${row.item_id.replace(/[^a-z0-9]+/gi, '_')}/${row.idx}-${Date.now().toString(36)}.webp`;
           if (!dry) {
