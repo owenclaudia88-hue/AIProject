@@ -110,7 +110,9 @@ export default async function handler(req, res) {
             { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: jpeg.toString('base64') } },
             { type: 'text', text: question(title, description, row.vault.prompt) }
           ];
-          const { data } = await callTool(content, TOOL, { maxTokens: 400, meter, model });
+          // Room for the model to think before it calls the tool; at 400 one
+          // picture in four came back as prose cut off or as nothing at all.
+          const { data } = await callTool(content, TOOL, { maxTokens: 2000, meter, model });
           if (!data || typeof data.ok !== 'boolean') throw new Error('no verdict');
           const audit = { ok: data.ok, reason: String(data.reason || '').slice(0, 300), model, at: new Date().toISOString() };
           if (!dry) {
