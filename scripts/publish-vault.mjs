@@ -5,6 +5,7 @@
  *   node --env-file=.env.local scripts/publish-vault.mjs --live                # do it
  *   node --env-file=.env.local scripts/publish-vault.mjs --kind image_prompt   # the AI Visual Vault instead
  *   node --env-file=.env.local scripts/publish-vault.mjs --kind gpt            # the AI Assistants
+ *   node --env-file=.env.local scripts/publish-vault.mjs --kind automation     # the AI Automation Vault
  *   node --env-file=.env.local scripts/publish-vault.mjs --revert              # put the old text back
  *   node --env-file=.env.local scripts/publish-vault.mjs --live --ids prompt:abc,prompt:def
  *
@@ -35,7 +36,7 @@ const LIVE = args.includes('--live');
 const REVERT = args.includes('--revert');
 const FLAGGED = args.includes('--flagged');
 const KIND = args.includes('--kind') ? args[args.indexOf('--kind') + 1] : 'prompt';
-if (!['prompt', 'image_prompt', 'gpt'].includes(KIND)) throw new Error('--kind must be prompt, image_prompt or gpt');
+if (!['prompt', 'image_prompt', 'gpt', 'automation'].includes(KIND)) throw new Error('--kind must be prompt, image_prompt, gpt or automation');
 const only = (args[args.indexOf('--ids') + 1] || '').split(',').map((s) => s.trim()).filter(Boolean);
 const ids = args.includes('--ids') ? only : null;
 
@@ -65,8 +66,9 @@ if (REVERT) {
     const o = r.meta.original;
     console.log(`  "${r.title}" → "${o.title}"`);
     if (!LIVE) continue;
-    const meta = { ...r.meta, howTo: o.howTo, promptItems: o.promptItems, promptType: o.promptType, videoUrl: o.videoUrl, videoText: o.videoText, galleryVideos: o.galleryVideos, vault: { ...r.meta.vault, draft: true } };
-    delete meta.original;
+    const meta = { ...r.meta, howTo: o.howTo, promptItems: o.promptItems, promptType: o.promptType, videoUrl: o.videoUrl, videoText: o.videoText, galleryVideos: o.galleryVideos,
+      fileKey: o.fileKey, fileName: o.fileName, fileSize: o.fileSize, setupUrl: o.setupUrl, platform: o.platform, vault: { ...r.meta.vault, draft: true } };
+    delete meta.original; delete meta.files;
     for (const k of Object.keys(meta)) if (meta[k] == null) delete meta[k];
     await sql`update library set title = ${o.title}, description = ${o.description}, body_html = ${o.body_html},
               tags = ${o.tags}, thumb_key = ${o.thumb_key ?? null}, meta = ${JSON.stringify(meta)}::jsonb where id = ${r.id}`;
@@ -92,7 +94,10 @@ for (const r of rows) {
   const v = r.meta.vault;
   if (v.problems && v.problems.length && !FLAGGED) { skipped += 1; continue; }
   const collection = !!v.collection;
-  const steps = !collection && Array.isArray(v.steps) && v.steps.length ? v.steps : null;
+  // An automation's steps are setup steps, drawn by the member area from the
+  // vault itself, not prompts to copy.
+  const automation = KIND === 'automation';
+  const steps = !collection && !automation && Array.isArray(v.steps) && v.steps.length ? v.steps : null;
   // An assistant's one part is its instructions: the text a member pastes
   // into a Project or a Gem once, which the reader shows with a copy button.
   const assistant = KIND === 'gpt' && typeof v.instructions === 'string';
@@ -119,7 +124,9 @@ for (const r of rows) {
   const original = {
     title: r.title, description: r.description, body_html: r.body_html, tags: r.tags, thumb_key: r.thumb_key ?? null,
     promptItems: r.meta.promptItems ?? null, promptType: r.meta.promptType ?? null, howTo: r.meta.howTo ?? null,
-    videoUrl: r.meta.videoUrl ?? null, videoText: r.meta.videoText ?? null, galleryVideos: r.meta.galleryVideos ?? null
+    videoUrl: r.meta.videoUrl ?? null, videoText: r.meta.videoText ?? null, galleryVideos: r.meta.galleryVideos ?? null,
+    fileKey: r.meta.fileKey ?? null, fileName: r.meta.fileName ?? null, fileSize: r.meta.fileSize ?? null,
+    setupUrl: r.meta.setupUrl ?? null, platform: r.meta.platform ?? null
   };
   const meta = {
     ...r.meta,
@@ -132,7 +139,13 @@ for (const r of rows) {
   };
   // The old library's own tutorial videos do not come along.
   delete meta.videoUrl; delete meta.videoText; delete meta.galleryVideos;
-  const body = steps || collection || assistant ? '' : briefHtml(v.brief);
+  // Nor does the source's blueprint, its setup page or its one-file shape:
+  // the rebuild's own files (cleaned, under our keys) replace them.
+  if (automation) {
+    delete meta.fileKey; delete meta.fileName; delete meta.fileSize; delete meta.setupUrl;
+    meta.files = v.files; meta.platform = v.platform;
+  }
+  const body = steps || collection || assistant || automation ? '' : briefHtml(v.brief);
   let thumb = r.thumb_key ?? null;
 
   if (collection) {

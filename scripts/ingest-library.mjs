@@ -106,7 +106,7 @@ const BM_KINDS = {
   claude_skills:        { kind: 'skill',        label: 'Agents & Skills' },
   custom_gpts:          { kind: 'gpt',          label: 'AI Assistants' },
   guides:               { kind: 'guide',        label: 'Prompting Fundamentals' },
-  automation_templates: { kind: 'automation',   label: 'Automation Templates' },
+  automation_templates: { kind: 'automation',   label: 'AI Automation Vault' },
   videos:               { kind: 'video',        label: 'Tutorials' }
 };
 

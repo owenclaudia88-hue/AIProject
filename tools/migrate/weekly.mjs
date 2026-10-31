@@ -38,9 +38,10 @@ const sinceArg = (() => {
    weekly_highlights are the source site's own front page, not library items.
    custom_gpts is left out since 2026-10-30: the AI Assistants section is our
    own now, and a GPT of theirs links to their ChatGPT account, which is the
-   dependency the rebuild removed. */
-const TABLES = ['prompts', 'image_prompts', 'claude_skills',
-  'automation_templates', 'guides', 'videos'];
+   dependency the rebuild removed. automation_templates since 2026-10-31, for
+   the same reason: the AI Automation Vault's blueprints are ours, cleaned of
+   their accounts and ids, and a new one of theirs would not be. */
+const TABLES = ['prompts', 'image_prompts', 'claude_skills', 'guides', 'videos'];
 
 const say = (s = '') => console.log(s);
 const OUT = join(EXPORT_DIR, 'blackmagic-weekly');

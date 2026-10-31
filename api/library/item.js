@@ -39,9 +39,16 @@ export default async function handler(req, res) {
     const download = meta.fileKey
       ? { url: `${assetUrl(meta.fileKey)}&download=1`, name: meta.fileName || 'download' }
       : null;
+    // An automation can ship more than one file (a pair of scenarios), each
+    // with the label its button carries.
+    const downloads = Array.isArray(meta.files)
+      ? meta.files.filter((f) => f && f.key).map((f) => ({
+          url: `${assetUrl(f.key)}&download=1`, name: f.name || 'download', label: f.label || 'Download', size: f.size || null
+        }))
+      : null;
     // The long-form guide is served from our own origin and framed by the reader.
 
-    const { fileKey, guideKey, ...publicMeta } = meta;
+    const { fileKey, guideKey, files, ...publicMeta } = meta;
 
     return res.status(200).json({
       id: item.id, kind: item.kind, course: item.course, category: item.category,
@@ -49,7 +56,7 @@ export default async function handler(req, res) {
       bodyHtml: item.body_html || '',
       tags: item.tags || [],
       meta: publicMeta,
-      download, guideHtml: guideHtml || null,
+      download, downloads, guideHtml: guideHtml || null,
       gallery: (tiles || []).map((t) => ({ prompt: t.prompt, image: assetUrl(t.asset_key) })),
       related: (related || []).map((r) => ({
         id: r.id, kind: r.kind, category: r.category, title: r.title,

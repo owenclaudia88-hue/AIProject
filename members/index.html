@@ -1213,6 +1213,11 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
 .v-steps b{color:var(--txt);font-weight:600}
 .v-else{margin:12px 0 0;color:var(--txt-3);font-size:.82rem}
 .v-open{margin:14px 0 0}.v-open .tpl-btn{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;border-color:transparent}
+.v-files{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}.v-files .tpl-btn{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:#1a0d00;border-color:transparent;text-align:left}
+.v-files small{display:block;font-weight:400;font-size:.72rem;opacity:.75;margin-top:2px}
+.v-how p{margin:0;color:var(--txt-2);font-size:.95rem;line-height:1.55}
+.v-setup-steps{margin:0;padding-left:22px;color:var(--txt-2);font-size:.93rem}.v-setup-steps li{margin:0 0 12px;padding-left:4px}.v-setup-steps b{display:block;color:var(--txt);font-weight:600;margin-bottom:2px}
+.v-yours ul{margin:0;padding-left:18px;color:var(--txt-2);font-size:.92rem}.v-yours li{margin:5px 0}
 
 .panel{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:20px 0;background:#0e0e10}
 .panel-h{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-3);border-bottom:1px solid var(--line)}
@@ -1513,7 +1518,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
           <button class="nav" data-view="prompt"><span class="nic">💬</span>AI Prompt Vault<span class="n-count" id="cnt-prompt"></span></button>
           <button class="nav" data-view="image_prompt"><span class="nic">🎨</span>AI Visual Vault<span class="n-count" id="cnt-image_prompt"></span></button>
           <button class="nav" data-view="gpt"><span class="nic">🧠</span>AI Assistants<span class="n-count" id="cnt-gpt"></span></button>
-          <button class="nav" data-view="automation"><span class="nic">⚡</span>Automation Templates<span class="n-count" id="cnt-automation"></span></button>
+          <button class="nav" data-view="automation"><span class="nic">⚡</span>AI Automation Vault<span class="n-count" id="cnt-automation"></span></button>
           <button class="nav" data-view="guide"><span class="nic">📖</span>Prompting Fundamentals<span class="n-count" id="cnt-guide"></span></button>
           <button class="nav" data-view="video"><span class="nic">🎬</span>Tutorials<span class="n-count" id="cnt-video"></span></button>
           <button class="nav" data-view="skill"><span class="nic">🤖</span>Agents &amp; Skills<span class="n-count" id="cnt-skill"></span></button>
@@ -1813,7 +1818,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
     image_prompt: { label: 'AI Visual Vault',        one: 'Visual Prompt', glyph: '🎨' },
     skill:        { label: 'Agents & Skills',        one: 'Claude Skill', glyph: '🤖' },
     gpt:          { label: 'AI Assistants',          one: 'AI Assistant', glyph: '🧠' },
-    automation:   { label: 'Automation Templates',   one: 'Automation',   glyph: '⚡' },
+    automation:   { label: 'AI Automation Vault',    one: 'Automation',   glyph: '⚡' },
     guide:        { label: 'Prompting Fundamentals', one: 'Guide',        glyph: '📖' },
     video:        { label: 'Tutorials',              one: 'Tutorial',     glyph: '🎬' },
     // Named for what Anthropic calls them, so a member searching the Claude
@@ -5902,14 +5907,17 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
         // A Vault prompt carries its own frame: what you get and the blanks to
         // fill before the prompt, the follow-ups and the model after it. Only
         // once published — a draft rebuild sits unseen beside the old text.
-        var vault = (it.kind === 'prompt' || it.kind === 'image_prompt' || it.kind === 'gpt') && meta.vault && meta.vault.draft === false ? meta.vault : null;
+        var vault = (it.kind === 'prompt' || it.kind === 'image_prompt' || it.kind === 'gpt' || it.kind === 'automation') && meta.vault && meta.vault.draft === false ? meta.vault : null;
         // An assistant is set up once rather than pasted each time, so its
-        // frame says what to have ready and how to install it.
+        // frame says what to have ready and how to install it. An automation
+        // is imported into Make or n8n and wired to the member's own accounts,
+        // so its frame is the file, how it works, and the wiring steps.
         var assistant = !!vault && it.kind === 'gpt';
+        var automation = !!vault && it.kind === 'automation';
         if (vault) {
           h += '<div class="v-top">' +
             (vault.whatYouGet ? '<div class="v-get"><span class="v-k">What you get</span><p>' + esc(vault.whatYouGet) + '</p></div>' : '') +
-            ((vault.fillIn || []).length ? '<div class="v-fill"><span class="v-k">' + (assistant ? 'Have ready' : 'Fill in first') + '</span><ul>' +
+            ((vault.fillIn || []).length ? '<div class="v-fill"><span class="v-k">' + (assistant ? 'Have ready' : automation ? 'You need' : 'Fill in first') + '</span><ul>' +
               vault.fillIn.map(function (f) { return '<li>' + esc(f) + '</li>'; }).join('') + '</ul></div>' : '') +
             '</div>';
         }
@@ -5934,6 +5942,44 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
             '<p class="v-else">Using something else? Paste the instructions as the first message of a new chat. It works the same, it just does not remember them next time.</p>' +
             (vault.openUrl ? '<p class="v-open"><a class="tpl-btn" href="' + esc(vault.openUrl) + '" target="_blank" rel="noopener">Open it in ' + esc(vault.openIn || 'ChatGPT') + ' &#8599;</a></p>' : '') +
             '</div></div>';
+        }
+        if (automation) {
+          var n8n = vault.platform === 'n8n';
+          var dls = it.downloads || [];
+          if (vault.howItWorks) {
+            h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">How it works</span></div>' +
+              '<div class="panel-b v-how"><p>' + esc(vault.howItWorks) + '</p>' +
+              (vault.schedule ? '<p class="v-in" style="margin:12px 0 0"><b>Runs:</b> ' + esc(vault.schedule) + '</p>' : '') + '</div></div>';
+          }
+          h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">Import it</span></div>' +
+            '<div class="panel-b v-setup">' +
+            (dls.length ? '<div class="v-files">' + dls.map(function (d) {
+              return '<a class="tpl-btn" href="' + esc(d.url) + '" download>&#11015; ' + esc(d.label || 'Download') +
+                '<small>' + esc(d.name) + (d.size ? ' · ' + kb(d.size) : '') + '</small></a>';
+            }).join('') + '</div>' : '') +
+            '<div class="v-tabs"><button' + (n8n ? '' : ' class="on"') + ' data-tab="make">Make</button><button' + (n8n ? ' class="on"' : '') + ' data-tab="n8n">n8n</button></div>' +
+            '<ol class="v-steps' + (n8n ? '' : ' on') + '" data-tab="make">' +
+              '<li>Download the file above. In Make, open <b>Scenarios</b> and click <b>Create a new scenario</b>.</li>' +
+              '<li>Click the <b>three dots</b> at the bottom of the editor and choose <b>Import Blueprint</b>. Pick the file and click <b>Save</b>.</li>' +
+              '<li>Modules with a missing connection show a warning. Work through the steps below, then save and turn the scenario on.</li></ol>' +
+            '<ol class="v-steps' + (n8n ? ' on' : '') + '" data-tab="n8n">' +
+              '<li>Download the file above. In n8n, open <b>Workflows</b> and click <b>Create workflow</b>.</li>' +
+              '<li>Click the <b>three dots</b> top right and choose <b>Import from File</b>. Pick the file.</li>' +
+              '<li>Nodes with missing credentials show a warning. Work through the steps below, then save and activate.</li></ol>' +
+            (dls.length > 1 ? '<p class="v-else">Two files: import each one as its own scenario. The steps say which is which.</p>'
+              : '<p class="v-else">' + (n8n ? 'This one is built for n8n. ' : 'This one is built for Make. ') + 'It will not import into the other tool.</p>') +
+            '</div></div>';
+          if ((vault.steps || []).length) {
+            h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">Set it up</span></div>' +
+              '<div class="panel-b"><ol class="v-setup-steps">' +
+              vault.steps.map(function (s) { return '<li><b>' + esc(s.title) + '</b>' + esc(s.brief) + '</li>'; }).join('') +
+              '</ol></div></div>';
+          }
+          if ((vault.makeItYours || []).length) {
+            h += '<div class="panel"><div class="panel-h">' + dots() + '<span class="pt">Make it yours</span></div>' +
+              '<div class="panel-b v-yours"><ul>' + vault.makeItYours.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div></div>';
+          }
+          if (vault.cost) h += '<p class="v-in"><b>What it costs:</b> ' + esc(vault.cost) + '</p>';
         }
 
         // how-to note — the item's own, or the fallback for its kind
@@ -6007,7 +6053,7 @@ textarea.or-in{min-height:200px;resize:vertical;line-height:1.55}
 
         // An automation mirrors the source's Template Instructions block: the
         // blueprint to import, then the walk-through for wiring up accounts.
-        if (it.kind === 'automation' && (it.download || meta.setupUrl)) {
+        if (it.kind === 'automation' && !vault && (it.download || meta.setupUrl)) {
           var plat = meta.platform ? meta.platform.charAt(0).toUpperCase() + meta.platform.slice(1) : 'your automation tool';
           h += '<div class="panel"><div class="panel-h">' + dots() +
             '<span class="pt">Template Instructions</span></div><div class="panel-b">';
